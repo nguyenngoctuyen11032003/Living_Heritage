@@ -132,6 +132,10 @@ export default {
     loadError: 'The version history did not load.',
   },
   approval: {
+    finalStep: 'Final step',
+    sectionTitle: 'Approve the content',
+    confirmHint: 'If it is right, press “Yes, this is what I meant”. If not, edit the draft or listen to the source again.',
+    backToSource: 'Back to the source',
     question: 'Does this say what you wanted to tell?',
     confirm: 'Yes, this is what I meant',
     confirming: 'Confirming…',

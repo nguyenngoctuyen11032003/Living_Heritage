@@ -112,17 +112,17 @@ export function DraftEditor({ kind, form, onChange, readOnly, errors }: DraftEdi
       </p>
 
       <Field label={t('editor.title')} required error={errors?.title}>
-        <Input {...text('title')} maxLength={200} />
+        <Input {...text('title')} maxLength={200} className="font-serif text-[1.3rem]! font-semibold text-heritage-deep!" />
       </Field>
 
       {kind === 'story' ? (
         <Field label={t('editor.body')} hint={t('editor.bodyHint')}>
-          <AutoTextarea {...text('body')} rows={10} className="font-serif text-[1.05rem] leading-[1.85]" />
+          <AutoTextarea {...text('body')} rows={12} className="px-5! py-5! font-serif text-[1.15rem]! leading-[1.9]! md:px-7!" />
         </Field>
       ) : (
         <>
           <Field label={t('editor.summary')}>
-            <AutoTextarea {...text('summary')} rows={3} maxLength={2000} />
+            <AutoTextarea {...text('summary')} rows={3} maxLength={2000} className="font-serif text-[1.08rem]! leading-[1.8]!" />
           </Field>
           <Field label={t('editor.skill')}>
             <Input {...text('skill')} />
