@@ -172,3 +172,14 @@ Deno.test('transcribeModel is used for transcription only; drafting stays on the
   assert.match(requests[1]!.url, /gemini-3.7-flash:generateContent$/);
   assert.equal(JSON.parse(requests[0]!.init.body as string).generationConfig.thinkingConfig, undefined);
 });
+
+Deno.test('speech models get the instructions inside the user turn and no systemInstruction', async () => {
+  const { rt, requests } = runtime([ok('hi'), ok('hi')]);
+  await createGemini({ ...CFG, transcribeModel: 'gemini-3.5-transcribe' }, rt).transcribe(new Uint8Array([1]), 'audio/webm', 'en');
+  const speech = JSON.parse(requests[0]!.init.body as string);
+  assert.equal(speech.systemInstruction, undefined);
+  assert.match(speech.contents[0].parts[0].text, /transcri/i);
+  assert.ok(speech.contents[0].parts[1].inline_data.data.length > 0);
+  await createGemini(CFG, rt).transcribe(new Uint8Array([1]), 'audio/webm', 'en');
+  assert.ok(JSON.parse(requests[1]!.init.body as string).systemInstruction);
+});
