@@ -83,7 +83,7 @@ export default function ClaimLinkPage() {
     body = (
       <div className="flex flex-col items-center text-center" aria-busy="true">
         <Spinner size="lg" decorative className="text-heritage" />
-        <h1 className="mt-8 text-balance font-serif text-[clamp(2rem,6vw,3.2rem)] font-semibold leading-tight text-heritage-deep">{t('link.opening')}</h1>
+        <h1 className="mt-8 text-balance font-serif text-[clamp(2rem,6vw,3.2rem)] font-semibold leading-[1.18] text-heritage-deep">{t('link.opening')}</h1>
         <p aria-live="polite" className="mt-4 text-[1.25rem] leading-relaxed text-ink-soft">
           {step}
         </p>
@@ -114,7 +114,7 @@ function Panel({ icon, title, text, children, tone = 'heritage' }: { icon: React
       <div aria-hidden="true" className={tone === 'terracotta' ? 'inline-flex size-20 items-center justify-center rounded-3xl bg-terracotta/10 text-terracotta [&>svg]:size-10' : 'inline-flex size-20 items-center justify-center rounded-3xl bg-mint text-heritage [&>svg]:size-10'}>
         {icon}
       </div>
-      <h1 className="mt-6 text-balance font-serif text-[clamp(1.9rem,5.5vw,2.8rem)] font-semibold leading-tight text-heritage-deep">{title}</h1>
+      <h1 className="mt-6 text-balance break-words font-serif text-[clamp(1.9rem,5.5vw,2.8rem)] font-semibold leading-[1.18] text-heritage-deep">{title}</h1>
       <p className="mt-4 max-w-xl text-[1.25rem] leading-relaxed text-ink">{text}</p>
       {children && <div className="mt-8 flex w-full max-w-sm flex-col items-stretch gap-3">{children}</div>}
     </section>

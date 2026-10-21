@@ -128,6 +128,7 @@ export default {
       en: 'Tells stories in English',
     },
     generationShown: 'Generation {n}',
+    detailsLabel: 'Storyteller details',
     form: {
       createTitle: 'Add a storyteller',
       editTitle: 'Edit storyteller',

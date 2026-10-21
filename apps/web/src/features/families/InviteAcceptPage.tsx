@@ -57,7 +57,7 @@ export default function InviteAcceptPage() {
     const retryable = error === 'network' || error === 'unknown';
     return (
       <Shell>
-        <h1 className="font-serif text-[1.8rem] font-semibold text-heritage-deep">{t('acceptInvite.failedTitle')}</h1>
+        <h1 className="text-balance break-words font-serif text-[1.8rem] font-semibold leading-[1.2] text-heritage-deep">{t('acceptInvite.failedTitle')}</h1>
         <ErrorNotice className="mt-5" message={t(`errors.${error}`)} onRetry={
             retryable
               ? () => {
@@ -67,7 +67,7 @@ export default function InviteAcceptPage() {
               : undefined
           } />
         {error === 'invite_email_mismatch' && (
-          <p className="mt-4 leading-relaxed text-ink-soft">{t('acceptInvite.signedInAs', { email: user?.email ?? '' })}</p>
+          <p className="mt-4 leading-relaxed text-ink-soft [overflow-wrap:anywhere]">{t('acceptInvite.signedInAs', { email: user?.email ?? '' })}</p>
         )}
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           {error === 'invite_email_mismatch' && (
@@ -95,7 +95,7 @@ export default function InviteAcceptPage() {
 function Shell({ children, busy }: { children?: React.ReactNode; busy?: boolean }) {
   const t = useT('family');
   return (
-    <div className="mx-auto max-w-xl px-4 py-16 md:py-24">
+    <div className="mx-auto w-full max-w-xl px-4 py-12 md:py-24">
       <Card padding="lg">
         <div aria-hidden="true" className="mb-5 inline-flex size-14 items-center justify-center rounded-2xl bg-mint text-heritage">
           <HeartHandshake className="size-7" />
@@ -103,7 +103,7 @@ function Shell({ children, busy }: { children?: React.ReactNode; busy?: boolean 
         {busy ? (
           <div role="status" aria-live="polite" className="flex items-center gap-3">
             <Spinner decorative className="text-heritage" />
-            <p className="font-serif text-[1.5rem] font-semibold text-heritage-deep">{t('acceptInvite.working')}</p>
+            <h1 className="font-serif text-[1.5rem] font-semibold leading-[1.2] text-heritage-deep">{t('acceptInvite.working')}</h1>
           </div>
         ) : (
           children

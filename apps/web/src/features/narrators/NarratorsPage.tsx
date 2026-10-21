@@ -1,12 +1,14 @@
 // /gia-dinh/nguoi-ke: narrators of the current family, storytelling links (QR) and revocation.
-import { Languages, Link2, Mic, Pencil, Plus, Smartphone, UserRound } from 'lucide-react';
+import { HeartHandshake, Languages, Link2, Mic, Network, Pencil, Plus, Smartphone } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { Badge, Button, Card, Dialog, EmptyState, Skeleton, useToast } from '@/components/ui';
 import { useLocale, useT } from '@/i18n';
 import { formatDate } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase';
+import { avatarPalette } from '@/features/families/avatar';
 import { useCurrentFamily } from '@/features/families/current';
+import { HeritageAvatar } from '@/features/families/HeritageAvatar';
 import { FamilyGate } from '@/features/families/FamilyGate';
 import { rpcErrorCode } from '@/features/families/rpcError';
 import { ErrorNotice, PageHeader } from '@/features/families/states';
@@ -104,7 +106,7 @@ function Narrators() {
       {error ? (
         <ErrorNotice message={t('narrators.loadError')} onRetry={() => void reload()} />
       ) : loading ? (
-        <div aria-busy="true" className="grid gap-4 md:grid-cols-2">
+        <div aria-busy="true" className="grid grid-cols-1 gap-5 md:grid-cols-2">
           <Skeleton className="h-56" />
           <Skeleton className="h-56" />
         </div>
@@ -124,9 +126,9 @@ function Narrators() {
       ) : (
         <>
           {linksError && <ErrorNotice className="mb-4" message={t('links.loadError')} onRetry={() => void loadLinks()} />}
-          <ul className="grid gap-5 md:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-5 md:grid-cols-2">
             {narrators.map((n) => (
-              <li key={n.id}>
+              <li key={n.id} className="min-w-0">
                 <NarratorCard
                   narrator={n}
                   links={links.filter((l) => l.narrator_id === n.id)}
@@ -206,22 +208,47 @@ function NarratorCard({
   const { locale } = useLocale();
   const meta = [n.birth_year ? t('narrators.born', { year: n.birth_year }) : null, n.region ? t(`regions.${n.region as 'bac' | 'trung' | 'nam'}`) : null].filter(Boolean).join(' · ');
   const name = n.pen_name || n.display_name;
+  const palette = avatarPalette(n.id);
+  const actionClass = 'w-full whitespace-normal text-balance text-center sm:w-auto';
   return (
-    <Card padding="md" className="flex h-full flex-col gap-4">
-      <div className="flex items-start gap-4">
-        <div aria-hidden="true" className="inline-flex size-14 shrink-0 items-center justify-center rounded-2xl bg-mint text-heritage">
-          <UserRound className="size-7" />
+    <Card padding="none" className="flex h-full min-w-0 flex-col overflow-hidden">
+      {/* Warm wash in the avatar's colour so each storyteller card has its own tone. */}
+      <div className="flex items-start gap-4 px-5 pb-4 pt-5 sm:px-6 sm:pt-6" style={{ backgroundImage: `linear-gradient(180deg, ${palette.bg}59 0%, transparent 100%)` }}>
+        <HeritageAvatar name={n.display_name} seed={n.id} size="lg" />
+        <div className="min-w-0 flex-1 pt-1">
+          <h2 className="break-words font-serif text-[1.35rem] font-semibold leading-[1.2] text-heritage-deep">{n.display_name}</h2>
+          {n.pen_name && <p className="mt-0.5 break-words text-[0.95rem] text-ink-soft">{t('narrators.penNameShown', { name: n.pen_name })}</p>}
+          {meta && <p className="mt-0.5 text-[0.95rem] text-ink-soft">{meta}</p>}
         </div>
-        <div className="min-w-0 flex-1">
-          <h2 className="truncate font-serif text-[1.35rem] font-semibold text-heritage-deep">{n.display_name}</h2>
-          {n.pen_name && <p className="text-[0.95rem] text-ink-soft">{t('narrators.penNameShown', { name: n.pen_name })}</p>}
-          {n.relation && <p className="text-[0.95rem] font-semibold text-ink">{n.relation}</p>}
-          {meta && <p className="text-[0.95rem] text-ink-soft">{meta}</p>}
-          <p className="mt-2 flex flex-wrap gap-2">
+        {canEdit && (
+          <Button variant="ghost" iconOnly className="-mr-2 -mt-1" aria-label={t('narrators.editFor', { name: n.display_name })} onClick={onEdit}>
+            <Pencil className="size-5" aria-hidden="true" />
+          </Button>
+        )}
+      </div>
+
+      <div className="flex flex-1 flex-col gap-4 px-5 pb-5 sm:px-6 sm:pb-6">
+        <ul className="flex flex-wrap gap-2" aria-label={t('narrators.detailsLabel')}>
+          {n.relation && (
+            <li className="max-w-full">
+              <Badge tone="mint" icon={<HeartHandshake />}>
+                {n.relation}
+              </Badge>
+            </li>
+          )}
+          <li className="max-w-full">
             <Badge tone="outline" icon={<Languages />}>
               {t(`narrators.langShown.${n.lang === 'en' ? 'en' : 'vi'}`)}
             </Badge>
-            {n.generation && <Badge tone="outline">{t('narrators.generationShown', { n: n.generation })}</Badge>}
+          </li>
+          {n.generation && (
+            <li className="max-w-full">
+              <Badge tone="outline" icon={<Network />}>
+                {t('narrators.generationShown', { n: n.generation })}
+              </Badge>
+            </li>
+          )}
+          <li className="max-w-full">
             {n.user_id ? (
               <Badge tone="heritage" icon={<Smartphone />}>
                 {t('narrators.deviceBound')}
@@ -229,27 +256,23 @@ function NarratorCard({
             ) : (
               <Badge tone="outline">{t('narrators.noDevice')}</Badge>
             )}
-          </p>
-        </div>
-        {canEdit && (
-          <Button variant="ghost" iconOnly aria-label={t('narrators.editFor', { name: n.display_name })} onClick={onEdit}>
-            <Pencil className="size-5" aria-hidden="true" />
-          </Button>
-        )}
-      </div>
+          </li>
+        </ul>
 
-      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-        {canManage && (
-          <Button onClick={onCreateLink} leftIcon={<Link2 className="size-4" aria-hidden="true" />}>
-            {t('narrators.createLink')}
-          </Button>
+        {(canManage || canEdit) && (
+          <div className="mt-auto flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            {canManage && (
+              <Button className={actionClass} onClick={onCreateLink} leftIcon={<Link2 className="size-4 shrink-0" aria-hidden="true" />}>
+                {t('narrators.createLink')}
+              </Button>
+            )}
+            {canEdit && (
+              <Button variant="secondary" className={actionClass} onClick={onAssisted} leftIcon={<Mic className="size-4 shrink-0" aria-hidden="true" />}>
+                {t('narrators.tellTogether', { name })}
+              </Button>
+            )}
+          </div>
         )}
-        {canEdit && (
-          <Button variant="secondary" onClick={onAssisted} leftIcon={<Mic className="size-4" aria-hidden="true" />}>
-            {t('narrators.tellTogether', { name })}
-          </Button>
-        )}
-      </div>
 
       {canManage && links.length > 0 && (
         <details className="group rounded-2xl bg-cream p-3 ring-1 ring-line">
@@ -290,6 +313,7 @@ function NarratorCard({
           </ul>
         </details>
       )}
+      </div>
     </Card>
   );
 }

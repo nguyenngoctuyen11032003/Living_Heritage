@@ -11,6 +11,7 @@ import { getSupabase } from '@/lib/supabase';
 import { ASSIGNABLE_ROLES, loadInvites, loadMembers, type InviteView, type MemberView } from './api';
 import { useCurrentFamily } from './current';
 import { FamilyGate } from './FamilyGate';
+import { HeritageAvatar } from './HeritageAvatar';
 import { rpcErrorCode, type FamilyErrorCode } from './rpcError';
 import { CopyField, ErrorNotice, PageHeader, SectionCard } from './states';
 import { inviteUrl } from './urls';
@@ -109,7 +110,7 @@ function Members() {
     <div className="mx-auto max-w-5xl">
       <PageHeader title={t('members.title')} description={t('members.subtitle', { name: fam.current!.name })} />
       {error && <ErrorNotice className="mb-6" message={t(`errors.${error}`)} onRetry={() => void load()} />}
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] [&>*]:min-w-0">
         <SectionCard title={t('members.listTitle')}>
           {!members && !error ? (
             <div aria-busy="true" className="flex flex-col gap-3">
@@ -126,20 +127,20 @@ function Members() {
                 const removable = m.role !== 'owner' && (fam.canManage || isSelf(m));
                 const name = m.display_name || t('members.unnamed');
                 return (
-                  <li key={m.user_id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center">
-                    <div aria-hidden="true" className="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-mint font-serif text-[1.2rem] font-semibold text-heritage-deep">
-                      {name.trim().charAt(0).toUpperCase()}
+                  <li key={m.user_id} className="flex min-w-0 flex-col gap-3 py-4 sm:flex-row sm:items-center">
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <HeritageAvatar name={name} seed={m.user_id} />
+                      <div className="min-w-0 flex-1">
+                        <p className="break-words font-semibold text-ink">
+                          {name}
+                          {isSelf(m) && <span className="ml-2 text-[0.85rem] font-normal text-ink-soft">{t('members.you')}</span>}
+                        </p>
+                        <p className="break-words text-[0.9rem] text-ink-soft">{[m.relation, t('members.since', { date: formatDateSafe(m.created_at) })].filter(Boolean).join(' · ')}</p>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold text-ink">
-                        {name}
-                        {isSelf(m) && <span className="ml-2 text-[0.85rem] font-normal text-ink-soft">{t('members.you')}</span>}
-                      </p>
-                      <p className="text-[0.9rem] text-ink-soft">{[m.relation, t('members.since', { date: formatDateSafe(m.created_at) })].filter(Boolean).join(' · ')}</p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex min-w-0 items-center gap-2 pl-15 sm:pl-0">
                       {editable ? (
-                        <div className="w-40">
+                        <div className="min-w-0 flex-1 sm:w-44 sm:flex-none">
                           <Select aria-label={t('members.roleFor', { name })} value={m.role} disabled={busyId === m.user_id} onChange={(e) => void changeRole(m, e.target.value as MemberRole)}>
                             {ASSIGNABLE_ROLES.map((r) => (
                               <option key={r} value={r}>
@@ -162,11 +163,11 @@ function Members() {
               })}
             </ul>
           )}
-          <dl className="mt-6 grid gap-2 rounded-2xl bg-cream p-4 text-[0.9rem] text-ink-soft sm:grid-cols-2">
+          <dl className="mt-6 grid grid-cols-1 gap-x-6 gap-y-3 rounded-2xl bg-cream p-4 text-[0.9rem] text-ink-soft sm:grid-cols-2 sm:p-5">
             {(['owner', 'manager', 'editor', 'viewer'] as const).map((r) => (
-              <div key={r}>
-                <dt className="inline font-semibold text-ink">{t(`roles.${r}`)}: </dt>
-                <dd className="inline">{t(`roles.${r}Desc`)}</dd>
+              <div key={r} className="min-w-0">
+                <dt className="font-semibold text-ink">{t(`roles.${r}`)}</dt>
+                <dd className="mt-0.5 text-pretty leading-snug">{t(`roles.${r}Desc`)}</dd>
               </div>
             ))}
           </dl>
@@ -182,10 +183,10 @@ function Members() {
                     {invites.map((inv) => {
                       const expired = new Date(inv.expires_at).getTime() < Date.now();
                       return (
-                        <li key={inv.id} className="flex items-start gap-3 rounded-2xl bg-cream p-3">
+                        <li key={inv.id} className="flex min-w-0 items-start gap-3 rounded-2xl bg-cream p-3">
                           <Mail aria-hidden="true" className="mt-1 size-5 shrink-0 text-heritage" />
                           <div className="min-w-0 flex-1">
-                            <p className="truncate font-semibold text-ink">{inv.email}</p>
+                            <p className="font-semibold text-ink [overflow-wrap:anywhere]">{inv.email}</p>
                             <p className="text-[0.85rem] text-ink-soft">
                               {t(`roles.${inv.role}`)}
                               {inv.relation ? ` · ${inv.relation}` : ''}
@@ -306,13 +307,13 @@ function InviteForm({ familyId, onCreated }: { familyId: string; onCreated: () =
           <Input value={relation} maxLength={60} onChange={(e) => setRelation(e.target.value)} />
         </Field>
         <div aria-live="assertive">{error && <ErrorNotice message={t(`errors.${error}`)} />}</div>
-        <Button type="submit" loading={busy} leftIcon={<UserPlus className="size-4" aria-hidden="true" />}>
+        <Button type="submit" className="text-balance text-center" loading={busy} leftIcon={<UserPlus className="size-4" aria-hidden="true" />}>
           {t('invite.submit')}
         </Button>
       </form>
       {link && (
         <div role="status" className="mt-6 rounded-2xl bg-mint/50 p-4">
-          <p className="mb-3 font-semibold text-heritage-deep">{t('invite.created', { email: link.email })}</p>
+          <p className="mb-3 font-semibold text-heritage-deep [overflow-wrap:anywhere]">{t('invite.created', { email: link.email })}</p>
           <CopyField value={link.url} label={t('invite.linkLabel')} />
           <p className="text-[0.88rem] leading-relaxed text-ink-soft">{t('invite.onceWarning')}</p>
         </div>

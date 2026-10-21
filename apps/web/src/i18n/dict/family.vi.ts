@@ -126,6 +126,7 @@ export default {
       en: 'Kể bằng tiếng Anh',
     },
     generationShown: 'Thế hệ {n}',
+    detailsLabel: 'Thông tin người kể',
     form: {
       createTitle: 'Thêm người kể',
       editTitle: 'Sửa thông tin người kể',

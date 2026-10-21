@@ -91,7 +91,7 @@ function FormBody({ familyId, narrator, onClose, onSaved }: { familyId: string; 
         <Field label={t('narrators.form.penName')} hint={t('narrators.form.penNameHint')} error={msg('pen_name')}>
           <Input value={draft.pen_name} maxLength={80} onChange={(e) => set('pen_name', e.target.value)} />
         </Field>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 [&>*]:min-w-0">
           <Field label={t('narrators.form.birthYear')} error={msg('birth_year')}>
             <Input inputMode="numeric" pattern="[0-9]*" maxLength={4} value={draft.birth_year} onChange={(e) => set('birth_year', e.target.value.replace(/\D/g, ''))} />
           </Field>
@@ -114,7 +114,7 @@ function FormBody({ familyId, narrator, onClose, onSaved }: { familyId: string; 
             <option key={r} value={r} />
           ))}
         </datalist>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 [&>*]:min-w-0">
           <Field label={t('narrators.form.lang')} hint={t('narrators.form.langHint')} error={msg('lang')}>
             <Select value={draft.lang} onChange={(e) => set('lang', e.target.value as NarratorLang)}>
               {NARRATOR_LANGS.map((l) => (
