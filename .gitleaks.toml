@@ -11,3 +11,9 @@ paths = [
   '''(^|/)\.env\.example$''',
   '''(^|/)\.env\.e2e$''',
 ]
+
+[[allowlists]]
+description = "Deployed-migration checksums (sha256 hex of SQL files), not credentials"
+paths = [
+  '''(^|/)supabase/migrations-applied\.json$''',
+]
