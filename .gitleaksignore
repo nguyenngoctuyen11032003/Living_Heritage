@@ -1,0 +1,5 @@
+# Reviewed false positives (fake fixtures in tests, not real credentials).
+# narrators/urls.test.ts: fake 32-char storytelling-link token used to test URL builders.
+7f5829973a362a9cc501bf07ee91f8b611c17335:apps/web/src/features/narrators/urls.test.ts:generic-api-key:8
+# check-public-env.test.mjs: fake 'sb_publishable_123' key used to test the env guard.
+6bb19cf51bfba03ce50ded9633d7f5ea64a026da:scripts/check-public-env.test.mjs:generic-api-key:6
