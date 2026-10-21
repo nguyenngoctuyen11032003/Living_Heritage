@@ -1,5 +1,6 @@
 // Route layouts (lead-owned). See routes/types.ts for which area routes go where.
-import { BookOpen, Compass, Home, Mic, Shield, Users, UserRound } from 'lucide-react';
+import { BookOpen, Compass, Home, Images, Mic, Settings, Shield, TreeDeciduous, Users, UserRound } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router';
 import { useT } from '@/i18n';
 import { RequireAuth } from '@/lib/session';
@@ -23,17 +24,37 @@ export function SiteLayout() {
   );
 }
 
+/** Admin flag for showing the admin entry (the admin page itself re-checks on the server). */
+function useIsAdmin(): boolean {
+  const [admin, setAdmin] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    void getSupabase()?.rpc('is_admin').then(({ data }) => alive && setAdmin(data === true));
+    return () => {
+      alive = false;
+    };
+  }, []);
+  return admin;
+}
+
+const MOBILE_TABS = ['/gia-dinh', '/gia-dinh/nguoi-ke', '/sach', '/kham-pha', '/cai-dat'];
+
 export function AppShell() {
   const t = useT('common');
   const navigate = useNavigate();
-  const items = [
+  const isAdmin = useIsAdmin();
+  const allItems = [
     { to: '/gia-dinh', label: t('nav.family'), icon: Home, end: true },
     { to: '/gia-dinh/nguoi-ke', label: t('nav.narrators'), icon: Mic },
     { to: '/gia-dinh/thanh-vien', label: t('nav.members'), icon: Users },
+    { to: '/gia-dinh/album', label: t('nav.album'), icon: Images },
+    { to: '/gia-dinh/cay-gia-dinh', label: t('nav.tree'), icon: TreeDeciduous },
     { to: '/sach', label: t('nav.books'), icon: BookOpen },
     { to: '/kham-pha', label: t('nav.explore'), icon: Compass },
     { to: '/quan-tri', label: t('nav.admin'), icon: Shield },
+    { to: '/cai-dat', label: t('nav.settings'), icon: Settings },
   ];
+  const items = allItems.filter((i) => i.to !== '/quan-tri' || isAdmin);
   async function logout() {
     await getSupabase()?.auth.signOut();
     navigate('/');
@@ -75,7 +96,7 @@ export function AppShell() {
             <Outlet />
           </main>
           <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-paper/95 backdrop-blur lg:hidden" aria-label="App mobile">
-            {items.slice(0, 5).map(({ to, label, icon: Icon, end }) => (
+            {items.filter((i) => MOBILE_TABS.includes(i.to)).map(({ to, label, icon: Icon, end }) => (
               <NavLink
                 key={to}
                 to={to}
