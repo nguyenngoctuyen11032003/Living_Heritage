@@ -1,0 +1,70 @@
+import { expect, test } from '@playwright/test';
+import { expectNoHorizontalScroll, mockSupabase } from './fixtures';
+import { en, vi } from './i18n';
+
+test.beforeEach(async ({ page }) => {
+  await mockSupabase(page);
+});
+
+test('renders the hero in Vietnamese by default and switches to English', async ({ page }) => {
+  await page.goto('/');
+  const h1 = page.getByRole('heading', { level: 1 });
+  await expect(h1).toHaveCount(1);
+  await expect(h1).toContainText(vi.landing.hero.line2);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'vi');
+
+  const switcher = page.getByRole('banner').getByRole('group', { name: vi.common.lang.label });
+  await switcher.getByRole('button', { name: 'en' }).click();
+  await expect(h1).toContainText(en.landing.hero.line2);
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+  await expect(page.getByRole('banner').getByRole('button', { name: 'en' })).toHaveAttribute('aria-pressed', 'true');
+
+  // The choice survives a reload.
+  await page.reload();
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(en.landing.hero.line2);
+});
+
+test('primary CTA leads to sign-up', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('banner').getByRole('link', { name: vi.common.nav.start }).click();
+  await expect(page).toHaveURL(/\/dang-ky$/);
+  await expect(page.getByRole('heading', { level: 1, name: vi.auth.signup.title })).toBeVisible();
+});
+
+test('no horizontal scroll at 360px', async ({ page }) => {
+  // Known bug (QA doc P1): the SiteHeader action cluster (VI/EN + Đăng nhập + CTA + menu) is ~2px wider than 360px.
+  // Remove this line once SiteHeader fits; the assertion below then guards the fix.
+  test.fail(true, 'SiteHeader overflows 360px by ~2px');
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.goto('/');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  // Walk the page so lazy sections and scroll-driven reveals render before measuring.
+  for (let y = 0; y < 30_000; y += 700) {
+    await page.mouse.wheel(0, 700);
+    const atEnd = await page.evaluate(() => window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2);
+    if (atEnd) break;
+  }
+  await expectNoHorizontalScroll(page);
+});
+
+test('FAQ accordion works with the keyboard', async ({ page }) => {
+  await page.goto('/');
+  const faq = page.getByRole('region', { name: vi.landing.faq.title });
+  const question = faq.getByRole('button', { name: vi.landing.faq.items.ai.q });
+  await question.scrollIntoViewIfNeeded();
+  await expect(question).toHaveAttribute('aria-expanded', 'false');
+
+  await question.focus();
+  await page.keyboard.press('Enter');
+  await expect(question).toHaveAttribute('aria-expanded', 'true');
+  const panelId = await question.getAttribute('aria-controls');
+  expect(panelId).toBeTruthy();
+  await expect(page.locator(`[id="${panelId}"]`)).toBeVisible();
+
+  await page.keyboard.press('Space');
+  await expect(question).toHaveAttribute('aria-expanded', 'false');
+
+  // Tab reaches the next question.
+  await page.keyboard.press('Tab');
+  await expect(faq.getByRole('button', { name: vi.landing.faq.items.write.q })).toBeFocused();
+});
