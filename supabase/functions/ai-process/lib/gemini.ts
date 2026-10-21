@@ -59,6 +59,8 @@ export interface GeminiConfig {
   model: string;
   /** Per-attempt timeout (ms). */
   timeoutMs: number;
+  /** Optional second model tried once when the primary stays overloaded (429 / 5xx / network) after all retries. */
+  fallbackModel?: string;
 }
 
 export interface GeminiRuntime {
@@ -88,8 +90,12 @@ export interface AiModel {
 }
 
 export const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
-/** Retries after the first attempt for 429 / 5xx / network errors (never for timeouts: audio calls are long). */
-export const MAX_RETRIES = 1;
+/**
+ * Retries after the first attempt for 429 / 5xx / network errors (never for timeouts: audio calls are long).
+ * Google answers overload ("high demand") with 503 for a few seconds: back off 1s, 2s, 4s (+ jitter) instead of retrying at once.
+ */
+export const MAX_RETRIES = 3;
+export const backoffMs = (retry: number, jitter: number): number => 1_000 * 2 ** retry + Math.floor(jitter * 500);
 const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
 const BLOCK_FINISH_REASONS = new Set(['SAFETY', 'PROHIBITED_CONTENT', 'BLOCKLIST', 'SPII', 'RECITATION']);
 
@@ -193,7 +199,7 @@ export async function generate(cfg: GeminiConfig, rt: GeminiRuntime, body: unkno
       rt.breaker.onFailure(UPSTREAM.has(r.kind));
       throw new GeminiError(r.kind, r.status, r.detail ?? null);
     }
-    await rt.sleep(500 + Math.floor(rt.random() * 1000));
+    await rt.sleep(backoffMs(retry, rt.random()));
   }
 }
 
@@ -218,50 +224,68 @@ export function tuning(model: string, temperature: number): Record<string, unkno
   return { temperature };
 }
 
+/** Kinds that mean "the model is busy", where another model may still answer. */
+const BUSY: ReadonlySet<GeminiErrorKind> = new Set<GeminiErrorKind>(['rate_limited', 'unavailable', 'network']);
+
+/** generate() on the primary model; on a busy failure and a configured fallback, one more try on the fallback model. */
+export async function generateWithFallback(
+  cfg: GeminiConfig,
+  rt: GeminiRuntime,
+  build: (model: string) => unknown,
+): Promise<{ text: string; usage: Usage }> {
+  try {
+    return await generate(cfg, rt, build(cfg.model));
+  } catch (e) {
+    const fb = cfg.fallbackModel?.trim();
+    if (!(e instanceof GeminiError) || !BUSY.has(e.kind) || !fb || fb === cfg.model) throw e;
+    return await generate({ ...cfg, model: fb }, rt, build(fb));
+  }
+}
+
 export function createGemini(cfg: GeminiConfig, rt: GeminiRuntime): AiModel {
   return {
     model: cfg.model,
 
     async transcribe(audio, mime, lang) {
-      const body = {
+      const build = (model: string) => ({
         systemInstruction: { parts: [{ text: TRANSCRIBE_SYSTEM }] },
         contents: [{
           role: 'user',
           parts: [{ text: transcribeUser(lang) }, { inline_data: { mime_type: baseMime(mime), data: toBase64(audio) } }],
         }],
-        generationConfig: { ...tuning(cfg.model, 0), maxOutputTokens: 32_768 },
-      };
-      const r = await generate(cfg, rt, body);
+        generationConfig: { ...tuning(model, 0), maxOutputTokens: 32_768 },
+      });
+      const r = await generateWithFallback(cfg, rt, build);
       return { value: r.text.trim(), usage: r.usage };
     },
 
     async draft(input) {
-      const body = {
+      const build = (model: string) => ({
         systemInstruction: { parts: [{ text: draftSystem(input.lang) }] },
         contents: [{ role: 'user', parts: [{ text: draftUser(input) }] }],
         generationConfig: {
           responseMimeType: 'application/json',
           responseSchema: DRAFT_SCHEMA,
-          ...tuning(cfg.model, 0.4),
+          ...tuning(model, 0.4),
           maxOutputTokens: 16_384,
         },
-      };
-      const r = await generate(cfg, rt, body);
+      });
+      const r = await generateWithFallback(cfg, rt, build);
       return { value: parseJson(r.text), usage: r.usage };
     },
 
     async suggest(input) {
-      const body = {
+      const build = (model: string) => ({
         systemInstruction: { parts: [{ text: suggestSystem(input.lang) }] },
         contents: [{ role: 'user', parts: [{ text: suggestUser(input) }] }],
         generationConfig: {
           responseMimeType: 'application/json',
           responseSchema: SUGGEST_SCHEMA,
-          ...tuning(cfg.model, 0.7),
+          ...tuning(model, 0.7),
           maxOutputTokens: 2_048,
         },
-      };
-      const r = await generate(cfg, rt, body);
+      });
+      const r = await generateWithFallback(cfg, rt, build);
       return { value: parseJson(r.text), usage: r.usage };
     },
   };
