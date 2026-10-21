@@ -4,6 +4,7 @@ import {
   backoffMs,
   baseMime,
   createGemini,
+  describeEmpty,
   GEMINI_BASE_URL,
   GeminiError,
   type GeminiRuntime,
@@ -182,4 +183,25 @@ Deno.test('speech models get the instructions inside the user turn and no system
   assert.ok(speech.contents[0].parts[1].inline_data.data.length > 0);
   await createGemini(CFG, rt).transcribe(new Uint8Array([1]), 'audio/webm', 'en');
   assert.ok(JSON.parse(requests[1]!.init.body as string).systemInstruction);
+});
+
+Deno.test('describeEmpty reports structure only (no content)', () => {
+  assert.equal(
+    describeEmpty({ candidates: [{ finishReason: 'STOP', content: { parts: [{ inlineData: { data: 'SECRET' } }, { text: '' }] } }] }),
+    'candidates=1 finish=STOP parts=[inlineData,text]',
+  );
+  assert.equal(describeEmpty({ promptFeedback: { blockReason: 'SAFETY' } }), 'blockReason=SAFETY candidates=0 parts=none');
+  assert.equal(describeEmpty(null), 'candidates=0 parts=none');
+});
+
+Deno.test('an empty 200 response becomes GeminiError blocked with the structure as detail', async () => {
+  const { rt } = runtime([
+    new Response(JSON.stringify({ candidates: [{ finishReason: 'STOP', content: { parts: [] } }] }), { status: 200 }),
+  ]);
+  await assert.rejects(createGemini(CFG, rt).transcribe(new Uint8Array([1]), 'audio/webm'), (e) => {
+    assert.ok(e instanceof GeminiError);
+    assert.equal(e.kind, 'blocked');
+    assert.equal(e.detail, 'candidates=1 finish=STOP parts=[]');
+    return true;
+  });
 });
