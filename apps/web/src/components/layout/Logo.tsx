@@ -13,15 +13,16 @@ export function LogoMark({ className, inner = 'var(--cream)' }: { className?: st
   );
 }
 
-export function Logo({ tone = 'light', className }: { tone?: 'light' | 'dark'; className?: string }) {
+/** `compact`: mark only below the sm breakpoint (the brand name stays the accessible name). */
+export function Logo({ tone = 'light', compact = false, className }: { tone?: 'light' | 'dark'; compact?: boolean; className?: string }) {
   const t = useT('common');
   return (
     <Link
       to="/"
-      className={cn('inline-flex items-center gap-2 font-serif text-[1.15rem] font-semibold tracking-tight', tone === 'light' ? 'text-heritage' : 'text-night-ink', className)}
+      className={cn('inline-flex min-h-11 shrink-0 items-center gap-2 rounded-lg font-serif text-[1.15rem] font-semibold leading-tight tracking-tight', tone === 'light' ? 'text-heritage' : 'text-night-ink', className)}
     >
       <LogoMark inner={tone === 'light' ? 'var(--cream)' : 'var(--night)'} />
-      <span>{t('brand.name')}</span>
+      <span className={compact ? 'sr-only sm:not-sr-only' : undefined}>{t('brand.name')}</span>
     </Link>
   );
 }

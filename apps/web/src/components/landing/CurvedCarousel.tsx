@@ -23,7 +23,8 @@ interface Frame {
 function measure(width: number): Frame {
   const phone = width <= PHONE_MAX;
   const vh = typeof window !== 'undefined' ? window.innerHeight || 900 : 900;
-  const u = phone ? width / 640 : Math.min(width / 1440, vh / 1080);
+  // Phones use a slightly larger scale so card text stays ≥14px; laptops with short screens get a floor so cards don’t shrink below ~145px.
+  const u = phone ? width / 470 : Math.min(width / 1440, Math.max(vh / 1080, width / 1600));
   const hUnits = phone ? 400 : 414;
   return { u: u || 1, wUnits: (width || 1440) / (u || 1), hUnits, phone };
 }
@@ -232,32 +233,31 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
             <StoryScene kind={story.scene} className="absolute inset-0" />
             <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(18,27,24,0.88)_0%,rgba(18,27,24,0.45)_38%,rgba(18,27,24,0)_62%)]" />
             <div className="absolute inset-x-0 top-0 flex items-center justify-between" style={{ padding: 'calc(var(--u) * 26) calc(var(--u) * 14) 0' }}>
-              <span className="rounded-full bg-cream/85 font-semibold text-heritage-deep backdrop-blur-sm" style={{ ...fs(11, 9), padding: 'calc(var(--u) * 3) calc(var(--u) * 9)' }}>
+              <span className="rounded-full bg-cream/85 font-semibold text-heritage-deep backdrop-blur-sm" style={{ ...fs(13, 14), padding: 'calc(var(--u) * 3) calc(var(--u) * 10)' }}>
                 {pick(story.topic)}
               </span>
             </div>
-            <div className="absolute inset-x-0 bottom-0 text-cream" style={{ padding: '0 calc(var(--u) * 14) calc(var(--u) * 30)' }}>
-              <p className="font-serif italic leading-[1.3]" style={fs(15.5, 11)}>
+            <div className="absolute inset-x-0 bottom-0 text-cream" style={{ padding: '0 calc(var(--u) * 14) calc(var(--u) * 22)' }}>
+              <p className="line-clamp-4 font-serif italic leading-[1.3]" style={fs(16, 14)}>
                 “{pick(story.quote)}”
               </p>
-              <div className="flex items-center" style={{ marginTop: 'calc(var(--u) * 10)', gap: 'calc(var(--u) * 8)' }}>
+              <p className="truncate font-semibold" style={{ ...fs(13, 14), marginTop: 'calc(var(--u) * 8)' }}>
+                {pick(story.narrator)}
+              </p>
+              <div className="flex items-center" style={{ marginTop: 'calc(var(--u) * 2)', gap: 'calc(var(--u) * 2)' }}>
                 <button
                   type="button"
                   tabIndex={-1}
                   onClick={() => onPlay?.(story)}
-                  className="inline-flex shrink-0 items-center justify-center rounded-full bg-white/25 text-white ring-1 ring-white/40 backdrop-blur-md transition-transform hover:scale-110"
-                  style={{ width: 'max(30px, calc(var(--u) * 38))', height: 'max(30px, calc(var(--u) * 38))' }}
+                  className="group/play -ml-[6px] inline-flex size-11 shrink-0 items-center justify-center rounded-full"
                   aria-label={t('ui.carousel.listen', { title: pick(story.quote) })}
                 >
-                  <Play className="ml-[8%] size-[42%] fill-current" />
+                  <span className="inline-flex size-8 items-center justify-center rounded-full bg-white/25 text-white ring-1 ring-white/40 backdrop-blur-md transition-transform group-hover/play:scale-110">
+                    <Play className="ml-0.5 size-3.5 fill-current" />
+                  </span>
                 </button>
-                <span className="min-w-0 leading-tight">
-                  <span className="block truncate font-semibold" style={fs(11.5, 9)}>
-                    {pick(story.narrator)} · {t('meta.age', { age: story.age })}
-                  </span>
-                  <span className="block opacity-80 tabular-nums" style={fs(10.5, 9)}>
-                    {formatDuration(story.duration)}
-                  </span>
+                <span className="truncate tabular-nums opacity-85" style={fs(12, 14)}>
+                  {formatDuration(story.duration)}
                 </span>
               </div>
             </div>

@@ -60,7 +60,7 @@ export default function CallbackPage() {
 
   if (!sb) {
     return (
-      <AuthLayout title={t('callback.title')}>
+      <AuthLayout docTitle={t('titles.callback')} title={t('callback.title')}>
         <NotConfiguredNotice />
       </AuthLayout>
     );
@@ -68,7 +68,7 @@ export default function CallbackPage() {
 
   const failed = status !== 'working' && status !== 'ok';
   return (
-    <AuthLayout title={failed ? t('callback.failedTitle') : t('callback.title')}>
+    <AuthLayout docTitle={t('titles.callback')} title={failed ? t('callback.failedTitle') : t('callback.title')}>
       {failed ? (
         <div className="flex flex-col gap-5">
           <ErrorNotice message={t(`errors.${status}`)} />

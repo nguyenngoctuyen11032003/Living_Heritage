@@ -51,7 +51,7 @@ export default function MemoryBookPage() {
       <Section labelledBy="book-cta" className="!pt-0">
         <Reveal className="mx-auto max-w-3xl text-center">
           <DrawArrow viewBox="0 0 80 40" className="mx-auto mb-4 h-10 w-20" d="M6 30 C 22 4, 52 4, 74 26" head="M60 26 L 75 27 L 72 12" />
-          <h2 id="book-cta" className="text-balance font-serif text-[clamp(1.9rem,4.4vw,3rem)] font-semibold leading-[1.15] text-heritage-deep">
+          <h2 id="book-cta" className="text-balance font-serif text-[clamp(1.9rem,4.4vw,3rem)] font-semibold leading-[1.2] text-heritage-deep">
             {t('book.ctaTitle')}
           </h2>
           <p className="mx-auto mt-4 max-w-xl leading-relaxed text-ink-soft">{t('book.ctaBody')}</p>

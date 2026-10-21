@@ -4,6 +4,7 @@ import { Link } from 'react-router';
 import { Badge, Button, Skeleton } from '@/components/ui';
 import { LoadError, NotConfigured, Unavailable } from '@/features/vault/components/States';
 import { useVaultLookups } from '@/features/vault/useLookups';
+import { usePageTitle } from '@/lib/usePageTitle';
 import { useT } from '@/i18n';
 import { RequireAuth } from '@/lib/session';
 import { getSupabase } from '@/lib/supabase';
@@ -42,6 +43,8 @@ const PRINT_CSS = `
   }
   .lh-sheet:last-child { break-after: auto; page-break-after: auto; }
   .lh-sheet > div { min-height: 210mm; }
+  .lh-sheet figure { break-inside: avoid; page-break-inside: avoid; }
+  .lh-qr { width: 28mm !important; height: 28mm !important; }
 }
 `;
 
@@ -57,6 +60,7 @@ function BookPrintInner({ bookId }: { bookId: string }) {
   const t = useT('books');
   const { state, reload } = useBook(bookId);
   const back = `/sach/${bookId}`;
+  usePageTitle(state.kind === 'ready' ? state.book.title : state.kind === 'loading' ? null : t('list.title'));
   if (!getSupabase())
     return (
       <div className="mx-auto max-w-xl p-6">
@@ -103,9 +107,9 @@ function PrintSheets({ book, chapters, back }: { book: BookRow; chapters: Chapte
             <Badge tone="warning" className="w-fit">
               {t('print.label')}
             </Badge>
-            <p className="text-[0.85rem] text-ink-soft">{t('print.hint')}</p>
+            <p className="max-w-[60ch] text-[0.9rem] text-ink-soft">{t('print.hint')}</p>
           </div>
-          <Button leftIcon={<Printer className="size-5" />} onClick={() => window.print()} disabled={inputs.length === 0}>
+          <Button className="shrink-0" leftIcon={<Printer className="size-5" aria-hidden="true" />} onClick={() => window.print()} disabled={inputs.length === 0}>
             {t('print.print')}
           </Button>
         </div>
@@ -119,7 +123,7 @@ function PrintSheets({ book, chapters, back }: { book: BookRow; chapters: Chapte
               <div className="relative h-full">
                 <BookPageView page={page} book={book} chapters={inputs} />
                 {page.kind === 'cover' && (
-                  <p className="absolute inset-x-0 bottom-[3cqw] text-center font-sans" style={{ fontSize: '1.8cqw', color: COVER_THEMES[asCoverStyle(book.cover_style)].ink, opacity: 0.75 }}>
+                  <p className="absolute inset-x-0 bottom-[3cqw] text-center font-sans" style={{ fontSize: '2.1cqw', color: COVER_THEMES[asCoverStyle(book.cover_style)].ink, opacity: 0.75 }}>
                     {t('print.label')}
                   </p>
                 )}

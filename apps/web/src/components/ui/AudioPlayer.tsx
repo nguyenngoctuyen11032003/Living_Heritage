@@ -130,7 +130,7 @@ export function AudioPlayer({ src, duration: durationProp = 0, title, subtitle, 
   const timeText = `${formatDuration(time)} / ${formatDuration(duration)}`;
 
   const skipBtn = cn(
-    'inline-flex size-12 shrink-0 items-center justify-center rounded-full transition-colors',
+    'inline-flex size-12 shrink-0 items-center justify-center rounded-full transition-colors focus-visible:rounded-full!',
     dark ? 'text-night-ink/80 hover:bg-white/10 hover:text-night-ink' : 'text-ink-soft hover:bg-mint/70 hover:text-heritage',
   );
 
@@ -141,7 +141,7 @@ export function AudioPlayer({ src, duration: durationProp = 0, title, subtitle, 
       aria-pressed={playing}
       aria-label={playing ? t('ui.player.pause') : t('ui.player.play')}
       className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-full transition-[background-color,transform] duration-200 active:scale-95',
+        'inline-flex shrink-0 items-center justify-center rounded-full transition-[background-color,transform] duration-200 active:scale-95 focus-visible:rounded-full!',
         compact ? 'size-12' : 'size-14',
         dark ? 'bg-night-ink text-night hover:bg-white' : 'bg-heritage text-cream hover:bg-heritage-deep',
       )}
@@ -229,7 +229,7 @@ export function AudioPlayer({ src, duration: durationProp = 0, title, subtitle, 
             </button>
           </div>
           {(simulated || failed) && (
-            <p className={cn('mt-2 text-[0.78rem]', failed ? 'text-terracotta' : dark ? 'text-night-ink/70' : 'text-ink-soft')}>
+            <p className={cn('mt-2 text-[0.8rem] leading-normal', failed ? 'text-terracotta' : dark ? 'text-night-ink/70' : 'text-ink-soft')}>
               {failed ? t('ui.player.error') : t('ui.player.simulated')}
             </p>
           )}

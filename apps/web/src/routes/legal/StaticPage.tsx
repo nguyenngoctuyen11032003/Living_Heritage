@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Badge } from '@/components/ui';
 import { EASE_OUT, useReducedMotionSafe } from '@/design/motion';
@@ -19,7 +20,7 @@ export function PageHero({ eyebrow, heading, lead, meta, children }: { eyebrow: 
           {eyebrow}
           <span aria-hidden="true" className="h-px w-6 bg-terracotta/60" />
         </motion.p>
-        <motion.h1 {...rise(0.12)} className="mt-5 text-balance font-serif text-[clamp(2.2rem,5.4vw,4rem)] font-semibold leading-[1.12] tracking-[-0.025em] text-heritage-deep">
+        <motion.h1 {...rise(0.12)} className="mt-5 text-balance font-serif text-[clamp(2rem,5.4vw,4rem)] font-semibold leading-[1.2] tracking-[-0.02em] text-heritage-deep">
           {heading}
         </motion.h1>
         <motion.p {...rise(0.2)} className="mx-auto mt-6 max-w-2xl text-pretty text-[1.08rem] leading-relaxed text-ink-soft md:text-[1.15rem]">
@@ -43,31 +44,42 @@ type DocSection = { title: string; body: string } & Partial<Record<'a' | 'b' | '
 export function LegalDoc({ sections }: { sections: Record<string, DocSection> }) {
   const t = useT('legal');
   const entries = Object.entries(sections);
+  const toc = (
+    <ol className="flex flex-col">
+      {entries.map(([id, s], i) => (
+        <li key={id}>
+          <a href={`#${id}`} className="flex min-h-11 items-center gap-3 rounded-xl px-2 py-1.5 text-[0.92rem] leading-snug text-ink-soft transition-colors hover:bg-mint/60 hover:text-heritage-deep">
+            <span aria-hidden="true" className="w-5 shrink-0 text-right text-[0.8rem] font-semibold tabular-nums text-heritage/70">{i + 1}</span>
+            {s.title}
+          </a>
+        </li>
+      ))}
+    </ol>
+  );
   return (
-    <div className="mx-auto grid max-w-6xl gap-10 px-4 pb-24 sm:px-6 lg:grid-cols-12 lg:px-8 md:pb-32">
+    <div className="mx-auto grid max-w-6xl gap-8 px-4 pb-24 sm:px-6 md:pb-32 lg:grid-cols-12 lg:gap-12 lg:px-8">
       <nav aria-label={t('common.toc')} className="lg:col-span-4">
-        <div className="rounded-[1.5rem] bg-paper p-5 ring-1 ring-line lg:sticky lg:top-28">
-          <p className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-ink-soft">{t('common.toc')}</p>
-          <ol className="mt-3 flex flex-col">
-            {entries.map(([id, s], i) => (
-              <li key={id}>
-                <a href={`#${id}`} className="flex min-h-11 items-center gap-3 rounded-xl px-2 text-[0.92rem] text-ink-soft transition-colors hover:bg-mint/60 hover:text-heritage-deep">
-                  <span className="w-5 text-right text-[0.78rem] font-semibold tabular-nums text-heritage/60">{i + 1}</span>
-                  {s.title}
-                </a>
-              </li>
-            ))}
-          </ol>
+        {/* Phones and tablets: collapsed, so the document starts right away. */}
+        <details className="group rounded-[1.5rem] bg-paper ring-1 ring-line lg:hidden">
+          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 rounded-[1.5rem] px-5 text-[0.95rem] font-semibold text-heritage-deep [&::-webkit-details-marker]:hidden">
+            {t('common.toc')}
+            <ChevronDown aria-hidden="true" className="size-5 text-ink-soft transition-transform group-open:rotate-180" />
+          </summary>
+          <div className="border-t border-line px-3 pb-3 pt-2">{toc}</div>
+        </details>
+        <div className="hidden rounded-[1.5rem] bg-paper p-5 ring-1 ring-line lg:sticky lg:top-28 lg:block">
+          <p className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-ink-soft">{t('common.toc')}</p>
+          <div className="mt-3">{toc}</div>
         </div>
       </nav>
-      <div className="lg:col-span-8">
-        <p className="rounded-2xl bg-[#fbecc8]/60 p-4 text-[0.92rem] leading-relaxed text-[#5c400b] ring-1 ring-[#ecd28f]">{t('common.pilotNote')}</p>
+      <div className="min-w-0 lg:col-span-8">
+        <p className="max-w-[44rem] rounded-2xl bg-[#fbecc8]/60 p-4 text-[0.95rem] leading-relaxed text-[#5c400b] ring-1 ring-[#ecd28f] md:p-5">{t('common.pilotNote')}</p>
         {entries.map(([id, s], i) => {
           const items = (['a', 'b', 'c', 'd', 'e'] as const).map((k) => s[k]).filter((x): x is string => Boolean(x));
           return (
-            <section key={id} id={id} aria-labelledby={`${id}-h`} className="scroll-mt-28 border-b border-line py-10 last:border-b-0">
-              <h2 id={`${id}-h`} className="flex items-baseline gap-3 font-serif text-[1.55rem] font-semibold leading-snug text-heritage-deep">
-                <span className="text-[1rem] font-semibold tabular-nums text-terracotta">{String(i + 1).padStart(2, '0')}</span>
+            <section key={id} id={id} aria-labelledby={`${id}-h`} className="max-w-[44rem] scroll-mt-28 border-b border-line py-10 last:border-b-0">
+              <h2 id={`${id}-h`} className="flex items-baseline gap-3 font-serif text-[clamp(1.35rem,3.6vw,1.55rem)] font-semibold leading-[1.3] text-heritage-deep">
+                <span className="shrink-0 font-sans text-[0.95rem] font-semibold tabular-nums text-terracotta">{String(i + 1).padStart(2, '0')}</span>
                 {s.title}
               </h2>
               <p className="mt-4 text-[1.04rem] leading-[1.75] text-ink">{s.body}</p>
@@ -98,7 +110,7 @@ export function StepGrid({ steps, cols = 4, className }: { steps: Array<{ title:
           <span aria-hidden="true" className="font-serif text-[2.4rem] font-semibold leading-none text-heritage/20">
             0{i + 1}
           </span>
-          <h3 className="mt-4 text-[1.15rem] font-bold leading-snug text-ink">
+          <h3 className="mt-4 text-[1.15rem] font-semibold leading-snug text-ink">
             <span className="sr-only">{i + 1}. </span>
             {s.title}
           </h3>

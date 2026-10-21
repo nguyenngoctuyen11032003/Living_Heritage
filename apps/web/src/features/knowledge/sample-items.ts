@@ -1,4 +1,4 @@
-// ILLUSTRATIVE DATA ("Dữ liệu minh họa"). Shown only when the public hub has zero approved items, always under
+// ILLUSTRATIVE DATA ("Dữ liệu minh hoạ"). Shown only when the public hub has zero approved items, always under
 // a banner and an IllustrativeBadge. Every narrator here is a fictional character written by the project team;
 // none of this is a real recording. Ids start with 'mau-' so /tri-thuc/mau-… renders the sample.
 import type { Region, StoryKind } from '@lh/shared';
@@ -45,20 +45,20 @@ export const SAMPLE_ITEMS: readonly SampleItem[] = [
     id: 'mau-tuot-la-mai',
     kind: 'experience',
     topicSlug: 'lam-vuon',
-    title: { vi: 'Tuốt lá mai phải canh đúng rằm tháng Chạp, sớm quá hoa nở trước Tết.', en: 'Strip the mai leaves on the full moon of the twelfth month — any earlier and it blooms before Tết.' },
+    title: { vi: 'Tuốt lá mai phải canh đúng rằm tháng Chạp, sớm quá hoa nở trước Tết.', en: 'Strip the yellow apricot (mai) leaves on the full moon of the twelfth month — any earlier and it blooms before Tet.' },
     summary: {
       vi: 'Cách canh ngày tuốt lá để cây mai vàng nở đúng mùng Một, theo kinh nghiệm hơn bốn mươi năm trồng mai ở miền Tây.',
-      en: 'How to time leaf-stripping so a yellow mai tree blooms right on New Year’s Day, from forty years of growing mai in the Mekong Delta.',
+      en: 'How to time leaf-stripping so a yellow apricot blossom (mai) tree blooms right on Lunar New Year’s Day, from forty years of growing mai in the Mekong Delta.',
     },
     body: {
       vi: 'Nhà tôi trồng mai từ hồi ba tôi còn sống. Năm nào cũng vậy, cứ tới rằm tháng Chạp là cả nhà ra vườn tuốt lá.\nNhưng không phải năm nào cũng giống năm nào. Trời lạnh thì tuốt sớm hơn vài bữa, trời nắng gắt thì để trễ lại. Cái đó phải nhìn nụ mà đoán.',
       en: 'My family has grown mai since my father was alive. Every year, on the full moon of the twelfth month, the whole household goes out to strip the leaves.\nBut no two years are the same. In a cold year you strip a few days earlier; in a hot one you wait. You have to read the buds.',
     },
     experience: {
-      skill: { vi: 'Tuốt lá mai vàng để hoa nở đúng Tết', en: 'Stripping yellow mai leaves so it blooms for Tết' },
+      skill: { vi: 'Tuốt lá mai vàng để hoa nở đúng Tết', en: 'Stripping yellow apricot (mai) leaves so it blooms for Tet' },
       context: {
         vi: 'Mai vàng trồng đất hoặc trồng chậu ở Nam Bộ, muốn hoa nở rộ vào ba ngày Tết thay vì nở sớm hay nở muộn.',
-        en: 'Yellow mai grown in the ground or in pots in southern Vietnam, when you want full bloom over the three days of Tết rather than early or late.',
+        en: 'Yellow mai grown in the ground or in pots in southern Vietnam, when you want full bloom over the three days of Tet rather than early or late.',
       },
       conditions: [
         { vi: 'Cây khoẻ, đã được bón phân và tưới đều từ tháng Mười âm lịch.', en: 'A healthy tree, fed and watered regularly since the tenth lunar month.' },
@@ -76,10 +76,10 @@ export const SAMPLE_ITEMS: readonly SampleItem[] = [
       ],
       limits: {
         vi: 'Kinh nghiệm ở vùng Cần Thơ; miền Bắc và miền Trung khí hậu khác, ngày tuốt có thể phải đổi.',
-        en: 'Based on the Cần Thơ area; the north and centre have a different climate, so the timing may need to change.',
+        en: 'Based on the Can Tho area; the north and centre have a different climate, so the timing may need to change.',
       },
     },
-    narratorLabel: { vi: 'Ông Tư Vườn (bút danh)', en: 'Mr. Tư Vườn (pen name)' },
+    narratorLabel: { vi: 'Ông Tư Vườn (bút danh)', en: 'Mr. Tu the Gardener (pen name)' },
     region: 'nam',
     decade: 1980,
     durationS: 214,
@@ -118,7 +118,7 @@ export const SAMPLE_ITEMS: readonly SampleItem[] = [
       cautions: [{ vi: 'Đừng đảo cá trong lúc kho, chỉ nghiêng niêu cho nước áo đều.', en: 'Don’t stir the fish while it cooks — just tilt the pot so the sauce coats it.' }],
       limits: { vi: 'Lượng gia vị là theo khẩu vị miền Nam, khá ngọt; nên nêm lại cho hợp.', en: 'The seasoning follows southern taste, which is fairly sweet; adjust to your own.' },
     },
-    narratorLabel: { vi: 'Bà Năm Chợ Cũ (bút danh)', en: 'Grandma Năm of the Old Market (pen name)' },
+    narratorLabel: { vi: 'Bà Năm Chợ Cũ (bút danh)', en: 'Grandma Nam of the Old Market (pen name)' },
     region: 'nam',
     decade: 1970,
     durationS: 168,
@@ -170,7 +170,7 @@ export const SAMPLE_ITEMS: readonly SampleItem[] = [
       vi: 'Nước lên trong một đêm. Sáng ra mở cửa thì nước đã ngang thềm, tới trưa thì ngập tới bàn thờ.\nÔng trưởng họ cho mở gác nhà thờ, ai còn gạo thì đem lên. Tôi nhớ nồi cháo to lắm, phải hai người khiêng.\nKhông ai giành phần. Người già ăn trước, con nít ăn sau, người lớn ăn cuối. Ba ngày sau nước rút, nhà nào cũng mất nhiều thứ, mà không mất người nào.\nTới giờ tôi vẫn nghĩ, cái làm cho xóm mình qua được không phải là gạo, mà là cái gác ấy.',
       en: 'The water rose in a single night. By morning it was at the doorstep; by noon it reached the ancestral altar.\nThe clan elder opened the loft of the clan house and everyone who still had rice carried it up. I remember the porridge pot was so big it took two people to lift.\nNobody grabbed. The old ate first, then the children, then the adults. Three days later the water went down. Every house had lost a lot, but no one had lost a person.\nI still think what got our hamlet through wasn’t the rice. It was that loft.',
     },
-    narratorLabel: { vi: 'Ông Bảy Sông Hương (bút danh)', en: 'Mr. Bảy of the Perfume River (pen name)' },
+    narratorLabel: { vi: 'Ông Bảy Sông Hương (bút danh)', en: 'Mr. Bay of the Perfume River (pen name)' },
     region: 'trung',
     decade: 1960,
     durationS: 251,
@@ -226,7 +226,7 @@ export const SAMPLE_ITEMS: readonly SampleItem[] = [
       vi: 'Mẹ tôi bán hàng xén ngoài chợ huyện. Mỗi phiên chợ, mẹ bỏ riêng mấy đồng vào cái ống tre treo trên xà nhà.\nCó lần tôi xin tiền may áo mới để đi hội, mẹ không cho. Tôi giận cả tuần.\nĐến năm ba tôi ốm nặng, cái ống tre ấy chạy được thuốc cho ba suốt mấy tháng. Lúc đó tôi mới hiểu.\nBây giờ tôi cũng dặn con cháu như vậy: có thì cất đi, đừng khoe; ai cần thì giúp, đừng kể.',
       en: 'My mother sold sundries at the district market. Every market day she set aside a few coins in a bamboo tube hung from the roof beam.\nOnce I asked for money for a new dress for the village festival and she said no. I sulked for a whole week.\nThe year my father fell seriously ill, that bamboo tube paid for his medicine for months. Only then did I understand.\nNow I tell my children and grandchildren the same: if you have something, put it away and don’t show it off; if someone needs help, help them and don’t tell.',
     },
-    narratorLabel: { vi: 'Bà Sáu Hàng Xén (bút danh)', en: 'Grandma Sáu the Sundries Seller (pen name)' },
+    narratorLabel: { vi: 'Bà Sáu Hàng Xén (bút danh)', en: 'Grandma Sau the Sundries Seller (pen name)' },
     region: 'bac',
     decade: 1950,
     durationS: 189,
@@ -258,7 +258,7 @@ export const SAMPLE_ITEMS: readonly SampleItem[] = [
       cautions: [{ vi: 'Không treo sát lửa, hạt bị chín sẽ không nảy mầm.', en: 'Don’t hang it too close to the flame — cooked seeds won’t germinate.' }],
       limits: { vi: 'Hợp với bếp củi; nhà dùng bếp ga cần chỗ khô thoáng khác.', en: 'Suits wood-fired kitchens; homes with gas stoves need another dry, airy spot.' },
     },
-    narratorLabel: { vi: 'Ông Chín Gác Bếp (bút danh)', en: 'Mr. Chín of the Kitchen Rack (pen name)' },
+    narratorLabel: { vi: 'Ông Chín Gác Bếp (bút danh)', en: 'Mr. Chin of the Kitchen Rack (pen name)' },
     region: 'bac',
     decade: 1990,
     durationS: null,
@@ -269,7 +269,7 @@ export const SAMPLE_ITEMS: readonly SampleItem[] = [
     id: 'mau-tet-ao-moi',
     kind: 'story',
     topicSlug: 'tuoi-tho',
-    title: { vi: 'Tết hồi nhỏ, tôi chỉ mong có bộ áo mới để sáng mùng Một đi chúc Tết ông bà.', en: 'As a child, all I wanted for Tết was a new outfit to wear when wishing my grandparents a happy New Year.' },
+    title: { vi: 'Tết hồi nhỏ, tôi chỉ mong có bộ áo mới để sáng mùng Một đi chúc Tết ông bà.', en: 'As a child, all I wanted for Tet was a new outfit to wear when wishing my grandparents a happy New Year.' },
     summary: {
       vi: 'Một buổi sáng mùng Một và bộ áo may từ tấm vải mẹ để dành cả năm.',
       en: 'One New Year’s morning, and the outfit sewn from cloth mother had saved all year.',
@@ -278,7 +278,7 @@ export const SAMPLE_ITEMS: readonly SampleItem[] = [
       vi: 'Nhà nghèo, cả năm có một bộ áo mới là quý lắm. Mẹ mua vải từ tháng Chín, cất trong rương, tới hai mươi tháng Chạp mới đem ra may.\nĐêm Giao thừa tôi không ngủ được, cứ sờ cái áo hoài.\nSáng mùng Một, tôi mặc áo mới chạy qua nhà ông bà. Ông xoa đầu, cho tôi một phong bao đỏ, trong có tờ tiền mới tinh. Tôi giữ tờ tiền đó tới tận hết tháng Giêng mới dám tiêu.',
       en: 'We were poor, so one new outfit a year was precious. Mother bought the cloth in the ninth month, kept it in a chest, and only took it out to sew on the twentieth of the twelfth month.\nOn New Year’s Eve I couldn’t sleep; I kept touching the shirt.\nOn the first morning I put it on and ran to my grandparents’ house. Grandfather patted my head and gave me a red envelope with a crisp new note inside. I kept that note until the end of the first month before I dared to spend it.',
     },
-    narratorLabel: { vi: 'Bà Út Bến Tre (bút danh)', en: 'Grandma Út of Bến Tre (pen name)' },
+    narratorLabel: { vi: 'Bà Út Bến Tre (bút danh)', en: 'Grandma Ut of Ben Tre (pen name)' },
     region: 'nam',
     decade: 1950,
     durationS: 133,

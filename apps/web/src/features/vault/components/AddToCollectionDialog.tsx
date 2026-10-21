@@ -122,7 +122,7 @@ export function AddToCollectionDialog({ open, onClose, storyId, familyId }: AddT
           <Field label={t('addToCollection.newLabel')} className="flex-1">
             <Input value={newName} maxLength={120} onChange={(e) => setNewName(e.target.value)} placeholder={t('addToCollection.newPlaceholder')} />
           </Field>
-          <Button type="submit" variant="secondary" loading={busy === 'new'} disabled={!newName.trim() || busy !== null} leftIcon={<Plus className="size-4" />}>
+          <Button type="submit" variant="secondary" loading={busy === 'new'} disabled={!newName.trim() || busy !== null} leftIcon={<Plus className="size-5" aria-hidden="true" />}>
             {t('addToCollection.create')}
           </Button>
         </form>

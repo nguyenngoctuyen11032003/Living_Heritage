@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Di Sản Sống — Living Heritage</title>
+    <title>Di Sản Sống — Trợ lý số lưu giữ tri thức người cao tuổi</title>
     <meta
       name="description"
       content="Di Sản Sống giúp ông bà kể chuyện bằng giọng nói tiếng Việt, AI hỗ trợ chép lời và biên tập, gia đình lưu giữ và người trẻ học hỏi từ kinh nghiệm được chia sẻ."
@@ -15,6 +15,7 @@
         try {
           var l = localStorage.getItem('lh.locale');
           if (l === 'en' || l === 'vi') document.documentElement.lang = l;
+          if (l === 'en') document.title = 'Living Heritage — A digital companion that keeps elders’ knowledge alive';
           var s = localStorage.getItem('lh.textScale');
           if (s === '115' || s === '130') document.documentElement.dataset.textScale = s;
         } catch (e) {}

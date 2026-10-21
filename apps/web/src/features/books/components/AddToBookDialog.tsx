@@ -64,7 +64,7 @@ export function AddToBookDialog({ open, onClose, storyId, familyId }: AddToBookD
       description={t('addToBook.description')}
       footer={
         <>
-          <ButtonLink to="/sach?tao=1" variant="secondary" leftIcon={<BookPlus className="size-4" />}>
+          <ButtonLink to="/sach?tao=1" variant="secondary" leftIcon={<BookPlus className="size-5" aria-hidden="true" />}>
             {t('addToBook.create')}
           </ButtonLink>
           <Button onClick={onClose}>{t('addToCollection.done')}</Button>
@@ -82,7 +82,7 @@ export function AddToBookDialog({ open, onClose, storyId, familyId }: AddToBookD
         <ul className="flex flex-col gap-2">
           {books?.map((b) => (
             <li key={b.id} className="flex min-h-14 items-center gap-3 rounded-2xl bg-paper px-4 py-2 ring-1 ring-line">
-              <span className="min-w-0 flex-1 truncate font-serif font-semibold text-heritage-deep">{b.title}</span>
+              <span className="min-w-0 flex-1 truncate font-serif font-semibold leading-[1.4] text-heritage-deep">{b.title}</span>
               {inBook.has(b.id) ? (
                 <span className="inline-flex items-center gap-1.5 text-[0.9rem] text-heritage">
                   <Check className="size-4" aria-hidden="true" />

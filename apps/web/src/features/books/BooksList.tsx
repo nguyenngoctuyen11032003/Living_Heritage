@@ -1,18 +1,21 @@
-import { BookOpen, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { Button, Dialog, EmptyState, Skeleton, useToast } from '@/components/ui';
 import { useCurrentFamily } from '@/features/families/current';
 import { LoadError } from '@/features/vault/components/States';
 import { FamilyGate } from '@/features/vault/external';
+import { usePageTitle } from '@/lib/usePageTitle';
 import { useLocale, useT } from '@/i18n';
 import { formatDate } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase';
 import { createBook, listBooks, type BookSummary } from './api';
 import { CoverFields, type CoverValue } from './components/CoverFields';
-import { COVER_THEMES, asCoverStyle } from './covers';
+import { COVER_STYLES, COVER_THEMES, asCoverStyle, type CoverStyle } from './covers';
 
 export function BooksList() {
+  const t = useT('books');
+  usePageTitle(t('list.title'));
   return (
     <FamilyGate>
       <BooksListInner />
@@ -50,12 +53,13 @@ function BooksListInner() {
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="font-serif text-[2rem] font-semibold leading-tight text-heritage-deep md:text-[2.6rem]">{t('list.title')}</h1>
-          <p className="mt-2 max-w-2xl text-ink-soft">{t('list.intro')}</p>
+        <div className="min-w-0">
+          <p className="text-[0.875rem] font-semibold uppercase tracking-[0.14em] text-terracotta">{t('preview.familyBook')}</p>
+          <h1 className="mt-2 font-serif text-[clamp(2rem,1.45rem+2.2vw,2.75rem)] font-semibold leading-[1.2] text-heritage-deep">{t('list.title')}</h1>
+          <p className="mt-2 max-w-[60ch] leading-relaxed text-ink-soft">{t('list.intro')}</p>
         </div>
         {canEdit && (
-          <Button size="lg" leftIcon={<Plus className="size-5" />} onClick={openCreate}>
+          <Button size="lg" leftIcon={<Plus className="size-5" aria-hidden="true" />} onClick={openCreate}>
             {t('list.create')}
           </Button>
         )}
@@ -64,19 +68,20 @@ function BooksListInner() {
       {error ? (
         <LoadError onRetry={() => setTick((x) => x + 1)} message={t('state.loadError')} />
       ) : books === null ? (
-        <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4" aria-busy="true">
+        <div className="grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3 lg:grid-cols-4" aria-busy="true">
           {[0, 1, 2].map((i) => (
-            <Skeleton key={i} className="aspect-[148/210]" />
+            <Skeleton key={i} className="aspect-[148/210] rounded-[6px]" />
           ))}
         </div>
       ) : books.length === 0 ? (
         <EmptyState
-          icon={<BookOpen />}
+          className="py-14"
+          icon={<CoverFan />}
           title={t('list.emptyTitle')}
           description={canEdit ? t('list.emptyBody') : t('list.viewerEmpty')}
           action={
             canEdit ? (
-              <Button leftIcon={<Plus className="size-5" />} onClick={openCreate}>
+              <Button leftIcon={<Plus className="size-5" aria-hidden="true" />} onClick={openCreate}>
                 {t('list.create')}
               </Button>
             ) : undefined
@@ -90,16 +95,18 @@ function BooksListInner() {
               <li key={b.id}>
                 <Link to={`/sach/${b.id}`} aria-label={t('list.open', { title: b.title })} className="group block rounded-xl focus-visible:outline-offset-4">
                   <div
-                    className="relative flex aspect-[148/210] flex-col items-center justify-center overflow-hidden rounded-[6px] px-4 text-center shadow-[0_18px_40px_-24px_rgba(18,27,24,0.6)] transition-transform duration-300 group-hover:-translate-y-1 motion-reduce:transition-none motion-reduce:group-hover:translate-y-0"
+                    className="relative flex aspect-[148/210] flex-col items-center justify-center overflow-hidden rounded-[3px_8px_8px_3px] px-[12%] text-center shadow-[0_18px_40px_-24px_rgba(18,27,24,0.6)] transition-[transform,box-shadow] duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_26px_50px_-24px_rgba(18,27,24,0.65)] motion-reduce:transition-none motion-reduce:group-hover:translate-y-0"
                     style={{ background: theme.bg, color: theme.ink }}
                   >
                     <span aria-hidden="true" className={`absolute inset-0 ${theme.texture}`} />
-                    <span aria-hidden="true" className="absolute inset-[6%] rounded-sm border" style={{ borderColor: theme.accent, opacity: 0.5 }} />
-                    <span className="relative line-clamp-4 break-words font-serif text-[1.15rem] font-semibold leading-tight">{b.title}</span>
-                    {b.subtitle && <span className="relative mt-2 line-clamp-2 font-serif text-[0.8rem] italic opacity-90">{b.subtitle}</span>}
+                    <span aria-hidden="true" className="absolute inset-y-0 left-0 w-[6%] bg-gradient-to-r from-black/25 via-black/10 to-transparent" />
+                    <span aria-hidden="true" className="absolute inset-[7%] rounded-sm border" style={{ borderColor: theme.accent, opacity: 0.5 }} />
+                    <span className="relative line-clamp-4 break-words font-serif text-[clamp(1rem,0.9rem+0.5vw,1.2rem)] font-semibold leading-[1.25]">{b.title}</span>
+                    <span aria-hidden="true" className="relative my-3 block h-px w-8" style={{ background: theme.accent }} />
+                    {b.subtitle && <span className="relative line-clamp-2 font-serif text-[0.875rem] italic leading-snug opacity-90">{b.subtitle}</span>}
                   </div>
-                  <p className="mt-3 text-[0.9rem] font-semibold text-ink">{t('list.chapters', { n: b.chapters })}</p>
-                  <p className="text-[0.82rem] text-ink-soft">{t('list.updated', { date: formatDate(b.updated_at, locale) })}</p>
+                  <p className="mt-3 text-[0.95rem] font-semibold text-ink">{b.chapters === 1 ? t('list.chaptersOne') : t('list.chapters', { n: b.chapters })}</p>
+                  <p className="text-[0.875rem] text-ink-soft">{t('list.updated', { date: formatDate(b.updated_at, locale) })}</p>
                 </Link>
               </li>
             );
@@ -109,6 +116,28 @@ function BooksListInner() {
 
       <CreateBookDialog open={creating} onClose={closeCreate} familyId={familyId} />
     </div>
+  );
+}
+
+/** Three tilted covers (one per style): the empty-shelf illustration. */
+function CoverFan() {
+  const tilt: Record<CoverStyle, string> = { 'lua-xanh': '-rotate-12 translate-x-1.5', 'giay-do': 'z-10 -translate-y-0.5', 'dat-nung': 'rotate-12 -translate-x-1.5' };
+  return (
+    <span className="flex items-end justify-center">
+      {COVER_STYLES.map((style) => {
+        const theme = COVER_THEMES[style];
+        return (
+          <span
+            key={style}
+            className={`relative block h-8 w-[22px] overflow-hidden rounded-[2px_4px_4px_2px] shadow-[0_6px_14px_-8px_rgba(18,27,24,0.7)] ${tilt[style]}`}
+            style={{ background: theme.bg }}
+          >
+            <span className="absolute inset-y-0 left-0 w-[2px] bg-black/20" />
+            <span className="absolute inset-[3px] rounded-[1px] border" style={{ borderColor: theme.accent, opacity: 0.6 }} />
+          </span>
+        );
+      })}
+    </span>
   );
 }
 

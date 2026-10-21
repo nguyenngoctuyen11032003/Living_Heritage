@@ -12,7 +12,7 @@ export function FinalCta() {
         <h2 id="final-title" className="text-balance font-serif text-[clamp(2rem,5vw,3.6rem)] font-semibold leading-[1.14] tracking-[-0.02em] text-heritage-deep">
           {t('final.title')}
         </h2>
-        <p className="mx-auto mt-5 max-w-xl font-hand text-[1.7rem] leading-snug text-heritage md:text-[2rem]">{t('final.body')}</p>
+        <p className="mx-auto mt-5 max-w-xl font-hand text-[1.7rem] font-semibold leading-snug text-heritage md:text-[2rem]">{t('final.body')}</p>
         <div className="mt-10 flex justify-center">
           <PrimaryCta />
         </div>

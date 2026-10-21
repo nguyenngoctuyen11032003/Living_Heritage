@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useLocale, type Locale } from '@/i18n';
 
 export function formatDateTime(iso: string, locale: Locale): string {
-  return new Intl.DateTimeFormat(locale === 'vi' ? 'vi-VN' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
+  return new Intl.DateTimeFormat(locale === 'vi' ? 'vi-VN' : 'en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
 }
 
 export function useDateTime() {

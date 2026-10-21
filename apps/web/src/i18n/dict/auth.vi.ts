@@ -1,6 +1,13 @@
 // Namespace 'auth' - Vietnamese is the source of keys (see plan ownership table).
 export default {
   _ns: 'auth',
+  titles: {
+    login: 'Đăng nhập',
+    signup: 'Tạo tài khoản',
+    forgot: 'Quên mật khẩu',
+    reset: 'Đặt mật khẩu mới',
+    callback: 'Xác thực liên kết',
+  },
   layout: {
     panelLabel: 'Lời nhắn từ Di Sản Sống',
     eyebrow: 'Mỗi giọng kể là một mái nhà',
@@ -15,7 +22,7 @@ export default {
     passwordHint: 'Ít nhất {n} ký tự.',
     passwordTooShort: 'Mật khẩu cần ít nhất {n} ký tự.',
     displayName: 'Tên hiển thị',
-    displayNameHint: 'Tên người thân trong gia đình sẽ thấy, ví dụ: Minh (cháu nội).',
+    displayNameHint: 'Tên mà người thân trong gia đình sẽ thấy, ví dụ: Minh (cháu nội).',
     nameRequired: 'Vui lòng nhập tên hiển thị.',
     nameTooLong: 'Tên hiển thị tối đa 80 ký tự.',
   },
@@ -61,7 +68,7 @@ export default {
     submit: 'Gửi liên kết đặt lại',
     sentTitle: 'Đã gửi liên kết',
     sentBody: 'Nếu {email} đã đăng ký, bạn sẽ nhận được thư trong vài phút. Hãy kiểm tra cả mục thư rác.',
-    backToLogin: '← Quay lại đăng nhập',
+    backToLogin: 'Quay lại đăng nhập',
   },
   reset: {
     title: 'Đặt mật khẩu mới',
@@ -75,20 +82,20 @@ export default {
     requestNew: 'Yêu cầu liên kết mới',
   },
   errors: {
-    invalidCredentials: 'Email hoặc mật khẩu chưa đúng. Bạn thử lại, hoặc dùng "Gửi liên kết đăng nhập".',
-    emailNotConfirmed: 'Email này chưa được xác nhận. Hãy mở thư xác nhận chúng tôi đã gửi, hoặc dùng "Gửi liên kết đăng nhập".',
-    userExists: 'Email này đã có tài khoản. Bạn hãy đăng nhập, hoặc dùng "Quên mật khẩu".',
+    invalidCredentials: 'Email hoặc mật khẩu chưa đúng. Hãy thử lại, hoặc chọn “Gửi liên kết đăng nhập”.',
+    emailNotConfirmed: 'Email này chưa được xác nhận. Hãy mở thư xác nhận chúng tôi đã gửi, hoặc chọn “Gửi liên kết đăng nhập”.',
+    userExists: 'Email này đã có tài khoản. Hãy đăng nhập, hoặc chọn “Quên mật khẩu?” nếu bạn không nhớ mật khẩu.',
     weakPassword: 'Mật khẩu quá dễ đoán. Hãy dùng ít nhất 8 ký tự, kết hợp chữ và số.',
     samePassword: 'Mật khẩu mới cần khác mật khẩu cũ.',
-    invalidEmail: 'Email chưa hợp lệ. Bạn kiểm tra lại giúp nhé.',
-    rateLimit: 'Bạn thao tác hơi nhanh. Vui lòng đợi một phút rồi thử lại.',
+    invalidEmail: 'Email chưa hợp lệ. Vui lòng kiểm tra lại.',
+    rateLimit: 'Bạn thao tác hơi nhanh. Vui lòng đợi khoảng một phút rồi thử lại.',
     signupDisabled: 'Hệ thống tạm thời chưa mở đăng ký mới.',
-    noAccount: 'Chưa có tài khoản nào với email này. Bạn hãy tạo tài khoản gia đình trước.',
+    noAccount: 'Chưa có tài khoản nào dùng email này. Hãy tạo tài khoản gia đình trước.',
     anonymousDisabled: 'Hệ thống chưa bật đăng nhập cho người kể.',
     linkInvalid: 'Liên kết đã hết hạn hoặc đã được dùng. Vui lòng yêu cầu liên kết mới.',
     differentBrowser: 'Hãy mở liên kết trên cùng trình duyệt và thiết bị bạn đã dùng để yêu cầu nó.',
     sessionMissing: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
-    network: 'Không kết nối được máy chủ. Bạn kiểm tra mạng rồi thử lại nhé.',
+    network: 'Không kết nối được máy chủ. Hãy kiểm tra kết nối mạng rồi thử lại.',
     unknown: 'Đã có lỗi xảy ra. Vui lòng thử lại sau ít phút.',
   },
   link: {
@@ -101,7 +108,7 @@ export default {
     familyBody: 'Bạn đang đăng nhập bằng tài khoản gia đình. Để mở phòng kể chuyện cho ông bà trên thiết bị này, hãy đăng xuất trước.',
     signOutAndOpen: 'Đăng xuất và mở',
     backToFamily: 'Về trang người kể',
-    assistedHint: 'Muốn ngồi kể cùng ông bà mà vẫn giữ tài khoản? Dùng nút "Kể cùng" trong trang Người kể.',
+    assistedHint: 'Muốn ngồi kể cùng ông bà mà vẫn giữ tài khoản? Dùng nút “Kể cùng” trong trang Người kể.',
     retry: 'Thử lại',
     home: 'Về trang chủ',
     errors: {
@@ -123,7 +130,7 @@ export default {
       },
       anonymous_disabled: {
         title: 'Chưa mở được phòng kể chuyện',
-        body: 'Hệ thống chưa bật đăng nhập cho người kể. Gia đình hãy báo quản trị viên bật "Anonymous sign-ins" trong cài đặt Supabase Auth.',
+        body: 'Hệ thống chưa bật đăng nhập cho người kể. Gia đình hãy báo quản trị viên bật “Anonymous sign-ins” trong cài đặt Supabase Auth.',
       },
       not_configured: {
         title: 'Hệ thống chưa sẵn sàng',

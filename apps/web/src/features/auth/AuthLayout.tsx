@@ -1,17 +1,37 @@
+import { Quote } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Reveal } from '@/components/motion';
 import { useT } from '@/i18n';
+import { usePageTitle } from '@/lib/usePageTitle';
 
-/** Warm two-column auth layout: form on the left, heritage illustration + proverb on the right (hidden on phones). */
-export function AuthLayout({ title, subtitle, children, footer }: { title: ReactNode; subtitle?: ReactNode; children: ReactNode; footer?: ReactNode }) {
+/**
+ * Warm two-column auth layout: form on the left, heritage illustration + proverb on the right.
+ * On phones and tablets the proverb follows the form as a compact card.
+ */
+export function AuthLayout({
+  title,
+  subtitle,
+  children,
+  footer,
+  docTitle,
+}: {
+  title: ReactNode;
+  subtitle?: ReactNode;
+  children: ReactNode;
+  footer?: ReactNode;
+  /** Page name for `document.title` ("<docTitle> — <brand>"). */
+  docTitle: string;
+}) {
+  usePageTitle(docTitle);
   return (
-    <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 md:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12">
+    <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-8 sm:px-6 md:py-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14 lg:px-8">
       <Reveal className="flex flex-col justify-center">
         <div className="mx-auto w-full max-w-md">
-          <h1 className="text-balance font-serif text-[clamp(2rem,4.5vw,2.75rem)] font-semibold leading-[1.12] tracking-[-0.015em] text-heritage-deep">{title}</h1>
-          {subtitle && <p className="mt-3 text-[1.05rem] leading-relaxed text-ink-soft">{subtitle}</p>}
+          <h1 className="text-balance font-serif text-[clamp(2rem,4.5vw,2.75rem)] font-semibold leading-[1.2] tracking-[-0.015em] text-heritage-deep">{title}</h1>
+          {subtitle && <p className="mt-3 max-w-[60ch] text-[1.05rem] leading-relaxed text-ink-soft">{subtitle}</p>}
           <div className="mt-8">{children}</div>
-          {footer && <div className="mt-8 border-t border-line pt-6 text-[0.95rem] text-ink-soft">{footer}</div>}
+          {footer && <div className="mt-8 border-t border-line pt-5 text-[0.95rem] text-ink-soft">{footer}</div>}
+          <ProverbCard />
         </div>
       </Reveal>
       <HeritagePanel />
@@ -19,18 +39,40 @@ export function AuthLayout({ title, subtitle, children, footer }: { title: React
   );
 }
 
+/** Phone/tablet companion of the desktop panel: the same proverb and privacy promise, kept small. */
+function ProverbCard() {
+  const t = useT('auth');
+  return (
+    <aside aria-label={t('layout.panelLabel')} className="relative mt-10 overflow-hidden rounded-[1.5rem] bg-heritage-deep p-6 text-cream lg:hidden">
+      <Quote aria-hidden="true" className="pointer-events-none absolute -bottom-6 -right-4 size-28 text-cream/8" strokeWidth={1.25} />
+      <p className="relative font-serif text-[1.1rem] font-normal italic leading-snug text-[#f2d9a6]">{t('layout.eyebrow')}</p>
+      <blockquote className="relative mt-1">
+        <p className="font-serif text-[1.35rem] font-semibold leading-[1.3]">“{t('layout.quote')}”</p>
+        <footer className="mt-1 text-[0.9rem] text-cream/75">{t('layout.quoteSource')}</footer>
+      </blockquote>
+      <p className="relative mt-4 text-[0.95rem] leading-relaxed text-cream/85">{t('layout.body')}</p>
+    </aside>
+  );
+}
+
 function HeritagePanel() {
   const t = useT('auth');
   return (
-    <aside aria-label={t('layout.panelLabel')} className="relative hidden min-h-[560px] overflow-hidden rounded-[2rem] bg-heritage-deep text-cream lg:flex lg:flex-col lg:justify-end">
-      <HomeIllustration />
-      <div className="relative p-10">
-        <p className="font-hand text-[1.5rem] text-[#f2d9a6]">{t('layout.eyebrow')}</p>
+    <aside
+      aria-label={t('layout.panelLabel')}
+      className="relative hidden min-h-[600px] flex-col overflow-hidden rounded-[2rem] bg-heritage-deep text-cream shadow-[0_30px_60px_-30px_rgba(22,58,49,0.55)] lg:flex"
+    >
+      <div className="relative min-h-[280px] flex-1">
+        <HomeIllustration />
+        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-heritage-deep" />
+      </div>
+      <div className="relative px-10 pb-10">
+        <p className="font-serif text-[1.2rem] font-normal italic leading-snug text-[#f2d9a6]">{t('layout.eyebrow')}</p>
         <blockquote className="mt-2">
-          <p className="font-serif text-[2rem] font-semibold leading-snug">“{t('layout.quote')}”</p>
+          <p className="text-balance font-serif text-[clamp(1.6rem,2.4vw,2rem)] font-semibold leading-[1.25]">“{t('layout.quote')}”</p>
           <footer className="mt-3 text-[0.95rem] text-cream/75">{t('layout.quoteSource')}</footer>
         </blockquote>
-        <p className="mt-6 max-w-sm leading-relaxed text-cream/85">{t('layout.body')}</p>
+        <p className="mt-6 max-w-[42ch] leading-relaxed text-cream/85">{t('layout.body')}</p>
       </div>
     </aside>
   );
@@ -39,7 +81,7 @@ function HeritagePanel() {
 /** Evening porch: a tiled-roof house, lantern, tea and a sound-wave of a voice drifting up. Colours only. */
 function HomeIllustration() {
   return (
-    <svg aria-hidden="true" viewBox="0 0 480 360" preserveAspectRatio="xMidYMin slice" className="absolute inset-x-0 top-0 h-[68%] w-full">
+    <svg aria-hidden="true" viewBox="0 0 480 360" preserveAspectRatio="xMidYMax slice" className="absolute inset-0 size-full">
       <defs>
         <linearGradient id="lh-auth-sky" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#24564a" />

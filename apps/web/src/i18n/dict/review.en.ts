@@ -14,11 +14,11 @@ export default {
     notConfigured: 'The server connection is not configured yet, so the draft cannot be opened.',
     notFoundTitle: 'This draft cannot be opened',
     notFoundBody: 'The draft does not exist or you no longer have access. We do not show any details of private content.',
-    goSafe: 'Go to a safe page',
+    goSafe: 'Back to home',
     errorTitle: 'The draft did not load',
     errorBody: 'The connection may be unstable. Everything already saved is safe on the server.',
     retry: 'Reload',
-    readOnly: 'You are viewing this read-only. Only the narrator and assigned editors can make changes.',
+    readOnly: 'You are viewing this in read-only mode. Only the narrator and assigned editors can make changes.',
     sibling: {
       story: 'The same recording also produced a story version.',
       experience: 'The same recording also produced a know-how version.',
@@ -27,7 +27,7 @@ export default {
   },
   tabs: {
     label: 'Source and draft',
-    source: 'Recorded source',
+    source: 'Recording',
     draft: 'Draft',
   },
   processing: {
@@ -44,8 +44,9 @@ export default {
     errorKept: 'The recording is still kept as it was. You can try again without recording again.',
     retry: 'Try processing again',
     retrying: 'Sending again…',
-    notStarted: 'This recording has not been processed yet.',
-    start: 'Transcribe and draft now',
+    readyTitle: 'Ready to draft',
+    notStarted: 'This recording has not been transcribed or drafted yet.',
+    start: 'Transcribe and draft',
   },
   ai: {
     errors: {
@@ -61,7 +62,7 @@ export default {
   },
   source: {
     heading: 'Recorded source',
-    note: 'The original recording and transcript are never changed. The draft alongside is the edited version.',
+    note: 'The original recording and transcript are never changed. The draft is the edited version.',
     playerTitle: 'Original recording',
     duration: 'Length: {d}',
     recordedAt: 'Recorded on {date}',
@@ -73,7 +74,7 @@ export default {
     uncertainLabel: 'Needs checking',
     uncertainUnclear: 'unclear passage',
     uncertainHint: 'Passages labelled “Needs checking” are where the machine was not sure what it heard. Listen again and correct the draft if needed.',
-    uncertainCount: '{n} passages to check',
+    uncertainCount: 'Passages to check: {n}',
     verbatim: 'Verbatim words (transcribed from the recording)',
   },
   editor: {
@@ -132,7 +133,7 @@ export default {
     loadError: 'The version history did not load.',
   },
   approval: {
-    question: 'Does this say what you wanted to tell?',
+    question: 'Is this what you wanted to say?',
     confirm: 'Yes, this is what I meant',
     confirming: 'Confirming…',
     saveFirst: 'Please save the draft before confirming.',
@@ -183,7 +184,7 @@ export default {
       family: { title: 'Invited family members', body: 'Every member invited to the family vault can see it.' },
       request_publish: { title: 'Propose for publication', body: 'Ask to add the parts you allow to the public knowledge hub. An administrator reviews it first.' },
     },
-    current: 'Selected',
+    current: 'Current',
     reasons: {
       notApproved: 'The narrator needs to confirm the content before it can be proposed.',
       noPublishRight: 'Only the narrator or a family owner/manager can propose publication.',

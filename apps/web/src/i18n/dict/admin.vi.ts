@@ -26,6 +26,7 @@ export default {
   common: {
     refresh: 'Tải lại',
     count: '{n} mục',
+    countOne: '1 mục',
     at: 'Lúc {time}',
     openItem: 'Xem nội dung công khai',
     itemRemoved: 'Nội dung công khai đã được gỡ',
@@ -105,6 +106,8 @@ export default {
     emptyBody: 'Khi chuyển chữ hoặc tạo bản nháp thất bại, tác vụ sẽ hiện ở đây kèm mã lỗi.',
     kind: 'Loại tác vụ: {kind}',
     attempts: '{n} lần thử',
+    attemptsOne: '1 lần thử',
+    kinds: { transcribe_and_draft: 'Chép lời và viết bản nháp' },
     recording: 'Bản ghi: {id}',
     updatedAt: 'Cập nhật lúc {time}',
     detail: 'Chi tiết: {detail}',

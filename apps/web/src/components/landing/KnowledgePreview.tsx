@@ -18,10 +18,10 @@ function KnowledgeCard({ item, featured }: { item: KnowledgeSample; featured?: b
       <div className={cn('relative overflow-hidden', featured ? 'aspect-[4/3] md:aspect-auto md:min-h-[24rem] md:w-1/2' : 'aspect-[16/10]')}>
         <StoryScene kind={item.scene} className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.04] motion-reduce:group-hover:scale-100" />
         <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-          <span className={cn('rounded-full px-3 py-1 text-[0.75rem] font-semibold', item.kind === 'experience' ? 'bg-heritage text-cream' : 'bg-cream text-terracotta')}>
+          <span className={cn('rounded-full px-3 py-1 text-[0.8rem] font-semibold', item.kind === 'experience' ? 'bg-heritage text-cream' : 'bg-cream text-terracotta')}>
             {t(`knowledge.kinds.${item.kind}`)}
           </span>
-          <span className="rounded-full bg-cream/90 px-3 py-1 text-[0.75rem] font-semibold text-ink backdrop-blur">{pick(item.topic)}</span>
+          <span className="rounded-full bg-cream/90 px-3 py-1 text-[0.8rem] font-semibold text-ink backdrop-blur">{pick(item.topic)}</span>
         </div>
       </div>
       <div className={cn('flex flex-col p-5', featured ? 'md:w-1/2 md:justify-end md:p-8' : 'md:p-6')}>
@@ -86,7 +86,7 @@ export function KnowledgePreview() {
         </form>
       </Reveal>
       <div className="mt-6 flex items-center justify-between gap-4">
-        <IllustrativeBadge />
+        <IllustrativeBadge className="text-[0.8rem]!" />
       </div>
       <ul className="mt-5 grid gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
         {first && (

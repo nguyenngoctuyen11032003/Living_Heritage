@@ -18,6 +18,7 @@ export interface BookMeta {
  */
 export function BookPageView({ page, book, chapters }: { page: BookPage; book: BookMeta; chapters: ChapterInput[] }) {
   const t = useT('books');
+  const tc = useT('common');
   const base: CSSProperties = { fontSize: '2.65cqw', lineHeight: 1.6 };
 
   if (page.kind === 'cover') {
@@ -31,7 +32,7 @@ export function BookPageView({ page, book, chapters }: { page: BookPage; book: B
             {t('preview.familyBook')}
           </p>
           <span aria-hidden="true" className="my-[5cqw] block h-px w-[18cqw]" style={{ background: theme.accent }} />
-          <h2 className="break-words font-serif font-semibold" style={{ fontSize: '8.5cqw', lineHeight: 1.12 }}>
+          <h2 className="break-words font-serif font-semibold" style={{ fontSize: '8.5cqw', lineHeight: 1.2 }}>
             {book.title}
           </h2>
           {book.subtitle && (
@@ -40,8 +41,8 @@ export function BookPageView({ page, book, chapters }: { page: BookPage; book: B
             </p>
           )}
         </div>
-        <p className="relative pb-[9cqw] text-center font-hand" style={{ fontSize: '4.2cqw', color: theme.accent }}>
-          {t('preview.madeWith')}
+        <p className="relative pb-[9cqw] text-center font-hand font-semibold" style={{ fontSize: '4.2cqw', color: theme.accent }}>
+          {tc('brand.name')}
         </p>
       </div>
     );
@@ -80,7 +81,7 @@ export function BookPageView({ page, book, chapters }: { page: BookPage; book: B
           <p className="font-sans font-semibold uppercase text-terracotta" style={{ fontSize: '2.1cqw', letterSpacing: '0.22em' }}>
             {t('preview.chapter', { n: page.chapter + 1 })}
           </p>
-          <h2 className="mt-[2cqw] break-words font-serif font-semibold text-heritage-deep" style={{ fontSize: '6cqw', lineHeight: 1.15 }}>
+          <h2 className="mt-[2cqw] break-words font-serif font-semibold text-heritage-deep" style={{ fontSize: '6cqw', lineHeight: 1.2 }}>
             {chapter.title}
           </h2>
           {chapter.narrator && (
@@ -104,7 +105,7 @@ export function BookPageView({ page, book, chapters }: { page: BookPage; book: B
             label={t('preview.qrLabel', { title: chapter.title })}
             size={96}
             bg="#ffffff"
-            className="h-[19cqw] w-[19cqw] shrink-0"
+            className="lh-qr h-[19cqw] w-[19cqw] shrink-0"
           />
           <figcaption className="font-sans" style={{ fontSize: '2.3cqw', lineHeight: 1.45 }}>
             <span className="block font-semibold text-heritage-deep">{t('preview.qrCaption', { d: formatDuration(chapter.durationS) })}</span>

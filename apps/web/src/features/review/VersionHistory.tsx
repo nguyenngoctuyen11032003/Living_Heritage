@@ -85,17 +85,17 @@ export function VersionHistory({ open, onClose, storyId, kind, currentVersion }:
                     <span className="flex flex-wrap items-center gap-2 font-semibold">
                       {t('history.version', { v: v.version })}
                       {v.version === currentVersion && (
-                        <Badge size="sm" tone="outline">
+                        <Badge tone="outline">
                           {t('history.current')}
                         </Badge>
                       )}
                       {v.edit_status === 'approved' && (
-                        <Badge size="sm" tone="mint">
+                        <Badge tone="mint">
                           {v.note === 'assisted' ? t('history.approvedAssisted') : t('history.approved')}
                         </Badge>
                       )}
                     </span>
-                    <span className="truncate text-[0.88rem] text-ink-soft">
+                    <span className="mt-0.5 truncate text-[0.88rem] text-ink-soft">
                       {formatDate(v.created_at, locale)} · {v.title}
                     </span>
                   </span>

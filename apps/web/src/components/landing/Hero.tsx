@@ -119,7 +119,7 @@ export function Hero() {
           {t('cta.listen')}
         </button>
       </motion.div>
-      <p className={cn('mt-4 text-center text-[0.78rem] text-ink-soft')}>{t('meta.illustrative')}</p>
+      <p className={cn('mt-4 text-center text-[0.8rem] text-ink-soft')}>{t('meta.illustrative')}</p>
     </section>
   );
 }

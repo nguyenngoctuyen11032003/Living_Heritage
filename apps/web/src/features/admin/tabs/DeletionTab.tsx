@@ -40,7 +40,7 @@ export function DeletionTab() {
   return (
     <div>
       <ListHeader count={q.status === 'ready' ? rows.length : null} onRefresh={q.reload} loading={q.status === 'loading'}>
-        <Field label={t('common.filterStatus')} className="w-56">
+        <Field label={t('common.filterStatus')} className="w-full sm:w-56">
           <Select value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)}>
             <option value="all">{t('common.all')}</option>
             {DELETION_STATUSES.map((s) => (
@@ -105,7 +105,7 @@ function DeletionCard({ row, onChanged }: { row: DeletionRow; onChanged: (r: Del
           {known ? t(`deletion.statuses.${row.status as DeletionStatus}`) : row.status}
         </StatusPill>
       </div>
-      <p className="mt-3 whitespace-pre-line leading-relaxed text-ink">{row.reason || <span className="italic text-ink-soft">{t('deletion.noReason')}</span>}</p>
+      <p className="mt-3 whitespace-pre-line break-words leading-relaxed text-ink">{row.reason || <span className="italic text-ink-soft">{t('deletion.noReason')}</span>}</p>
       <Field label={t('deletion.adminNote')} hint={t('deletion.adminNoteHint')} className="mt-4">
         <Textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={1000} rows={2} />
       </Field>

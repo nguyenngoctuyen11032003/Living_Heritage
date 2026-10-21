@@ -1,6 +1,11 @@
 // Namespace 'family' - Vietnamese is the source of keys (see plan ownership table).
 export default {
   _ns: 'family',
+  titles: {
+    onboarding: 'Bắt đầu',
+    members: 'Thành viên gia đình',
+    acceptInvite: 'Lời mời vào gia đình',
+  },
   states: {
     notConfiguredHint: 'Khi máy chủ được kết nối, kho gia đình sẽ hiện ở đây.',
   },

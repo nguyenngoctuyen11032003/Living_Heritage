@@ -1,6 +1,12 @@
 // Namespace 'knowledge' - Vietnamese is the source of keys (see plan ownership table).
 export default {
   _ns: 'knowledge',
+  meta: {
+    explore: 'Kho tri thức',
+    saved: 'Đã lưu để xem sau',
+    listen: 'Nghe lời kể',
+    notFound: 'Không tìm thấy nội dung',
+  },
   hero: {
     kicker: 'Kho tri thức công khai',
     title: 'Kho tri thức từ những người đi trước',
@@ -57,16 +63,16 @@ export default {
     keepQuery: 'Từ khoá “{q}” vẫn được giữ trong ô tìm kiếm để bạn sửa.',
   },
   sample: {
-    bannerTitle: 'Đây là dữ liệu minh họa',
+    bannerTitle: 'Đây là dữ liệu minh hoạ',
     bannerBody: 'Kho tri thức công khai chưa có nội dung nào được người kể duyệt và công bố. Các thẻ dưới đây do nhóm dự án soạn để bạn hình dung cách trình bày. Nhân vật là hư cấu, không phải lời kể thật.',
-    detailBanner: 'Nội dung minh họa: nhân vật hư cấu, do nhóm dự án soạn để giới thiệu cách trình bày một thẻ tri thức.',
-    actionNote: 'Đây là nội dung minh họa nên mọi báo cáo hay đề nghị chỉ được mô phỏng, không có gì được gửi đi.',
+    detailBanner: 'Nội dung minh hoạ: nhân vật hư cấu, do nhóm dự án soạn để giới thiệu cách trình bày một thẻ tri thức.',
+    actionNote: 'Đây là nội dung minh hoạ nên mọi báo cáo hay đề nghị chỉ được mô phỏng, không có gì được gửi đi.',
     simulatedOk: 'Đã hiểu',
   },
   states: {
     error: 'Không tải được kho tri thức. Vui lòng kiểm tra kết nối mạng rồi thử lại.',
     retry: 'Thử lại',
-    notConfigured: 'Hệ thống chưa kết nối máy chủ nên bạn đang xem dữ liệu minh họa.',
+    notConfigured: 'Hệ thống chưa kết nối máy chủ nên bạn đang xem dữ liệu minh hoạ.',
     notFoundTitle: 'Không tìm thấy nội dung',
     notFoundBody: 'Nội dung này không tồn tại hoặc đã được người kể rút khỏi kho công khai.',
     backToHub: 'Về kho tri thức',
@@ -98,7 +104,7 @@ export default {
     sourceDecade: 'Thời gian',
     sourcePublished: 'Ngày công bố',
     sourceUsage: 'Nội dung được chia sẻ để tham khảo và học hỏi, trong phạm vi người kể đã đồng ý. Đây là kinh nghiệm cá nhân, không thay thế hướng dẫn chuyên môn. Khi trích dẫn, vui lòng ghi nguồn “Di Sản Sống” kèm tên người kể như trên. Không dùng cho mục đích thương mại khi chưa được phép.',
-    sourceSample: 'Nhân vật hư cấu, nội dung minh họa do nhóm dự án soạn.',
+    sourceSample: 'Nhân vật hư cấu, nội dung minh hoạ do nhóm dự án soạn.',
     related: 'Cùng chủ đề',
     relatedAll: 'Xem tất cả trong chủ đề này',
     actionsLabel: 'Thao tác với nội dung',

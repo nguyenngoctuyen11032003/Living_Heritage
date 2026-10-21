@@ -10,7 +10,7 @@ export function VisibilityLabel({ visibility, className }: { visibility: Visibil
   const t = useT('vault');
   const Icon = ICON[visibility];
   return (
-    <span className={cn('inline-flex items-center gap-1.5 text-[0.85rem] text-ink-soft', className)}>
+    <span className={cn('inline-flex items-center gap-1.5 text-[0.9rem] text-ink-soft', className)}>
       <Icon className="size-4" aria-hidden="true" />
       {t(`visibility.${visibility}`)}
     </span>

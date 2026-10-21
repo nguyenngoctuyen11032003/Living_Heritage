@@ -77,7 +77,7 @@ export default function ResetPasswordPage() {
     );
 
   return (
-    <AuthLayout title={t('reset.title')} subtitle={t('reset.subtitle')}>
+    <AuthLayout docTitle={t('titles.reset')} title={t('reset.title')} subtitle={t('reset.subtitle')}>
       {content}
     </AuthLayout>
   );

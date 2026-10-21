@@ -3,7 +3,11 @@ import type vi from './common.vi';
 
 export default {
   _ns: 'common',
-  brand: { name: 'Living Heritage', tagline: 'A digital companion that keeps elders’ knowledge alive' },
+  brand: {
+    name: 'Living Heritage',
+    tagline: 'A digital companion that keeps elders’ knowledge alive',
+    description: 'Living Heritage helps grandparents tell their stories by voice in Vietnamese. AI helps transcribe and edit, families keep the stories, and younger generations learn from shared experience.',
+  },
   nav: {
     howItWorks: 'How it works',
     explore: 'Explore knowledge',
@@ -24,7 +28,10 @@ export default {
     menu: 'Open menu',
     closeMenu: 'Close menu',
     skipToContent: 'Skip to main content',
+    appNav: 'App navigation',
+    footerNav: 'Footer links',
   },
+  tabs: { family: 'Family', narrators: 'Storytellers', books: 'Books', explore: 'Explore', settings: 'Settings' },
   lang: { label: 'Language', vi: 'Tiếng Việt', en: 'English' },
   textScale: { label: 'Text size', normal: 'Standard', large: 'Large', xlarge: 'Extra large' },
   actions: {
@@ -46,11 +53,21 @@ export default {
     planned: 'Planned',
     empty: 'Nothing here yet',
     error: 'Something went wrong. Please try again.',
-    offline: 'You are offline',
+    offline: 'You’re offline',
     notConfigured: 'The server connection is not configured.',
     forbidden: 'You do not have permission to view this.',
   },
-  notFound: { title: 'Page not found', body: 'This page does not exist or access was revoked.', home: 'Back to home' },
+  notFound: {
+    title: 'Page not found',
+    body: 'This page doesn’t exist, or the link is no longer valid.',
+    home: 'Back to home',
+    explore: 'Explore knowledge',
+  },
+  routeError: {
+    eyebrow: 'Something went wrong',
+    title: 'This page couldn’t load',
+    body: 'An error occurred while opening this page. Try reloading; if that doesn’t help, you can go back to the home page.',
+  },
   footer: {
     rights: '© 2026 Living Heritage · Posts and Telecommunications Institute of Technology',
     privacy: 'Privacy',

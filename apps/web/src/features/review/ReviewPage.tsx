@@ -1,5 +1,5 @@
 import type { AiErrorCode, MemberRole } from '@lh/shared';
-import { ArrowLeft, CheckCircle2, FileQuestion, History, Share2, WifiOff } from 'lucide-react';
+import { ArrowLeft, AudioLines, CheckCircle2, FileQuestion, History, PencilLine, Share2, WifiOff } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { Link, useBlocker, useNavigate, useParams } from 'react-router';
 import { LanguageSwitch } from '@/components/layout/LanguageSwitch';
@@ -100,6 +100,13 @@ function ReviewScreen() {
     setLoad(null);
     void refresh();
   }, [refresh, attempt]);
+
+  const tc = useT('common');
+  const docTitle = (load?.type === 'story' && load.bundle.story.title.trim()) || t('page.title');
+  const brand = tc('brand.name');
+  useEffect(() => {
+    document.title = `${docTitle} — ${brand}`;
+  }, [docTitle, brand]);
 
   const safeHref = isAnonymous ? '/ke-chuyen' : '/gia-dinh';
   const narratorView = isAnonymous || (load?.type === 'story' && load.bundle.isNarratorUser);
@@ -308,11 +315,11 @@ function StoryReview({ bundle, role, onReload }: { bundle: ReviewBundle; role: M
   const draft = (
     <Card padding="md" className="h-fit">
       <section aria-labelledby="draft-heading" className="flex flex-col gap-4">
-        <h2 id="draft-heading" className="font-serif text-[1.35rem] font-semibold text-heritage-deep">
+        <h2 id="draft-heading" className="font-serif text-[1.35rem] font-semibold leading-snug text-heritage-deep">
           {t('editor.heading')}
         </h2>
-        {!canEdit && <p className="rounded-2xl bg-cream p-3 text-[0.92rem] text-ink-soft">{t('page.readOnly')}</p>}
-        <DraftEditor kind={story.kind} form={form} onChange={setForm} readOnly={!canEdit} errors={errors} />
+        {!canEdit && <p className="rounded-2xl bg-cream p-3 text-[0.92rem] leading-relaxed text-ink-soft ring-1 ring-line">{t('page.readOnly')}</p>}
+        <DraftEditor kind={story.kind} form={form} onChange={setForm} readOnly={!canEdit} errors={errors} narratorMode={isNarratorUser} />
       </section>
     </Card>
   );
@@ -326,7 +333,7 @@ function StoryReview({ bundle, role, onReload }: { bundle: ReviewBundle; role: M
         </div>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <h1 className="min-w-0 font-serif text-[clamp(1.6rem,4vw,2.3rem)] font-semibold leading-tight text-heritage-deep [overflow-wrap:anywhere]">{story.title || t('page.title')}</h1>
-          <Button variant="secondary" onClick={() => setHistoryOpen(true)} leftIcon={<History className="size-5" aria-hidden="true" />}>
+          <Button variant="secondary" size={isNarratorUser ? 'lg' : 'md'} onClick={() => setHistoryOpen(true)} leftIcon={<History className="size-5" aria-hidden="true" />}>
             {t('history.open')}
           </Button>
         </div>
@@ -368,10 +375,10 @@ function StoryReview({ bundle, role, onReload }: { bundle: ReviewBundle; role: M
       ) : (
         <Tabs value={tab} defaultValue="draft" onValueChange={setTab}>
           <TabList label={t('tabs.label')} className="mb-4 flex w-full">
-            <Tab value="source" className="flex-1 justify-center">
+            <Tab value="source" icon={<AudioLines />} className="min-w-0 flex-1 justify-center px-3!">
               {t('tabs.source')}
             </Tab>
-            <Tab value="draft" className="flex-1 justify-center">
+            <Tab value="draft" icon={<PencilLine />} className="min-w-0 flex-1 justify-center px-3!">
               {t('tabs.draft')}
             </Tab>
           </TabList>

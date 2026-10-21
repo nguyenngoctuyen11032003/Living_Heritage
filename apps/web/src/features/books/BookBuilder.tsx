@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowLeft, Eye, Printer, Trash2 } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, BookOpen, Eye, Printer, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Button, ButtonLink, Dialog, Skeleton, useToast } from '@/components/ui';
@@ -9,6 +9,7 @@ import { OrderedList } from '@/features/vault/components/OrderedList';
 import { LoadError, Unavailable } from '@/features/vault/components/States';
 import { StoryPicker } from '@/features/vault/components/StoryPicker';
 import { FamilyGate } from '@/features/vault/external';
+import { usePageTitle } from '@/lib/usePageTitle';
 import type { VaultStory } from '@/features/vault/types';
 import { useVaultLookups } from '@/features/vault/useLookups';
 import { useT } from '@/i18n';
@@ -31,6 +32,7 @@ export function BookBuilder({ bookId }: { bookId: string }) {
 function BookBuilderInner({ bookId }: { bookId: string }) {
   const t = useT('books');
   const { state, reload } = useBook(bookId);
+  usePageTitle(state.kind === 'loading' ? null : state.kind === 'ready' ? null : t('list.title'));
   if (state.kind === 'unavailable')
     return <Unavailable title={t('builder.notFoundTitle')} body={t('builder.notFoundBody')} backTo="/sach" backLabel={t('builder.back')} />;
   if (state.kind === 'error') return <LoadError onRetry={reload} message={t('state.loadError')} />;
@@ -72,6 +74,7 @@ function Builder({ book: initialBook, initialChapters }: { book: BookRow; initia
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [announce, setAnnounce] = useState('');
   const { inputs, pages } = useBookPages(chapters, narratorName);
+  usePageTitle(book.title);
 
   const loadApproved = useCallback(() => {
     const sb = getSupabase();
@@ -157,19 +160,20 @@ function Builder({ book: initialBook, initialChapters }: { book: BookRow; initia
       </Link>
       <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="min-w-0">
-          <h1 className="break-words font-serif text-[2rem] font-semibold leading-tight text-heritage-deep md:text-[2.5rem]">{book.title}</h1>
-          {book.subtitle && <p className="mt-1 font-serif text-[1.1rem] italic text-ink-soft">{book.subtitle}</p>}
-          <p className="mt-2 text-[0.9rem] text-ink-soft">{t('builder.chapters.count', { n: chapters.length })}</p>
+          <p className="text-[0.875rem] font-semibold uppercase tracking-[0.14em] text-terracotta">{t('preview.familyBook')}</p>
+          <h1 className="mt-2 break-words font-serif text-[clamp(1.9rem,1.4rem+2vw,2.5rem)] font-semibold leading-[1.2] text-heritage-deep">{book.title}</h1>
+          {book.subtitle && <p className="mt-1 font-serif text-[1.1rem] italic leading-snug text-ink-soft">{book.subtitle}</p>}
+          <p className="mt-2 text-[0.9rem] text-ink-soft">{chapters.length === 1 ? t('builder.chapters.countOne') : t('builder.chapters.count', { n: chapters.length })}</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button leftIcon={<Eye className="size-5" />} onClick={() => setPreview(true)}>
+          <Button leftIcon={<Eye className="size-5" aria-hidden="true" />} onClick={() => setPreview(true)}>
             {t('builder.preview')}
           </Button>
-          <ButtonLink to={`/sach/${book.id}/in`} variant="secondary" leftIcon={<Printer className="size-5" />}>
+          <ButtonLink to={`/sach/${book.id}/in`} variant="secondary" leftIcon={<Printer className="size-5" aria-hidden="true" />}>
             {t('builder.print')}
           </ButtonLink>
           {canEdit && (
-            <Button variant="ghost" leftIcon={<Trash2 className="size-5" />} onClick={() => setConfirmDelete(true)}>
+            <Button variant="ghost" leftIcon={<Trash2 className="size-5" aria-hidden="true" />} onClick={() => setConfirmDelete(true)}>
               {t('builder.delete')}
             </Button>
           )}
@@ -182,8 +186,8 @@ function Builder({ book: initialBook, initialChapters }: { book: BookRow; initia
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
         {canEdit && (
-          <section aria-labelledby="book-picker" className="flex min-w-0 flex-col gap-3 rounded-[1.75rem] bg-paper p-5 ring-1 ring-line/80">
-            <h2 id="book-picker" className="font-serif text-[1.3rem] font-semibold text-heritage-deep">
+          <section aria-labelledby="book-picker" className="flex min-w-0 flex-col gap-3 rounded-[1.75rem] bg-paper p-5 ring-1 ring-line/80 md:p-6">
+            <h2 id="book-picker" className="font-serif text-[1.3rem] font-semibold leading-[1.25] text-heritage-deep">
               {t('builder.picker.title')}
             </h2>
             <p className="text-[0.9rem] text-ink-soft">{t('builder.picker.hint')}</p>
@@ -219,13 +223,18 @@ function Builder({ book: initialBook, initialChapters }: { book: BookRow; initia
         <div className={canEdit ? 'flex min-w-0 flex-col gap-8' : 'flex min-w-0 flex-col gap-8 lg:col-span-2'}>
           <section aria-labelledby="book-chapters" className="flex flex-col gap-3">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h2 id="book-chapters" className="font-serif text-[1.3rem] font-semibold text-heritage-deep">
+              <h2 id="book-chapters" className="font-serif text-[1.3rem] font-semibold leading-[1.25] text-heritage-deep">
                 {t('builder.chapters.title')}
               </h2>
-              {canEdit && chapters.length > 1 && <p className="text-[0.85rem] text-ink-soft">{t('builder.chapters.dragHint')}</p>}
+              {canEdit && chapters.length > 1 && <p className="text-[0.9rem] text-ink-soft">{t('builder.chapters.dragHint')}</p>}
             </div>
             {chapters.length === 0 ? (
-              <p className="rounded-2xl border border-dashed border-line bg-paper/70 px-5 py-8 text-center text-ink-soft">{t('builder.chapters.empty')}</p>
+              <div className="flex flex-col items-center gap-3 rounded-[1.5rem] border border-dashed border-line bg-paper/70 px-5 py-10 text-center">
+                <span aria-hidden="true" className="inline-flex size-12 items-center justify-center rounded-2xl bg-mint text-heritage">
+                  <BookOpen className="size-6" />
+                </span>
+                <p className="max-w-[40ch] leading-relaxed text-ink-soft">{t('builder.chapters.empty')}</p>
+              </div>
             ) : (
               <OrderedList
                 items={chapters}
@@ -241,13 +250,13 @@ function Builder({ book: initialBook, initialChapters }: { book: BookRow; initia
                 }}
                 render={(c, i) => (
                   <div className="flex flex-col gap-1">
-                    <span className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-terracotta">{t('builder.chapters.chapterN', { n: i + 1 })}</span>
-                    <Link to={`/cau-chuyen/${c.story_id}`} className="font-serif text-[1.1rem] font-semibold leading-snug text-heritage-deep hover:underline">
+                    <span className="text-[0.875rem] font-semibold uppercase tracking-[0.1em] text-terracotta">{t('builder.chapters.chapterN', { n: i + 1 })}</span>
+                    <Link to={`/cau-chuyen/${c.story_id}`} className="break-words font-serif text-[1.1rem] font-semibold leading-[1.35] text-heritage-deep hover:underline">
                       {c.story.title.trim() || untitled}
                     </Link>
-                    <span className="text-[0.85rem] text-ink-soft">{narratorName(c.story.narrator_id) ?? ''}</span>
+                    <span className="text-[0.9rem] text-ink-soft">{narratorName(c.story.narrator_id) ?? ''}</span>
                     {c.story.edit_status !== 'approved' && (
-                      <span className="inline-flex items-start gap-1.5 text-[0.85rem] text-[#6b4a0c]">
+                      <span className="inline-flex items-start gap-1.5 text-[0.9rem] text-[#6b4a0c]">
                         <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
                         {t('builder.chapters.notApproved')}
                       </span>
@@ -310,8 +319,8 @@ function CoverEditor({ book, onSaved }: { book: BookRow; onSaved: (b: BookRow) =
   }
 
   return (
-    <section aria-labelledby="book-cover" className="rounded-[1.75rem] bg-paper p-5 ring-1 ring-line/80">
-      <h2 id="book-cover" className="mb-4 font-serif text-[1.3rem] font-semibold text-heritage-deep">
+    <section aria-labelledby="book-cover" className="rounded-[1.75rem] bg-paper p-5 ring-1 ring-line/80 md:p-6">
+      <h2 id="book-cover" className="mb-4 font-serif text-[1.3rem] font-semibold leading-[1.25] text-heritage-deep">
         {t('builder.cover')}
       </h2>
       <form onSubmit={submit} noValidate className="flex flex-col gap-4">

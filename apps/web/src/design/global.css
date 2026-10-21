@@ -17,7 +17,7 @@
   --color-night-ink: var(--night-ink);
   --font-sans: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Noto Serif', Georgia, serif;
-  --font-hand: 'Caveat', 'Segoe Print', cursive;
+  --font-hand: 'Dancing Script', 'Segoe Print', cursive;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -26,6 +26,11 @@ html {
   background: var(--cream);
   color: var(--ink);
   -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  /* Only the loaded weights exist (sans 400-700, serif 400/600, hand 600): never fake a heavier cut. */
+  font-synthesis-weight: none;
+  /* Anchor jumps (#main, legal table of contents) clear the sticky header. */
+  scroll-padding-top: 5.5rem;
 }
 html[data-text-scale='115'] { font-size: 20.7px; }
 html[data-text-scale='130'] { font-size: 23.4px; }
@@ -39,16 +44,31 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+@layer base {
+  /* Vietnamese stacks marks above and below (Ẩ, Ữ, Ộ, ặ): keep headings off tight leading by default. */
+  h1, h2, h3, h4, h5, h6 { line-height: 1.25; overflow-wrap: break-word; text-wrap: balance; }
+  p, li, dd, blockquote { overflow-wrap: break-word; text-wrap: pretty; }
+  ::placeholder { color: color-mix(in srgb, var(--ink-soft) 80%, transparent); }
+}
+
+/* Unlayered on purpose (beats the utilities layer). Serif ships 400/600 only, Dancing Script 600 only:
+   map heavier requests to the real 600 cut instead of a synthesized or mismatched weight. */
+.font-serif.font-bold, .font-serif.font-extrabold, .font-serif.font-black,
+.font-serif .font-bold:not(.font-sans), .font-hand { font-weight: 600; }
+
 /* Narrator mode: larger base text (spec: 20-22px). */
 .narrator-mode { font-size: 1.17rem; }
 
-:focus-visible {
+/* Zero specificity: Tailwind outline/ring utilities can still override, and pills keep their own radius. */
+:where(:focus-visible) {
   outline: 3px solid var(--terracotta);
   outline-offset: 3px;
-  border-radius: 6px;
 }
+/* Terracotta is too dim on the night sections: use the mint ring there. */
+:where(.bg-night, .bg-heritage) :where(:focus-visible) { outline-color: var(--mint); }
 
 ::selection { background: var(--mint); color: var(--heritage-deep); }
+.bg-night ::selection, .bg-heritage ::selection, .bg-heritage-deep ::selection { background: var(--night-ink); color: var(--night); }
 
 /* SVG fractal-noise textures for the dark cinematic sections. */
 .noise-overlay {

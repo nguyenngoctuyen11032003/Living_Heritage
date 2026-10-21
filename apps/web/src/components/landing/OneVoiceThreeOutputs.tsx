@@ -49,12 +49,12 @@ export function OneVoiceThreeOutputs() {
             <div className="relative h-56 overflow-hidden bg-[#F5EDDA]">
               <StoryScene kind="garden" className="absolute inset-0" />
               <div className="absolute left-4 top-4">
-                <IllustrativeBadge />
+                <IllustrativeBadge className="text-[0.8rem]!" />
               </div>
             </div>
             <div className="flex flex-1 flex-col gap-4 p-6">
               <div>
-                <p className="text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-mint">{t('outputs.narration')}</p>
+                <p className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-mint">{t('outputs.narration')}</p>
                 <p className="mt-1 font-serif text-[1.2rem] font-semibold">{pick(s.narrator)}</p>
               </div>
               <AudioPlayer compact tone="dark" duration={s.duration} onTime={setTime} title={pick(s.story.title)} />
@@ -78,7 +78,7 @@ export function OneVoiceThreeOutputs() {
                   {t('outputs.tabs.card')}
                 </Tab>
               </TabList>
-              <Badge tone="outline" size="sm">
+              <Badge tone="outline">
                 {t('meta.simulatedAi')}
               </Badge>
             </div>
@@ -126,12 +126,12 @@ export function OneVoiceThreeOutputs() {
                 <dl className="mt-6 grid gap-x-8 gap-y-5 md:grid-cols-2">
                   {fields.map((f) => (
                     <div key={f.key} className={cn(f.key === 'skill' && 'md:col-span-2')}>
-                      <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{t(`outputs.fields.${f.key}`)}</dt>
+                      <dt className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{t(`outputs.fields.${f.key}`)}</dt>
                       <dd className={cn('mt-1.5 leading-relaxed text-ink', f.key === 'skill' && 'font-serif text-[1.35rem] font-semibold leading-snug text-heritage-deep')}>{f.value}</dd>
                     </div>
                   ))}
                   <div className="md:col-span-2">
-                    <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{t('outputs.fields.steps')}</dt>
+                    <dt className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{t('outputs.fields.steps')}</dt>
                     <dd className="mt-2">
                       <ol className="flex flex-col gap-2">
                         {s.card.steps.map((step, i) => (
@@ -147,12 +147,12 @@ export function OneVoiceThreeOutputs() {
                   </div>
                   {after.map((f) => (
                     <div key={f.key}>
-                      <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{t(`outputs.fields.${f.key}`)}</dt>
+                      <dt className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{t(`outputs.fields.${f.key}`)}</dt>
                       <dd className="mt-1.5 leading-relaxed text-ink">{f.value}</dd>
                     </div>
                   ))}
                   <div className="rounded-2xl bg-cream p-4 ring-1 ring-line md:col-span-2">
-                    <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-heritage">{t('outputs.fields.source')}</dt>
+                    <dt className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-heritage">{t('outputs.fields.source')}</dt>
                     <dd className="mt-1 leading-relaxed text-ink">{pick(s.card.source)}</dd>
                   </div>
                 </dl>

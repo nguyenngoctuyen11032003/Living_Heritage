@@ -8,6 +8,7 @@ import { useLocale, useT } from '@/i18n';
 import { formatDate } from '@/lib/format';
 import { useSession } from '@/lib/session';
 import { getSupabase } from '@/lib/supabase';
+import { usePageTitle } from '@/lib/usePageTitle';
 import { ASSIGNABLE_ROLES, loadInvites, loadMembers, type InviteView, type MemberView } from './api';
 import { useCurrentFamily } from './current';
 import { FamilyGate } from './FamilyGate';
@@ -16,6 +17,8 @@ import { CopyField, ErrorNotice, PageHeader, SectionCard } from './states';
 import { inviteUrl } from './urls';
 
 export default function MembersPage() {
+  const t = useT('family');
+  usePageTitle(t('titles.members'));
   return (
     <FamilyGate>
       <Members />
@@ -127,19 +130,21 @@ function Members() {
                 const name = m.display_name || t('members.unnamed');
                 return (
                   <li key={m.user_id} className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center">
-                    <div aria-hidden="true" className="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-mint font-serif text-[1.2rem] font-semibold text-heritage-deep">
-                      {name.trim().charAt(0).toUpperCase()}
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <div aria-hidden="true" className="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-mint font-serif text-[1.2rem] font-semibold text-heritage-deep">
+                        {name.trim().charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="break-words font-semibold text-ink">
+                          {name}
+                          {isSelf(m) && <span className="ml-2 text-[0.9rem] font-normal text-ink-soft">{t('members.you')}</span>}
+                        </p>
+                        <p className="break-words text-[0.9rem] text-ink-soft">{[m.relation, t('members.since', { date: formatDateSafe(m.created_at) })].filter(Boolean).join(' · ')}</p>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold text-ink">
-                        {name}
-                        {isSelf(m) && <span className="ml-2 text-[0.85rem] font-normal text-ink-soft">{t('members.you')}</span>}
-                      </p>
-                      <p className="text-[0.9rem] text-ink-soft">{[m.relation, t('members.since', { date: formatDateSafe(m.created_at) })].filter(Boolean).join(' · ')}</p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex items-center gap-2 pl-15 sm:pl-0">
                       {editable ? (
-                        <div className="w-40">
+                        <div className="w-full min-w-0 max-w-48 sm:w-44">
                           <Select aria-label={t('members.roleFor', { name })} value={m.role} disabled={busyId === m.user_id} onChange={(e) => void changeRole(m, e.target.value as MemberRole)}>
                             {ASSIGNABLE_ROLES.map((r) => (
                               <option key={r} value={r}>
@@ -185,8 +190,8 @@ function Members() {
                         <li key={inv.id} className="flex items-start gap-3 rounded-2xl bg-cream p-3">
                           <Mail aria-hidden="true" className="mt-1 size-5 shrink-0 text-heritage" />
                           <div className="min-w-0 flex-1">
-                            <p className="truncate font-semibold text-ink">{inv.email}</p>
-                            <p className="text-[0.85rem] text-ink-soft">
+                            <p className="font-semibold text-ink [overflow-wrap:anywhere]">{inv.email}</p>
+                            <p className="text-[0.9rem] text-ink-soft">
                               {t(`roles.${inv.role}`)}
                               {inv.relation ? ` · ${inv.relation}` : ''}
                             </p>
@@ -306,7 +311,7 @@ function InviteForm({ familyId, onCreated }: { familyId: string; onCreated: () =
           <Input value={relation} maxLength={60} onChange={(e) => setRelation(e.target.value)} />
         </Field>
         <div aria-live="assertive">{error && <ErrorNotice message={t(`errors.${error}`)} />}</div>
-        <Button type="submit" loading={busy} leftIcon={<UserPlus className="size-4" aria-hidden="true" />}>
+        <Button type="submit" loading={busy} leftIcon={<UserPlus className="size-5" aria-hidden="true" />}>
           {t('invite.submit')}
         </Button>
       </form>
@@ -314,7 +319,7 @@ function InviteForm({ familyId, onCreated }: { familyId: string; onCreated: () =
         <div role="status" className="mt-6 rounded-2xl bg-mint/50 p-4">
           <p className="mb-3 font-semibold text-heritage-deep">{t('invite.created', { email: link.email })}</p>
           <CopyField value={link.url} label={t('invite.linkLabel')} />
-          <p className="text-[0.88rem] leading-relaxed text-ink-soft">{t('invite.onceWarning')}</p>
+          <p className="text-[0.9rem] leading-relaxed text-ink-soft">{t('invite.onceWarning')}</p>
         </div>
       )}
     </SectionCard>

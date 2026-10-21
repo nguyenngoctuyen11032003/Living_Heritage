@@ -160,7 +160,7 @@ export function ConnectDialog({ item, open, onClose }: { item: KnowledgeItem; op
               <span className="text-[0.95rem] leading-relaxed text-ink">{t('connect.consent')}</span>
             </label>
             {errors.consent && (
-              <p id={`${consentId}-err`} role="alert" className="mt-1.5 text-[0.82rem] font-medium text-terracotta">
+              <p id={`${consentId}-err`} role="alert" className="mt-1.5 text-[0.9375rem] font-medium text-terracotta">
                 {t('connect.consentRequired')}
               </p>
             )}

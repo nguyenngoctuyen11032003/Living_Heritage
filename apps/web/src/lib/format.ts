@@ -9,7 +9,7 @@ export function formatDuration(totalSeconds: number): string {
 
 export function formatDate(iso: string | Date, locale: Locale): string {
   const d = typeof iso === 'string' ? new Date(iso) : iso;
-  return new Intl.DateTimeFormat(locale === 'vi' ? 'vi-VN' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
+  return new Intl.DateTimeFormat(locale === 'vi' ? 'vi-VN' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
 }
 
 export function formatVnd(amount: number, locale: Locale): string {

@@ -64,14 +64,14 @@ export function SiteFooter() {
               </span>
             </div>
           </div>
-          <nav aria-label={tc('brand.name')} className="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:col-span-8">
+          <nav aria-label={tc('nav.footerNav')} className="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:col-span-8">
             {columns.map((col) => (
               <div key={col.title}>
-                <h2 className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-mint">{col.title}</h2>
-                <ul className="mt-4 flex flex-col">
+                <h2 className="text-[0.8rem] font-semibold uppercase tracking-[0.12em] text-mint">{col.title}</h2>
+                <ul className="mt-3 flex flex-col">
                   {col.links.map((l) => (
                     <li key={l.to}>
-                      <Link to={l.to} className="inline-flex min-h-11 items-center text-[0.95rem] text-night-ink/80 transition-colors hover:text-white">
+                      <Link to={l.to} className="flex min-h-11 min-w-11 items-center py-1.5 text-[0.95rem] leading-snug text-night-ink/80 transition-colors hover:text-white">
                         {l.label}
                       </Link>
                     </li>
@@ -90,7 +90,7 @@ export function SiteFooter() {
           <p className="text-[0.82rem] text-night-ink/70">{tc('footer.rights')}</p>
           <div className="flex items-center gap-3">
             <LanguageSwitch tone="dark" />
-            <a href="#main" className="inline-flex min-h-12 items-center gap-2 rounded-full px-4 text-[0.85rem] font-semibold text-night-ink/85 ring-1 ring-white/15 transition-colors hover:bg-white/8">
+            <a href="#main" className="inline-flex min-h-12 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 text-[0.85rem] font-semibold text-night-ink/85 ring-1 ring-white/15 transition-colors hover:bg-white/8">
               <ArrowUp aria-hidden="true" className="size-4" />
               {t('footer.backToTop')}
             </a>

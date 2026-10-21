@@ -41,7 +41,7 @@ export function Manifesto() {
           />
 
           <div className="mt-10 grid grid-cols-1 gap-8 md:mt-16 md:grid-cols-12">
-            <p className="font-hand text-[1.6rem] leading-tight text-mint md:col-span-4 md:text-[1.9rem]">* {t('footer.tagline')}</p>
+            <p className="font-hand text-[1.6rem] font-semibold leading-tight text-mint md:col-span-4 md:text-[1.9rem]">* {t('footer.tagline')}</p>
             <Reveal className="md:col-span-6 md:col-start-7 lg:col-span-5 lg:col-start-8">
               <p className="text-pretty text-[1.08rem] leading-relaxed text-night-ink/85 md:text-[1.15rem]">{t('manifesto.intro')}</p>
               <div className="mt-8">

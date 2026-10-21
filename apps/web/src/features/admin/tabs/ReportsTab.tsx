@@ -61,7 +61,7 @@ export function ReportsTab() {
   return (
     <div>
       <ListHeader count={q.status === 'ready' ? rows.length : null} onRefresh={q.reload} loading={q.status === 'loading'}>
-        <Field label={t('common.filterStatus')} className="w-56">
+        <Field label={t('common.filterStatus')} className="w-full sm:w-56">
           <Select value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)}>
             <option value="all">{t('common.all')}</option>
             {REPORT_STATUSES.map((s) => (
@@ -79,7 +79,7 @@ export function ReportsTab() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="font-semibold text-terracotta">{reasonLabel(row.reason)}</p>
-                  <p className="mt-0.5 text-[0.85rem] text-ink-soft">{t('common.at', { time: dt(row.created_at) })}</p>
+                  <p className="mt-0.5 text-[0.9rem] text-ink-soft">{t('common.at', { time: dt(row.created_at) })}</p>
                 </div>
                 <StatusPill tone={row.status === 'open' ? 'open' : row.status === 'resolved' ? 'done' : 'muted'}>
                   {(REPORT_STATUSES as readonly string[]).includes(row.status) ? t(`reports.statuses.${row.status as ReportStatus}`) : row.status}
@@ -88,7 +88,7 @@ export function ReportsTab() {
               <div className="mt-2">
                 <ItemLink id={row.public_item_id} title={row.public_item_id ? q.data?.titles[row.public_item_id] : undefined} />
               </div>
-              <p className="mt-2 whitespace-pre-line leading-relaxed text-ink">{row.note || <span className="italic text-ink-soft">{t('common.noNote')}</span>}</p>
+              <p className="mt-2 whitespace-pre-line break-words leading-relaxed text-ink">{row.note || <span className="italic text-ink-soft">{t('common.noNote')}</span>}</p>
               <div className="mt-4 flex flex-wrap gap-2.5">
                 {nextReportStatuses(row.status).map((s) => (
                   <Button key={s} variant={s === 'resolved' ? 'primary' : 'secondary'} loading={busy === row.id} disabled={busy !== null} onClick={() => void setStatus(row, s)}>

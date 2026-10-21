@@ -1,8 +1,8 @@
 import { useLocale, useT, type Locale } from '@/i18n';
 import { cn } from '@/lib/cn';
 
-/** VI | EN segmented switch. `tone="dark"` for night sections. */
-export function LanguageSwitch({ tone = 'light', className }: { tone?: 'light' | 'dark'; className?: string }) {
+/** VI | EN segmented switch. `tone="dark"` for night sections; `size="lg"` for narrator mode (larger targets). */
+export function LanguageSwitch({ tone = 'light', size = 'md', className }: { tone?: 'light' | 'dark'; size?: 'md' | 'lg'; className?: string }) {
   const { locale, setLocale } = useLocale();
   const t = useT('common');
   const options: Locale[] = ['vi', 'en'];
@@ -11,7 +11,8 @@ export function LanguageSwitch({ tone = 'light', className }: { tone?: 'light' |
       role="group"
       aria-label={t('lang.label')}
       className={cn(
-        'inline-flex items-center rounded-full p-0.5 text-[13px] font-semibold',
+        'inline-flex shrink-0 items-center rounded-full p-0.5 font-semibold',
+        size === 'lg' ? 'text-[0.875rem]' : 'text-[0.8rem]',
         tone === 'light' ? 'bg-heritage/8 ring-1 ring-line' : 'bg-white/10 ring-1 ring-white/15',
         className,
       )}
@@ -23,9 +24,11 @@ export function LanguageSwitch({ tone = 'light', className }: { tone?: 'light' |
           lang={l}
           aria-pressed={locale === l}
           title={t(`lang.${l}`)}
+          aria-label={t(`lang.${l}`)}
           onClick={() => setLocale(l)}
           className={cn(
-            'min-h-10 min-w-11 rounded-full px-2.5 uppercase tracking-wide transition-colors',
+            'rounded-full px-2.5 uppercase tracking-wide transition-colors',
+            size === 'lg' ? 'min-h-12 min-w-12 sm:min-h-14 sm:min-w-14' : 'min-h-11 min-w-11',
             locale === l
               ? tone === 'light'
                 ? 'bg-heritage text-cream'

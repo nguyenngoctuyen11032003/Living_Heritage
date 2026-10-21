@@ -13,7 +13,7 @@ export interface HandNoteProps {
   style?: CSSProperties;
 }
 
-/** Hand-written Caveat note in heritage green that fades in once. Decorative by default (aria-hidden) — repeat important text elsewhere. */
+/** Hand-written note (Dancing Script) in heritage green that fades in once. Decorative by default (aria-hidden) — repeat important text elsewhere. */
 export function HandNote({ children, rotate = -4, delay = 0, className, style }: HandNoteProps) {
   const reduced = useReducedMotionSafe();
   return (

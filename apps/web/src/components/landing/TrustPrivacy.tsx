@@ -24,13 +24,18 @@ export function TrustPrivacy() {
             </Reveal>
           </div>
         </div>
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-7 lg:gap-5">
+        <ul className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2 lg:col-span-7 lg:gap-5">
           {ITEMS.map(({ key, icon: Icon }, i) => (
-            <Reveal as="li" key={key} delay={i * 0.08}>
+            <Reveal as="li" key={key} delay={i * 0.08} className="sm:[&:nth-child(even)]:mt-10">
               <div className="flex h-full flex-col rounded-[1.75rem] bg-paper p-6 ring-1 ring-line md:p-7">
-                <span aria-hidden="true" className="inline-flex size-12 items-center justify-center rounded-2xl bg-mint text-heritage">
-                  <Icon className="size-5" />
-                </span>
+                <div className="flex items-start justify-between">
+                  <span aria-hidden="true" className="inline-flex size-12 items-center justify-center rounded-2xl bg-mint text-heritage">
+                    <Icon className="size-6" />
+                  </span>
+                  <span aria-hidden="true" className="font-serif text-[1.6rem] font-semibold leading-[1.2] text-heritage/20">
+                    0{i + 1}
+                  </span>
+                </div>
                 <h3 className="mt-5 text-[1.15rem] font-bold leading-snug text-ink">{t(`trust.items.${key}.title`)}</h3>
                 <p className="mt-2 leading-relaxed text-ink-soft">{t(`trust.items.${key}.body`)}</p>
               </div>

@@ -1,5 +1,5 @@
 import { ArrowLeft, ArrowRight, FileText, Headphones, RotateCcw, SearchX } from 'lucide-react';
-import { useEffect, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Link, useParams } from 'react-router';
 import { StoryScene } from '@/components/illustrations/scenes';
 import { Reveal } from '@/components/motion';
@@ -16,6 +16,7 @@ import { TopicMotif } from '../components/TopicMotif';
 import { findTopic, topicStyle, useTopics } from '../topics';
 import { bareQuote, type KnowledgeItem } from '../types';
 import { useKnowledgeItem } from '../useKnowledgeItem';
+import { usePageTitle } from '@/lib/usePageTitle';
 
 export default function ItemPage() {
   const { id } = useParams();
@@ -24,9 +25,7 @@ export default function ItemPage() {
   const { status, item, related, retry } = useKnowledgeItem(id);
   const topics = useTopics();
 
-  useEffect(() => {
-    if (item) document.title = `${bareQuote(item.title)} · ${tc('brand.name')}`;
-  }, [item, tc]);
+  usePageTitle(item ? bareQuote(item.title) : status === 'not-found' ? t('meta.notFound') : status === 'loading' ? null : t('meta.explore'));
 
   if (status === 'loading') return <ItemSkeleton />;
   if (status === 'not-configured') {
@@ -91,19 +90,19 @@ function ItemView({ item, related, topics }: { item: KnowledgeItem; related: Kno
           <TopicMotif slug={item.topicSlug} className="w-full" />
         </div>
         <div className="relative mx-auto max-w-6xl px-4 pb-10 pt-8 md:px-8 md:pb-14 md:pt-10">
-          <Link to="/kham-pha" className="inline-flex min-h-12 items-center gap-2 rounded-full pr-3 text-[0.92rem] font-semibold text-heritage hover:text-heritage-deep">
-            <ArrowLeft aria-hidden="true" className="size-4" />
+          <Link to="/kham-pha" className="inline-flex min-h-12 items-center gap-2 rounded-full pr-3 text-[1rem] font-semibold text-heritage hover:text-heritage-deep">
+            <ArrowLeft aria-hidden="true" className="size-5" />
             {t('detail.back')}
           </Link>
           {item.sample && <SampleBanner compact className="mt-4" />}
           <div className="mt-6 grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_300px]">
             <div className="min-w-0">
-              <p className="text-[0.8rem] font-bold uppercase tracking-[0.2em]" style={{ color: style.ink }}>
+              <p className="text-[0.875rem] font-bold uppercase tracking-[0.12em]" style={{ color: style.ink }}>
                 {topicTitle ? `${topicTitle} · ` : ''}
                 {t(`kinds.${item.kind}`)}
               </p>
               <Reveal>
-                <h1 className="mt-4 font-serif text-[2rem] font-semibold leading-[1.18] tracking-[-0.01em] text-heritage-deep sm:text-[2.5rem] md:text-[3.1rem]">
+                <h1 className="mt-4 max-w-[24ch] text-balance font-serif text-[clamp(1.85rem,1.3rem+2.4vw,3.1rem)] font-semibold leading-[1.22] tracking-[-0.01em] text-heritage-deep">
                   <span aria-hidden="true" className="text-terracotta">
                     “
                   </span>
@@ -113,25 +112,20 @@ function ItemView({ item, related, topics }: { item: KnowledgeItem; related: Kno
                   </span>
                 </h1>
               </Reveal>
-              <p className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-[1rem] text-ink-soft">
-                <span>
+              <p className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[1rem] text-ink-soft">
+                <span className="w-full">
                   {t('detail.by')}: <strong className="font-semibold text-ink">{item.narratorLabel}</strong>
                 </span>
-                {item.region && (
-                  <>
-                    <span aria-hidden="true">·</span>
-                    <span>{t(`regions.${item.region}`)}</span>
-                  </>
-                )}
+                {item.region && <span>{t(`regions.${item.region}`)}</span>}
                 {item.decade && (
                   <>
-                    <span aria-hidden="true">·</span>
+                    {item.region && <span aria-hidden="true">·</span>}
                     <span>{t('card.decade', { decade: item.decade })}</span>
                   </>
                 )}
                 {item.publishedAt && !item.sample && (
                   <>
-                    <span aria-hidden="true">·</span>
+                    {(item.region || item.decade) && <span aria-hidden="true">·</span>}
                     <span>{t('detail.publishedOn', { date: formatDate(item.publishedAt, locale) })}</span>
                   </>
                 )}
@@ -153,8 +147,8 @@ function ItemView({ item, related, topics }: { item: KnowledgeItem; related: Kno
         <div className="min-w-0 max-w-3xl">
           {audioSrc || showSamplePlayer ? (
             <section aria-labelledby="listen-title" className="mb-12 rounded-[1.75rem] bg-night p-5 text-night-ink shadow-[0_30px_60px_-40px_rgba(18,27,24,0.8)] md:p-7">
-              <h2 id="listen-title" className="flex items-center gap-2 text-[0.8rem] font-bold uppercase tracking-[0.18em] text-night-ink/80">
-                <Headphones aria-hidden="true" className="size-4" />
+              <h2 id="listen-title" className="flex items-center gap-2 text-[1.05rem] font-semibold text-night-ink/90">
+                <Headphones aria-hidden="true" className="size-5" />
                 {t('detail.listenTitle')}
               </h2>
               <AudioPlayer
@@ -165,10 +159,10 @@ function ItemView({ item, related, topics }: { item: KnowledgeItem; related: Kno
                 tone="dark"
                 className="mt-4"
               />
-              {!item.sample && <p className="mt-3 text-[0.85rem] text-night-ink/70">{t('detail.listenHint')}</p>}
+              {!item.sample && <p className="mt-3 text-[0.9375rem] text-night-ink/75">{t('detail.listenHint')}</p>}
             </section>
           ) : (
-            <p className="mb-10 flex items-start gap-3 rounded-2xl bg-paper px-5 py-4 text-[0.95rem] text-ink-soft ring-1 ring-line">
+            <p className="mb-10 flex items-start gap-3 rounded-2xl bg-paper px-5 py-4 text-[1rem] leading-relaxed text-ink-soft ring-1 ring-line">
               {item.audioAllowed ? <Headphones aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-heritage" /> : <FileText aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-heritage" />}
               {item.audioAllowed ? t('detail.audioPending') : t('detail.textOnly')}
             </p>
@@ -184,7 +178,7 @@ function ItemView({ item, related, topics }: { item: KnowledgeItem; related: Kno
         <section aria-labelledby="related-title" className="border-t border-line/70 bg-paper/50">
           <div className="mx-auto max-w-6xl px-4 py-12 md:px-8 md:py-16">
             <div className="flex flex-wrap items-end justify-between gap-3">
-              <h2 id="related-title" className="font-serif text-[1.6rem] font-semibold text-heritage-deep">
+              <h2 id="related-title" className="font-serif text-[clamp(1.5rem,1.25rem+1vw,1.9rem)] font-semibold leading-[1.25] text-heritage-deep">
                 {t('detail.related')}
               </h2>
               {item.topicSlug && (

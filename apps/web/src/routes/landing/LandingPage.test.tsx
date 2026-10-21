@@ -13,6 +13,8 @@ beforeAll(() => {
   }
 });
 
+const VI_DIACRITICS = /[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịĩọỏốồổỗộớờởỡợụủũứừửữựỳỵỷỹàáèéìíòóùúýõ]/giu;
+
 function renderLanding(locale: Locale) {
   return render(
     <LocaleProvider initial={locale}>
@@ -27,6 +29,9 @@ function renderLanding(locale: Locale) {
   );
 }
 
+// The full 13-block page is heavy to render in happy-dom; under a loaded full-suite run it can exceed the 5 s default.
+const SLOW = 20_000;
+
 describe('LandingPage', () => {
   it('renders all blocks in Vietnamese (default)', () => {
     renderLanding('vi');
@@ -40,7 +45,7 @@ describe('LandingPage', () => {
     const tablist = screen.getByRole('tablist', { name: 'Các đầu ra từ một lời kể' });
     expect(within(tablist).getAllByRole('tab')).toHaveLength(3);
     // honesty labels
-    expect(screen.getAllByText('Dữ liệu minh họa').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Dữ liệu minh hoạ').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Giá dự kiến, chưa thu phí').length).toBeGreaterThan(0);
     expect(screen.getByText('149.000đ')).toBeInTheDocument();
     // QR is a real, labelled SVG
@@ -49,7 +54,7 @@ describe('LandingPage', () => {
     expect(screen.getByRole('button', { name: 'Dự án đã thu tiền chưa?' })).toHaveAttribute('aria-expanded', 'false');
     // footer status line
     expect(screen.getByText('Dự án đang trong giai đoạn thử nghiệm')).toBeInTheDocument();
-  });
+  }, SLOW);
 
   it('renders in English', () => {
     renderLanding('en');
@@ -59,5 +64,9 @@ describe('LandingPage', () => {
     expect(screen.getAllByText('Illustrative data').length).toBeGreaterThan(0);
     expect(screen.getByText('This project is in its pilot phase')).toBeInTheDocument();
     expect(screen.queryByText('Kể câu chuyện đầu tiên')).not.toBeInTheDocument();
-  });
+    // one language per mode: no Vietnamese diacritics anywhere in the English landing content
+    const main = document.getElementById('main')!;
+    const text = (main.textContent ?? '') + ' ' + Array.from(main.querySelectorAll('[aria-label],[alt],[placeholder],[title]')).map((el) => ['aria-label', 'alt', 'placeholder', 'title'].map((a) => el.getAttribute(a) ?? '').join(' ')).join(' ');
+    expect(text.match(VI_DIACRITICS)).toBeNull();
+  }, SLOW);
 });

@@ -10,13 +10,13 @@ export default {
       fwd10: 'Tới 10 giây',
       seek: 'Vị trí phát',
       timeOf: '{current} trên {total}',
-      simulated: 'Phát mô phỏng — bản minh họa không có âm thanh.',
+      simulated: 'Phát mô phỏng — bản minh hoạ không có âm thanh.',
       error: 'Không phát được tệp âm thanh. Vui lòng thử lại sau.',
     },
     dialog: { close: 'Đóng hộp thoại' },
     toast: { region: 'Thông báo', close: 'Đóng thông báo' },
     carousel: {
-      label: 'Các câu chuyện minh họa',
+      label: 'Các câu chuyện minh hoạ',
       pause: 'Dừng chuyển động',
       resume: 'Tiếp tục chuyển động',
       listen: 'Nghe chuyện mẫu: {title}',
@@ -32,7 +32,7 @@ export default {
   },
   meta: {
     age: '{age} tuổi',
-    illustrative: 'Dữ liệu minh họa',
+    illustrative: 'Dữ liệu minh hoạ',
     planned: 'Dự kiến',
     simulatedAi: 'Mô phỏng kết quả AI',
     minutes: '{n} phút',
@@ -44,7 +44,7 @@ export default {
     sub: 'Ông bà chỉ cần kể bằng tiếng Việt như đang trò chuyện. AI chép lời và soạn bản nháp gọn gàng. Người kể đọc lại, sửa và duyệt trước khi bất cứ ai được xem.',
     noteSpeak: 'Chỉ cần nói thôi',
     noteNoTyping: 'Không cần gõ chữ',
-    sampleTag: 'Câu chuyện minh họa',
+    sampleTag: 'Câu chuyện minh hoạ',
   },
   sample: {
     eyebrow: 'Nghe thử một câu chuyện',
@@ -52,7 +52,7 @@ export default {
     lead: 'Đây là cách một câu chuyện hiện ra trong kho gia đình: giọng kể gốc, bản chép lời chạy theo từng câu và tên người kể luôn đi cùng.',
     transcript: 'Bản chép lời',
     follow: 'Bấm vào một câu để nghe từ đoạn đó',
-    note: 'Nhân vật và lời kể là minh họa. Giọng thật chỉ được lưu khi người kể đồng ý.',
+    note: 'Nhân vật và lời kể là minh hoạ. Giọng thật chỉ được lưu khi người kể đồng ý.',
   },
   manifesto: {
     wordmark: 'Di Sản Sống',
@@ -111,7 +111,7 @@ export default {
     eyebrow: 'Ba nơi cho một lời kể',
     title: 'Giữ riêng, chia sẻ có chọn lọc, in thành sách',
     illoCaption: 'Giọng kể gốc luôn đi kèm bản chữ — nghe lại đúng giọng, đúng đoạn.',
-    illoTag: 'Sóng âm minh họa',
+    illoTag: 'Sóng âm minh hoạ',
     more: 'Tìm hiểu thêm',
     cards: {
       vault: {
@@ -144,7 +144,7 @@ export default {
     lead: 'Chọn những câu chuyện đã duyệt, sắp thành chương và in ra. Mỗi chương có mã QR để con cháu quét và nghe lại đúng giọng ông bà.',
     qrTitle: 'Nghe bản gốc',
     qrDuration: '1:12',
-    qrHint: 'Quét để mở trang nghe (bản minh họa dẫn tới kho tri thức).',
+    qrHint: 'Quét để mở trang nghe (bản minh hoạ dẫn tới kho tri thức).',
     qrLabel: 'Mã QR mở trang nghe bản gốc',
     coverTitle: 'Những mùa mai của bà',
     coverAuthor: 'Lời kể của bà Tư',
@@ -233,7 +233,7 @@ export default {
       terms: 'Điều khoản sử dụng',
     },
     status: 'Dự án đang trong giai đoạn thử nghiệm',
-    statusBody: 'Mọi số liệu, nhân vật và câu chuyện trên trang giới thiệu là dữ liệu minh họa.',
+    statusBody: 'Mọi số liệu, nhân vật và câu chuyện trên trang giới thiệu là dữ liệu minh hoạ.',
     backToTop: 'Lên đầu trang',
   },
 } as const;

@@ -56,7 +56,7 @@ export default {
     note: 'The character and narration are illustrative. Real voices are stored only with the storyteller’s consent.',
   },
   manifesto: {
-    wordmark: 'Di Sản Sống',
+    wordmark: 'Living Heritage',
     intro: 'Every elder carries a library that was never written down: how to braise fish in a clay pot, how to read the tide, how to raise a family. We build tools so that none of it is lost.',
     cta: 'See how it works',
     statementA: 'Not another voice recorder.',
@@ -71,7 +71,7 @@ export default {
     title: 'A place to tell, to keep and to learn',
     items: {
       tell: { label: 'Grandparents tell', title: 'Tell it in your own voice', body: 'Pick a topic, hear a gentle prompt and press one button to talk. No typing, no app to install.', cta: 'Try storytelling mode' },
-      keep: { label: 'Families keep', title: 'A private vault for the whole family', body: 'Original recordings, transcripts and approved stories, organised by storyteller, topic and year.', cta: 'See the family vault' },
+      keep: { label: 'Families keep', title: 'A private vault for the whole family', body: 'Original recordings, transcripts and approved stories, organized by storyteller, topic and year.', cta: 'See the family vault' },
       learn: { label: 'Young people learn', title: 'Learn from people who did it', body: 'Find cooking, gardening and craft know-how — only from what storytellers agreed to share.', cta: 'Explore knowledge' },
     },
   },
@@ -90,7 +90,7 @@ export default {
   outputs: {
     eyebrow: 'One story, three outputs',
     title: 'From 41 seconds of talk to a structured record',
-    lead: 'From one short narration about the Tết apricot tree, we keep three things: the original transcript, a story that reads well, and a know-how card others can follow.',
+    lead: 'From one short narration about tending a yellow apricot blossom tree for the Lunar New Year (Tet), we keep three things: the original transcript, a story that reads well, and a know-how card others can follow.',
     tabsLabel: 'Outputs from one narration',
     tabs: { transcript: 'Transcript', story: 'Story', card: 'Know-how card' },
     narration: 'Original narration',
@@ -134,7 +134,7 @@ export default {
     title: 'Learn from people who did it all their lives',
     lead: 'Every card says who told it, where, and when it applies — and it only appears once the storyteller has agreed.',
     searchLabel: 'Search the knowledge hub',
-    searchPlaceholder: 'Try “braised fish”, “mai tree”, “pottery”…',
+    searchPlaceholder: 'Try “braised fish”, “apricot blossom”, “pottery”…',
     searchCta: 'Search',
     seeAll: 'Browse the whole hub',
     kinds: { experience: 'Know-how', story: 'Story' },
@@ -147,8 +147,8 @@ export default {
     qrDuration: '1:12',
     qrHint: 'Scan to open the listening page (this sample links to the knowledge hub).',
     qrLabel: 'QR code that opens the original recording',
-    coverTitle: 'Grandma’s Mai Seasons',
-    coverAuthor: 'As told by Grandma Tư',
+    coverTitle: 'Grandma’s Blossom Seasons',
+    coverAuthor: 'As told by Grandma Tu',
     pageQuote: '“My mother taught me that, and I’ve done it for fifty years.”',
     pageChapter: 'Chapter 3 · The home garden',
     specsTitle: 'Planned specifications',
@@ -195,10 +195,10 @@ export default {
     interestCta: 'Create a free account',
     interestLater: 'Maybe later',
     orgs: {
-      eyebrow: 'For organisations',
+      eyebrow: 'For organizations',
       title: 'Libraries, museums, senior associations, schools',
-      body: 'Run a programme to record your community’s memories and know-how, with a clear consent process and a shared knowledge hub.',
-      cta: 'About the programme',
+      body: 'Run a program to record your community’s memories and know-how, with a clear consent process and a shared knowledge hub.',
+      cta: 'About the program',
     },
   },
   faq: {
@@ -214,7 +214,7 @@ export default {
   },
   final: {
     title: 'Every story starts with a single question',
-    body: '“What was your favourite food as a child?” — that’s all it takes to begin.',
+    body: '“What was your favorite food as a child?” — that’s all it takes to begin.',
   },
   footer: {
     tagline: 'Keep their voices, pass on what they know.',
@@ -228,7 +228,7 @@ export default {
       sample: 'Hear a sample',
       cooking: 'Cooking',
       gardening: 'Gardening',
-      orgs: 'For organisations',
+      orgs: 'For organizations',
       faq: 'FAQ',
       privacy: 'Privacy',
       terms: 'Terms of use',

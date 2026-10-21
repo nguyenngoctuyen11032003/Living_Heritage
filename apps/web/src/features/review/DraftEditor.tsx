@@ -11,6 +11,8 @@ export interface DraftEditorProps {
   onChange: (next: DraftForm) => void;
   readOnly?: boolean;
   errors?: { title?: string; decade?: string };
+  /** Elder narrator view: larger touch targets (56px). */
+  narratorMode?: boolean;
 }
 
 /** Textarea that grows with its content (keeps the native resize handle as a fallback). */
@@ -27,8 +29,9 @@ function AutoTextarea(props: React.ComponentProps<typeof Textarea>) {
 
 type ListKey = 'conditions' | 'steps' | 'cautions';
 
-function ListEditor({ label, items, onChange, readOnly, ordered }: { label: string; items: string[]; onChange: (xs: string[]) => void; readOnly?: boolean; ordered?: boolean }) {
+function ListEditor({ label, items, onChange, readOnly, ordered, narratorMode }: { label: string; items: string[]; onChange: (xs: string[]) => void; readOnly?: boolean; ordered?: boolean; narratorMode?: boolean }) {
   const t = useT('review');
+  const size = narratorMode ? 'lg' : 'md';
   const move = (i: number, d: -1 | 1) => {
     const j = i + d;
     if (j < 0 || j >= items.length) return;
@@ -43,13 +46,13 @@ function ListEditor({ label, items, onChange, readOnly, ordered }: { label: stri
       {items.length === 0 && <p className="text-[0.9rem] italic text-ink-soft">{t('editor.list.empty')}</p>}
       <List className="flex flex-col gap-2">
         {items.map((item, i) => (
-          <li key={i} className="flex items-start gap-2">
+          <li key={i} className="flex flex-wrap items-start gap-x-2 gap-y-1">
             {ordered && (
               <span aria-hidden="true" className="mt-3 w-6 shrink-0 text-right font-semibold text-heritage">
                 {i + 1}.
               </span>
             )}
-            <div className="min-w-0 flex-1">
+            <div className="min-w-[min(100%,12rem)] flex-1">
               <Field label={t('editor.list.item', { label, n: i + 1 })} hideLabel>
                 <AutoTextarea
                   rows={1}
@@ -61,14 +64,14 @@ function ListEditor({ label, items, onChange, readOnly, ordered }: { label: stri
               </Field>
             </div>
             {!readOnly && (
-              <div className="flex shrink-0 flex-wrap justify-end gap-0.5 sm:flex-nowrap">
-                <Button variant="ghost" iconOnly aria-label={t('editor.list.up', { n: i + 1 })} disabled={i === 0} onClick={() => move(i, -1)}>
+              <div className="ml-auto flex shrink-0 gap-0.5">
+                <Button variant="ghost" size={size} iconOnly aria-label={t('editor.list.up', { n: i + 1 })} disabled={i === 0} onClick={() => move(i, -1)}>
                   <ArrowUp className="size-5" aria-hidden="true" />
                 </Button>
-                <Button variant="ghost" iconOnly aria-label={t('editor.list.down', { n: i + 1 })} disabled={i === items.length - 1} onClick={() => move(i, 1)}>
+                <Button variant="ghost" size={size} iconOnly aria-label={t('editor.list.down', { n: i + 1 })} disabled={i === items.length - 1} onClick={() => move(i, 1)}>
                   <ArrowDown className="size-5" aria-hidden="true" />
                 </Button>
-                <Button variant="ghost" iconOnly aria-label={t('editor.list.remove', { n: i + 1 })} onClick={() => onChange(items.filter((_, k) => k !== i))}>
+                <Button variant="ghost" size={size} iconOnly aria-label={t('editor.list.remove', { n: i + 1 })} onClick={() => onChange(items.filter((_, k) => k !== i))}>
                   <Trash2 className="size-5" aria-hidden="true" />
                 </Button>
               </div>
@@ -78,7 +81,7 @@ function ListEditor({ label, items, onChange, readOnly, ordered }: { label: stri
       </List>
       {!readOnly && (
         <div>
-          <Button variant="secondary" leftIcon={<Plus className="size-5" aria-hidden="true" />} onClick={() => onChange([...items, ''])}>
+          <Button variant="secondary" size={size} leftIcon={<Plus className="size-5" aria-hidden="true" />} onClick={() => onChange([...items, ''])}>
             {t('editor.list.add')}
           </Button>
         </div>
@@ -88,7 +91,7 @@ function ListEditor({ label, items, onChange, readOnly, ordered }: { label: stri
 }
 
 /** Story: title + body. Experience: title, summary, skill, context, conditions[], steps[], cautions[], limits. Both: optional decade. */
-export function DraftEditor({ kind, form, onChange, readOnly, errors }: DraftEditorProps) {
+export function DraftEditor({ kind, form, onChange, readOnly, errors, narratorMode }: DraftEditorProps) {
   const t = useT('review');
   const empty = t('editor.empty');
   const set = <K extends keyof DraftForm>(key: K, value: DraftForm[K]) => onChange({ ...form, [key]: value });
@@ -99,12 +102,12 @@ export function DraftEditor({ kind, form, onChange, readOnly, errors }: DraftEdi
     onChange: (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => set(key, e.target.value),
   });
   const list = (key: ListKey, label: string, ordered?: boolean) => (
-    <ListEditor label={label} items={form[key]} onChange={(xs) => set(key, xs)} readOnly={readOnly} ordered={ordered} />
+    <ListEditor label={label} items={form[key]} onChange={(xs) => set(key, xs)} readOnly={readOnly} ordered={ordered} narratorMode={narratorMode} />
   );
 
   return (
     <div className="flex flex-col gap-5">
-      <p className="flex gap-2 rounded-2xl bg-mint/50 p-3 text-[0.92rem] leading-relaxed text-heritage-deep">
+      <p className="flex gap-2.5 rounded-2xl bg-mint/50 p-3 ring-1 ring-heritage/15 text-[0.92rem] leading-relaxed text-heritage-deep">
         <Sparkles aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
         <span>
           {t('editor.aiNote')} <span className="text-ink-soft">{t('editor.editedNote')}</span>

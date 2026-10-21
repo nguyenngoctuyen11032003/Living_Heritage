@@ -242,14 +242,14 @@ function ShareBody({ storyId, onChanged }: { storyId: string; onChanged?: () => 
                 onChange={() => setChoice(c)}
                 className="mt-1.5 size-5 shrink-0 accent-heritage"
               />
-              <span aria-hidden="true" className="mt-0.5 inline-flex size-10 shrink-0 items-center justify-center rounded-xl bg-cream text-heritage [&>svg]:size-5">
+              <span aria-hidden="true" className="mt-0.5 hidden size-10 shrink-0 min-[400px]:inline-flex items-center justify-center rounded-xl bg-cream text-heritage [&>svg]:size-5">
                 {choiceIcon[c]}
               </span>
               <span className="flex min-w-0 flex-col gap-1">
                 <span className="flex flex-wrap items-center gap-2 font-semibold text-ink">
                   {t(`share.options.${c}.title`)}
                   {c === current && (
-                    <Badge size="sm" tone="outline">
+                    <Badge tone="outline">
                       {t('share.current')}
                     </Badge>
                   )}
@@ -275,15 +275,24 @@ function ShareBody({ storyId, onChanged }: { storyId: string; onChanged?: () => 
       {showPublish && (
         <section className="flex flex-col gap-5" aria-labelledby={`${reasonId}-parts`}>
           <div>
-            <h3 id={`${reasonId}-parts`} className="font-serif text-[1.2rem] font-semibold text-heritage-deep">
+            <h3 id={`${reasonId}-parts`} className="font-serif text-[1.2rem] font-semibold leading-snug text-heritage-deep">
               {t('share.publicParts')}
             </h3>
-            <p className="mt-1 text-[0.92rem] text-ink-soft">{t('share.publicPartsLead')}</p>
+            <p className="mt-1 text-[0.92rem] leading-relaxed text-ink-soft">{t('share.publicPartsLead')}</p>
           </div>
           <ul className="flex flex-col gap-2">
             {TOGGLES.map(([key, label]) => (
               <li key={key}>
-                <label className="flex min-h-12 cursor-pointer items-start gap-3 rounded-2xl bg-paper p-3 ring-1 ring-line focus-within:ring-2 focus-within:ring-heritage">
+                <label
+                  className={cn(
+                    'flex min-h-14 items-center justify-between gap-4 rounded-2xl bg-paper px-4 py-3 ring-1 ring-line transition-shadow focus-within:ring-2 focus-within:ring-heritage',
+                    !state.canWrite || busy !== null ? 'cursor-not-allowed' : 'cursor-pointer hover:ring-heritage/50',
+                  )}
+                >
+                  <span className="flex min-w-0 flex-col gap-0.5">
+                    <span className="font-semibold leading-snug">{t(`share.toggles.${label}.label`)}</span>
+                    <span className="text-[0.88rem] leading-snug text-ink-soft">{t(`share.toggles.${label}.hint`)}</span>
+                  </span>
                   <input
                     type="checkbox"
                     role="switch"
@@ -291,11 +300,14 @@ function ShareBody({ storyId, onChanged }: { storyId: string; onChanged?: () => 
                     aria-checked={state.toggles[key]}
                     disabled={!state.canWrite || busy !== null}
                     onChange={(e) => void changeToggle(key, e.target.checked)}
-                    className="mt-1 size-5 shrink-0 accent-heritage"
+                    className="peer sr-only"
                   />
-                  <span className="flex flex-col">
-                    <span className="font-semibold">{t(`share.toggles.${label}.label`)}</span>
-                    <span className="text-[0.88rem] text-ink-soft">{t(`share.toggles.${label}.hint`)}</span>
+                  {/* Visual switch; the whole row (at least 56px tall) is the hit area. */}
+                  <span
+                    aria-hidden="true"
+                    className="relative inline-flex h-7 w-12 shrink-0 rounded-full bg-[#d9d2c3] transition-colors duration-200 peer-checked:bg-heritage peer-disabled:opacity-60 peer-checked:[&>span]:translate-x-5 motion-reduce:transition-none"
+                  >
+                    <span className="absolute left-1 top-1 size-5 rounded-full bg-paper shadow-sm transition-transform duration-200 motion-reduce:transition-none" />
                   </span>
                 </label>
               </li>

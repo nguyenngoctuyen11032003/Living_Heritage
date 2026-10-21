@@ -49,7 +49,7 @@ export function PublishTab() {
 
   return (
     <div>
-      <p className="mb-6 flex items-start gap-3 rounded-2xl bg-[#fdf6e3] px-5 py-4 text-[0.92rem] leading-relaxed text-[#5b430f] ring-1 ring-[#e9d6a6]">
+      <p className="mb-6 flex items-start gap-3 rounded-2xl bg-[#fdf6e3] px-4 py-4 text-[0.95rem] leading-relaxed text-[#5b430f] ring-1 ring-[#e9d6a6] sm:px-5">
         <Info aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
         {t('publish.audioNotice')}
       </p>
@@ -61,7 +61,7 @@ export function PublishTab() {
           <ul className="mt-3 divide-y divide-line/70" aria-live="polite">
             {handled.map((h) => (
               <li key={h.requestId} className="flex flex-wrap items-center justify-between gap-3 py-3">
-                <span className="min-w-0 font-semibold text-ink">“{h.title}”</span>
+                <span className="min-w-0 break-words font-semibold text-ink">“{h.title}”</span>
                 <span className="flex flex-wrap gap-2">
                   <StatusPill tone={h.approved ? 'done' : 'muted'}>{h.approved ? t('publish.approved') : t('publish.rejected')}</StatusPill>
                   {h.approved && h.audio && (
@@ -146,11 +146,11 @@ function PendingCard({ row, onDone }: { row: PendingRow; onDone: (h: Handled) =>
     <li className="rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-7">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[0.78rem] font-bold uppercase tracking-[0.14em] text-terracotta">
+          <p className="text-[0.875rem] font-semibold uppercase tracking-[0.08em] text-terracotta">
             {row.story ? tk(`kinds.${row.story.kind}`) : '—'}
             <span className="font-normal normal-case tracking-normal text-ink-soft"> · {t('publish.requestedAt', { time: dt(row.requested_at) })}</span>
           </p>
-          <h3 className="mt-2 font-serif text-[1.3rem] font-semibold leading-snug text-heritage-deep">{row.story ? `“${title}”` : title}</h3>
+          <h3 className="mt-2 break-words font-serif text-[1.3rem] font-semibold leading-snug text-heritage-deep">{row.story ? `“${title}”` : title}</h3>
         </div>
         {row.story && (
           <StatusPill tone={row.story.edit_status === 'approved' ? 'done' : 'open'}>{t(`publish.editStatus.${row.story.edit_status}`)}</StatusPill>
@@ -163,14 +163,14 @@ function PendingCard({ row, onDone }: { row: PendingRow; onDone: (h: Handled) =>
         onClick={() => void togglePreview()}
         aria-expanded={open}
         aria-controls={previewId}
-        leftIcon={open ? <EyeOff aria-hidden="true" className="size-4" /> : <Eye aria-hidden="true" className="size-4" />}
+        leftIcon={open ? <EyeOff aria-hidden="true" className="size-5" /> : <Eye aria-hidden="true" className="size-5" />}
       >
         {open ? t('publish.hidePreview') : t('publish.preview')}
       </Button>
 
       {open && (
-        <div id={previewId} className="mt-5 rounded-[1.25rem] border border-dashed border-heritage/30 bg-cream p-5 md:p-7">
-          <p className="text-[0.75rem] font-bold uppercase tracking-[0.16em] text-heritage">{t('publish.previewTitle')}</p>
+        <div id={previewId} className="mt-5 rounded-[1.25rem] border border-dashed border-heritage/30 bg-cream p-4 sm:p-5 md:p-7">
+          <p className="text-[0.875rem] font-semibold uppercase tracking-[0.08em] text-heritage">{t('publish.previewTitle')}</p>
           {preview.status === 'loading' && (
             <p className="mt-3 flex items-center gap-2 text-ink-soft" role="status">
               <Spinner size="sm" decorative />
@@ -184,10 +184,10 @@ function PendingCard({ row, onDone }: { row: PendingRow; onDone: (h: Handled) =>
           )}
           {preview.item && (
             <div className="mt-3">
-              <h4 className="font-serif text-[1.5rem] font-semibold leading-snug text-heritage-deep">“{preview.item.title}”</h4>
+              <h4 className="break-words font-serif text-[1.5rem] font-semibold leading-snug text-heritage-deep">“{preview.item.title}”</h4>
               <p className="mt-2 flex flex-wrap items-center gap-2 text-[0.9rem] text-ink-soft">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-paper px-3 py-1 font-semibold ring-1 ring-line">
-                  <Headphones aria-hidden="true" className="size-3.5" />
+                  <Headphones aria-hidden="true" className="size-4" />
                   {preview.item.audioAllowed ? t('publish.audioYes') : t('publish.audioNo')}
                 </span>
               </p>
@@ -205,15 +205,15 @@ function PendingCard({ row, onDone }: { row: PendingRow; onDone: (h: Handled) =>
           <Textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={2000} rows={2} />
         </Field>
         {error && (
-          <p role="alert" className="mt-3 rounded-2xl bg-terracotta/10 px-4 py-3 text-[0.92rem] font-medium text-terracotta">
+          <p role="alert" className="mt-3 rounded-2xl bg-terracotta/10 px-4 py-3 text-[0.95rem] font-medium text-terracotta">
             {error}
           </p>
         )}
         <div className="mt-4 flex flex-wrap gap-3">
-          <Button onClick={() => void review(true)} loading={busy === 'approve'} disabled={busy !== null || !row.story} leftIcon={<Check aria-hidden="true" className="size-4" />}>
+          <Button onClick={() => void review(true)} loading={busy === 'approve'} disabled={busy !== null || !row.story} leftIcon={<Check aria-hidden="true" className="size-5" />}>
             {t('publish.approve')}
           </Button>
-          <Button variant="terracotta" onClick={() => void review(false)} loading={busy === 'reject'} disabled={busy !== null} leftIcon={<X aria-hidden="true" className="size-4" />}>
+          <Button variant="terracotta" onClick={() => void review(false)} loading={busy === 'reject'} disabled={busy !== null} leftIcon={<X aria-hidden="true" className="size-5" />}>
             {t('publish.reject')}
           </Button>
         </div>

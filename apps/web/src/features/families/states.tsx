@@ -10,8 +10,8 @@ export function PageHeader({ title, description, actions, eyebrow }: { title: Re
   return (
     <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
-        {eyebrow && <p className="mb-1 text-[0.85rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{eyebrow}</p>}
-        <h1 className="text-balance font-serif text-[clamp(1.8rem,4vw,2.5rem)] font-semibold leading-tight text-heritage-deep">{title}</h1>
+        {eyebrow && <p className="mb-1 text-[0.875rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{eyebrow}</p>}
+        <h1 className="text-balance font-serif text-[clamp(1.8rem,4vw,2.5rem)] font-semibold leading-[1.2] text-heritage-deep">{title}</h1>
         {description && <p className="mt-2 max-w-2xl leading-relaxed text-ink-soft">{description}</p>}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap gap-3">{actions}</div>}
@@ -37,7 +37,7 @@ export function ErrorNotice({ message, onRetry, className }: { message: ReactNod
       <TriangleAlert aria-hidden="true" className="size-6 shrink-0 text-terracotta" />
       <p className="flex-1 leading-relaxed text-ink">{message}</p>
       {onRetry && (
-        <Button variant="secondary" onClick={onRetry} leftIcon={<RefreshCw className="size-4" aria-hidden="true" />}>
+        <Button variant="secondary" onClick={onRetry} leftIcon={<RefreshCw className="size-5" aria-hidden="true" />}>
           {tc('actions.retry')}
         </Button>
       )}
@@ -61,13 +61,13 @@ export function CopyField({ value, label, className }: { value: string; label: s
           value={value}
           aria-label={label}
           onFocus={(e) => e.currentTarget.select()}
-          className="min-h-12 w-full min-w-0 flex-1 rounded-2xl bg-cream px-4 font-mono text-[0.85rem] text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-heritage"
+          className="min-h-12 w-full min-w-0 flex-1 rounded-2xl bg-cream px-4 font-mono text-[0.9rem] text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-heritage"
         />
-        <Button variant="primary" onClick={onCopy} leftIcon={state === 'copied' ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}>
+        <Button variant="primary" onClick={onCopy} leftIcon={state === 'copied' ? <Check className="size-5" aria-hidden="true" /> : <Copy className="size-5" aria-hidden="true" />}>
           {state === 'copied' ? t('share.copied') : t('share.copy')}
         </Button>
       </div>
-      <p aria-live="polite" className="min-h-5 text-[0.85rem] text-ink-soft">
+      <p aria-live="polite" className="min-h-5 text-[0.9rem] text-ink-soft">
         {state === 'copied' ? t('share.copiedHint') : state === 'failed' ? t('share.copyFailed') : ''}
       </p>
     </div>
@@ -77,7 +77,7 @@ export function CopyField({ value, label, className }: { value: string; label: s
 export function SectionCard({ title, description, children, className }: { title: ReactNode; description?: ReactNode; children: ReactNode; className?: string }) {
   return (
     <Card padding="md" className={cn('md:p-8', className)}>
-      <h2 className="font-serif text-[1.35rem] font-semibold text-heritage-deep">{title}</h2>
+      <h2 className="font-serif text-[1.35rem] font-semibold leading-[1.3] text-heritage-deep">{title}</h2>
       {description && <p className="mt-1 leading-relaxed text-ink-soft">{description}</p>}
       <div className="mt-5">{children}</div>
     </Card>

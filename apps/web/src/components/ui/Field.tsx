@@ -39,7 +39,7 @@ export function Field({ label, hint, error, required = false, hideLabel, id, cla
   return (
     <FieldContext.Provider value={{ id: fieldId, describedBy, invalid: Boolean(error), required }}>
       <div className={cn('flex flex-col gap-1.5', className)}>
-        <label htmlFor={fieldId} className={cn('text-[0.9rem] font-semibold text-ink', hideLabel && 'sr-only')}>
+        <label htmlFor={fieldId} className={cn('text-[0.9rem] font-semibold leading-normal text-ink', hideLabel && 'sr-only')}>
           {label}
           {required && (
             <span aria-hidden="true" className="ml-0.5 text-terracotta">
@@ -49,12 +49,12 @@ export function Field({ label, hint, error, required = false, hideLabel, id, cla
         </label>
         {children}
         {hint && (
-          <p id={hintId} className="text-[0.8rem] leading-snug text-ink-soft">
+          <p id={hintId} className="text-[0.85rem] leading-normal text-ink-soft">
             {hint}
           </p>
         )}
         {error && (
-          <p id={errorId} role="alert" className="text-[0.82rem] font-medium leading-snug text-terracotta">
+          <p id={errorId} role="alert" className="text-[0.85rem] font-medium leading-normal text-terracotta">
             {error}
           </p>
         )}
@@ -74,7 +74,7 @@ function useFieldProps<T extends { id?: string; 'aria-describedby'?: string; 'ar
 }
 
 const control =
-  'w-full rounded-2xl bg-paper px-4 text-[1rem] text-ink ring-1 ring-line placeholder:text-ink-soft/70 transition-shadow duration-150 hover:ring-heritage/40 focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-heritage aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-terracotta disabled:cursor-not-allowed disabled:bg-cream disabled:opacity-70';
+  'w-full min-w-0 rounded-2xl bg-paper px-4 text-[1rem] leading-normal text-ink in-[.narrator-mode]:text-[1.1rem] ring-1 ring-line placeholder:text-ink-soft/70 transition-shadow duration-150 hover:ring-heritage/40 focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-heritage aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-terracotta disabled:cursor-not-allowed disabled:bg-cream disabled:opacity-70';
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   ref?: Ref<HTMLInputElement>;
@@ -83,7 +83,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 /** Text input, 48px tall. */
 export function Input({ className, ref, ...rest }: InputProps) {
   const a11y = useFieldProps(rest);
-  return <input ref={ref} className={cn(control, 'min-h-12 py-2.5', className)} {...rest} {...a11y} />;
+  return <input ref={ref} className={cn(control, 'min-h-12 py-2.5 in-[.narrator-mode]:min-h-14', className)} {...rest} {...a11y} />;
 }
 
 export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -105,7 +105,7 @@ export function Select({ className, children, ref, ...rest }: SelectProps) {
   const a11y = useFieldProps(rest);
   return (
     <div className="relative">
-      <select ref={ref} className={cn(control, 'min-h-12 appearance-none py-2.5 pr-11', className)} {...rest} {...a11y}>
+      <select ref={ref} className={cn(control, 'min-h-12 appearance-none py-2.5 pr-11 in-[.narrator-mode]:min-h-14', className)} {...rest} {...a11y}>
         {children}
       </select>
       <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-4 top-1/2 size-5 -translate-y-1/2 text-ink-soft" />

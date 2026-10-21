@@ -1,8 +1,9 @@
-import { MailCheck } from 'lucide-react';
+import { Check, MailCheck } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router';
 import { Button, Field, Input } from '@/components/ui';
 import { useLocale, useT } from '@/i18n';
+import { cn } from '@/lib/cn';
 import { useSession } from '@/lib/session';
 import { getSupabase } from '@/lib/supabase';
 import { ErrorNotice, NotConfiguredNotice } from '@/features/families/states';
@@ -82,6 +83,7 @@ export default function SignupPage() {
 
   return (
     <AuthLayout
+      docTitle={t('titles.signup')}
       title={t('signup.title')}
       subtitle={t('signup.subtitle')}
       footer={
@@ -113,29 +115,41 @@ export default function SignupPage() {
             <Input type="password" autoComplete="new-password" minLength={MIN_PASSWORD} value={password} onChange={(e) => setPassword(e.target.value)} />
           </Field>
           <div className="flex flex-col gap-1.5">
-            <label className="flex cursor-pointer items-start gap-3 rounded-2xl p-1 leading-relaxed text-ink">
-              <input
-                type="checkbox"
-                checked={consent}
-                onChange={(e) => setConsent(e.target.checked)}
-                aria-invalid={errors.consent ? true : undefined}
-                aria-describedby={errors.consent ? 'consent-err' : undefined}
-                className="mt-1 size-5 shrink-0 accent-[var(--heritage)]"
-              />
+            <label className="flex min-h-11 cursor-pointer items-start gap-2 leading-relaxed text-ink">
+              {/* 44px hit area around a 24px custom box; the native input stays focusable and fills the hit area. */}
+              <span className="relative -ml-2.5 -mt-2 inline-flex size-11 shrink-0 items-center justify-center">
+                <input
+                  type="checkbox"
+                  checked={consent}
+                  onChange={(e) => setConsent(e.target.checked)}
+                  aria-invalid={errors.consent ? true : undefined}
+                  aria-describedby={errors.consent ? 'consent-err' : undefined}
+                  className="peer absolute inset-0 m-0 size-full cursor-pointer appearance-none rounded-xl focus-visible:outline-none"
+                />
+                <span
+                  aria-hidden="true"
+                  className={cn(
+                    'pointer-events-none inline-flex size-6 items-center justify-center rounded-md bg-paper ring-2 transition-colors peer-checked:bg-heritage peer-checked:ring-heritage peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-heritage motion-reduce:transition-none',
+                    errors.consent ? 'ring-terracotta' : 'ring-ink-soft/50',
+                  )}
+                >
+                  <Check className={cn('size-4 text-cream', !consent && 'invisible')} strokeWidth={3} />
+                </span>
+              </span>
               <span className="text-[0.95rem]">
                 {t('signup.consentBefore')}{' '}
-                <Link to="/quyen-rieng-tu" target="_blank" className="font-semibold text-heritage underline underline-offset-4">
+                <Link to="/quyen-rieng-tu" target="_blank" className="py-3 font-semibold text-heritage underline underline-offset-4">
                   {t('signup.privacy')}
                 </Link>{' '}
                 {t('signup.consentAnd')}{' '}
-                <Link to="/dieu-khoan" target="_blank" className="font-semibold text-heritage underline underline-offset-4">
+                <Link to="/dieu-khoan" target="_blank" className="py-3 font-semibold text-heritage underline underline-offset-4">
                   {t('signup.terms')}
                 </Link>
                 {t('signup.consentAfter')}
               </span>
             </label>
             {errors.consent && (
-              <p id="consent-err" role="alert" className="text-[0.82rem] font-medium text-terracotta">
+              <p id="consent-err" role="alert" className="text-[0.9rem] font-medium text-terracotta">
                 {errors.consent}
               </p>
             )}

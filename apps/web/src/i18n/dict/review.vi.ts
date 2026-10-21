@@ -43,7 +43,8 @@ export default {
     errorKept: 'Bản ghi âm vẫn được giữ nguyên. Bạn có thể thử lại mà không phải ghi lại.',
     retry: 'Thử xử lý lại',
     retrying: 'Đang gửi lại…',
-    notStarted: 'Bản ghi này chưa được xử lý.',
+    readyTitle: 'Sẵn sàng soạn bản nháp',
+    notStarted: 'Bản ghi này chưa được chép lời và soạn nháp.',
     start: 'Bắt đầu chép lời và soạn nháp',
   },
   ai: {
@@ -60,7 +61,7 @@ export default {
   },
   source: {
     heading: 'Nguồn lời kể',
-    note: 'Bản ghi âm và bản chép lời gốc được giữ nguyên. Bản nháp bên cạnh là phần biên tập.',
+    note: 'Bản ghi âm và bản chép lời gốc được giữ nguyên. Bản nháp là phần đã được biên tập.',
     playerTitle: 'Bản ghi âm gốc',
     duration: 'Thời lượng: {d}',
     recordedAt: 'Ghi ngày {date}',
@@ -182,7 +183,7 @@ export default {
       family: { title: 'Người được mời trong gia đình', body: 'Mọi thành viên được mời vào kho gia đình đều xem được.' },
       request_publish: { title: 'Đề nghị công bố', body: 'Gửi đề nghị để đưa phần bạn cho phép vào kho tri thức công khai. Quản trị duyệt trước khi hiển thị.' },
     },
-    current: 'Đang chọn',
+    current: 'Đang áp dụng',
     reasons: {
       notApproved: 'Cần người kể xác nhận nội dung trước khi đề nghị công bố.',
       noPublishRight: 'Chỉ người kể hoặc chủ/quản lý gia đình mới đề nghị công bố được.',

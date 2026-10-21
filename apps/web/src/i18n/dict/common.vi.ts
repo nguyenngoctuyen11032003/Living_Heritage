@@ -1,7 +1,11 @@
 // Namespace 'common' (lead-owned): brand, shared navigation, generic actions and states.
 export default {
   _ns: 'common',
-  brand: { name: 'Di Sản Sống', tagline: 'Trợ lý số lưu giữ tri thức người cao tuổi' },
+  brand: {
+    name: 'Di Sản Sống',
+    tagline: 'Trợ lý số lưu giữ tri thức người cao tuổi',
+    description: 'Di Sản Sống giúp ông bà kể chuyện bằng giọng nói tiếng Việt, AI hỗ trợ chép lời và biên tập, gia đình lưu giữ và người trẻ học hỏi từ kinh nghiệm được chia sẻ.',
+  },
   nav: {
     howItWorks: 'Cách hoạt động',
     explore: 'Khám phá tri thức',
@@ -21,8 +25,11 @@ export default {
     logout: 'Đăng xuất',
     menu: 'Mở menu',
     closeMenu: 'Đóng menu',
-    skipToContent: 'Bỏ qua đến nội dung chính',
+    skipToContent: 'Chuyển đến nội dung chính',
+    appNav: 'Điều hướng ứng dụng',
+    footerNav: 'Liên kết cuối trang',
   },
+  tabs: { family: 'Gia đình', narrators: 'Người kể', books: 'Sách', explore: 'Khám phá', settings: 'Cài đặt' },
   lang: { label: 'Ngôn ngữ', vi: 'Tiếng Việt', en: 'English' },
   textScale: { label: 'Cỡ chữ', normal: 'Chuẩn', large: 'Lớn', xlarge: 'Rất lớn' },
   actions: {
@@ -40,7 +47,7 @@ export default {
     learnMore: 'Tìm hiểu thêm',
   },
   states: {
-    illustrative: 'Dữ liệu minh họa',
+    illustrative: 'Dữ liệu minh hoạ',
     planned: 'Dự kiến',
     empty: 'Chưa có nội dung',
     error: 'Đã có lỗi xảy ra. Vui lòng thử lại.',
@@ -48,7 +55,17 @@ export default {
     notConfigured: 'Hệ thống chưa được cấu hình kết nối máy chủ.',
     forbidden: 'Bạn không có quyền xem nội dung này.',
   },
-  notFound: { title: 'Không tìm thấy trang', body: 'Trang này không tồn tại hoặc đã bị thu hồi.', home: 'Về trang chủ' },
+  notFound: {
+    title: 'Không tìm thấy trang',
+    body: 'Trang này không tồn tại, hoặc đường liên kết đã hết hiệu lực.',
+    home: 'Về trang chủ',
+    explore: 'Khám phá tri thức',
+  },
+  routeError: {
+    eyebrow: 'Có trục trặc',
+    title: 'Trang chưa tải được',
+    body: 'Có lỗi xảy ra khi mở trang này. Hãy thử tải lại; nếu vẫn chưa được, bạn có thể quay về trang chủ.',
+  },
   footer: {
     rights: '© 2026 Di Sản Sống · Học viện Công nghệ Bưu chính Viễn thông',
     privacy: 'Quyền riêng tư',

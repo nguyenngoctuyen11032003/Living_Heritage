@@ -37,10 +37,10 @@ export function SampleStory() {
             <StoryScene kind={SAMPLE_STORY.scene} className="absolute inset-0" />
             <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(18,27,24,0.78),rgba(18,27,24,0)_55%)]" />
             <div className="absolute left-5 top-5 flex flex-wrap gap-2">
-              <Badge tone="mint" size="sm">
+              <Badge tone="mint">
                 {pick(SAMPLE_STORY.topic)}
               </Badge>
-              <IllustrativeBadge />
+              <IllustrativeBadge className="text-[0.8rem]!" />
             </div>
             <figcaption className="absolute inset-x-0 bottom-0 p-6 text-cream md:p-8">
               <Quote aria-hidden="true" className="size-7 text-mint/80" />

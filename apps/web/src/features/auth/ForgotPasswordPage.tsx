@@ -1,4 +1,4 @@
-import { MailCheck } from 'lucide-react';
+import { ArrowLeft, MailCheck } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
 import { Button, Field, Input } from '@/components/ui';
@@ -38,10 +38,12 @@ export default function ForgotPasswordPage() {
 
   return (
     <AuthLayout
+      docTitle={t('titles.forgot')}
       title={t('forgot.title')}
       subtitle={t('forgot.subtitle')}
       footer={
-        <Link to="/dang-nhap" className="font-semibold text-heritage underline-offset-4 hover:underline">
+        <Link to="/dang-nhap" className="group -ml-1 inline-flex min-h-11 items-center gap-2 rounded-full px-1 font-semibold text-heritage underline-offset-4 hover:underline">
+          <ArrowLeft aria-hidden="true" className="size-5 transition-transform group-hover:-translate-x-0.5 motion-reduce:transition-none" />
           {t('forgot.backToLogin')}
         </Link>
       }

@@ -19,18 +19,20 @@ const editIcon = { draft: <PencilLine />, pending_review: <Clock3 />, approved: 
 /** Text + icon status pills: Nháp / Chờ duyệt / Đã duyệt, plus Công khai when public (never colour alone). */
 export function StoryStatusBadge({ editStatus, visibility, showScope, size = 'md', className }: StoryStatusBadgeProps) {
   const t = useT('review');
+  // Badge "sm" text is below 14px; keep the compact padding but a readable size.
+  const fix = size === 'sm' ? 'text-[0.8rem]!' : undefined;
   return (
     <span className={cn('inline-flex flex-wrap items-center gap-1.5', className)}>
-      <Badge tone={editTone[editStatus]} size={size} icon={editIcon[editStatus]}>
+      <Badge tone={editTone[editStatus]} size={size} icon={editIcon[editStatus]} className={fix}>
         {t(`status.${editStatus}`)}
       </Badge>
       {visibility === 'public' ? (
-        <Badge tone="heritage" size={size} icon={<Globe2 />}>
+        <Badge tone="heritage" size={size} icon={<Globe2 />} className={fix}>
           {t('status.public')}
         </Badge>
       ) : (
         showScope && (
-          <Badge tone="outline" size={size}>
+          <Badge tone="outline" size={size} className={fix}>
             {t(`status.${visibility}`)}
           </Badge>
         )

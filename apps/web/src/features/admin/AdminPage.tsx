@@ -1,4 +1,4 @@
-import { Bot, Flag, Globe2, Handshake, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
+import { Bot, CircleAlert, Flag, Globe2, Handshake, PlugZap, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router';
 import { Button, ButtonLink, EmptyState, Skeleton, Tab, TabList, TabPanel, Tabs } from '@/components/ui';
@@ -31,12 +31,17 @@ const PANELS: Record<AdminTab, () => ReactNode> = {
 /** /quan-tri — moderation console. Data is only queried after rpc('is_admin') returns true (RLS enforces it too). */
 export default function AdminPage() {
   const t = useT('admin');
+  const tc = useT('common');
   const { user, loading, isAnonymous } = useSession();
   const sb = getSupabase();
   const [check, setCheck] = useState<{ uid: string; value: AdminCheck }>({ uid: '', value: 'pending' });
   const [nonce, setNonce] = useState(0);
   const [params, setParams] = useSearchParams();
   const tab = parseAdminTab(params.get('tab'));
+
+  useEffect(() => {
+    document.title = `${t('title')} — ${tc('brand.name')}`;
+  }, [t, tc]);
 
   useEffect(() => {
     if (!sb || !user || isAnonymous) return;
@@ -62,7 +67,7 @@ export default function AdminPage() {
 
   let content: ReactNode;
   if (access === 'not-configured') {
-    content = <EmptyState title={t('states.notConfigured')} />;
+    content = <EmptyState icon={<PlugZap />} title={t('states.notConfigured')} />;
   } else if (access === 'loading') {
     content = (
       <div aria-busy="true">
@@ -77,9 +82,10 @@ export default function AdminPage() {
     content = (
       <div role="alert">
         <EmptyState
+          icon={<CircleAlert />}
           title={t('states.error')}
           action={
-            <Button onClick={() => setNonce((n) => n + 1)} leftIcon={<RotateCcw aria-hidden="true" className="size-4" />}>
+            <Button onClick={() => setNonce((n) => n + 1)} leftIcon={<RotateCcw aria-hidden="true" className="size-5" />}>
               {t('states.retry')}
             </Button>
           }
@@ -127,7 +133,7 @@ export default function AdminPage() {
   return (
     <div className="mx-auto w-full max-w-5xl">
       <header className="mb-8">
-        <h1 className="font-serif text-[2rem] font-semibold leading-tight text-heritage-deep md:text-[2.4rem]">{t('title')}</h1>
+        <h1 className="font-serif text-[clamp(1.9rem,5vw,2.4rem)] font-semibold leading-[1.2] text-heritage-deep">{t('title')}</h1>
         <p className="mt-2 max-w-2xl leading-relaxed text-ink-soft">{t('lede')}</p>
       </header>
       {content}

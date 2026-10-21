@@ -30,10 +30,10 @@ export function SourcePanel({ recording, transcript }: { recording: RecordingRow
   return (
     <section aria-labelledby="source-heading" className="flex flex-col gap-5">
       <div>
-        <h2 id="source-heading" className="font-serif text-[1.35rem] font-semibold text-heritage-deep">
+        <h2 id="source-heading" className="font-serif text-[1.35rem] font-semibold leading-snug text-heritage-deep">
           {t('source.heading')}
         </h2>
-        <p className="mt-1 text-[0.9rem] text-ink-soft">{t('source.note')}</p>
+        <p className="mt-1 text-[0.9rem] leading-relaxed text-ink-soft">{t('source.note')}</p>
       </div>
 
       {!recording ? (

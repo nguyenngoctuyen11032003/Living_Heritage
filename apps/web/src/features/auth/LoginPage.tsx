@@ -60,6 +60,7 @@ export default function LoginPage() {
 
   return (
     <AuthLayout
+      docTitle={t('titles.login')}
       title={t('login.title')}
       subtitle={t('login.subtitle')}
       footer={
@@ -91,7 +92,7 @@ export default function LoginPage() {
             <Input type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
           </Field>
           <div className="-mt-2 text-right">
-            <Link to="/quen-mat-khau" className="inline-flex min-h-11 items-center text-[0.92rem] font-semibold text-heritage underline-offset-4 hover:underline">
+            <Link to="/quen-mat-khau" className="inline-flex min-h-11 items-center text-[0.95rem] font-semibold text-heritage underline-offset-4 hover:underline">
               {t('login.forgot')}
             </Link>
           </div>
@@ -101,15 +102,15 @@ export default function LoginPage() {
           <Button type="submit" size="lg" fullWidth loading={busy === 'password'} disabled={busy !== null}>
             {t('login.submit')}
           </Button>
-          <div className="flex items-center gap-3 text-[0.85rem] text-ink-soft" aria-hidden="true">
+          <div className="flex items-center gap-3 text-[0.9rem] text-ink-soft" aria-hidden="true">
             <span className="h-px flex-1 bg-line" />
             {t('login.or')}
             <span className="h-px flex-1 bg-line" />
           </div>
-          <Button variant="secondary" size="lg" fullWidth onClick={onMagic} loading={busy === 'magic'} disabled={busy !== null} leftIcon={<Sparkles className="size-4" aria-hidden="true" />}>
+          <Button variant="secondary" size="lg" fullWidth onClick={onMagic} loading={busy === 'magic'} disabled={busy !== null} leftIcon={<Sparkles className="size-5" aria-hidden="true" />}>
             {t('login.magic')}
           </Button>
-          <p className="text-center text-[0.85rem] leading-relaxed text-ink-soft">{t('login.magicHint')}</p>
+          <p className="text-center text-[0.9rem] leading-relaxed text-ink-soft">{t('login.magicHint')}</p>
         </form>
       )}
     </AuthLayout>

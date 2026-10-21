@@ -57,7 +57,7 @@ export function ConnectTab() {
     <div>
       <p className="mb-5 text-[0.9rem] text-ink-soft">{t('connect.privacy')}</p>
       <ListHeader count={q.status === 'ready' ? rows.length : null} onRefresh={q.reload} loading={q.status === 'loading'}>
-        <Field label={t('common.filterStatus')} className="w-56">
+        <Field label={t('common.filterStatus')} className="w-full sm:w-56">
           <Select value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)}>
             <option value="all">{t('common.all')}</option>
             {CONNECT_STATUSES.map((s) => (
@@ -74,9 +74,9 @@ export function ConnectTab() {
             <li key={row.id} className="rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-6">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="font-semibold text-ink">{t('connect.from', { name: row.name })}</p>
+                  <p className="break-words font-semibold text-ink">{t('connect.from', { name: row.name })}</p>
                   <p className="mt-0.5 break-words text-[0.9rem] text-ink-soft">{t('connect.contact', { contact: row.contact })}</p>
-                  <p className="mt-0.5 text-[0.85rem] text-ink-soft">{t('common.at', { time: dt(row.created_at) })}</p>
+                  <p className="mt-0.5 text-[0.9rem] text-ink-soft">{t('common.at', { time: dt(row.created_at) })}</p>
                 </div>
                 <StatusPill tone={row.status === 'new' ? 'open' : row.status === 'forwarded' ? 'done' : 'muted'}>
                   {(CONNECT_STATUSES as readonly string[]).includes(row.status) ? t(`connect.statuses.${row.status as ConnectStatus}`) : row.status}
@@ -85,7 +85,7 @@ export function ConnectTab() {
               <div className="mt-2">
                 <ItemLink id={row.public_item_id} title={q.data?.titles[row.public_item_id]} />
               </div>
-              <p className="mt-2 whitespace-pre-line rounded-2xl bg-cream px-4 py-3 leading-relaxed text-ink">{row.message}</p>
+              <p className="mt-2 whitespace-pre-line break-words rounded-2xl bg-cream px-4 py-3 leading-relaxed text-ink">{row.message}</p>
               <div className="mt-4 flex flex-wrap gap-2.5">
                 {nextConnectStatuses(row.status).map((s) => (
                   <Button key={s} variant={s === 'forwarded' ? 'primary' : 'secondary'} loading={busy === row.id} disabled={busy !== null} onClick={() => void setStatus(row, s)}>

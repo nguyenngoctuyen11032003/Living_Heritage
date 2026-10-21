@@ -14,11 +14,13 @@ import {
   useIsNarratorOrEditor,
 } from '@/features/storytelling/data';
 import { SessionFlow } from '@/features/storytelling/SessionFlow';
+import { elderButton, elderEmpty, useNarratorTitle } from './elder';
 
 export default function SessionPage() {
   const t = useT('narrator');
   const { sessionId = '' } = useParams();
   const sb = getSupabase();
+  useNarratorTitle(t('titles.session'));
 
   const loaded = useAsync(async () => {
     if (!sb) return null;
@@ -37,16 +39,17 @@ export default function SessionPage() {
   const data = loaded.status === 'ready' ? loaded.data : null;
   const access = useIsNarratorOrEditor(data?.narrator ?? null);
 
-  if (!sb) return <EmptyState icon={<PlugZap />} title={t('gate.notConfiguredTitle')} description={t('gate.notConfiguredDesc')} />;
+  if (!sb) return <EmptyState className={elderEmpty} icon={<PlugZap />} title={t('gate.notConfiguredTitle')} description={t('gate.notConfiguredDesc')} />;
   if (loaded.status === 'loading' || access.loading) return <StatusBlock>{t('session.loading')}</StatusBlock>;
   if (loaded.status === 'error') {
     return (
       <EmptyState
+        className={elderEmpty}
         icon={<CircleAlert />}
         title={t('gate.errorTitle')}
         description={t('gate.errorDesc')}
         action={
-          <Button size="lg" onClick={loaded.reload}>
+          <Button size="lg" className={elderButton} onClick={loaded.reload}>
             {t('gate.retry')}
           </Button>
         }
@@ -56,11 +59,12 @@ export default function SessionPage() {
   if (!data) {
     return (
       <EmptyState
+        className={elderEmpty}
         icon={<SearchX />}
         title={t('session.notFoundTitle')}
         description={t('session.notFoundDesc')}
         action={
-          <ButtonLink to="/ke-chuyen" size="lg">
+          <ButtonLink to="/ke-chuyen" size="lg" className={elderButton}>
             {t('session.back')}
           </ButtonLink>
         }
@@ -70,11 +74,12 @@ export default function SessionPage() {
   if (!access.allowed) {
     return (
       <EmptyState
+        className={elderEmpty}
         icon={<Lock />}
         title={t('gate.forbiddenTitle')}
         description={t('gate.forbiddenDesc')}
         action={
-          <ButtonLink to="/" size="lg" variant="secondary">
+          <ButtonLink to="/" size="lg" className={elderButton} variant="secondary">
             {t('gate.forbiddenAction')}
           </ButtonLink>
         }

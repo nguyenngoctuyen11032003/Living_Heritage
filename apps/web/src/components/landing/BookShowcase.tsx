@@ -13,6 +13,7 @@ const SPECS = ['format', 'pages', 'qr', 'pdf'] as const;
 /** CSS 3D book: the cover swings open on hover/focus (or tap) to reveal a chapter page. */
 export function Book3D({ className }: { className?: string }) {
   const t = useT('landing');
+  const tc = useT('common');
   const [open, setOpen] = useState(false);
   return (
     <button
@@ -33,14 +34,14 @@ export function Book3D({ className }: { className?: string }) {
         <div className="absolute inset-y-1.5 left-1 right-0 rounded-r-md bg-[repeating-linear-gradient(90deg,#f3eee2_0px,#f3eee2_2px,#e7e0cf_3px)] shadow-[0_40px_60px_-30px_rgba(18,27,24,0.55)] [transform:translateZ(-18px)]" />
         {/* inner page */}
         <div className="absolute inset-y-1 left-0 right-1 flex flex-col rounded-r-md bg-paper p-6 text-left ring-1 ring-line [transform:translateZ(-2px)] sm:p-7">
-          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-terracotta">{t('book.pageChapter')}</p>
+          <p className="text-[0.8rem] font-semibold uppercase tracking-[0.16em] text-terracotta">{t('book.pageChapter')}</p>
           <div className="mt-4 h-28 overflow-hidden rounded-lg bg-[#F5EDDA] sm:h-32">
             <StoryScene kind="garden" />
           </div>
           <p className="mt-4 font-serif text-[1rem] italic leading-relaxed text-ink sm:text-[1.08rem]">{t('book.pageQuote')}</p>
           <div className="mt-auto flex items-center gap-3 border-t border-line pt-3">
             <QrCode value={siteHref('/kham-pha')} label={t('book.qrLabel')} size={44} margin={1} />
-            <span className="text-[0.72rem] leading-tight text-ink-soft">
+            <span className="text-[0.8rem] leading-tight text-ink-soft">
               {t('book.qrTitle')} · {t('book.qrDuration')}
             </span>
           </div>
@@ -56,7 +57,7 @@ export function Book3D({ className }: { className?: string }) {
           <div className="absolute inset-0 flex flex-col overflow-hidden rounded-r-md rounded-l-sm bg-heritage-deep p-7 text-left text-night-ink shadow-[inset_8px_0_14px_-8px_rgba(0,0,0,0.5)]">
             <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-overlay" />
             <div className="absolute inset-3 rounded-sm border border-[#d8b46a]/40" aria-hidden="true" />
-            <p className="relative text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-[#d8b46a]">Di Sản Sống</p>
+            <p className="relative text-[0.8rem] font-semibold uppercase tracking-[0.2em] text-[#d8b46a]">{tc('brand.name')}</p>
             <div className="relative mx-auto mt-6 size-28 overflow-hidden rounded-full ring-2 ring-[#d8b46a]/50 sm:size-32">
               <StoryScene kind="garden" />
             </div>
@@ -101,14 +102,14 @@ export function BookShowcase({ showLink = true }: { showLink?: boolean }) {
           <Reveal delay={0.1} className="mt-10">
             <div className="flex items-center gap-3">
               <h3 className="font-semibold text-ink">{t('book.specsTitle')}</h3>
-              <Badge tone="warning" size="sm">
+              <Badge tone="warning">
                 {t('meta.planned')}
               </Badge>
             </div>
             <dl className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-line ring-1 ring-line">
               {SPECS.map((k) => (
                 <div key={k} className="bg-paper p-4 sm:p-5">
-                  <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.1em] text-ink-soft">{t(`book.specs.${k}.label`)}</dt>
+                  <dt className="text-[0.8rem] font-semibold uppercase tracking-[0.1em] text-ink-soft">{t(`book.specs.${k}.label`)}</dt>
                   <dd className="mt-1 font-semibold leading-snug text-ink">{t(`book.specs.${k}.value`)}</dd>
                 </div>
               ))}

@@ -1,5 +1,5 @@
 import type { AiErrorCode, JobStatus } from '@lh/shared';
-import { AlertCircle, Check, RotateCcw } from 'lucide-react';
+import { AlertCircle, Check, RotateCcw, Sparkles } from 'lucide-react';
 import { Button, Card, Spinner } from '@/components/ui';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
@@ -35,8 +35,8 @@ export function ProcessingPanel({ status, errorCode, retrying, onRetry }: Proces
       </p>
       {failed ? (
         <div role="alert" className="flex flex-col items-start gap-4">
-          <h1 className="flex items-center gap-2 font-serif text-[1.6rem] font-semibold text-terracotta">
-            <AlertCircle className="size-7" aria-hidden="true" />
+          <h1 className="flex items-center gap-2 font-serif text-[clamp(1.4rem,4vw,1.6rem)] font-semibold leading-snug text-terracotta">
+            <AlertCircle className="size-6 shrink-0" aria-hidden="true" />
             {t('processing.errorTitle')}
           </h1>
           <p className="leading-relaxed">{t(`ai.errors.${errorCode ?? 'internal'}`)}</p>
@@ -49,15 +49,15 @@ export function ProcessingPanel({ status, errorCode, retrying, onRetry }: Proces
         </div>
       ) : notStarted ? (
         <div className="flex flex-col items-start gap-4">
-          <h1 className="font-serif text-[1.6rem] font-semibold text-heritage-deep">{t('processing.title')}</h1>
-          <p>{t('processing.notStarted')}</p>
-          <Button size="lg" onClick={onRetry}>
+          <h1 className="font-serif text-[clamp(1.4rem,4vw,1.6rem)] font-semibold leading-snug text-heritage-deep">{t('processing.readyTitle')}</h1>
+          <p className="leading-relaxed">{t('processing.notStarted')}</p>
+          <Button size="lg" onClick={onRetry} leftIcon={<Sparkles className="size-5" aria-hidden="true" />}>
             {t('processing.start')}
           </Button>
         </div>
       ) : (
         <div className="flex flex-col gap-5">
-          <h1 className="font-serif text-[1.6rem] font-semibold leading-snug text-heritage-deep">{t('processing.title')}</h1>
+          <h1 className="font-serif text-[clamp(1.4rem,4vw,1.6rem)] font-semibold leading-snug text-heritage-deep">{t('processing.title')}</h1>
           <p className="leading-relaxed text-ink-soft">{t('processing.lead')}</p>
           <ol className="flex flex-col gap-3">
             {STEPS.map((s, i) => {

@@ -86,7 +86,8 @@ export function TabList({ label, className, children }: TabListProps) {
       aria-label={label}
       onKeyDown={onKeyDown}
       className={cn(
-        'inline-flex max-w-full gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none]',
+        // Scrolls sideways on narrow screens instead of widening the page.
+        'inline-flex min-w-0 max-w-full gap-1 overflow-x-auto overscroll-x-contain rounded-full p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
         tone === 'light' ? 'bg-paper ring-1 ring-line' : 'bg-white/6 ring-1 ring-white/12',
         className,
       )}
@@ -117,9 +118,13 @@ export function Tab({ value, disabled, icon, className, children }: TabProps) {
       aria-controls={`${baseId}-panel-${slug(value)}`}
       tabIndex={selected ? 0 : -1}
       disabled={disabled}
-      onClick={() => select(value)}
+      onClick={(e) => {
+        select(value);
+        e.currentTarget.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+      }}
       className={cn(
-        'inline-flex min-h-12 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-5 text-[0.92rem] font-semibold transition-colors duration-200',
+        // Inset focus ring: the list scrolls (overflow-x-auto), so an outer outline would be clipped.
+        'inline-flex min-h-12 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-4 text-[0.92rem] font-semibold leading-normal transition-colors duration-200 focus-visible:rounded-full! focus-visible:outline-offset-[-3px]! sm:px-5',
         tone === 'light'
           ? selected
             ? 'bg-heritage text-cream shadow-sm'
@@ -130,7 +135,7 @@ export function Tab({ value, disabled, icon, className, children }: TabProps) {
         className,
       )}
     >
-      {icon && <span aria-hidden="true" className="inline-flex [&>svg]:size-4">{icon}</span>}
+      {icon && <span aria-hidden="true" className="inline-flex shrink-0 [&>svg]:size-5">{icon}</span>}
       {children}
     </button>
   );

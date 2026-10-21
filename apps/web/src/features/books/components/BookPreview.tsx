@@ -80,13 +80,13 @@ export function BookPreview({ open, onClose, book, pages, chapters }: { open: bo
           </div>
           <div className="flex w-full max-w-[420px] items-center justify-between gap-3">
             <Button variant="secondary" iconOnly aria-label={t('preview.prev')} onClick={() => go(-1)} disabled={index === 0}>
-              <ChevronLeft className="size-5" />
+              <ChevronLeft className="size-5" aria-hidden="true" />
             </Button>
             <p className="text-[0.9rem] tabular-nums text-ink-soft" role="status" aria-live="polite">
               {t('preview.pageOf', { n: index + 1, total })}
             </p>
             <Button variant="secondary" iconOnly aria-label={t('preview.next')} onClick={() => go(1)} disabled={index === total - 1}>
-              <ChevronRight className="size-5" />
+              <ChevronRight className="size-5" aria-hidden="true" />
             </Button>
           </div>
         </div>

@@ -13,6 +13,7 @@ import { area as review } from '@/routes/review';
 import { area as settings } from '@/routes/settings';
 import { area as media } from '@/routes/media';
 import { RouteError } from '@/routes/RouteError';
+import { RootRoute } from './RootRoute';
 import { NotFound } from '@/routes/NotFound';
 import type { AreaRoutes } from '@/routes/types';
 
@@ -21,6 +22,7 @@ const collect = (key: keyof AreaRoutes): RouteObject[] => areas.flatMap((a) => a
 
 export const routes: RouteObject[] = [
   {
+    element: <RootRoute />,
     errorElement: <RouteError />,
     children: [
       { element: <SiteLayout />, children: [...collect('site'), { path: '*', element: <NotFound /> }] },

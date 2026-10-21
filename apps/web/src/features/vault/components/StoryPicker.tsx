@@ -36,11 +36,11 @@ export function StoryPicker({ stories, selected, onAdd, busyId, labels, narrator
             return (
               <li key={s.id} className="flex items-center gap-3 px-4 py-3">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-serif font-semibold text-ink">{title}</p>
-                  {narratorName && <p className="truncate text-[0.85rem] text-ink-soft">{narratorName(s.narrator_id) ?? ''}</p>}
+                  <p className="truncate font-serif font-semibold leading-[1.4] text-ink">{title}</p>
+                  {narratorName && <p className="truncate text-[0.9rem] text-ink-soft">{narratorName(s.narrator_id) ?? ''}</p>}
                 </div>
                 {isIn ? (
-                  <span className="inline-flex shrink-0 items-center gap-1 text-[0.85rem] text-heritage">
+                  <span className="inline-flex shrink-0 items-center gap-1.5 text-[0.9rem] font-semibold text-heritage">
                     <Check className="size-4" aria-hidden="true" />
                     {labels.added}
                   </span>
@@ -51,7 +51,7 @@ export function StoryPicker({ stories, selected, onAdd, busyId, labels, narrator
                     aria-label={labels.addLabel(title)}
                     loading={busyId === s.id}
                     disabled={!!busyId}
-                    leftIcon={<Plus className="size-4" />}
+                    leftIcon={<Plus className="size-5" aria-hidden="true" />}
                     onClick={() => onAdd(s)}
                   >
                     {labels.add}

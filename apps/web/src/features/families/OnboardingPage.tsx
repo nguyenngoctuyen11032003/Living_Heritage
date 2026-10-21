@@ -6,6 +6,7 @@ import { Reveal } from '@/components/motion';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { getSupabase } from '@/lib/supabase';
+import { usePageTitle } from '@/lib/usePageTitle';
 import { loadProgress, type OnboardingProgress } from './api';
 import { useCurrentFamily } from './current';
 import { FamilySwitcher } from './FamilyGate';
@@ -14,6 +15,7 @@ import { ErrorNotice, NotConfiguredNotice, PageHeader } from './states';
 
 export default function OnboardingPage() {
   const t = useT('family');
+  usePageTitle(t('titles.onboarding'));
   const fam = useCurrentFamily();
   const [creatingAnother, setCreatingAnother] = useState(false);
 
@@ -98,7 +100,7 @@ function CreateFamily({ onCreated, onCancel }: { onCreated: () => void; onCancel
                 {tc('actions.cancel')}
               </Button>
             )}
-            <Button type="submit" size="lg" loading={busy} rightIcon={<ArrowRight className="size-4" aria-hidden="true" />}>
+            <Button type="submit" size="lg" loading={busy} rightIcon={<ArrowRight className="size-5" aria-hidden="true" />}>
               {t('onboarding.create')}
             </Button>
           </div>
@@ -169,7 +171,7 @@ function Checklist({ familyId, familyName, canManage, canEdit }: { familyId: str
         title={t('onboarding.checklistTitle', { name: familyName })}
         description={t('onboarding.checklistBody')}
         actions={
-          <ButtonLink to="/gia-dinh" variant="secondary" leftIcon={<Home className="size-4" aria-hidden="true" />}>
+          <ButtonLink to="/gia-dinh" variant="secondary" leftIcon={<Home className="size-5" aria-hidden="true" />}>
             {t('onboarding.toVault')}
           </ButtonLink>
         }
@@ -189,8 +191,8 @@ function Checklist({ familyId, familyName, canManage, canEdit }: { familyId: str
                 {s.done ? <Check /> : s.icon}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[0.82rem] font-semibold uppercase tracking-[0.1em] text-terracotta">{t('onboarding.stepN', { n: i + 1 })}</p>
-                <h2 className="font-serif text-[1.3rem] font-semibold text-heritage-deep">{s.title}</h2>
+                <p className="text-[0.875rem] font-semibold uppercase tracking-[0.1em] text-terracotta">{t('onboarding.stepN', { n: i + 1 })}</p>
+                <h2 className="font-serif text-[1.3rem] font-semibold leading-[1.3] text-heritage-deep">{s.title}</h2>
                 <p className="mt-1 leading-relaxed text-ink-soft">{s.body}</p>
                 {!s.allowed && !s.done && <p className="mt-2 text-[0.9rem] text-ink-soft">{t('onboarding.needsManager')}</p>}
               </div>
@@ -202,7 +204,7 @@ function Checklist({ familyId, familyName, canManage, canEdit }: { familyId: str
                     {t('onboarding.done')}
                   </Badge>
                 ) : s.allowed ? (
-                  <ButtonLink to={s.href} rightIcon={<ArrowRight className="size-4" aria-hidden="true" />}>
+                  <ButtonLink to={s.href} rightIcon={<ArrowRight className="size-5" aria-hidden="true" />}>
                     {s.cta}
                   </ButtonLink>
                 ) : null}

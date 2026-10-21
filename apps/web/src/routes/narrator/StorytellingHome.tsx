@@ -1,30 +1,26 @@
 import { ArrowRight, BookOpen, CircleAlert, Lightbulb } from 'lucide-react';
-import { useEffect } from 'react';
 import { Link } from 'react-router';
 import { Button, EmptyState, Skeleton } from '@/components/ui';
-import { useLocale, usePick, useT } from '@/i18n';
+import { usePick, useT } from '@/i18n';
 import { getSupabase } from '@/lib/supabase';
 import { useAddress } from '@/features/storytelling/address';
 import { AssistedBanner, StorytellerGate, TopicIcon } from '@/features/storytelling/components';
 import { fetchTopics, useAsync, useStoryteller } from '@/features/storytelling/data';
+import { elderButton, elderEmpty, useNarratorTitle } from './elder';
 
 const EASY_SLUG = 'goi-y';
 
 const cardClass =
-  'group flex min-h-[8.5rem] flex-col justify-between gap-4 rounded-[1.75rem] bg-paper p-6 text-left ring-1 ring-line transition-[box-shadow,transform] hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-24px_rgba(31,77,58,0.45)] hover:ring-heritage/50 motion-reduce:transform-none';
+  'group flex min-h-[9rem] flex-col justify-between gap-5 rounded-[1.75rem] bg-paper p-6 text-left ring-1 ring-line transition-[box-shadow,transform] hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-24px_rgba(31,77,58,0.45)] hover:ring-heritage/50 focus-visible:ring-2 focus-visible:ring-heritage motion-reduce:transform-none motion-reduce:transition-none';
 
 export default function StorytellingHome() {
   const t = useT('narrator');
   const pick = usePick();
-  const { locale } = useLocale();
   const ctx = useStoryteller();
   const address = useAddress();
   const sb = getSupabase();
   const topics = useAsync(async () => (sb ? fetchTopics(sb) : []), [sb]);
-
-  useEffect(() => {
-    document.title = `${t('home.topicsLabel')} · Di Sản Sống`;
-  }, [t, locale]);
+  useNarratorTitle(t('titles.home'));
 
   if (ctx.status !== 'ready') return <StorytellerGate ctx={ctx} />;
   const { narrator, assisted, query } = ctx;
@@ -33,29 +29,32 @@ export default function StorytellingHome() {
     <div className="flex flex-col gap-10">
       {assisted && <AssistedBanner name={narrator.display_name} />}
       <header className="flex flex-col gap-3">
-        {narrator.family_name && <p className="text-[1.05rem] font-medium text-heritage">{t('home.family', { family: narrator.family_name })}</p>}
-        <h1 className="font-serif text-[2.2rem] font-semibold leading-tight text-ink md:text-[2.75rem]">{t('home.greeting', { who: address(narrator.display_name) })}</h1>
-        <p className="max-w-2xl text-[1.25rem] leading-relaxed text-ink-soft">{t('home.intro', { pronoun: t('home.pronoun') })}</p>
+        <p className="text-[1.2rem] font-semibold leading-snug text-terracotta">
+          {narrator.family_name ? t('home.family', { family: narrator.family_name }) : t('home.eyebrow')}
+        </p>
+        <h1 className="break-words font-serif text-[clamp(2.25rem,7vw,3rem)] font-semibold leading-[1.2] text-ink">{t('home.greeting', { who: address(narrator.display_name) })}</h1>
+        <p className="max-w-[38ch] text-[1.3rem] leading-relaxed text-ink-soft">{t('home.intro', { pronoun: t('home.pronoun') })}</p>
       </header>
 
-      <section aria-labelledby="topics-heading">
-        <h2 id="topics-heading" className="sr-only">
+      <section aria-labelledby="topics-heading" className="flex flex-col gap-5">
+        <h2 id="topics-heading" className="font-serif text-[1.5rem] font-semibold leading-snug text-heritage-deep">
           {t('home.topicsLabel')}
         </h2>
         {topics.status === 'loading' && (
           <div className="grid gap-4 sm:grid-cols-2" aria-busy="true" aria-label={t('gate.loading')}>
             {Array.from({ length: 6 }, (_, i) => (
-              <Skeleton key={i} className="h-[8.5rem] rounded-[1.75rem]" />
+              <Skeleton key={i} className="h-[9rem] rounded-[1.75rem]" />
             ))}
           </div>
         )}
         {topics.status === 'error' && (
           <EmptyState
+            className={elderEmpty}
             icon={<CircleAlert />}
             title={t('gate.errorTitle')}
             description={t('gate.errorDesc')}
             action={
-              <Button size="lg" onClick={topics.reload}>
+              <Button size="lg" className={elderButton} onClick={topics.reload}>
                 {t('gate.retry')}
               </Button>
             }
@@ -63,10 +62,11 @@ export default function StorytellingHome() {
         )}
         {topics.status === 'ready' && topics.data.length === 0 && (
           <EmptyState
+            className={elderEmpty}
             title={t('home.noTopicsTitle')}
             description={t('home.noTopicsDesc')}
             action={
-              <Button size="lg" onClick={topics.reload}>
+              <Button size="lg" className={elderButton} onClick={topics.reload}>
                 {t('home.reload')}
               </Button>
             }
@@ -77,12 +77,14 @@ export default function StorytellingHome() {
             {topics.data.slice(0, 6).map((topic) => (
               <li key={topic.id}>
                 <Link to={`/ke-chuyen/chu-de/${topic.slug}${query}`} className={cardClass}>
-                  <span className="flex size-14 items-center justify-center rounded-2xl bg-mint text-heritage">
+                  <span className="flex size-16 items-center justify-center rounded-2xl bg-mint text-heritage">
                     <TopicIcon slug={topic.slug} className="size-8" />
                   </span>
                   <span className="flex items-center justify-between gap-3">
-                    <span className="font-serif text-[1.6rem] font-semibold text-ink">{pick({ vi: topic.title_vi, en: topic.title_en })}</span>
-                    <ArrowRight className="size-6 shrink-0 text-heritage transition-transform group-hover:translate-x-1 motion-reduce:transform-none" aria-hidden="true" />
+                    <span className="font-serif text-[1.6rem] font-semibold leading-snug text-ink">{pick({ vi: topic.title_vi, en: topic.title_en })}</span>
+                    <span aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-full bg-cream text-heritage ring-1 ring-line transition-colors group-hover:bg-heritage group-hover:text-cream">
+                      <ArrowRight className="size-6 transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none" />
+                    </span>
                   </span>
                 </Link>
               </li>
@@ -90,15 +92,17 @@ export default function StorytellingHome() {
             <li className="sm:col-span-2">
               <Link to={`/ke-chuyen/chu-de/${EASY_SLUG}${query}`} className={`${cardClass} bg-mint/60 sm:flex-row sm:items-center`}>
                 <span className="flex items-center gap-4">
-                  <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-paper text-terracotta">
+                  <span className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-paper text-terracotta">
                     <Lightbulb className="size-8" aria-hidden="true" />
                   </span>
-                  <span className="flex flex-col">
-                    <span className="font-serif text-[1.6rem] font-semibold text-ink">{t('home.unsureTitle')}</span>
-                    <span className="text-[1.1rem] text-ink-soft">{t('home.unsureHint')}</span>
+                  <span className="flex flex-col gap-1">
+                    <span className="font-serif text-[1.6rem] font-semibold leading-snug text-ink">{t('home.unsureTitle')}</span>
+                    <span className="text-[1.25rem] leading-snug text-ink-soft">{t('home.unsureHint')}</span>
                   </span>
                 </span>
-                <ArrowRight className="hidden size-6 shrink-0 text-heritage sm:block" aria-hidden="true" />
+                <span aria-hidden="true" className="hidden size-12 shrink-0 items-center justify-center rounded-full bg-paper text-heritage ring-1 ring-line sm:flex">
+                  <ArrowRight className="size-6" />
+                </span>
               </Link>
             </li>
           </ul>
@@ -107,13 +111,16 @@ export default function StorytellingHome() {
 
       <Link
         to={`/ke-chuyen/cua-toi${query}`}
-        className="flex min-h-16 items-center gap-4 rounded-2xl px-2 text-heritage-deep underline-offset-4 hover:underline"
+        className="group flex min-h-20 items-center gap-4 rounded-[1.5rem] border border-line px-5 py-4 text-heritage-deep transition-colors hover:border-heritage/50 hover:bg-paper"
       >
-        <BookOpen className="size-7 shrink-0" aria-hidden="true" />
-        <span className="flex flex-col">
-          <span className="text-[1.3rem] font-semibold">{t('home.myStories')}</span>
-          <span className="text-[1.05rem] text-ink-soft">{t('home.myStoriesHint')}</span>
+        <span aria-hidden="true" className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-paper text-heritage ring-1 ring-line">
+          <BookOpen className="size-7" />
         </span>
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="text-[1.35rem] font-semibold leading-snug">{t('home.myStories')}</span>
+          <span className="text-[1.2rem] leading-snug text-ink-soft">{t('home.myStoriesHint')}</span>
+        </span>
+        <ArrowRight className="size-6 shrink-0 text-heritage" aria-hidden="true" />
       </Link>
     </div>
   );

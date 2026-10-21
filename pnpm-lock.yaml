@@ -38,8 +38,8 @@ importers:
       '@fontsource/be-vietnam-pro':
         specifier: ^5.2.6
         version: 5.3.0
-      '@fontsource/caveat':
-        specifier: ^5.2.6
+      '@fontsource/dancing-script':
+        specifier: ^5.3.0
         version: 5.3.0
       '@fontsource/noto-serif':
         specifier: ^5.2.6
@@ -264,8 +264,8 @@ packages:
   '@fontsource/be-vietnam-pro@5.3.0':
     resolution: {integrity: sha512-xhAQBGHDxP5BF8IJxedy5MoWUmc1DlPCcZbMLhvnPkf8TaYCbbUVs3LjpuJ4BYdTrdiCLaewNaY8z+owq/FqFw==}
 
-  '@fontsource/caveat@5.3.0':
-    resolution: {integrity: sha512-eHTfzQxFSW9ABERRLNruHoNJmKed2J7pqTUc5lp4a4POMgXGKpxmWj3d9Hz10kmAg6iuTTLe6UagbA4bnsmfQw==}
+  '@fontsource/dancing-script@5.3.0':
+    resolution: {integrity: sha512-/FFbz4ZCNN+eG2a6phkZB41iKmyCC6rq2blA/kG9OFeI3/tpzLNazND1bBdEnogLhpfg7o4NfauTbEEYSpSUGg==}
 
   '@fontsource/noto-serif@5.3.0':
     resolution: {integrity: sha512-ZrMzjuQlBIcw+qma1slZQdU3YDJvrjLG+9CWU1bxSf3YTkucwqd3EYa/Kfo4Ts19w8IMTGAmtOE3d6wWlgnBtA==}
@@ -1899,7 +1899,7 @@ snapshots:
 
   '@fontsource/be-vietnam-pro@5.3.0': {}
 
-  '@fontsource/caveat@5.3.0': {}
+  '@fontsource/dancing-script@5.3.0': {}
 
   '@fontsource/noto-serif@5.3.0': {}
 

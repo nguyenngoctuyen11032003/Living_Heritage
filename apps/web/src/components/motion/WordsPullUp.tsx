@@ -52,7 +52,7 @@ function PullUp({ as: Tag = 'p', className, delay = 0, stagger = 0.08, immediate
           const last = i === words.length - 1;
           return (
             <Fragment key={i}>
-              <span className="inline-block overflow-hidden pb-[0.1em] pt-[0.16em] align-bottom -mb-[0.1em] -mt-[0.16em]">
+              <span className="-mx-[0.06em] -mb-[0.14em] -mt-[0.22em] inline-block overflow-hidden px-[0.06em] pb-[0.14em] pt-[0.22em] align-bottom">
               {reduced ? (
                 <span className={cn('inline-block', cls)}>
                   {w}

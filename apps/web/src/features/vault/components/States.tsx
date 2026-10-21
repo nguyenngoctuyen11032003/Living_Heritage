@@ -4,7 +4,7 @@ import { useT } from '@/i18n';
 
 export function NotConfigured() {
   const t = useT('vault');
-  return <EmptyState icon={<CloudOff />} title={t('state.notConfigured')} />;
+  return <EmptyState icon={<CloudOff aria-hidden="true" />} title={t('state.notConfigured')} />;
 }
 
 export function LoadError({ onRetry, message }: { onRetry: () => void; message?: string }) {
@@ -12,7 +12,7 @@ export function LoadError({ onRetry, message }: { onRetry: () => void; message?:
   return (
     <div role="alert" className="flex flex-col items-start gap-3 rounded-3xl border border-terracotta/30 bg-terracotta/5 p-5 sm:flex-row sm:items-center sm:justify-between">
       <p className="text-ink">{message ?? t('state.loadError')}</p>
-      <Button variant="secondary" onClick={onRetry} leftIcon={<RefreshCw className="size-4" />}>
+      <Button variant="secondary" onClick={onRetry} leftIcon={<RefreshCw className="size-5" aria-hidden="true" />}>
         {t('state.retry')}
       </Button>
     </div>
@@ -25,7 +25,7 @@ export function Unavailable({ title, body, backTo, backLabel }: { title?: string
   return (
     <div className="mx-auto max-w-xl py-10">
       <EmptyState
-        icon={<Lock />}
+        icon={<Lock aria-hidden="true" />}
         title={title ?? t('detail.unavailableTitle')}
         description={body ?? t('detail.unavailableBody')}
         action={<ButtonLink to={backTo}>{backLabel ?? t('detail.back')}</ButtonLink>}
@@ -36,7 +36,7 @@ export function Unavailable({ title, body, backTo, backLabel }: { title?: string
 
 export function GridSkeleton({ count = 6 }: { count?: number }) {
   return (
-    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: count }, (_, i) => (
         <div key={i} className="overflow-hidden rounded-[1.5rem] bg-paper ring-1 ring-line/80">
           <Skeleton className="h-32 rounded-none" />

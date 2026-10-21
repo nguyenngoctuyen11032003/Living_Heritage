@@ -6,6 +6,7 @@ export default {
     intro: 'Chọn những câu chuyện đã được người kể duyệt, sắp thành chương và xem trước như một cuốn sách thật.',
     create: 'Tạo sách mới',
     chapters: '{n} chương',
+    chaptersOne: '1 chương',
     updated: 'Cập nhật {date}',
     open: 'Mở sách “{title}”',
     emptyTitle: 'Chưa có cuốn sách nào',
@@ -16,7 +17,7 @@ export default {
     createTitle: 'Cuốn sách mới',
     title: 'Tên sách',
     titlePlaceholder: 'Ví dụ: Chuyện nhà mình',
-    subtitle: 'Dòng phụ (không bắt buộc)',
+    subtitle: 'Phụ đề (không bắt buộc)',
     subtitlePlaceholder: 'Ví dụ: Lời kể của bà nội, 1950–1975',
     cover: 'Kiểu bìa',
     titleRequired: 'Hãy đặt tên cho cuốn sách.',
@@ -50,6 +51,7 @@ export default {
     chapters: {
       title: 'Các chương',
       count: '{n} chương',
+      countOne: '1 chương',
       empty: 'Sách chưa có chương nào. Chọn câu chuyện đã duyệt để thêm.',
       chapterN: 'Chương {n}',
       moveUp: 'Đưa chương “{title}” lên',
@@ -83,7 +85,6 @@ export default {
     qrNote: 'Người quét cần có quyền xem.',
     qrLabel: 'Mã QR mở giọng kể gốc của “{title}”',
     familyBook: 'Sách ký ức gia đình',
-    madeWith: 'Di Sản Sống',
   },
   print: {
     label: 'Bản in thử — chưa phải dịch vụ in sách',

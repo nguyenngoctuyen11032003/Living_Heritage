@@ -36,7 +36,7 @@ export function ApprovalBar({ mode, canEdit, dirty, waiting, busy, onSave, onApp
       className={cn(
         // Compact bars stay pinned on phones too; the taller assisted/editor bars pin from lg up only.
         mode === 'narrator_confirm' || mode === 'approved' || mode === 'read_only' ? 'sticky' : 'lg:sticky',
-        'bottom-0 z-20 -mx-4 mt-8 border-t border-line bg-paper/95 px-4 py-4 shadow-[0_-12px_30px_-24px_rgba(18,27,24,0.5)] backdrop-blur md:-mx-8 md:px-8',
+        'bottom-0 z-20 -mx-4 mt-8 border-t border-line bg-paper/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 shadow-[0_-12px_30px_-24px_rgba(18,27,24,0.5)] backdrop-blur md:-mx-8 md:px-8',
       )}
     >
       <div className="mx-auto flex max-w-6xl flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -48,7 +48,7 @@ export function ApprovalBar({ mode, canEdit, dirty, waiting, busy, onSave, onApp
                 {busy === 'save' ? t('editor.saving') : t('editor.save')}
               </Button>
             </div>
-            <p className="max-w-sm text-[0.8rem] text-ink-soft">{t('editor.saveNeedsApproval')}</p>
+            <p className="max-w-sm text-[0.85rem] leading-snug text-ink-soft">{t('editor.saveNeedsApproval')}</p>
           </div>
         )}
 
@@ -67,8 +67,8 @@ export function ApprovalBar({ mode, canEdit, dirty, waiting, busy, onSave, onApp
 
           {mode === 'narrator_confirm' && (
             <>
-              <p className="font-serif text-[1.2rem] font-semibold text-heritage-deep">{t('approval.question')}</p>
-              <Button size="xl" onClick={() => onApprove(false)} disabled={dirty} loading={busy === 'approve'} leftIcon={<CheckCircle2 className="size-6" aria-hidden="true" />}>
+              <p className="font-serif text-[clamp(1.15rem,3.5vw,1.3rem)] font-semibold leading-snug text-heritage-deep">{t('approval.question')}</p>
+              <Button size="xl" className="w-full sm:w-auto" onClick={() => onApprove(false)} disabled={dirty} loading={busy === 'approve'} leftIcon={<CheckCircle2 className="size-6" aria-hidden="true" />}>
                 {busy === 'approve' ? t('approval.confirming') : t('approval.confirm')}
               </Button>
               {dirty && <p className="text-[0.88rem] text-terracotta">{t('approval.saveFirst')}</p>}
@@ -78,7 +78,7 @@ export function ApprovalBar({ mode, canEdit, dirty, waiting, busy, onSave, onApp
           {mode === 'assisted' && (
             <>
               <p className="font-semibold text-heritage-deep">{t('approval.assistedTitle')}</p>
-              <p className="text-[0.9rem] text-ink-soft">{t('approval.assistedLead')}</p>
+              <p className="text-[0.9rem] leading-relaxed text-ink-soft">{t('approval.assistedLead')}</p>
               <label htmlFor={consentId} className="flex min-h-12 cursor-pointer items-start gap-3 text-left text-[0.95rem]">
                 <input id={consentId} type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1 size-5 shrink-0 accent-heritage" />
                 <span>{t('approval.assistedConsent')}</span>
@@ -100,7 +100,7 @@ export function ApprovalBar({ mode, canEdit, dirty, waiting, busy, onSave, onApp
             <>
               {saveStatus}
               <p className="font-semibold text-heritage-deep">{t('approval.sendTitle')}</p>
-              <p className="text-[0.9rem] text-ink-soft">{t('approval.sendLead')}</p>
+              <p className="text-[0.9rem] leading-relaxed text-ink-soft">{t('approval.sendLead')}</p>
               {waiting && !dirty ? (
                 <p className="font-semibold text-ink" role="status">
                   {t('approval.waiting')}

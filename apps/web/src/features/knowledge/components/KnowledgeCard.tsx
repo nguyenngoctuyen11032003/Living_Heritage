@@ -46,15 +46,15 @@ export function KnowledgeCard({ item, topics, featured, headingLevel = 'h3' }: K
           )}
         />
         <div className="relative flex items-start justify-between gap-3 p-5">
-          <span className="text-[0.72rem] font-bold uppercase tracking-[0.16em]">{topic ? pick(topic.title) : ' '}</span>
-          {featured && <span className="hidden text-[0.72rem] font-bold uppercase tracking-[0.16em] md:inline">{t('card.featured')}</span>}
+          <span className="text-[0.875rem] font-bold uppercase tracking-[0.1em]">{topic ? pick(topic.title) : ' '}</span>
+          {featured && <span className="hidden rounded-full bg-paper/70 px-3 py-1 text-[0.875rem] font-bold uppercase tracking-[0.1em] md:inline">{t('card.featured')}</span>}
         </div>
       </div>
 
       <div className={cn('flex min-w-0 flex-1 flex-col', featured ? 'p-6 md:p-9' : 'p-6')}>
         <span
           className={cn(
-            'inline-flex w-fit items-center rounded-full px-3 py-1 text-[0.74rem] font-semibold',
+            'inline-flex w-fit items-center rounded-full px-3 py-1 text-[0.875rem] font-semibold',
             item.kind === 'experience' ? 'bg-heritage text-cream' : 'bg-terracotta/10 text-terracotta ring-1 ring-terracotta/25',
           )}
         >
@@ -63,7 +63,7 @@ export function KnowledgeCard({ item, topics, featured, headingLevel = 'h3' }: K
         <span aria-hidden="true" className={cn('mt-3 block font-serif leading-none text-terracotta/80', featured ? 'text-[3.6rem]' : 'text-[2.8rem]')}>
           “
         </span>
-        <Heading className={cn('-mt-4 font-serif font-semibold text-heritage-deep', featured ? 'text-[1.5rem] leading-[1.3] md:text-[2rem]' : 'text-[1.18rem] leading-[1.4]')}>
+        <Heading className={cn('-mt-4 font-serif font-semibold text-heritage-deep', featured ? 'text-[clamp(1.4rem,1.1rem+1.2vw,1.9rem)] leading-[1.3]' : 'text-[1.2rem] leading-[1.4]')}>
           <Link
             to={`/tri-thuc/${item.id}`}
             className="after:absolute after:inset-0 after:rounded-[1.75rem] after:content-[''] focus-visible:outline-none"
@@ -71,24 +71,24 @@ export function KnowledgeCard({ item, topics, featured, headingLevel = 'h3' }: K
             {bareQuote(item.title)}
           </Link>
         </Heading>
-        {featured && item.summary && <p className="mt-4 line-clamp-3 max-w-xl leading-relaxed text-ink-soft">{item.summary}</p>}
+        {featured && item.summary && <p className="mt-4 line-clamp-3 max-w-xl text-[1.02rem] leading-relaxed text-ink-soft">{item.summary}</p>}
 
         <div className="mt-auto pt-6">
           <div className="flex flex-col gap-3 border-t border-line/80 pt-4">
-            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.86rem] text-ink-soft">
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.9375rem] text-ink-soft">
               <span className="font-semibold text-ink">{item.narratorLabel}</span>
               {item.region && (
                 <span className="inline-flex items-center gap-1">
-                  <MapPin aria-hidden="true" className="size-3.5" />
+                  <MapPin aria-hidden="true" className="size-4" />
                   {t(`regions.${item.region}`)}
                 </span>
               )}
               {item.decade && <span>{t('card.decade', { decade: item.decade })}</span>}
             </p>
-            <p className="flex flex-wrap items-center gap-2 text-[0.78rem]">
+            <p className="flex flex-wrap items-center gap-2 text-[0.875rem]">
               {showAudio ? (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-mint px-2.5 py-1 font-semibold text-heritage-deep">
-                  <Headphones aria-hidden="true" className="size-3.5" />
+                  <Headphones aria-hidden="true" className="size-4" />
                   {t('card.audio')}
                 </span>
               ) : (
@@ -96,7 +96,7 @@ export function KnowledgeCard({ item, topics, featured, headingLevel = 'h3' }: K
               )}
               {showAudio && item.durationS && (
                 <span className="inline-flex items-center gap-1 tabular-nums text-ink-soft">
-                  <Clock3 aria-hidden="true" className="size-3.5" />
+                  <Clock3 aria-hidden="true" className="size-4" />
                   {t('card.listenFor', { time: formatDuration(item.durationS) })}
                 </span>
               )}

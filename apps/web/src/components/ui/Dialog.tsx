@@ -112,14 +112,15 @@ export function Dialog({ open, onClose, title, description, children, footer, si
             exit={reduced ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.98 }}
             transition={{ duration: 0.3, ease: EASE_OUT }}
             className={cn(
-              'relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[1.75rem] bg-paper text-ink shadow-[0_30px_80px_-30px_rgba(18,27,24,0.55)] focus:outline-none sm:rounded-[1.75rem]',
+              // Phone: bottom sheet up to 92dvh. sm+: centred card, max 88dvh (body scrolls, header/footer stay put).
+              'relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[1.75rem] bg-paper text-ink shadow-[0_30px_80px_-30px_rgba(18,27,24,0.55)] focus:outline-none sm:max-h-[88dvh] sm:rounded-[1.75rem]',
               widths[size],
               className,
             )}
           >
-            <div className="flex items-start gap-4 px-6 pb-2 pt-6 sm:px-8 sm:pt-8">
-              <div className="min-w-0 flex-1">
-                <h2 id={titleId} className="font-serif text-[1.45rem] font-semibold leading-snug text-heritage-deep">
+            <div className="flex shrink-0 items-start gap-3 px-5 pb-2 pt-5 sm:gap-4 sm:px-8 sm:pt-8">
+              <div className="min-w-0 flex-1 pt-1">
+                <h2 id={titleId} className="break-words font-serif text-[clamp(1.2rem,1.05rem+0.9vw,1.45rem)] font-semibold leading-[1.3] text-heritage-deep text-balance">
                   {title}
                 </h2>
                 {description && (
@@ -133,14 +134,28 @@ export function Dialog({ open, onClose, title, description, children, footer, si
                   type="button"
                   onClick={() => onCloseRef.current()}
                   aria-label={t('ui.dialog.close')}
-                  className="-mr-2 -mt-1 inline-flex size-12 shrink-0 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-mint/70 hover:text-heritage"
+                  className="-mr-2 -mt-1 inline-flex size-12 shrink-0 items-center justify-center rounded-full focus-visible:rounded-full! text-ink-soft transition-colors hover:bg-mint/70 hover:text-heritage"
                 >
                   <X className="size-5" aria-hidden="true" />
                 </button>
               )}
             </div>
-            {children && <div className="overflow-y-auto px-6 py-3 sm:px-8">{children}</div>}
-            {footer && <div className="flex flex-col-reverse gap-3 border-t border-line/70 px-6 py-4 sm:flex-row sm:justify-end sm:px-8">{footer}</div>}
+            {children && (
+              <div
+                className={cn(
+                  'min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-3 sm:px-8',
+                  !footer && 'pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:pb-8',
+                )}
+              >
+                {children}
+              </div>
+            )}
+            {footer && (
+              <div className="flex shrink-0 flex-col-reverse gap-3 border-t border-line/70 px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 sm:flex-row sm:justify-end sm:px-8 sm:pb-5">
+                {footer}
+              </div>
+            )}
+            {!children && !footer && <div aria-hidden="true" className="h-[max(1rem,env(safe-area-inset-bottom))] shrink-0 sm:h-6" />}
           </motion.div>
         </div>
       )}

@@ -1,4 +1,4 @@
-import { ArrowLeft, FolderHeart, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, FolderHeart, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
 import { Button, Dialog, EmptyState, Field, Input, Skeleton, Textarea, useToast } from '@/components/ui';
@@ -26,10 +26,13 @@ import { StoryPicker } from './components/StoryPicker';
 import { FamilyGate, StoryStatusBadge } from './external';
 import type { VaultStory } from './types';
 import { useVaultLookups } from './useLookups';
+import { usePageTitle } from '@/lib/usePageTitle';
 
 // ------------------------------------------------------------------ list page
 
 export function CollectionsPage() {
+  const t = useT('vault');
+  usePageTitle(t('collections.title'));
   return (
     <FamilyGate>
       <CollectionsInner />
@@ -49,6 +52,7 @@ function CollectionsInner() {
   const [editing, setEditing] = useState<CollectionSummary | 'new' | null>(null);
   const [deleting, setDeleting] = useState<CollectionSummary | null>(null);
   const [busy, setBusy] = useState(false);
+  const countLabel = (n: number) => (n === 1 ? t('collections.countOne') : t('collections.count', { n }));
 
   useEffect(() => {
     const sb = getSupabase();
@@ -80,15 +84,16 @@ function CollectionsInner() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
       <Link to="/gia-dinh" className="inline-flex min-h-11 w-fit items-center gap-2 text-[0.95rem] font-semibold text-heritage hover:underline">
         <ArrowLeft className="size-5" aria-hidden="true" />
         {t('detail.back')}
       </Link>
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="font-serif text-[2rem] font-semibold leading-tight text-heritage-deep md:text-[2.4rem]">{t('collections.title')}</h1>
-          <p className="mt-2 max-w-xl text-ink-soft">{t('collections.intro')}</p>
+        <div className="min-w-0">
+          <p className="text-[0.875rem] font-semibold uppercase tracking-[0.14em] text-terracotta">{t('header.eyebrow')}</p>
+          <h1 className="mt-2 font-serif text-[clamp(2rem,1.5rem+2vw,2.5rem)] font-semibold leading-[1.2] text-heritage-deep">{t('collections.title')}</h1>
+          <p className="mt-2 max-w-[60ch] leading-relaxed text-ink-soft">{t('collections.intro')}</p>
         </div>
         {canEdit && (
           <Button size="lg" leftIcon={<Plus className="size-5" />} onClick={() => setEditing('new')}>
@@ -100,13 +105,14 @@ function CollectionsInner() {
       {error ? (
         <LoadError onRetry={() => setTick((x) => x + 1)} />
       ) : items === null ? (
-        <div className="grid gap-4 sm:grid-cols-2" aria-busy="true">
-          <Skeleton className="h-36" />
-          <Skeleton className="h-36" />
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true">
+          <Skeleton className="h-44 rounded-[1.5rem]" />
+          <Skeleton className="h-44 rounded-[1.5rem]" />
+          <Skeleton className="hidden h-44 rounded-[1.5rem] lg:block" />
         </div>
       ) : items.length === 0 ? (
         <EmptyState
-          icon={<FolderHeart />}
+          icon={<FolderHeart aria-hidden="true" />}
           title={t('collections.emptyTitle')}
           description={canEdit ? t('collections.emptyBody') : t('collections.viewerEmpty')}
           action={
@@ -118,22 +124,35 @@ function CollectionsInner() {
           }
         />
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((c) => (
-            <li key={c.id} className="relative flex flex-col gap-3 rounded-[1.5rem] bg-paper p-5 ring-1 ring-line/80 focus-within:ring-2 focus-within:ring-heritage">
-              <h2 className="font-serif text-[1.25rem] font-semibold leading-snug text-heritage-deep">
-                <Link to={`/gia-dinh/bo-suu-tap/${c.id}`} className="outline-none hover:underline">
+            <li
+              key={c.id}
+              className="group relative isolate flex flex-col gap-3 overflow-hidden rounded-[1.5rem] bg-paper p-5 ring-1 ring-line/80 transition-shadow duration-200 focus-within:ring-2 focus-within:ring-heritage hover:shadow-[0_18px_40px_-24px_rgba(22,58,49,0.45)] md:p-6"
+            >
+              <span aria-hidden="true" className="pointer-events-none absolute -right-8 -top-10 -z-10 size-32 rounded-full bg-mint/60 blur-2xl" />
+              <div className="flex items-center justify-between gap-3">
+                <span aria-hidden="true" className="inline-flex size-11 items-center justify-center rounded-2xl bg-mint text-heritage">
+                  <FolderHeart className="size-6" />
+                </span>
+                <span className="rounded-full bg-cream px-3 py-1 text-[0.875rem] font-semibold text-heritage-deep ring-1 ring-line">{countLabel(c.count)}</span>
+              </div>
+              <h2 className="break-words font-serif text-[1.25rem] font-semibold leading-[1.3] text-heritage-deep">
+                <Link to={`/gia-dinh/bo-suu-tap/${c.id}`} className="outline-none after:absolute after:inset-0 after:content-[''] group-hover:underline">
                   {c.title}
                 </Link>
               </h2>
-              {c.description && <p className="line-clamp-2 text-ink-soft">{c.description}</p>}
-              <p className="text-[0.9rem] text-ink-soft">{t('collections.count', { n: c.count })}</p>
+              {c.description && <p className="line-clamp-2 leading-relaxed text-ink-soft">{c.description}</p>}
+              <span aria-hidden="true" className="inline-flex items-center gap-1.5 text-[0.9rem] font-semibold text-heritage">
+                {t('collections.open')}
+                <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5 motion-reduce:transition-none" />
+              </span>
               {canEdit && (
-                <div className="mt-auto flex flex-wrap gap-2">
-                  <Button variant="ghost" leftIcon={<Pencil className="size-4" />} onClick={() => setEditing(c)}>
+                <div className="relative z-10 mt-auto flex flex-wrap gap-2 border-t border-line/70 pt-3">
+                  <Button variant="ghost" leftIcon={<Pencil className="size-5" aria-hidden="true" />} onClick={() => setEditing(c)}>
                     {t('collections.rename')}
                   </Button>
-                  <Button variant="ghost" leftIcon={<Trash2 className="size-4" />} onClick={() => setDeleting(c)}>
+                  <Button variant="ghost" leftIcon={<Trash2 className="size-5" aria-hidden="true" />} onClick={() => setDeleting(c)}>
                     {t('collections.delete')}
                   </Button>
                 </div>
@@ -273,6 +292,7 @@ function CollectionInner({ collectionId }: { collectionId: string }) {
   const lookups = useVaultLookups(meta?.family_id);
   const role = families.find((f) => f.id === meta?.family_id)?.role;
   const canEdit = role === 'owner' || role === 'manager' || role === 'editor';
+  usePageTitle(meta ? meta.title : meta === null ? t('collections.title') : null);
 
   useEffect(() => {
     const sb = getSupabase();
@@ -374,13 +394,13 @@ function CollectionInner({ collectionId }: { collectionId: string }) {
       </Link>
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="min-w-0">
-          <h1 className="break-words font-serif text-[2rem] font-semibold leading-tight text-heritage-deep">{meta.title}</h1>
-          {meta.description && <p className="mt-2 max-w-xl text-ink-soft">{meta.description}</p>}
-          <p className="mt-2 text-[0.9rem] text-ink-soft">{t('collections.count', { n: rows.length })}</p>
+          <h1 className="break-words font-serif text-[clamp(1.85rem,1.4rem+1.8vw,2.4rem)] font-semibold leading-[1.2] text-heritage-deep">{meta.title}</h1>
+          {meta.description && <p className="mt-2 max-w-[60ch] leading-relaxed text-ink-soft">{meta.description}</p>}
+          <p className="mt-2 text-[0.9rem] text-ink-soft">{rows.length === 1 ? t('collections.countOne') : t('collections.count', { n: rows.length })}</p>
         </div>
         {canEdit && (
           <div className="flex flex-wrap gap-2">
-            <Button variant="secondary" leftIcon={<Pencil className="size-4" />} onClick={() => setEditing(true)}>
+            <Button variant="secondary" leftIcon={<Pencil className="size-5" aria-hidden="true" />} onClick={() => setEditing(true)}>
               {t('collections.rename')}
             </Button>
             <Button leftIcon={<Plus className="size-5" />} onClick={() => void openPicker()}>
@@ -392,7 +412,7 @@ function CollectionInner({ collectionId }: { collectionId: string }) {
 
       {rows.length === 0 ? (
         <EmptyState
-          icon={<FolderHeart />}
+          icon={<FolderHeart aria-hidden="true" />}
           title={t('collections.items.emptyTitle')}
           description={t('collections.items.emptyBody')}
           action={
@@ -418,10 +438,10 @@ function CollectionInner({ collectionId }: { collectionId: string }) {
           }}
           render={(r) => (
             <div className="flex flex-col gap-1.5">
-              <Link to={`/cau-chuyen/${r.story_id}`} className="font-serif text-[1.1rem] font-semibold text-heritage-deep hover:underline">
+              <Link to={`/cau-chuyen/${r.story_id}`} className="break-words font-serif text-[1.1rem] font-semibold leading-[1.35] text-heritage-deep hover:underline">
                 {r.story.title.trim() || untitled}
               </Link>
-              <span className="text-[0.85rem] text-ink-soft">{lookups.narratorById.get(r.story.narrator_id)?.display_name ?? ''}</span>
+              <span className="text-[0.9rem] text-ink-soft">{lookups.narratorById.get(r.story.narrator_id)?.display_name ?? ''}</span>
               <StoryStatusBadge size="sm" showScope editStatus={r.story.edit_status} visibility={r.story.visibility} />
             </div>
           )}
@@ -445,7 +465,7 @@ function CollectionInner({ collectionId }: { collectionId: string }) {
             labels={{
               search: t('collections.picker.searchLabel'),
               add: t('collections.picker.add'),
-              addLabel: (title) => `${t('collections.picker.add')}: ${title}`,
+              addLabel: (title) => t('collections.picker.addLabel', { title }),
               added: t('collections.picker.added'),
               none: t('collections.picker.none'),
               untitled,

@@ -125,7 +125,7 @@ export function ReportDialog({ item, open, onClose }: { item: KnowledgeItem; ope
               ))}
             </div>
             {reasonError && (
-              <p id={`${legendId}-err`} role="alert" className="mt-2 text-[0.85rem] font-medium text-terracotta">
+              <p id={`${legendId}-err`} role="alert" className="mt-2 text-[0.9375rem] font-medium text-terracotta">
                 {t('report.reasonRequired')}
               </p>
             )}

@@ -86,7 +86,9 @@ export function SiteHeader() {
           </ul>
         </nav>
         <div className="flex items-center justify-end gap-2">
-          <LanguageSwitch className="hidden sm:inline-flex" />
+          <div className="hidden sm:block">
+            <LanguageSwitch />
+          </div>
           {signedIn ? (
             <Link to="/gia-dinh" className={cn(pill, 'inline-flex bg-heritage text-cream hover:bg-heritage-deep')}>
               {t('nav.family')}

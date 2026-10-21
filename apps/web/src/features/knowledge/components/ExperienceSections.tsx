@@ -12,7 +12,7 @@ export function ExperienceSections({ fields, headingLevel = 'h2' }: { fields: un
     <div>
       {skill && (
         <p className="mb-8 border-l-4 border-terracotta pl-4 font-serif text-[1.2rem] leading-snug text-ink">
-          <span className="block text-[0.75rem] font-sans font-bold uppercase tracking-[0.16em] text-terracotta">{t('detail.skill')}</span>
+          <span className="mb-1 block font-sans text-[0.875rem] font-bold uppercase tracking-[0.12em] text-terracotta">{t('detail.skill')}</span>
           {skill}
         </p>
       )}
@@ -34,21 +34,21 @@ export function ExperienceSections({ fields, headingLevel = 'h2' }: { fields: un
                         <span className="sr-only">{t('detail.stepN', { n: n + 1 })}: </span>
                         <span aria-hidden="true">{n + 1}</span>
                       </span>
-                      <p className="pt-1 leading-relaxed text-ink">{step}</p>
+                      <p className="max-w-[66ch] pt-1 leading-relaxed text-ink">{step}</p>
                     </li>
                   ))}
                 </ol>
               ) : s.variant === 'list' ? (
                 <ul className={cn('mt-3 space-y-2 pl-5', s.key === 'cautions' ? 'list-["!__"] marker:font-bold marker:text-terracotta' : 'list-disc marker:text-heritage')}>
                   {s.items.map((x, n) => (
-                    <li key={n} className="leading-relaxed text-ink">
+                    <li key={n} className="max-w-[66ch] leading-relaxed text-ink">
                       {x}
                     </li>
                   ))}
                 </ul>
               ) : (
                 s.items.map((x, n) => (
-                  <p key={n} className="mt-2 leading-relaxed text-ink">
+                  <p key={n} className="mt-2 max-w-[66ch] leading-relaxed text-ink">
                     {x}
                   </p>
                 ))
@@ -57,7 +57,7 @@ export function ExperienceSections({ fields, headingLevel = 'h2' }: { fields: un
           </li>
         ))}
       </ol>
-      {sections.some((s) => s.missing) && <p className="mt-8 text-[0.88rem] text-ink-soft">{t('detail.missingNote')}</p>}
+      {sections.some((s) => s.missing) && <p className="mt-8 text-[0.9375rem] text-ink-soft">{t('detail.missingNote')}</p>}
     </div>
   );
 }

@@ -38,7 +38,7 @@ export function CoverFields({ value, onChange, error }: { value: CoverValue; onC
               <label
                 key={style}
                 className={cn(
-                  'flex cursor-pointer flex-col items-center gap-2 rounded-2xl p-2 ring-1 transition-shadow focus-within:ring-2 focus-within:ring-heritage',
+                  'flex min-w-0 cursor-pointer flex-col items-center gap-2 rounded-2xl p-2 ring-1 transition-shadow focus-within:ring-2 focus-within:ring-heritage',
                   checked ? 'bg-mint/60 ring-heritage/50' : 'bg-paper ring-line',
                 )}
               >
@@ -47,7 +47,7 @@ export function CoverFields({ value, onChange, error }: { value: CoverValue; onC
                   <span className={`absolute inset-0 ${theme.texture}`} />
                   <span className="absolute inset-[10%] rounded-sm border" style={{ borderColor: theme.accent, opacity: 0.6 }} />
                 </span>
-                <span className={cn('text-center text-[0.85rem]', checked ? 'font-semibold text-heritage-deep' : 'text-ink-soft')}>{label(style)}</span>
+                <span className={cn('text-center text-[0.9rem] leading-snug', checked ? 'font-semibold text-heritage-deep' : 'text-ink-soft')}>{label(style)}</span>
               </label>
             );
           })}

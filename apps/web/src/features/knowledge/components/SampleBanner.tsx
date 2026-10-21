@@ -15,7 +15,7 @@ export function SampleBanner({ notConfigured, compact, className }: { notConfigu
         {!compact && <p className="font-serif text-[1.08rem] font-semibold">{t('sample.bannerTitle')}</p>}
       </div>
       <p className="mt-2 max-w-3xl text-[0.95rem] leading-relaxed">{compact ? t('sample.detailBanner') : t('sample.bannerBody')}</p>
-      {notConfigured && <p className="mt-2 text-[0.88rem] font-medium">{t('states.notConfigured')}</p>}
+      {notConfigured && <p className="mt-2 text-[0.9375rem] font-medium">{t('states.notConfigured')}</p>}
     </aside>
   );
 }

@@ -13,6 +13,7 @@ import { activeFilterCount, DECADES, EMPTY_FILTERS, filtersFromParams, filtersTo
 import { useSavedList } from '../saved';
 import { findTopic, topicStyle, useTopics } from '../topics';
 import { useKnowledgeSearch } from '../useKnowledgeSearch';
+import { usePageTitle } from '@/lib/usePageTitle';
 
 const DEBOUNCE_MS = 300;
 
@@ -48,6 +49,9 @@ export default function ExplorePage() {
     lastUrlQ.current = filters.q;
     setQInput((cur) => (cur.trim() === filters.q.trim() ? cur : filters.q));
   }, [filters.q]);
+
+  const trimmedQ = filters.q.trim();
+  usePageTitle(trimmedQ ? `${t('filters.queryChip', { q: trimmedQ })} · ${t('meta.explore')}` : t('meta.explore'));
 
   const search = useKnowledgeSearch(filters);
   const active = activeFilterCount(filters);
@@ -94,28 +98,28 @@ export default function ExplorePage() {
         </div>
         <div className="relative mx-auto max-w-6xl px-4 pb-12 pt-12 md:px-8 md:pb-16 md:pt-20">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[0.78rem] font-bold uppercase tracking-[0.2em] text-terracotta">{t('hero.kicker')}</p>
+            <p className="text-[0.875rem] font-bold uppercase tracking-[0.14em] text-terracotta">{t('hero.kicker')}</p>
             <Link
               to="/da-luu"
-              className="inline-flex min-h-12 items-center gap-2 rounded-full px-4 text-[0.9rem] font-semibold text-heritage ring-1 ring-line transition-colors hover:bg-mint/60"
+              className="inline-flex min-h-12 items-center gap-2 rounded-full bg-paper/70 px-4 text-[0.95rem] font-semibold text-heritage ring-1 ring-line transition-colors hover:bg-mint/60"
             >
-              <Bookmark aria-hidden="true" className="size-4" />
+              <Bookmark aria-hidden="true" className="size-5" />
               {t('hero.savedLink', { n: saved.length })}
             </Link>
           </div>
           <Reveal>
-            <h1 id="hub-title" className="mt-5 max-w-4xl font-serif text-[2.3rem] font-semibold leading-[1.12] tracking-[-0.01em] text-heritage-deep sm:text-[3rem] md:text-[4rem]">
+            <h1 id="hub-title" className="mt-5 max-w-4xl text-balance font-serif text-[clamp(2.1rem,1.4rem+3.4vw,4rem)] font-semibold leading-[1.2] tracking-[-0.01em] text-heritage-deep">
               {t('hero.title')}
             </h1>
           </Reveal>
-          <p className="mt-5 max-w-2xl text-[1.08rem] leading-relaxed text-ink-soft">{t('hero.lede')}</p>
+          <p className="mt-5 max-w-2xl text-[1.08rem] leading-relaxed text-ink-soft md:text-[1.15rem]">{t('hero.lede')}</p>
 
           <form role="search" onSubmit={onSubmit} className="mt-8 max-w-3xl">
             <label htmlFor={searchId} className="sr-only">
               {t('hero.searchLabel')}
             </label>
             <div className="relative flex items-center rounded-full bg-paper shadow-[0_18px_40px_-28px_rgba(22,58,49,0.5)] ring-1 ring-line focus-within:ring-2 focus-within:ring-heritage">
-              <Search aria-hidden="true" className="pointer-events-none absolute left-5 size-6 text-ink-soft" />
+              <Search aria-hidden="true" className="pointer-events-none absolute left-4 size-5 text-ink-soft sm:left-5 sm:size-6" />
               <input
                 id={searchId}
                 type="search"
@@ -125,7 +129,7 @@ export default function ExplorePage() {
                 autoComplete="off"
                 enterKeyHint="search"
                 maxLength={120}
-                className="min-h-16 w-full min-w-0 flex-1 rounded-full bg-transparent pl-14 pr-3 text-[1.08rem] text-ink placeholder:text-ink-soft/75 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+                className="min-h-16 w-full min-w-0 flex-1 rounded-full bg-transparent pl-11 pr-2 text-[1.05rem] sm:pl-14 sm:pr-3 sm:text-[1.08rem] text-ink placeholder:text-ink-soft/75 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
               />
               {qInput && (
                 <button
@@ -140,32 +144,36 @@ export default function ExplorePage() {
                   <X aria-hidden="true" className="size-5" />
                 </button>
               )}
-              <Button type="submit" size="lg" className="mr-1.5 hidden shrink-0 sm:inline-flex">
-                {t('hero.searchCta')}
+              <Button type="submit" size="lg" className="mr-1.5 size-13 min-h-13 shrink-0 px-0 sm:size-auto sm:min-h-14 sm:px-7">
+                <Search aria-hidden="true" className="size-5 sm:hidden" />
+                <span className="sr-only sm:not-sr-only">{t('hero.searchCta')}</span>
               </Button>
             </div>
           </form>
 
           <div className="mt-7">
-            <p id="popular-topics" className="text-[0.85rem] font-semibold text-ink-soft">
+            <p id="popular-topics" className="text-[0.95rem] font-semibold text-ink-soft">
               {t('hero.popular')}
             </p>
-            <ul aria-labelledby="popular-topics" className="mt-3 flex flex-wrap gap-2.5">
+            <ul
+              aria-labelledby="popular-topics"
+              className="-mx-4 mt-3 flex gap-2.5 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0 [&::-webkit-scrollbar]:hidden"
+            >
               {topics.map((topic) => {
                 const on = filters.topic === topic.slug;
                 const style = topicStyle(topic.slug);
                 return (
-                  <li key={topic.slug}>
+                  <li key={topic.slug} className="shrink-0">
                     <button
                       type="button"
                       aria-pressed={on}
                       onClick={() => update({ topic: on ? null : topic.slug })}
                       className={cn(
-                        'inline-flex min-h-12 items-center gap-2 rounded-full px-4 text-[0.92rem] font-semibold transition-[background-color,box-shadow] duration-150',
+                        'inline-flex min-h-12 items-center gap-2.5 whitespace-nowrap rounded-full px-4 text-[1rem] font-semibold transition-[background-color,box-shadow] duration-150 sm:px-5',
                         on ? 'bg-heritage text-cream' : 'bg-paper text-ink ring-1 ring-line hover:ring-heritage/50',
                       )}
                     >
-                      <span aria-hidden="true" className="size-2.5 rounded-full" style={{ backgroundColor: on ? '#faf7f0' : style.ink }} />
+                      <span aria-hidden="true" className="size-3 rounded-full" style={{ backgroundColor: on ? '#faf7f0' : style.ink }} />
                       {pick(topic.title)}
                     </button>
                   </li>
@@ -173,7 +181,7 @@ export default function ExplorePage() {
               })}
             </ul>
           </div>
-          <p className="mt-6 text-[0.85rem] text-ink-soft">{t('hero.promise')}</p>
+          <p className="mt-6 max-w-2xl text-[0.95rem] text-ink-soft">{t('hero.promise')}</p>
         </div>
       </section>
 
@@ -183,7 +191,7 @@ export default function ExplorePage() {
           <h2 id="filters-title" className="sr-only">
             {t('filters.title')}
           </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1.2fr_1.4fr_1fr_1fr]">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1.7fr_1fr_1fr]">
             <Field label={t('filters.topic')}>
               <Select value={filters.topic ?? ''} onChange={(e) => update({ topic: e.target.value || null })}>
                 <option value="">{t('filters.allTopics')}</option>
@@ -195,7 +203,7 @@ export default function ExplorePage() {
               </Select>
             </Field>
             <fieldset className="flex flex-col gap-1.5">
-              <legend className="mb-1.5 text-[0.9rem] font-semibold text-ink">{t('filters.kind')}</legend>
+              <legend className="mb-1.5 text-[0.95rem] font-semibold text-ink">{t('filters.kind')}</legend>
               <div className="grid grid-cols-3 gap-1 rounded-2xl bg-cream p-1 ring-1 ring-line">
                 {[null, ...STORY_KINDS].map((k) => {
                   const on = filters.kind === k;
@@ -206,7 +214,7 @@ export default function ExplorePage() {
                       aria-pressed={on}
                       onClick={() => update({ kind: k as StoryKind | null })}
                       className={cn(
-                        'min-h-11 rounded-xl px-2 text-[0.84rem] font-semibold leading-tight transition-colors',
+                        'min-h-12 rounded-xl px-1.5 text-[0.9rem] font-semibold leading-tight transition-colors',
                         on ? 'bg-heritage text-cream shadow-sm' : 'text-ink-soft hover:bg-mint/60 hover:text-heritage',
                       )}
                     >
@@ -245,7 +253,7 @@ export default function ExplorePage() {
                   type="button"
                   onClick={() => removeChip(c.key)}
                   aria-label={t('filters.remove', { label: c.label })}
-                  className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-mint px-3.5 text-[0.85rem] font-semibold text-heritage-deep hover:bg-mint/70"
+                  className="inline-flex min-h-11 max-w-full items-center gap-1.5 break-words rounded-full bg-mint px-4 text-left text-[0.95rem] font-semibold text-heritage-deep hover:bg-mint/70"
                 >
                   {c.label}
                   <X aria-hidden="true" className="size-4" />
@@ -263,10 +271,10 @@ export default function ExplorePage() {
         {/* Results */}
         <section ref={resultsRef} tabIndex={-1} aria-labelledby="results-title" aria-busy={search.loading} className="mt-10 focus:outline-none">
           <div className="flex flex-wrap items-end justify-between gap-3">
-            <h2 id="results-title" className="font-serif text-[1.6rem] font-semibold text-heritage-deep md:text-[1.9rem]">
+            <h2 id="results-title" className="font-serif text-[clamp(1.6rem,1.3rem+1.2vw,2.1rem)] font-semibold leading-[1.25] text-heritage-deep">
               {narrowing ? t('results.heading') : t('results.latest')}
             </h2>
-            <p aria-live="polite" className="text-[0.92rem] text-ink-soft">
+            <p aria-live="polite" className="text-[0.95rem] text-ink-soft">
               {search.loading ? t('results.loading') : !search.error ? countText : ''}
             </p>
           </div>
@@ -299,7 +307,7 @@ export default function ExplorePage() {
                 {search.items.map((item, i) => {
                   const featured = showFeatured && i === 0;
                   return (
-                    <Reveal as="li" key={item.id} delay={Math.min(i % 3, 2) * 0.06} className={cn(featured && 'md:col-span-2 lg:col-span-3')}>
+                    <Reveal as="li" key={item.id} delay={Math.min(i % 3, 2) * 0.06} className={cn(featured && 'md:col-span-2')}>
                       <KnowledgeCard item={item} topics={topics} featured={featured} />
                     </Reveal>
                   );
@@ -363,7 +371,7 @@ function NoResults({
                   type="button"
                   onClick={() => onRemove(c.key)}
                   aria-label={t('filters.remove', { label: c.label })}
-                  className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-paper px-4 text-[0.88rem] font-semibold text-heritage ring-1 ring-line hover:ring-heritage/50"
+                  className="inline-flex min-h-11 max-w-full items-center gap-1.5 break-words rounded-full bg-paper px-4 text-left text-[0.95rem] font-semibold text-heritage ring-1 ring-line hover:ring-heritage/50"
                 >
                   {c.label}
                   <X aria-hidden="true" className="size-4" />

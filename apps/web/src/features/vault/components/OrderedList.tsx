@@ -50,7 +50,7 @@ export function OrderedList<T>({ items, getKey, getTitle, render, onMove, onRemo
               setDragOver(null);
             }}
             className={cn(
-              'flex items-center gap-2 rounded-2xl bg-paper p-3 ring-1 ring-line transition-shadow',
+              'flex items-center gap-2 rounded-2xl bg-paper p-3 ring-1 ring-line transition-shadow sm:gap-3 sm:p-4',
               dragOver === i && 'ring-2 ring-heritage',
               dragFrom === i && 'opacity-60',
             )}
@@ -60,14 +60,14 @@ export function OrderedList<T>({ items, getKey, getTitle, render, onMove, onRemo
             {editable && (
               <div className="flex shrink-0 flex-col gap-1 min-[420px]:flex-row">
                 <Button variant="ghost" iconOnly aria-label={labels.moveUp(title)} disabled={disabled || i === 0} onClick={() => onMove?.(i, i - 1)}>
-                  <ArrowUp className="size-5" />
+                  <ArrowUp className="size-5" aria-hidden="true" />
                 </Button>
                 <Button variant="ghost" iconOnly aria-label={labels.moveDown(title)} disabled={disabled || i === items.length - 1} onClick={() => onMove?.(i, i + 1)}>
-                  <ArrowDown className="size-5" />
+                  <ArrowDown className="size-5" aria-hidden="true" />
                 </Button>
                 {onRemove && (
                   <Button variant="ghost" iconOnly aria-label={labels.remove(title)} disabled={disabled} onClick={() => onRemove(item)}>
-                    <Trash2 className="size-5 text-terracotta" />
+                    <Trash2 className="size-5 text-terracotta" aria-hidden="true" />
                   </Button>
                 )}
               </div>

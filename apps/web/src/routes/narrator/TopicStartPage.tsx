@@ -7,6 +7,7 @@ import { getSupabase, type Supabase } from '@/lib/supabase';
 import { StatusBlock, StorytellerGate } from '@/features/storytelling/components';
 import { createSession, fetchAllQuestions, fetchTopics, useStoryteller, type NarratorInfo } from '@/features/storytelling/data';
 import { pickEasyQuestion } from '@/features/storytelling/questions';
+import { elderButton, elderEmpty, useNarratorTitle } from './elder';
 
 const EASY_SLUG = 'goi-y';
 
@@ -38,6 +39,7 @@ export default function TopicStartPage() {
   const ctx = useStoryteller();
   const [state, setState] = useState<'working' | 'not-found' | 'failed'>('working');
   const [attempt, setAttempt] = useState(0);
+  useNarratorTitle(t('titles.start'));
 
   const narrator = ctx.status === 'ready' ? ctx.narrator : null;
   const query = ctx.status === 'ready' ? ctx.query : '';
@@ -77,11 +79,12 @@ export default function TopicStartPage() {
   if (state === 'not-found') {
     return (
       <EmptyState
+        className={elderEmpty}
         icon={<SearchX />}
         title={t('start.notFoundTitle')}
         description={t('start.notFoundDesc')}
         action={
-          <ButtonLink to={`/ke-chuyen${query}`} size="lg">
+          <ButtonLink to={`/ke-chuyen${query}`} size="lg" className={elderButton}>
             {t('start.back')}
           </ButtonLink>
         }
@@ -91,12 +94,14 @@ export default function TopicStartPage() {
   if (state === 'failed') {
     return (
       <EmptyState
+        className={elderEmpty}
         icon={<CircleAlert />}
         title={t('start.failedTitle')}
         description={t('start.failedDesc')}
         action={
           <Button
             size="lg"
+            className={elderButton}
             onClick={() => {
               setState('working');
               setAttempt((n) => n + 1);

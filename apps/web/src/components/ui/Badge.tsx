@@ -27,8 +27,9 @@ export function Badge({ tone = 'mint', size = 'md', icon, dot, className, childr
   return (
     <span
       className={cn(
-        'inline-flex max-w-full items-center gap-1.5 rounded-full font-semibold leading-snug',
-        size === 'sm' ? 'px-2.5 py-0.5 text-[0.72rem]' : 'px-3 py-1 text-[0.8rem]',
+        // Min. 14px text (0.8rem of the 18px root); leading-normal keeps stacked Vietnamese marks (Ữ, Ộ) clear of the truncate clip.
+        'inline-flex max-w-full items-center gap-1.5 rounded-full font-semibold leading-normal',
+        size === 'sm' ? 'px-2.5 py-0.5 text-[0.8rem]' : 'px-3 py-1 text-[0.85rem]',
         tones[tone],
         className,
       )}
@@ -36,7 +37,7 @@ export function Badge({ tone = 'mint', size = 'md', icon, dot, className, childr
     >
       {dot && <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-current opacity-80" />}
       {icon && <span aria-hidden="true" className="inline-flex shrink-0 [&>svg]:size-3.5">{icon}</span>}
-      <span className="truncate">{children}</span>
+      <span className="min-w-0 truncate">{children}</span>
     </span>
   );
 }

@@ -28,7 +28,7 @@ export function ListState({
         <EmptyState
           title={t('states.loadError')}
           action={
-            <Button onClick={onRetry} leftIcon={<RotateCcw aria-hidden="true" className="size-4" />}>
+            <Button onClick={onRetry} leftIcon={<RotateCcw aria-hidden="true" className="size-5" />}>
               {t('states.retry')}
             </Button>
           }
@@ -60,9 +60,9 @@ export function ListHeader({ count, onRefresh, loading, children }: { count: num
       <div className="flex flex-wrap items-end gap-4">{children}</div>
       <div className="flex items-center gap-3">
         <p aria-live="polite" className="text-[0.9rem] text-ink-soft">
-          {count !== null ? t('common.count', { n: count }) : ''}
+          {count === null ? '' : count === 1 ? t('common.countOne') : t('common.count', { n: count })}
         </p>
-        <Button variant="secondary" onClick={onRefresh} loading={loading} leftIcon={<RefreshCw aria-hidden="true" className="size-4" />}>
+        <Button variant="secondary" onClick={onRefresh} loading={loading} leftIcon={<RefreshCw aria-hidden="true" className="size-5" />}>
           {t('common.refresh')}
         </Button>
       </div>
@@ -74,7 +74,7 @@ export function ItemLink({ id, title }: { id: string | null; title: string | und
   const t = useT('admin');
   if (!id) return <span className="text-[0.9rem] italic text-ink-soft">{t('common.itemRemoved')}</span>;
   return (
-    <Link to={`/tri-thuc/${id}`} target="_blank" rel="noopener" className="inline-flex min-h-11 items-center gap-1.5 font-semibold text-heritage underline-offset-4 hover:underline">
+    <Link to={`/tri-thuc/${id}`} target="_blank" rel="noopener" className="inline-flex min-h-11 items-center gap-1.5 font-semibold text-heritage underline-offset-4 [overflow-wrap:anywhere] hover:underline">
       {title ? `“${title}”` : t('common.openItem')}
       <ExternalLink aria-hidden="true" className="size-4" />
     </Link>
@@ -85,7 +85,7 @@ export function StatusPill({ tone, children }: { tone: 'open' | 'done' | 'muted'
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.78rem] font-semibold',
+        'inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-[0.875rem] font-semibold',
         tone === 'open' && 'bg-[#fbecc8] text-[#6b4a0c]',
         tone === 'done' && 'bg-mint text-heritage-deep',
         tone === 'muted' && 'bg-[#efe9dc] text-ink-soft',

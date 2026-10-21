@@ -39,7 +39,7 @@ export function Plans({ showOrgs = true }: { showOrgs?: boolean }) {
                 <div className="flex items-center justify-between gap-3">
                   <h3 className={cn('text-[1.1rem] font-bold', featured ? 'text-night-ink' : 'text-ink')}>{t(`plans.${plan.key}.name`)}</h3>
                   {plan.key === 'year' && (
-                    <Badge tone="mint" size="sm">
+                    <Badge tone="mint">
                       {t('plans.year.badge')}
                     </Badge>
                   )}
@@ -48,7 +48,7 @@ export function Plans({ showOrgs = true }: { showOrgs?: boolean }) {
                   <span className={cn('font-serif text-[2.4rem] font-semibold leading-none tracking-[-0.02em]', featured ? 'text-night-ink' : 'text-heritage-deep')}>{t(`plans.${plan.key}.price`)}</span>
                   <span className={cn('text-[0.95rem]', featured ? 'text-night-ink/75' : 'text-ink-soft')}>{t(`plans.${plan.key}.unit`)}</span>
                 </p>
-                <p className={cn('mt-1 text-[0.78rem] font-semibold uppercase tracking-[0.08em]', featured ? 'text-[#f1dca8]' : 'text-[#8a5d0c]')}>{t('meta.planned')}</p>
+                <p className={cn('mt-1 text-[0.8rem] font-semibold uppercase tracking-[0.08em]', featured ? 'text-[#f1dca8]' : 'text-[#8a5d0c]')}>{t('meta.planned')}</p>
                 <p className={cn('mt-4 leading-relaxed', featured ? 'text-night-ink/85' : 'text-ink-soft')}>{t(`plans.${plan.key}.body`)}</p>
                 <ul className={cn('mt-6 flex flex-1 flex-col gap-3 border-t pt-6', featured ? 'border-white/12' : 'border-line')}>
                   {plan.includes.map((k) => (
@@ -77,7 +77,7 @@ export function Plans({ showOrgs = true }: { showOrgs?: boolean }) {
                   <Building2 className="size-6" />
                 </span>
                 <div className="max-w-2xl">
-                  <p className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-mint">{t('plans.orgs.eyebrow')}</p>
+                  <p className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-mint">{t('plans.orgs.eyebrow')}</p>
                   <h3 className="mt-2 font-serif text-[1.5rem] font-semibold leading-snug md:text-[1.8rem]">{t('plans.orgs.title')}</h3>
                   <p className="mt-3 leading-relaxed text-night-ink/80">{t('plans.orgs.body')}</p>
                 </div>
