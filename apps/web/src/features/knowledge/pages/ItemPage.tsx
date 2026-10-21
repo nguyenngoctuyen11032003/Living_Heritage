@@ -3,7 +3,7 @@ import { useEffect, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router';
 import { StoryScene } from '@/components/illustrations/scenes';
 import { Reveal } from '@/components/motion';
-import { AudioPlayer, Button, ButtonLink, EmptyState, IllustrativeBadge, Skeleton } from '@/components/ui';
+import { AudioPlayer, Button, ButtonLink, IllustrativeBadge, Skeleton } from '@/components/ui';
 import { useLocale, usePick, useT } from '@/i18n';
 import { formatDate } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase';
@@ -11,6 +11,7 @@ import { publicAudioUrl } from '../api';
 import { ItemActions } from '../components/ItemActions';
 import { ItemBody, SourceBox } from '../components/ItemBody';
 import { KnowledgeCard } from '../components/KnowledgeCard';
+import { PageState } from '../components/PageState';
 import { SampleBanner } from '../components/SampleBanner';
 import { TopicMotif } from '../components/TopicMotif';
 import { findTopic, topicStyle, useTopics } from '../topics';
@@ -32,7 +33,7 @@ export default function ItemPage() {
   if (status === 'not-configured') {
     return (
       <Shell>
-        <EmptyState title={tc('states.notConfigured')} action={<ButtonLink to="/kham-pha">{t('states.backToHub')}</ButtonLink>} />
+        <PageState title={tc('states.notConfigured')} action={<ButtonLink to="/kham-pha">{t('states.backToHub')}</ButtonLink>} />
       </Shell>
     );
   }
@@ -40,7 +41,7 @@ export default function ItemPage() {
     return (
       <Shell>
         <div role="alert">
-          <EmptyState
+          <PageState
             icon={<SearchX />}
             title={t('states.itemError')}
             action={
@@ -56,7 +57,7 @@ export default function ItemPage() {
   if (status === 'not-found' || !item) {
     return (
       <Shell>
-        <EmptyState
+        <PageState
           icon={<SearchX />}
           title={t('states.notFoundTitle')}
           description={t('states.notFoundBody')}

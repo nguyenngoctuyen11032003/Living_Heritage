@@ -19,6 +19,7 @@ export default {
     allTopics: 'Tất cả chủ đề',
     kind: 'Loại nội dung',
     allKinds: 'Tất cả',
+    kindShort: { story: 'Câu chuyện', experience: 'Kinh nghiệm' },
     region: 'Vùng miền',
     allRegions: 'Mọi vùng miền',
     decade: 'Thập niên',

@@ -55,9 +55,9 @@ export function ExportSection({ family }: { family: FamilySummary }) {
         <div aria-live="polite" className="min-h-6">
           {phase === 'working' && <p className="text-ink-soft">{t('export.working')}</p>}
           {phase === 'done' && (
-            <p className="flex items-center gap-2 font-medium text-heritage-deep">
-              <CircleCheck className="size-5" aria-hidden="true" />
-              {t('export.done', { file: fileName })}
+            <p className="flex items-start gap-2 font-medium text-heritage-deep">
+              <CircleCheck className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+              <span className="min-w-0 [overflow-wrap:anywhere]">{t('export.done', { file: fileName })}</span>
             </p>
           )}
         </div>

@@ -13,7 +13,7 @@ export default function MyStoriesPage() {
   return (
     <div className={`flex flex-col gap-8 ${ELDER_CONTROLS}`}>
       {ctx.assisted && <AssistedBanner name={ctx.narrator.display_name} />}
-      <ButtonLink to={`/ke-chuyen${ctx.query}`} variant="ghost" size="lg" className="self-start text-[1.17rem]" leftIcon={<ArrowLeft className="size-5" aria-hidden="true" />}>
+      <ButtonLink to={`/ke-chuyen${ctx.query}`} variant="ghost" size="lg" className="-ml-3 self-start px-3! text-[1.17rem]" leftIcon={<ArrowLeft className="size-5" aria-hidden="true" />}>
         {t('mine.back')}
       </ButtonLink>
       <header>

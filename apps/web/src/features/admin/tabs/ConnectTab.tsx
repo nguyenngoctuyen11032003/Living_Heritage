@@ -4,7 +4,7 @@ import { useT } from '@/i18n';
 import { getSupabase, type Supabase } from '@/lib/supabase';
 import { CONNECT_STATUSES, nextConnectStatuses, type ConnectStatus } from '../access';
 import { useDateTime } from '../format';
-import { ItemLink, ListHeader, ListState, StatusPill } from '../shared';
+import { HubLink, ItemLink, ListHeader, ListState, StatusPill } from '../shared';
 import { must, publicTitles, useAdminQuery } from '../useAdminQuery';
 
 interface ConnectRow {
@@ -68,7 +68,7 @@ export function ConnectTab() {
           </Select>
         </Field>
       </ListHeader>
-      <ListState status={q.status} empty={rows.length === 0} emptyTitle={t('connect.emptyTitle')} emptyBody={t('connect.emptyBody')} onRetry={q.reload}>
+      <ListState status={q.status} empty={rows.length === 0} emptyTitle={t('connect.emptyTitle')} emptyBody={t('connect.emptyBody')} emptyAction={<HubLink />} onRetry={q.reload}>
         <ul className="flex flex-col gap-4">
           {rows.map((row) => (
             <li key={row.id} className="rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-6">

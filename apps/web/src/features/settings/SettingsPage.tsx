@@ -35,9 +35,9 @@ export default function SettingsPage() {
       ) : (
         <>
           <Tabs value={tab} defaultValue="profile" onValueChange={onTab}>
-            <TabList label={t('page.tabsLabel')} className="mb-6">
+            <TabList label={t('page.tabsLabel')} className="mb-6 grid w-full grid-cols-2 rounded-[1.5rem]! sm:inline-flex sm:w-auto sm:rounded-full!">
               {TABS.map((k) => (
-                <Tab key={k} value={k}>
+                <Tab key={k} value={k} className="justify-center">
                   {t(`tabs.${k}`)}
                 </Tab>
               ))}

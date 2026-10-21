@@ -155,7 +155,7 @@ export function AskTheElders({ hubMode, notConfigured, onSearch, onBrowse, ask =
               loading={busy}
               disabled={disabled || checking}
               leftIcon={<MessageCircleQuestionMark aria-hidden="true" className="size-5" />}
-              className="shrink-0"
+              className="w-full shrink-0 sm:w-auto"
             >
               {t('ask.submit')}
             </Button>
@@ -182,7 +182,7 @@ export function AskTheElders({ hubMode, notConfigured, onSearch, onBrowse, ask =
                   type="button"
                   disabled={disabled || busy}
                   onClick={() => pickExample(t(`ask.examples.${k}`))}
-                  className="inline-flex min-h-12 items-center rounded-full bg-white/8 px-4 text-left text-[0.92rem] font-semibold text-cream ring-1 ring-white/20 transition-colors hover:bg-white/15 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex min-h-12 max-w-full items-center rounded-full bg-white/8 px-4 py-2 text-left text-[0.92rem] font-semibold text-cream ring-1 ring-white/20 transition-colors hover:bg-white/15 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {t(`ask.examples.${k}`)}
                 </button>

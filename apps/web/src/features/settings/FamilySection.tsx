@@ -91,7 +91,7 @@ function FamilyPanels() {
     <div className="flex flex-col gap-6">
       <SectionCard title={t('family.currentTitle')}>
         <div className="flex flex-wrap items-center gap-3">
-          <p className="font-serif text-[1.25rem] font-semibold text-ink">{current.name}</p>
+          <p className="min-w-0 break-words font-serif text-[1.25rem] font-semibold text-ink">{current.name}</p>
           <Badge tone="mint">{t('family.yourRole', { role: t(`roles.${current.role}`) })}</Badge>
         </div>
         {fam.families.length > 1 && (

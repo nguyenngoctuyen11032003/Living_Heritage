@@ -128,7 +128,7 @@ export default function ExplorePage() {
               {t('hero.searchLabel')}
             </label>
             <div className="relative flex items-center rounded-full bg-paper shadow-[0_18px_40px_-28px_rgba(22,58,49,0.5)] ring-1 ring-line focus-within:ring-2 focus-within:ring-heritage">
-              <Search aria-hidden="true" className="pointer-events-none absolute left-5 size-6 text-ink-soft" />
+              <Search aria-hidden="true" className="pointer-events-none absolute left-5 hidden size-6 text-ink-soft sm:block" />
               <input
                 id={searchId}
                 type="search"
@@ -138,7 +138,7 @@ export default function ExplorePage() {
                 autoComplete="off"
                 enterKeyHint="search"
                 maxLength={120}
-                className="min-h-16 w-full min-w-0 flex-1 rounded-full bg-transparent pl-14 pr-3 text-[1.08rem] text-ink placeholder:text-ink-soft/75 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+                className="min-h-16 w-full min-w-0 flex-1 rounded-full bg-transparent pl-5 pr-2 text-[1.08rem] sm:pl-14 sm:pr-3 text-ink placeholder:text-ink-soft/75 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
               />
               {qInput && (
                 <button
@@ -155,6 +155,9 @@ export default function ExplorePage() {
               )}
               <Button type="submit" size="lg" className="mr-1.5 hidden shrink-0 sm:inline-flex">
                 {t('hero.searchCta')}
+              </Button>
+              <Button type="submit" iconOnly aria-label={t('hero.searchCta')} className="mr-1.5 shrink-0 sm:hidden">
+                <Search aria-hidden="true" className="size-5" />
               </Button>
             </div>
           </form>
@@ -222,11 +225,11 @@ export default function ExplorePage() {
                       aria-pressed={on}
                       onClick={() => update({ kind: k as StoryKind | null })}
                       className={cn(
-                        'min-h-11 rounded-xl px-2 text-[0.84rem] font-semibold leading-tight transition-colors',
+                        'min-h-11 whitespace-nowrap rounded-xl px-1.5 text-[0.84rem] font-semibold leading-tight transition-colors',
                         on ? 'bg-heritage text-cream shadow-sm' : 'text-ink-soft hover:bg-mint/60 hover:text-heritage',
                       )}
                     >
-                      {k ? t(`kinds.${k}`) : t('filters.allKinds')}
+                      {k ? t(`filters.kindShort.${k}`) : t('filters.allKinds')}
                     </button>
                   );
                 })}

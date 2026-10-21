@@ -120,8 +120,8 @@ export function AuditSection({ family, storyTitles, narratorNames }: { family: F
   else
     body = (
       <>
-        <div className="overflow-x-auto rounded-2xl ring-1 ring-line">
-          <table className="w-full min-w-0 border-collapse text-left text-[0.95rem]">
+        <div className="md:overflow-x-auto md:rounded-2xl md:ring-1 md:ring-line">
+          <table className="block w-full min-w-0 border-collapse text-left text-[0.95rem] md:table">
             <caption className="sr-only">{t('audit.title')}</caption>
             <thead className="hidden bg-cream text-[0.85rem] text-ink-soft md:table-header-group">
               <tr>
@@ -131,13 +131,13 @@ export function AuditSection({ family, storyTitles, narratorNames }: { family: F
                 <th scope="col" className="px-4 py-3 font-semibold">{t('audit.colTarget')}</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="flex flex-col gap-3 md:table-row-group">
               {rows.map((r) => (
-                <tr key={r.id} className="block border-t border-line/70 px-4 py-3 first:border-t-0 md:table-row md:p-0">
-                  <td className="block text-[0.85rem] text-ink-soft md:table-cell md:px-4 md:py-3 md:text-[0.95rem]">
+                <tr key={r.id} className="flex flex-col gap-1 rounded-2xl bg-cream/60 px-4 py-3.5 ring-1 ring-line md:table-row md:rounded-none md:border-t md:border-line/70 md:bg-transparent md:p-0 md:ring-0 md:first:border-t-0">
+                  <td className="block text-[0.875rem] text-ink-soft md:table-cell md:px-4 md:py-3 md:text-[0.95rem]">
                     <time dateTime={r.at}>{formatDateTime(r.at, locale)}</time>
                   </td>
-                  <td className="block md:table-cell md:px-4 md:py-3">
+                  <td className="block break-words md:table-cell md:px-4 md:py-3">
                     <span className="sr-only md:hidden">{t('audit.colActor')}: </span>
                     {actorLabel(r)}
                   </td>
@@ -158,7 +158,7 @@ export function AuditSection({ family, storyTitles, narratorNames }: { family: F
           <p aria-live="polite" className="text-[0.9rem] text-ink-soft">
             {t('audit.page', { page: page + 1, pages })} · {t('audit.total', { n: total })}
           </p>
-          <div className="flex gap-2">
+          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
             <Button variant="secondary" disabled={page === 0} onClick={() => setPage((p) => Math.max(0, p - 1))} leftIcon={<ChevronLeft className="size-4" aria-hidden="true" />}>
               {t('audit.prev')}
             </Button>

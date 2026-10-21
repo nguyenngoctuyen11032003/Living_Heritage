@@ -21,6 +21,7 @@ export default {
     allTopics: 'All topics',
     kind: 'Content type',
     allKinds: 'All',
+    kindShort: { story: 'Story', experience: 'Experience' },
     region: 'Region',
     allRegions: 'All regions',
     decade: 'Decade',

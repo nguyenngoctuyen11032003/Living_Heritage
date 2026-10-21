@@ -88,7 +88,7 @@ export function LinksSection({ family, narrators, narratorsLoading, narratorsErr
         {links.map((l) => (
           <li key={l.id} className="flex flex-col gap-3 rounded-2xl bg-cream p-4 ring-1 ring-line sm:flex-row sm:items-center">
             <div className="min-w-0 flex-1">
-              <p className="font-semibold text-ink">{nameOf(l.narrator_id)}</p>
+              <p className="break-words font-semibold text-ink">{nameOf(l.narrator_id)}</p>
               <div className="mt-1 flex flex-wrap items-center gap-2 text-[0.85rem] text-ink-soft">
                 {l.claimed_at ? (
                   <Badge tone="warning" size="sm" icon={<Smartphone />}>
