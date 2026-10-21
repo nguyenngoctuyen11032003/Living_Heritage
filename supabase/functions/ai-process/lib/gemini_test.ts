@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createBreaker } from './breaker.ts';
-import { baseMime, createGemini, GEMINI_BASE_URL, GeminiError, type GeminiRuntime, toBase64 } from './gemini.ts';
+import { baseMime, createGemini, GEMINI_BASE_URL, GeminiError, type GeminiRuntime, toBase64, upstreamDetail } from './gemini.ts';
 
 const CFG = { apiKey: 'secret-key', model: 'gemini-2.5-flash', timeoutMs: 5_000 };
 
@@ -104,4 +104,12 @@ Deno.test('helpers', () => {
   assert.equal(toBase64(new TextEncoder().encode('hello')), 'aGVsbG8=');
   const big = new Uint8Array(100_000).fill(65);
   assert.equal(atob(toBase64(big)).length, 100_000);
+});
+
+Deno.test('upstreamDetail keeps a short single-line Gemini error message', () => {
+  const body = JSON.stringify({ error: { code: 404, message: 'This model models/x is no longer   available\nto new users.' } });
+  assert.equal(upstreamDetail(body), 'This model models/x is no longer available to new users.');
+  assert.equal(upstreamDetail('not json'), null);
+  assert.equal(upstreamDetail(JSON.stringify({ error: {} })), null);
+  assert.equal(upstreamDetail(JSON.stringify({ error: { message: 'x'.repeat(500) } }))?.length, 240);
 });
