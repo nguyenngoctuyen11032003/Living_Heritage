@@ -1,0 +1,218 @@
+# push main → CI → (Supabase migrations if changed) → (Edge Function ai-process if changed) → build → GitHub Pages.
+#
+# DATABASE SAFETY: only `supabase db push` (applies new migrations). Never reset / config push / seed the hosted DB.
+# Migrations are pushed with a full Postgres URL (secret SUPABASE_DB_URL), so no personal access token is needed
+# for the database. Edge Function deploys need SUPABASE_ACCESS_TOKEN and are skipped with a notice without it.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      migrate:
+        description: Run the Supabase migration step even without new migration files
+        type: boolean
+        default: false
+      functions:
+        description: Deploy the Edge Function even if supabase/functions did not change
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+
+  changes:
+    name: Detect migration / function changes
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read # gh run list
+    outputs:
+      migrations: ${{ steps.diff.outputs.migrations }}
+      functions: ${{ steps.diff.outputs.functions }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          EVENT: ${{ github.event_name }}
+          FORCE: ${{ inputs.migrate }}
+          FORCE_FUNCTIONS: ${{ inputs.functions }}
+          AFTER: ${{ github.sha }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          # Diff against the head SHA of the last SUCCESSFUL Deploy run on main (not
+          # github.event.before), so a migration from a failed or superseded push is not skipped.
+          BEFORE=$(gh run list --workflow deploy.yml --branch main --event push --status success --limit 1 --json headSha -q '.[0].headSha' || true)
+          changed() {
+            if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ] \
+               || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+              echo true
+            elif git diff --quiet "$BEFORE" "$AFTER" -- "$@"; then
+              echo false
+            else
+              echo true
+            fi
+          }
+          if [ "$EVENT" = "workflow_dispatch" ]; then
+            migrations="$FORCE"; functions="$FORCE_FUNCTIONS"
+          else
+            migrations=$(changed supabase/migrations)
+            functions=$(changed supabase/functions supabase/config.toml)
+          fi
+          # No ai-process function in the repo: never run a job that would deploy nothing.
+          [ -f supabase/functions/ai-process/index.ts ] || functions=false
+          echo "migrations=$migrations" >> "$GITHUB_OUTPUT"
+          echo "functions=$functions" >> "$GITHUB_OUTPUT"
+
+  migrate:
+    name: Supabase db push
+    needs: [verify, changes]
+    if: needs.changes.outputs.migrations == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: production # add "Required reviewers" here if every DB change should need approval
+    concurrency:
+      group: supabase-production
+      cancel-in-progress: false
+    env:
+      # Full Postgres URL (session pooler recommended: GitHub runners have no IPv6 for db.<ref>.supabase.co).
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3.0.1
+        with:
+          version: 2.120.0
+      - name: Check required secrets
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error::Thiếu secret SUPABASE_DB_URL trong environment production (xem docs/DEPLOY.md)"
+            exit 1
+          fi
+      - name: Preview migrations to apply
+        run: supabase db push --db-url "$SUPABASE_DB_URL" --dry-run
+      - name: Apply migrations
+        run: supabase db push --db-url "$SUPABASE_DB_URL" --yes
+
+  functions:
+    name: Supabase functions deploy (ai-process)
+    needs: [verify, changes, migrate]
+    if: >-
+      always() &&
+      needs.verify.result == 'success' &&
+      needs.changes.result == 'success' &&
+      needs.changes.outputs.functions == 'true' &&
+      (needs.migrate.result == 'success' || needs.migrate.result == 'skipped')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: production
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_ID: ${{ vars.SUPABASE_PROJECT_ID }}
+    steps:
+      - name: Check access token
+        id: token
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ] || [ -z "$SUPABASE_PROJECT_ID" ]; then
+            echo "::notice::Bỏ qua deploy Edge Function: thiếu secret SUPABASE_ACCESS_TOKEN (environment production) hoặc variable SUPABASE_PROJECT_ID (xem docs/DEPLOY.md)."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.token.outputs.ok == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - if: steps.token.outputs.ok == 'true'
+        uses: supabase/setup-cli@45a513f8c64c0bc8e0e3dfe572b5c95be85f6359 # v3.0.1
+        with:
+          version: 2.120.0
+      # Only non-empty values are set (an unset GitHub secret never wipes the Supabase one), values
+      # go through a 0600 env file (never argv / echo), and the file is removed right after.
+      - name: Set Edge Function secrets (Gemini)
+        if: steps.token.outputs.ok == 'true'
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
+          AI_DAILY_LIMIT: ${{ secrets.AI_DAILY_LIMIT }}
+        run: |
+          set +x
+          umask 077
+          secrets_file="$(mktemp)"
+          trap 'rm -f "$secrets_file"' EXIT
+          names=()
+          for v in GEMINI_API_KEY GEMINI_MODEL AI_DAILY_LIMIT; do
+            if [ -n "${!v}" ]; then
+              printf '%s=%s\n' "$v" "${!v}" >> "$secrets_file"
+              names+=("$v")
+            fi
+          done
+          if [ ${#names[@]} -eq 0 ]; then
+            echo "No GEMINI_* / AI_DAILY_LIMIT secrets in environment production; keeping the values already set on Supabase."
+            exit 0
+          fi
+          supabase secrets set --env-file "$secrets_file" --project-ref "$SUPABASE_PROJECT_ID" >/dev/null
+          echo "Updated Edge Function secrets: ${names[*]}"
+      - name: Deploy ai-process
+        if: steps.token.outputs.ok == 'true'
+        run: supabase functions deploy ai-process --project-ref "$SUPABASE_PROJECT_ID"
+
+  build:
+    name: Build site
+    needs: [verify, changes, migrate]
+    if: >-
+      always() &&
+      needs.verify.result == 'success' &&
+      needs.changes.result == 'success' &&
+      (needs.migrate.result == 'success' || needs.migrate.result == 'skipped')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+      VITE_SITE_URL: ${{ vars.VITE_SITE_URL }}
+      VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH || format('/{0}/', github.event.repository.name) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Chặn secret lọt vào biến VITE_*
+        run: node scripts/check-public-env.mjs --strict
+      - run: pnpm build
+      # Google/Supabase secret keys, service_role JWTs and source maps (scripts/check-bundle-secrets.mjs).
+      - name: Bundle must not contain secret keys or source maps
+        run: node scripts/check-bundle-secrets.mjs
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: apps/web/dist
+
+  pages:
+    name: Deploy to GitHub Pages
+    needs: build
+    if: always() && needs.build.result == 'success'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
