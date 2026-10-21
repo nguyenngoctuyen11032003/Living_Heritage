@@ -1,0 +1,10 @@
+/* Self-hosted via @fontsource (each file carries latin + vietnamese subsets through unicode-range). */
+@import '@fontsource/be-vietnam-pro/400.css';
+@import '@fontsource/be-vietnam-pro/500.css';
+@import '@fontsource/be-vietnam-pro/600.css';
+@import '@fontsource/be-vietnam-pro/700.css';
+@import '@fontsource/noto-serif/400.css';
+@import '@fontsource/noto-serif/400-italic.css';
+@import '@fontsource/noto-serif/600.css';
+@import '@fontsource/noto-serif/600-italic.css';
+@import '@fontsource/caveat/600.css';

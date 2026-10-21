@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Di Sản Sống — Living Heritage</title>
+    <meta
+      name="description"
+      content="Di Sản Sống giúp ông bà kể chuyện bằng giọng nói tiếng Việt, AI hỗ trợ chép lời và biên tập, gia đình lưu giữ và người trẻ học hỏi từ kinh nghiệm được chia sẻ."
+    />
+    <meta name="theme-color" content="#FAF7F0" />
+    <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
+    <script>
+      (function () {
+        try {
+          var l = localStorage.getItem('lh.locale');
+          if (l === 'en' || l === 'vi') document.documentElement.lang = l;
+          var s = localStorage.getItem('lh.textScale');
+          if (s === '115' || s === '130') document.documentElement.dataset.textScale = s;
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/app/main.tsx"></script>
+  </body>
+</html>
