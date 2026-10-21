@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/lib/cn';
+import { baseDisplay } from './display';
 
 export type BadgeTone = 'mint' | 'neutral' | 'heritage' | 'terracotta' | 'outline' | 'night' | 'warning';
 
@@ -27,8 +28,9 @@ export function Badge({ tone = 'mint', size = 'md', icon, dot, className, childr
   return (
     <span
       className={cn(
+        baseDisplay('inline-flex', className),
         // Min. 14px text (0.8rem of the 18px root); leading-normal keeps stacked Vietnamese marks (Ữ, Ộ) clear of the truncate clip.
-        'inline-flex max-w-full items-center gap-1.5 rounded-full font-semibold leading-normal',
+        'max-w-full items-center gap-1.5 rounded-full font-semibold leading-normal',
         size === 'sm' ? 'px-2.5 py-0.5 text-[0.8rem]' : 'px-3 py-1 text-[0.85rem]',
         tones[tone],
         className,

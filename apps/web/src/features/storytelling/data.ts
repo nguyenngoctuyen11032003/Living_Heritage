@@ -15,7 +15,13 @@ export interface NarratorInfo {
   pen_name: string | null;
   user_id: string | null;
   family_name: string | null;
+  /** Language the narrator tells stories in (narrators.lang): AI drafts, suggestions and the question voice use it. */
+  lang: NarratorLang;
 }
+
+export type NarratorLang = 'vi' | 'en';
+
+export const narratorLang = (v: unknown): NarratorLang => (v === 'en' ? 'en' : 'vi');
 
 export interface Topic {
   id: string;
@@ -51,13 +57,13 @@ export interface MyStory {
   created_at: string;
 }
 
-const NARRATOR_COLUMNS = 'id, family_id, display_name, pen_name, user_id, families(name)';
+const NARRATOR_COLUMNS = 'id, family_id, display_name, pen_name, user_id, lang, families(name)';
 
-type NarratorRow = Omit<NarratorInfo, 'family_name'> & { families: { name: string } | { name: string }[] | null };
+type NarratorRow = Omit<NarratorInfo, 'family_name' | 'lang'> & { lang: string | null; families: { name: string } | { name: string }[] | null };
 
 function toNarrator(row: NarratorRow): NarratorInfo {
   const fam = Array.isArray(row.families) ? row.families[0] : row.families;
-  return { id: row.id, family_id: row.family_id, display_name: row.display_name, pen_name: row.pen_name, user_id: row.user_id, family_name: fam?.name ?? null };
+  return { id: row.id, family_id: row.family_id, display_name: row.display_name, pen_name: row.pen_name, user_id: row.user_id, family_name: fam?.name ?? null, lang: narratorLang(row.lang) };
 }
 
 export async function fetchNarratorById(sb: Supabase, id: string): Promise<NarratorInfo | null> {
@@ -115,6 +121,12 @@ export async function endSession(sb: Supabase, id: string): Promise<void> {
 export async function fetchAnsweredQuestionIds(sb: Supabase, sessionId: string): Promise<string[]> {
   const { data } = await sb.from('recordings').select('question_id').eq('session_id', sessionId);
   return (data ?? []).map((r) => r.question_id).filter((id): id is string => !!id);
+}
+
+/** Recordings already kept in this session (for the "Kết thúc buổi kể" summary); 0 when unreadable. */
+export async function fetchSessionRecordingCount(sb: Supabase, sessionId: string): Promise<number> {
+  const { count } = await sb.from('recordings').select('id', { count: 'exact', head: true }).eq('session_id', sessionId);
+  return count ?? 0;
 }
 
 export async function fetchMyStories(sb: Supabase, narratorId: string): Promise<MyStory[]> {

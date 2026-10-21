@@ -192,11 +192,11 @@ function Checklist({ familyId, familyName, canManage, canEdit }: { familyId: str
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-[0.875rem] font-semibold uppercase tracking-[0.1em] text-terracotta">{t('onboarding.stepN', { n: i + 1 })}</p>
-                <h2 className="font-serif text-[1.3rem] font-semibold leading-[1.3] text-heritage-deep">{s.title}</h2>
+                <h2 className="break-words font-serif text-[1.3rem] font-semibold leading-[1.3] text-heritage-deep">{s.title}</h2>
                 <p className="mt-1 leading-relaxed text-ink-soft">{s.body}</p>
                 {!s.allowed && !s.done && <p className="mt-2 text-[0.9rem] text-ink-soft">{t('onboarding.needsManager')}</p>}
               </div>
-              <div className="shrink-0">
+              <div className="w-full shrink-0 sm:w-auto">
                 {!progress ? (
                   <Skeleton className="h-12 w-36" />
                 ) : s.done ? (
@@ -204,7 +204,7 @@ function Checklist({ familyId, familyName, canManage, canEdit }: { familyId: str
                     {t('onboarding.done')}
                   </Badge>
                 ) : s.allowed ? (
-                  <ButtonLink to={s.href} rightIcon={<ArrowRight className="size-5" aria-hidden="true" />}>
+                  <ButtonLink to={s.href} className="w-full whitespace-normal text-balance text-center sm:w-auto" rightIcon={<ArrowRight className="size-5" aria-hidden="true" />}>
                     {s.cta}
                   </ButtonLink>
                 ) : null}

@@ -16,7 +16,10 @@ function readScale(): Scale {
   return '100';
 }
 
-/** A / A+ / A++ — sets html[data-text-scale] (see design/global.css) and remembers it. */
+/**
+ * A / A+ / A++ — sets html[data-text-scale] (see design/global.css) and remembers it. Each option is a 48px touch target (56px from sm), as narrator mode needs.
+ * `className` is for spacing only: never pass display utilities (cn() does not merge them); wrap the switch instead.
+ */
 export function TextScaleSwitch({ className }: { className?: string }) {
   const t = useT('common');
   const [scale, setScale] = useState<Scale>(readScale);

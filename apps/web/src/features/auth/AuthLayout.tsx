@@ -24,10 +24,10 @@ export function AuthLayout({
 }) {
   usePageTitle(docTitle);
   return (
-    <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-8 sm:px-6 md:py-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-14 lg:px-8">
-      <Reveal className="flex flex-col justify-center">
+    <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 px-4 py-10 sm:px-6 md:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12 lg:px-8">
+      <Reveal className="flex min-w-0 flex-col justify-center">
         <div className="mx-auto w-full max-w-md">
-          <h1 className="text-balance font-serif text-[clamp(2rem,4.5vw,2.75rem)] font-semibold leading-[1.2] tracking-[-0.015em] text-heritage-deep">{title}</h1>
+          <h1 className="text-balance break-words font-serif text-[clamp(2rem,4.5vw,2.75rem)] font-semibold leading-[1.2] tracking-[-0.015em] text-heritage-deep">{title}</h1>
           {subtitle && <p className="mt-3 max-w-[60ch] text-[1.05rem] leading-relaxed text-ink-soft">{subtitle}</p>}
           <div className="mt-8">{children}</div>
           {footer && <div className="mt-8 border-t border-line pt-5 text-[0.95rem] text-ink-soft">{footer}</div>}

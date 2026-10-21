@@ -27,14 +27,14 @@ isOneToOne: false
                   ]
                 },"ai_quota": {
                   Row: {
-                    "day": string,"updated_at": string,"used": number,"user_id": string
+                    "day": string,"kind": string,"updated_at": string,"used": number,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "day": string,"updated_at"?: string,"used"?: number,"user_id": string
+                    "day": string,"kind"?: string,"updated_at"?: string,"used"?: number,"user_id": string
                   }
                   Update: {
-                    "day"?: string,"updated_at"?: string,"used"?: number,"user_id"?: string
+                    "day"?: string,"kind"?: string,"updated_at"?: string,"used"?: number,"user_id"?: string
                   }
                   Relationships: [
                     
@@ -399,14 +399,14 @@ isOneToOne: false
                   ]
                 },"recordings": {
                   Row: {
-                    "created_at": string,"created_by": string | null,"duration_s": number | null,"family_id": string,"id": string,"mime": string,"narrator_id": string,"question_id": string | null,"session_id": string,"size_bytes": number | null,"storage_path": string
+                    "created_at": string,"created_by": string | null,"duration_s": number | null,"family_id": string,"id": string,"mime": string,"narrator_id": string,"question_id": string | null,"question_text": string | null,"session_id": string,"size_bytes": number | null,"storage_path": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"duration_s"?: number | null,"family_id": string,"id"?: string,"mime"?: string,"narrator_id": string,"question_id"?: string | null,"session_id": string,"size_bytes"?: number | null,"storage_path": string
+                    "created_at"?: string,"created_by"?: string | null,"duration_s"?: number | null,"family_id": string,"id"?: string,"mime"?: string,"narrator_id": string,"question_id"?: string | null,"question_text"?: string | null,"session_id": string,"size_bytes"?: number | null,"storage_path": string
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string | null,"duration_s"?: number | null,"family_id"?: string,"id"?: string,"mime"?: string,"narrator_id"?: string,"question_id"?: string | null,"session_id"?: string,"size_bytes"?: number | null,"storage_path"?: string
+                    "created_at"?: string,"created_by"?: string | null,"duration_s"?: number | null,"family_id"?: string,"id"?: string,"mime"?: string,"narrator_id"?: string,"question_id"?: string | null,"question_text"?: string | null,"session_id"?: string,"size_bytes"?: number | null,"storage_path"?: string
                   }
                   Relationships: [
                     {
@@ -613,11 +613,20 @@ isOneToOne: false
 "ai_quota_consume":
 { Args: { "p_limit": number,"p_user": string }; Returns: boolean
                            },
+"ai_quota_consume_kind":
+{ Args: { "p_kind": string,"p_limit": number,"p_user": string }; Returns: boolean
+                           },
 "ai_quota_refund":
 { Args: { "p_user": string }; Returns: undefined
                            },
+"ai_quota_refund_kind":
+{ Args: { "p_kind": string,"p_user": string }; Returns: undefined
+                           },
 "approve_story":
 { Args: { "p_assisted_consent"?: boolean,"p_story": string }; Returns: number
+                           },
+"can_read_media_object":
+{ Args: { "p_name": string }; Returns: boolean
                            },
 "can_read_recording":
 { Args: { "rid": string }; Returns: boolean
@@ -689,6 +698,9 @@ isOneToOne: false
 { Args: { "p_embedding": string,"p_limit"?: number,"p_min_similarity"?: number }; Returns: {
               "body": string,"decade": number,"fields": Json,"id": string,"kind": Database["public"]['Enums']["story_kind"],"narrator_label": string,"region": string,"similarity": number,"summary": string,"title": string,"topic_slug": string
             }[]
+                           },
+"media_object_unreferenced":
+{ Args: { "p_name": string }; Returns: boolean
                            },
 "preview_public_item":
 { Args: { "p_story": string }; Returns: Json

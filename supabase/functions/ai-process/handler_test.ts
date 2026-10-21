@@ -26,6 +26,8 @@ const RECORDING: RecordingCtx = {
   topic_id: TOPIC_ID,
   topic: { vi: 'Làm vườn', en: 'Gardening' },
   question: { vi: 'Ông bà trồng rau thế nào?', en: 'How did you grow vegetables?' },
+  question_text: null,
+  narrator_lang: null,
 };
 
 const TRANSCRIPT = 'Hồi đó tui trồng rau muống ở ao sau nhà [?]. Phải tưới sáng sớm, đừng tưới trưa nắng kẻo rau héo.';
@@ -68,6 +70,8 @@ interface World {
   existingJob: JobRow | null;
   existingTranscript: boolean;
   approvedTitles: string[];
+  /** narrators.lang as readable by the caller (null = unreadable → request lang fallback). */
+  narratorLang: 'vi' | 'en' | null;
   env: Record<string, string | undefined>;
   transcribe: () => Promise<string>;
   draft: () => Promise<unknown>;
@@ -83,6 +87,8 @@ interface Log {
   geminiCfg: GeminiConfig | null;
   quotaLimit: number | null;
   refunds: number;
+  /** Language passed to each Gemini call, in call order (e.g. ['transcribe:en', 'draft:en']). */
+  langs: string[];
   count(name: string): number;
 }
 
@@ -98,6 +104,7 @@ function setup(over: Partial<World> = {}): { deps: HandlerDeps; log: Log } {
     existingJob: null,
     existingTranscript: false,
     approvedTitles: ['Ngày cưới của ông bà', 'Cái giếng làng'],
+    narratorLang: null,
     env: { GEMINI_API_KEY: 'test-key' },
     transcribe: () => Promise.resolve(TRANSCRIPT),
     draft: () => Promise.resolve(structuredClone(DRAFT)),
@@ -113,19 +120,22 @@ function setup(over: Partial<World> = {}): { deps: HandlerDeps; log: Log } {
     geminiCfg: null,
     quotaLimit: null,
     refunds: 0,
+    langs: [],
     count: (name) => log.calls.filter((c) => c === name).length,
   };
   const note = (name: string) => log.calls.push(name);
 
   const userDb: UserDb = {
     getUserId: () => Promise.resolve(w.validToken ? USER_ID : null),
-    getRecording: (id) => Promise.resolve(w.recordingVisible && id === RECORDING_ID ? RECORDING : null),
+    getRecording: (id) =>
+      Promise.resolve(w.recordingVisible && id === RECORDING_ID ? { ...RECORDING, narrator_lang: w.narratorLang } : null),
     canContribute: (familyId, narratorId) => {
       assert.equal(familyId, FAMILY_ID);
       assert.equal(narratorId, NARRATOR_ID);
       return Promise.resolve(w.canContribute);
     },
-    getNarrator: (id) => Promise.resolve(w.narratorVisible && id === NARRATOR_ID ? { id, family_id: FAMILY_ID } : null),
+    getNarrator: (id) =>
+      Promise.resolve(w.narratorVisible && id === NARRATOR_ID ? { id, family_id: FAMILY_ID, lang: w.narratorLang } : null),
     getTopic: (id) => Promise.resolve(id === TOPIC_ID ? { vi: 'Làm vườn', en: 'Gardening' } : null),
     recentApprovedTitles: (_id, limit) => Promise.resolve(w.approvedTitles.slice(0, limit)),
   };
@@ -187,20 +197,25 @@ function setup(over: Partial<World> = {}): { deps: HandlerDeps; log: Log } {
     log.geminiCfg = cfg;
     return {
       model: cfg.model,
-      transcribe: async (audio, mime) => {
+      transcribe: async (audio, mime, lang) => {
         note('gemini.transcribe');
+        log.langs.push(`transcribe:${lang}`);
         assert.equal(audio.byteLength, w.audioSize);
         assert.equal(mime, RECORDING.mime);
         return { value: await w.transcribe(), usage: { input_tokens: 100, output_tokens: 50 } };
       },
       draft: async (input) => {
         note('gemini.draft');
+        log.langs.push(`draft:${input.lang}`);
         assert.equal(input.transcript, TRANSCRIPT);
+        assert.equal(input.topic, RECORDING.topic![input.lang]);
+        assert.equal(input.question, RECORDING.question![input.lang]);
         return { value: await w.draft(), usage: { input_tokens: 80, output_tokens: 60 } };
       },
       suggest: async (input) => {
         note('gemini.suggest');
-        assert.equal(input.topic, 'Làm vườn');
+        log.langs.push(`suggest:${input.lang}`);
+        assert.equal(input.topic, input.lang === 'vi' ? 'Làm vườn' : 'Gardening');
         assert.deepEqual(input.previousTitles, w.approvedTitles.slice(0, 5));
         return { value: await w.suggest(), usage: { input_tokens: 10, output_tokens: 10 } };
       },
@@ -282,6 +297,27 @@ Deno.test('success without practical know-how: only the story is saved', async (
   const body = AiProcessResponse.parse(await res.json());
   assert.equal(body.story_ids.length, 1);
   assert.deepEqual(log.stories.map((s) => [s.kind, s.lang]), [['story', 'en']]);
+});
+
+Deno.test('narrator language wins over the request lang: an English-speaking narrator, Vietnamese UI', async () => {
+  const { deps, log } = setup({ narratorLang: 'en' });
+  const res = await handle(post({ ...TRANSCRIBE, lang: 'vi' }), deps);
+  assert.equal(res.status, 200);
+  assert.deepEqual(log.langs, ['transcribe:en', 'draft:en']);
+  assert.deepEqual(log.stories.map((s) => [s.kind, s.lang]), [['story', 'en'], ['experience', 'en']]);
+});
+
+Deno.test('narrator language vi overrides an English UI request', async () => {
+  const { deps, log } = setup({ narratorLang: 'vi' });
+  await handle(post({ ...TRANSCRIBE, lang: 'en' }), deps);
+  assert.deepEqual(log.langs, ['transcribe:vi', 'draft:vi']);
+  assert.ok(log.stories.every((s) => s.lang === 'vi'));
+});
+
+Deno.test('narrator language unreadable: the request lang is the fallback', async () => {
+  const { deps, log } = setup({ narratorLang: null });
+  await handle(post({ ...TRANSCRIBE, lang: 'en' }), deps);
+  assert.deepEqual(log.langs, ['transcribe:en', 'draft:en']);
 });
 
 Deno.test('quota_exceeded: 429, job marked error, Gemini never called, no refund', async () => {
@@ -448,6 +484,15 @@ Deno.test('suggest_questions: 3 trimmed questions, quota consumed, usage logged'
   assert.deepEqual(body.questions, ['Ông nhớ mùa gặt nào nhất?', 'Ai dạy ông cấy lúa?', 'Ruộng nhà mình ở đâu?']);
   assert.equal(log.count('quotaConsume'), 1);
   assert.deepEqual(log.usage.map((u) => u.action), ['suggest_questions']);
+});
+
+Deno.test("suggest_questions: asked in the narrator's language, request lang only as fallback", async () => {
+  const a = setup({ narratorLang: 'en' });
+  await handle(post({ ...SUGGEST, lang: 'vi' }), a.deps);
+  assert.deepEqual(a.log.langs, ['suggest:en']);
+  const b = setup({ narratorLang: null });
+  await handle(post({ ...SUGGEST, lang: 'en' }), b.deps);
+  assert.deepEqual(b.log.langs, ['suggest:en']);
 });
 
 Deno.test('suggest_questions: narrator not visible ⇒ not_found, no quota', async () => {

@@ -1,8 +1,7 @@
-import { CheckCircle2, Save, Send, Share2 } from 'lucide-react';
-import { useId, useState } from 'react';
+import { CheckCircle2, Save, Send } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { useT } from '@/i18n';
-import { cn } from '@/lib/cn';
+import type { ReactNode } from 'react';
 import type { ApprovalMode } from './approval';
 
 export interface ApprovalBarProps {
@@ -12,111 +11,79 @@ export interface ApprovalBarProps {
   /** pending_review with nothing new to send. */
   waiting: boolean;
   busy: null | 'save' | 'approve';
+  /** Assisted mode: the narrator's consent checkbox (rendered in the approval section) is ticked. */
+  consent: boolean;
   onSave: () => void;
   onApprove: (assisted: boolean) => void;
-  onShare: () => void;
+  /** id of the explanation in the approval section (the narrator question / the consent hint). */
+  describedBy?: string;
   narratorMode?: boolean;
 }
 
-/** Sticky action bar (never covered by the player, which stays in the page flow). */
-export function ApprovalBar({ mode, canEdit, dirty, waiting, busy, onSave, onApprove, onShare, narratorMode }: ApprovalBarProps) {
+/**
+ * Slim sticky bar: save state + the single primary action of the moment (one row, ≤ 72px tall on phones).
+ * Explanations, the narrator question and the consent checkbox live in the page flow (ApprovalSection).
+ */
+export function ApprovalBar({ mode, canEdit, dirty, waiting, busy, consent, onSave, onApprove, describedBy, narratorMode }: ApprovalBarProps) {
   const t = useT('review');
-  const [consent, setConsent] = useState(false);
-  const consentId = useId();
+  if (mode === 'read_only') return null;
   const size = narratorMode ? 'lg' : 'md';
 
-  const saveStatus = canEdit && (
-    <p className={cn('text-[0.88rem]', dirty ? 'font-semibold text-terracotta' : 'text-ink-soft')} aria-live="polite">
-      {dirty ? t('editor.unsaved') : t('editor.allSaved')}
-    </p>
-  );
+  let primary: ReactNode = null;
+  if (mode === 'send_to_narrator') {
+    if (!(waiting && !dirty))
+      primary = (
+        <Button size={size} onClick={onSave} loading={busy === 'save'} aria-describedby={describedBy} leftIcon={<Send className="size-5" aria-hidden="true" />}>
+          {t('approval.sendButton')}
+        </Button>
+      );
+  } else if (dirty && canEdit) {
+    primary = (
+      <Button size={size} onClick={onSave} loading={busy === 'save'} leftIcon={<Save className="size-5" aria-hidden="true" />}>
+        {busy === 'save' ? t('editor.saving') : t('editor.save')}
+      </Button>
+    );
+  } else if (mode === 'narrator_confirm') {
+    primary = (
+      <Button size={size} onClick={() => onApprove(false)} loading={busy === 'approve'} aria-describedby={describedBy} leftIcon={<CheckCircle2 className="size-5" aria-hidden="true" />}>
+        {busy === 'approve' ? t('approval.confirming') : t('approval.confirm')}
+      </Button>
+    );
+  } else if (mode === 'assisted') {
+    primary = (
+      <Button
+        size={size}
+        onClick={() => onApprove(true)}
+        disabled={!consent}
+        loading={busy === 'approve'}
+        aria-describedby={describedBy}
+        leftIcon={<CheckCircle2 className="size-5" aria-hidden="true" />}
+      >
+        {t('approval.assistedButton')}
+      </Button>
+    );
+  }
+
+  let status: ReactNode;
+  if (dirty && canEdit) status = <span className="font-semibold text-terracotta">{t('editor.unsaved')}</span>;
+  else if (mode === 'approved')
+    status = (
+      <span className="inline-flex items-center gap-1.5 font-semibold text-heritage">
+        <CheckCircle2 className="size-4 shrink-0" aria-hidden="true" />
+        {t('status.approved')}
+      </span>
+    );
+  else if (mode === 'send_to_narrator' && waiting) status = <span className="font-semibold text-ink">{t('approval.waiting')}</span>;
+  else if (canEdit) status = <span className="text-ink-soft">{t('editor.allSaved')}</span>;
+  else status = null;
 
   return (
-    <div
-      className={cn(
-        // Compact bars stay pinned on phones too; the taller assisted/editor bars pin from lg up only.
-        mode === 'narrator_confirm' || mode === 'approved' || mode === 'read_only' ? 'sticky' : 'lg:sticky',
-        'bottom-0 z-20 -mx-4 mt-8 border-t border-line bg-paper/95 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 shadow-[0_-12px_30px_-24px_rgba(18,27,24,0.5)] backdrop-blur md:-mx-8 md:px-8',
-      )}
-    >
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        {canEdit && mode !== 'send_to_narrator' && (
-          <div className="flex flex-col gap-1">
-            {saveStatus}
-            <div>
-              <Button variant="secondary" size={size} onClick={onSave} disabled={!dirty} loading={busy === 'save'} leftIcon={<Save className="size-5" aria-hidden="true" />}>
-                {busy === 'save' ? t('editor.saving') : t('editor.save')}
-              </Button>
-            </div>
-            <p className="max-w-sm text-[0.85rem] leading-snug text-ink-soft">{t('editor.saveNeedsApproval')}</p>
-          </div>
-        )}
-
-        <div className="flex flex-col gap-2 lg:max-w-xl lg:items-end lg:text-right">
-          {mode === 'approved' && (
-            <>
-              <p className="inline-flex items-center gap-2 font-semibold text-heritage">
-                <CheckCircle2 className="size-5" aria-hidden="true" />
-                {t('approval.alreadyApproved')}
-              </p>
-              <Button size={size} onClick={onShare} leftIcon={<Share2 className="size-5" aria-hidden="true" />}>
-                {t('approval.nextStep')}
-              </Button>
-            </>
-          )}
-
-          {mode === 'narrator_confirm' && (
-            <>
-              <p className="font-serif text-[clamp(1.15rem,3.5vw,1.3rem)] font-semibold leading-snug text-heritage-deep">{t('approval.question')}</p>
-              <Button size="xl" className="w-full sm:w-auto" onClick={() => onApprove(false)} disabled={dirty} loading={busy === 'approve'} leftIcon={<CheckCircle2 className="size-6" aria-hidden="true" />}>
-                {busy === 'approve' ? t('approval.confirming') : t('approval.confirm')}
-              </Button>
-              {dirty && <p className="text-[0.88rem] text-terracotta">{t('approval.saveFirst')}</p>}
-            </>
-          )}
-
-          {mode === 'assisted' && (
-            <>
-              <p className="font-semibold text-heritage-deep">{t('approval.assistedTitle')}</p>
-              <p className="text-[0.9rem] leading-relaxed text-ink-soft">{t('approval.assistedLead')}</p>
-              <label htmlFor={consentId} className="flex min-h-12 cursor-pointer items-start gap-3 text-left text-[0.95rem]">
-                <input id={consentId} type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1 size-5 shrink-0 accent-heritage" />
-                <span>{t('approval.assistedConsent')}</span>
-              </label>
-              <div>
-                <Button size={size} onClick={() => onApprove(true)} disabled={!consent || dirty} loading={busy === 'approve'} leftIcon={<CheckCircle2 className="size-5" aria-hidden="true" />}>
-                  {t('approval.assistedButton')}
-                </Button>
-              </div>
-              {dirty ? (
-                <p className="text-[0.88rem] text-terracotta">{t('approval.saveFirst')}</p>
-              ) : (
-                !consent && <p className="text-[0.85rem] text-ink-soft">{t('approval.assistedNeedConsent')}</p>
-              )}
-            </>
-          )}
-
-          {mode === 'send_to_narrator' && (
-            <>
-              {saveStatus}
-              <p className="font-semibold text-heritage-deep">{t('approval.sendTitle')}</p>
-              <p className="text-[0.9rem] leading-relaxed text-ink-soft">{t('approval.sendLead')}</p>
-              {waiting && !dirty ? (
-                <p className="font-semibold text-ink" role="status">
-                  {t('approval.waiting')}
-                </p>
-              ) : (
-                <div>
-                  <Button size={size} onClick={onSave} loading={busy === 'save'} leftIcon={<Send className="size-5" aria-hidden="true" />}>
-                    {t('approval.sendButton')}
-                  </Button>
-                </div>
-              )}
-            </>
-          )}
-
-          {mode === 'read_only' && <p className="text-ink-soft">{t('approval.viewerNote')}</p>}
-        </div>
+    <div className="sticky bottom-0 z-20 -mx-4 mt-8 border-t border-line bg-paper/95 px-4 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-12px_30px_-24px_rgba(18,27,24,0.5)] backdrop-blur md:-mx-8 md:px-8">
+      <div className="mx-auto flex min-h-14 max-w-6xl items-center justify-between gap-3">
+        <p className="min-w-0 text-[0.9rem] leading-snug line-clamp-2" aria-live="polite">
+          {status}
+        </p>
+        {primary && <div className="flex max-w-[68%] shrink-0 justify-end text-balance">{primary}</div>}
       </div>
     </div>
   );

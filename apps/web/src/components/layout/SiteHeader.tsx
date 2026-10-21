@@ -10,6 +10,7 @@ import { useSession } from '@/lib/session';
 import { LanguageSwitch } from './LanguageSwitch';
 import { Logo } from './Logo';
 
+// No display class in `pill`: each use adds its own (`inline-flex`, or `hidden md:inline-flex`), because cn() does not merge classes.
 const pill = 'min-h-12 items-center whitespace-nowrap justify-center rounded-full px-5 text-[0.88rem] font-semibold transition-colors duration-200';
 
 /** Transparent over the hero, cream + blur once the page scrolls. Logo left, nav centred, language + auth right; sheet menu on mobile. */
@@ -58,7 +59,7 @@ export function SiteHeader() {
       transition={{ duration: 0.7, ease: EASE_OUT }}
       className={cn(
         'sticky top-0 z-40 transition-[background-color,box-shadow,backdrop-filter] duration-300',
-        solid ? 'bg-cream/85 shadow-[0_1px_0_var(--line)] backdrop-blur-md' : 'bg-transparent',
+        solid ? 'bg-cream/95 shadow-[0_1px_0_var(--line)] backdrop-blur-xl backdrop-saturate-150' : 'bg-transparent',
       )}
     >
       <a
@@ -68,7 +69,7 @@ export function SiteHeader() {
         {t('nav.skipToContent')}
       </a>
       <div className="mx-auto grid h-[4.5rem] max-w-7xl grid-cols-[1fr_auto] items-center gap-4 px-4 sm:px-6 lg:px-8 xl:grid-cols-[auto_1fr_auto] 2xl:grid-cols-[1fr_auto_1fr]">
-        <Logo className="whitespace-nowrap" />
+        <Logo className="min-w-0" />
         <nav className="hidden justify-center xl:flex" aria-label={t('nav.menu')}>
           <ul className="flex items-center gap-1 rounded-full bg-paper/60 p-1 ring-1 ring-line/80 backdrop-blur">
             {links.map((l) => (
@@ -85,7 +86,8 @@ export function SiteHeader() {
             ))}
           </ul>
         </nav>
-        <div className="flex items-center justify-end gap-2">
+        <div className="flex shrink-0 items-center justify-end gap-2">
+          {/* Wrapped, not `className="hidden …"`: cn() can't override the switch's own inline-flex. Below sm the choice lives in the menu. */}
           <div className="hidden sm:block">
             <LanguageSwitch />
           </div>

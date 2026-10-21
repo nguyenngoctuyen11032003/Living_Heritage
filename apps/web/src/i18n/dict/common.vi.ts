@@ -28,8 +28,9 @@ export default {
     skipToContent: 'Chuyển đến nội dung chính',
     appNav: 'Điều hướng ứng dụng',
     footerNav: 'Liên kết cuối trang',
+    /** Mobile tab bar labels (≤ 9 characters, never truncated). */
+    short: { family: 'Gia đình', narrators: 'Người kể', books: 'Sách', explore: 'Khám phá', settings: 'Cài đặt' },
   },
-  tabs: { family: 'Gia đình', narrators: 'Người kể', books: 'Sách', explore: 'Khám phá', settings: 'Cài đặt' },
   lang: { label: 'Ngôn ngữ', vi: 'Tiếng Việt', en: 'English' },
   textScale: { label: 'Cỡ chữ', normal: 'Chuẩn', large: 'Lớn', xlarge: 'Rất lớn' },
   actions: {

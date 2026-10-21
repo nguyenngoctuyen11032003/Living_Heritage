@@ -1,24 +1,33 @@
 // The question + recording screen: one question, one primary action at a time.
 // record → review → uploading → processing → done, with B16 error states at every step.
 import { MAX_AUDIO_BYTES, MAX_RECORDING_SECONDS, type AiErrorCode } from '@lh/shared';
-import { CircleAlert, FileAudio, Mic, Pause, Play, RefreshCw, Shuffle, SkipForward, Square, WifiOff } from 'lucide-react';
+import { CircleAlert, CircleHelp, FileAudio, Heart, Mic, Pause, Play, RefreshCw, Shuffle, SkipForward, Sparkles, Square, WifiOff } from 'lucide-react';
 import { useCallback, useEffect, useId, useRef, useState, type ChangeEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { AudioPlayer, Button, ButtonLink, Card, Dialog, Spinner } from '@/components/ui';
-import { aiErrorKey, transcribeAndDraft } from '@/features/ai/client';
-import { useLocale, usePick, useT } from '@/i18n';
+import { AudioPlayer, Button, ButtonLink, buttonClasses, Card, Dialog, Spinner } from '@/components/ui';
+import { aiErrorKey, suggestQuestions, transcribeAndDraft } from '@/features/ai/client';
+import { usePick, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { getSupabase } from '@/lib/supabase';
+import { useAddress } from './address';
 import { formatClock } from './clock';
-import { AssistedBanner } from './components';
+import { AssistedBanner, ELDER_CONTROLS } from './components';
 import { endSession, fetchJobStatus, type NarratorInfo, type Question, type SessionRow, type Topic } from './data';
+import { promptIn, resolveFollowUps, seededFollowUps, textKey, type FollowUp, type FollowUpState } from './followUps';
+import { HowToGuide } from './HowToGuide';
 import { LeaveGuard } from './LeaveGuard';
 import { ListenButton } from './ListenButton';
 import { getPendingStore, pendingKey, type PendingUpload } from './pendingStore';
+import { markHowToSeen, readAutoRead, shouldShowHowTo, writeAutoRead } from './prefs';
 import { initialQuestion, nextQuestion } from './questions';
 import { isRecordingSupported, useRecorder, WARN_AT_SECONDS, type RecordingResult } from './recorder';
 import { isCapturing } from './recorderReducer';
+import { keptKey } from './summary';
+import { createAudioCache } from './tts';
 import { supabaseUploadBackend, uploadPending, UploadError, type UploadErrorCode } from './upload';
+
+/** Dialogs render in a portal, outside narrator mode: give their text and buttons the same size. */
+const DIALOG_ELDER = `${ELDER_CONTROLS} [&_p]:text-[1.17rem]`;
 
 type Take = RecordingResult & { fileName?: string };
 
@@ -28,7 +37,7 @@ type Phase =
   | { kind: 'upload-failed'; code: UploadErrorCode; uploaded: boolean; restored: boolean }
   | { kind: 'processing'; recordingId: string; step: 'transcribing' | 'drafting' }
   | { kind: 'ai-failed'; recordingId: string; code: AiErrorCode }
-  | { kind: 'done'; storyIds: string[] };
+  | { kind: 'done'; recordingId: string; storyIds: string[] };
 
 function newAttemptId(): string {
   const c: Crypto = globalThis.crypto;
@@ -72,12 +81,26 @@ export interface SessionFlowProps {
   topic: Topic | null;
   questions: Question[];
   answered: string[];
+  /** Recordings already kept in this session before this screen opened (for the end-of-session summary). */
+  keptBefore?: number;
 }
 
-export function SessionFlow({ session, narrator, assisted, topic, questions, answered }: SessionFlowProps) {
+/** "Gợi ý từ AI": an honest label on AI-suggested questions (text, not colour alone). */
+function AiPill({ label, className }: { label: string; className?: string }) {
+  return (
+    <span className={cn('inline-flex items-center gap-2 rounded-full bg-[#fbecc8] px-4 py-1.5 text-[1.17rem] font-semibold text-[#5a3e0a] ring-1 ring-[#e9cf8f]', className)}>
+      <Sparkles className="size-5" aria-hidden="true" />
+      {label}
+    </span>
+  );
+}
+
+export function SessionFlow({ session, narrator, assisted, topic, questions, answered, keptBefore = 0 }: SessionFlowProps) {
   const t = useT('narrator');
   const pick = usePick();
-  const { locale } = useLocale();
+  const address = useAddress();
+  // Questions, AI drafts, suggestions and the voice follow the narrator's language; UI copy follows the UI locale.
+  const lang = narrator.lang;
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const recorder = useRecorder({ maxSeconds: MAX_RECORDING_SECONDS });
@@ -97,14 +120,28 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
   const [quiet, setQuiet] = useState(false);
   const pendingRef = useRef<PendingUpload | null>(null);
   const lastLoudRef = useRef(0);
+  /** An AI follow-up question being answered (not a row in `questions`). */
+  const [aiQuestion, setAiQuestion] = useState<string | null>(null);
+  const [followUps, setFollowUps] = useState<FollowUpState>({ status: 'idle' });
+  const followUpRuns = useRef(new Map<string, Promise<string[] | null>>());
+  const [kept, setKept] = useState(keptBefore);
+  const [endOpen, setEndOpen] = useState(false);
+  const [ending, setEnding] = useState(false);
+  const [howToOpen, setHowToOpen] = useState(shouldShowHowTo);
+  const [autoRead, setAutoRead] = useState(readAutoRead);
+  const [audioCache] = useState(() => createAudioCache());
+  const autoReadId = useId();
 
   const question = questions.find((q) => q.id === currentId) ?? null;
-  const questionText = question ? pick({ vi: question.prompt_vi, en: question.prompt_en }) : t('session.freePrompt');
-  const key = pendingKey(session.id, currentId);
+  const questionText = aiQuestion ?? (question ? promptIn(question, lang) : t('session.freePrompt'));
+  const key = pendingKey(session.id, aiQuestion ? textKey(aiQuestion) : currentId);
   const take: Take | null = fileTake ?? recorder.result;
   const status = recorder.state.status;
   const supported = isRecordingSupported();
   const narratorQuery = assisted ? `?narrator=${encodeURIComponent(narrator.id)}` : '';
+
+  // Question voices cached for this session are released when the screen goes away.
+  useEffect(() => () => audioCache.clear(), [audioCache]);
 
   // Object URL for the review player, revoked when the take changes or the page goes away.
   useEffect(() => {
@@ -160,8 +197,34 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     };
   }, [phase]);
 
+  // After a recording is processed: up to three next questions (AI first, seeded ones when AI cannot help).
+  const doneRecordingId = phase.kind === 'done' ? phase.recordingId : null;
+  useEffect(() => {
+    if (!doneRecordingId) return;
+    const seeded = seededFollowUps(questions, currentId, used, lang);
+    const topicId = session.topic_id;
+    if (!topicId) {
+      setFollowUps(resolveFollowUps(null, seeded));
+      return;
+    }
+    let run = followUpRuns.current.get(doneRecordingId);
+    if (!run) {
+      run = suggestQuestions(narrator.id, topicId, lang).catch(() => null);
+      followUpRuns.current.set(doneRecordingId, run);
+    }
+    let alive = true;
+    setFollowUps({ status: 'loading' });
+    void run.then((ai) => alive && setFollowUps(resolveFollowUps(ai, seeded)));
+    return () => {
+      alive = false;
+    };
+    // Only when a new recording finishes; question bookkeeping at that moment is what counts.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doneRecordingId]);
+
   const goToQuestion = useCallback(
     (q: Question | null, message?: string) => {
+      setAiQuestion(null);
       setCurrentId(q?.id ?? null);
       const next = new URLSearchParams(params);
       if (q) next.set('q', q.id);
@@ -194,14 +257,14 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     async (recordingId: string) => {
       setPhase({ kind: 'processing', recordingId, step: 'transcribing' });
       try {
-        const res = await transcribeAndDraft(recordingId, locale);
+        const res = await transcribeAndDraft(recordingId, lang);
         if (res.status === 'error' || res.error) setPhase({ kind: 'ai-failed', recordingId, code: res.error ?? 'internal' });
-        else setPhase({ kind: 'done', storyIds: res.story_ids });
+        else setPhase({ kind: 'done', recordingId, storyIds: res.story_ids });
       } catch (e) {
         setPhase({ kind: 'ai-failed', recordingId, code: aiErrorKey(e) });
       }
     },
-    [locale],
+    [lang],
   );
 
   async function runUpload(pending: PendingUpload) {
@@ -212,6 +275,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
       const recordingId = await uploadPending(pending, supabaseUploadBackend(sb), store);
       pendingRef.current = null;
       if (pending.questionId) setUsed((u) => new Set(u).add(pending.questionId!));
+      setKept((n) => n + 1);
       resetTake();
       await runAi(recordingId);
     } catch (e) {
@@ -231,7 +295,9 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
       familyId: session.family_id,
       narratorId: session.narrator_id,
       sessionId: session.id,
-      questionId: currentId,
+      // An AI follow-up is not a questions row: store its text instead so the draft knows what was asked.
+      questionId: aiQuestion ? null : currentId,
+      questionText: question || aiQuestion ? questionText.slice(0, 500) : null,
       createdAt: Date.now(),
       uploaded: false,
       recordingId: null,
@@ -264,15 +330,38 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
   }
 
   function continueWithNext() {
+    setFollowUps({ status: 'idle' });
     setPhase({ kind: 'record' });
     resetTake();
     goToQuestion(nextQuestion(questions, currentId, used), t('session.changed'));
   }
 
   async function finish() {
+    setEnding(true);
     const sb = getSupabase();
     if (sb) await endSession(sb, session.id).catch(() => {});
+    setEndOpen(false);
     navigate(`/ke-chuyen${narratorQuery}`);
+  }
+
+  function startFollowUp(item: FollowUp) {
+    setPhase({ kind: 'record' });
+    setFollowUps({ status: 'idle' });
+    resetTake();
+    const seeded = item.questionId ? questions.find((q) => q.id === item.questionId) : undefined;
+    if (seeded) return goToQuestion(seeded, t('session.changed'));
+    goToQuestion(null, t('session.changed'));
+    setAiQuestion(item.text);
+  }
+
+  function closeHowTo() {
+    markHowToSeen();
+    setHowToOpen(false);
+  }
+
+  function toggleAutoRead(on: boolean) {
+    setAutoRead(on);
+    writeAutoRead(on);
   }
 
   async function onFile(e: ChangeEvent<HTMLInputElement>) {
@@ -297,16 +386,16 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
 
   const filePicker = (
     <div className="flex flex-col gap-2">
-      <label htmlFor={fileInputId} className="inline-flex min-h-14 cursor-pointer items-center justify-center gap-2 rounded-full bg-paper px-7 text-[1.05rem] font-semibold text-ink ring-1 ring-line hover:text-heritage hover:ring-heritage/60 focus-within:outline-3 focus-within:outline-offset-4 focus-within:outline-terracotta">
+      <label htmlFor={fileInputId} className="inline-flex min-h-14 cursor-pointer items-center justify-center gap-2 rounded-full bg-paper px-7 text-[1.17rem] font-semibold text-ink ring-1 ring-line hover:text-heritage hover:ring-heritage/60 focus-within:outline-3 focus-within:outline-offset-4 focus-within:outline-terracotta">
         <FileAudio className="size-6" aria-hidden="true" />
         {t('errors.fileLabel')}
         <input id={fileInputId} type="file" accept="audio/*" className="sr-only" onChange={(e) => void onFile(e)} aria-describedby={`${fileInputId}-hint`} />
       </label>
-      <p id={`${fileInputId}-hint`} className="text-center text-[1rem] text-ink-soft">
+      <p id={`${fileInputId}-hint`} className="text-center text-[1.17rem] text-ink-soft">
         {t('errors.fileHint')}
       </p>
       {fileError && (
-        <p role="alert" className="flex items-center justify-center gap-2 text-[1.05rem] font-medium text-terracotta">
+        <p role="alert" className="flex items-center justify-center gap-2 text-[1.17rem] font-medium text-terracotta">
           <CircleAlert className="size-5 shrink-0" aria-hidden="true" />
           {fileError}
         </p>
@@ -319,7 +408,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
       return (
         <Card padding="lg" className="flex flex-col gap-5 text-center">
           <h2 className="font-serif text-[1.5rem] font-semibold text-heritage-deep">{t('errors.unsupportedTitle')}</h2>
-          <p className="text-[1.15rem] leading-relaxed text-ink">{t('errors.unsupportedDesc')}</p>
+          <p className="text-[1.2rem] leading-relaxed text-ink">{t('errors.unsupportedDesc')}</p>
           {filePicker}
         </Card>
       );
@@ -328,13 +417,13 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
       return (
         <Card padding="lg" className="flex flex-col gap-5">
           <h2 className="font-serif text-[1.5rem] font-semibold text-heritage-deep">{t('errors.deniedTitle')}</h2>
-          <p className="text-[1.15rem] leading-relaxed">{t('errors.deniedDesc')}</p>
-          <ol className="list-decimal space-y-2 pl-7 text-[1.15rem] leading-relaxed">
+          <p className="text-[1.2rem] leading-relaxed">{t('errors.deniedDesc')}</p>
+          <ol className="list-decimal space-y-2 pl-7 text-[1.2rem] leading-relaxed">
             <li>{t('errors.deniedStep1')}</li>
             <li>{t('errors.deniedStep2')}</li>
             <li>{t('errors.deniedStep3')}</li>
           </ol>
-          <p className="text-[1.05rem] text-ink-soft">{t('errors.deniedIos')}</p>
+          <p className="text-[1.17rem] text-ink-soft">{t('errors.deniedIos')}</p>
           <Button size="lg" onClick={() => void recorder.start()} leftIcon={<RefreshCw className="size-5" aria-hidden="true" />}>
             {t('errors.retryMic')}
           </Button>
@@ -357,7 +446,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
         </p>
 
         {status === 'error' && (
-          <p role="alert" className="flex items-center gap-2 text-[1.1rem] font-medium text-terracotta">
+          <p role="alert" className="flex items-center gap-2 text-[1.17rem] font-medium text-terracotta">
             <CircleAlert className="size-5 shrink-0" aria-hidden="true" />
             {recorder.state.error === 'no_device' ? t('errors.noDevice') : t('errors.micFailed')}
           </p>
@@ -377,7 +466,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
               </span>
               <span className="text-[1.35rem] font-semibold text-heritage-deep">{t('rec.start')}</span>
             </button>
-            <p id="rec-start-hint" className="max-w-md text-[1.05rem] text-ink-soft">
+            <p id="rec-start-hint" className="max-w-md text-[1.17rem] text-ink-soft">
               {t('rec.startHint')} {t('rec.limit')}
             </p>
           </>
@@ -388,7 +477,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
               <p className="font-serif text-[3.25rem] font-semibold tabular-nums leading-none text-ink" aria-hidden="true">
                 {formatClock(recorder.elapsed)}
               </p>
-              <p className="mt-2 text-[1rem] text-ink-soft">{t('rec.elapsedValue', { time: formatClock(recorder.elapsed) })}</p>
+              <p className="mt-2 text-[1.17rem] text-ink-soft">{t('rec.elapsedValue', { time: formatClock(recorder.elapsed) })}</p>
             </div>
 
             <div className="w-full max-w-sm">
@@ -402,11 +491,11 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
               >
                 <div className="h-full rounded-full bg-heritage transition-[width] duration-100" style={{ width: `${Math.max(recording ? 3 : 0, levelPct)}%` }} />
               </div>
-              <p className="mt-2 text-[1.05rem] text-ink-soft">{!recording ? t('rec.levelPaused') : quiet ? t('rec.levelQuiet') : t('rec.levelGood')}</p>
+              <p className="mt-2 text-[1.17rem] text-ink-soft">{!recording ? t('rec.levelPaused') : quiet ? t('rec.levelQuiet') : t('rec.levelGood')}</p>
             </div>
 
             {warn && (
-              <p role="alert" className="rounded-2xl bg-[#fbecc8] px-5 py-3 text-[1.1rem] font-medium text-[#5a3e0a]">
+              <p role="alert" className="rounded-2xl bg-[#fbecc8] px-5 py-3 text-[1.17rem] font-medium text-[#5a3e0a]">
                 {t('rec.warn')}
               </p>
             )}
@@ -440,15 +529,15 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
       <Card padding="lg" className="flex flex-col gap-5">
         <div>
           <h2 className="font-serif text-[1.5rem] font-semibold text-heritage-deep">{t('rec.reviewTitle')}</h2>
-          <p className="mt-2 text-[1.1rem] leading-relaxed text-ink-soft">{t('rec.reviewDesc')}</p>
+          <p className="mt-2 text-[1.17rem] leading-relaxed text-ink-soft">{t('rec.reviewDesc')}</p>
         </div>
         {recorder.state.autoStopped && !fileTake && (
-          <p role="status" className="rounded-2xl bg-mint/70 px-5 py-3 text-[1.1rem] text-heritage-deep">
+          <p role="status" className="rounded-2xl bg-mint/70 px-5 py-3 text-[1.17rem] text-heritage-deep">
             {t('rec.autoStopped')}
           </p>
         )}
         {empty ? (
-          <p role="alert" className="text-[1.1rem] font-medium text-terracotta">
+          <p role="alert" className="text-[1.17rem] font-medium text-terracotta">
             {t('errors.emptyTake')}
           </p>
         ) : (
@@ -470,6 +559,52 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     );
   }
 
+  const thanks = (
+    <p className="flex items-center justify-center gap-3 rounded-2xl bg-paper px-5 py-3 text-[1.25rem] font-semibold text-heritage-deep ring-1 ring-heritage/20">
+      <Heart className="size-6 shrink-0 fill-terracotta text-terracotta" aria-hidden="true" />
+      {t('rec.thanks', { who: address(narrator.display_name) })}
+    </p>
+  );
+
+  function followUpView() {
+    if (followUps.status === 'idle') return null;
+    if (followUps.status === 'loading') {
+      return (
+        <p role="status" className="flex items-center justify-center gap-3 text-[1.17rem] text-ink-soft">
+          <Spinner size="sm" decorative />
+          {t('followUps.loading')}
+        </p>
+      );
+    }
+    if (followUps.items.length === 0) return null;
+    const ai = followUps.source === 'ai';
+    return (
+      <section aria-labelledby="follow-ups-heading" className="flex flex-col gap-3 text-left">
+        <div className="flex flex-wrap items-center gap-3">
+          <h3 id="follow-ups-heading" className="font-serif text-[1.4rem] font-semibold text-heritage-deep">
+            {t('followUps.title')}
+          </h3>
+          {ai && <AiPill label={t('followUps.aiBadge')} />}
+        </div>
+        {ai && <p className="text-[1.17rem] text-ink-soft">{t('followUps.aiNote')}</p>}
+        <ul className="flex flex-col gap-3">
+          {followUps.items.map((item) => (
+            <li key={item.questionId ?? item.text}>
+              <button
+                type="button"
+                onClick={() => startFollowUp(item)}
+                className={buttonClasses({ variant: 'secondary', size: 'xl', fullWidth: true, className: 'h-auto justify-start whitespace-normal py-4 text-left' })}
+              >
+                <Mic className="size-6 shrink-0 text-heritage" aria-hidden="true" />
+                <span lang={lang}>{item.text}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  }
+
   function phaseView() {
     switch (phase.kind) {
       case 'uploading':
@@ -477,7 +612,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
           <div role="status" aria-live="polite" className="flex flex-col items-center gap-4 py-10 text-center">
             <Spinner size="lg" decorative />
             <p className="text-[1.35rem] font-semibold">{t('rec.uploading')}</p>
-            <p className="text-[1.05rem] text-ink-soft">{t('rec.uploadingHint')}</p>
+            <p className="text-[1.17rem] text-ink-soft">{t('rec.uploadingHint')}</p>
           </div>
         );
       case 'upload-failed': {
@@ -491,8 +626,8 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
               <WifiOff className="size-7 shrink-0 text-terracotta" aria-hidden="true" />
               {phase.restored ? t('errors.restoredTitle') : network ? t('errors.networkTitle') : t('errors.uploadFailedTitle')}
             </h2>
-            <p className="text-[1.15rem] leading-relaxed">{desc}</p>
-            {phase.uploaded && <p className="text-[1.05rem] text-ink-soft">{t('errors.uploadedPart')}</p>}
+            <p className="text-[1.2rem] leading-relaxed">{desc}</p>
+            {phase.uploaded && <p className="text-[1.17rem] text-ink-soft">{t('errors.uploadedPart')}</p>}
             <div className="flex flex-col gap-3 sm:flex-row-reverse">
               {canRetry && (
                 <Button size="xl" fullWidth onClick={() => void retryUpload()} leftIcon={<RefreshCw className="size-5" aria-hidden="true" />}>
@@ -508,18 +643,19 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
       }
       case 'processing':
         return (
-          <div role="status" aria-live="polite" className="flex flex-col items-center gap-4 py-10 text-center">
+          <div role="status" aria-live="polite" className="flex flex-col items-center gap-4 py-6 text-center">
+            {thanks}
             <Spinner size="lg" decorative />
             <p className="text-[1.45rem] font-semibold">{phase.step === 'transcribing' ? t('rec.transcribing') : t('rec.drafting')}</p>
-            <p className="max-w-md text-[1.05rem] text-ink-soft">{t('rec.processingHint')}</p>
+            <p className="max-w-md text-[1.17rem] text-ink-soft">{t('rec.processingHint')}</p>
           </div>
         );
       case 'ai-failed':
         return (
           <Card padding="lg" className="flex flex-col gap-4" role="alert">
             <h2 className="font-serif text-[1.5rem] font-semibold text-heritage-deep">{t('errors.aiTitle')}</h2>
-            <p className="rounded-2xl bg-mint/70 px-5 py-3 text-[1.15rem] font-medium text-heritage-deep">{t('errors.aiSafe')}</p>
-            <p className="text-[1.15rem] leading-relaxed">{t(`errors.ai.${phase.code}` as 'errors.ai.internal')}</p>
+            <p className="rounded-2xl bg-mint/70 px-5 py-3 text-[1.2rem] font-medium text-heritage-deep">{t('errors.aiSafe')}</p>
+            <p className="text-[1.2rem] leading-relaxed">{t(`errors.ai.${phase.code}` as 'errors.ai.internal')}</p>
             <div className="flex flex-col gap-3 sm:flex-row-reverse">
               <Button size="xl" fullWidth onClick={() => void runAi(phase.recordingId)} leftIcon={<RefreshCw className="size-5" aria-hidden="true" />}>
                 {t('errors.aiRetry')}
@@ -534,8 +670,9 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
         const first = phase.storyIds[0];
         return (
           <Card padding="lg" tone="mint" className="flex flex-col gap-5 text-center" role="status" aria-live="polite">
+            {thanks}
             <h2 className="font-serif text-[1.7rem] font-semibold text-heritage-deep">{t('rec.doneTitle')}</h2>
-            <p className="text-[1.15rem] leading-relaxed">{first ? (assisted ? t('rec.doneDescAssisted') : t('rec.doneDesc')) : t('rec.doneNoDraft')}</p>
+            <p className="text-[1.2rem] leading-relaxed">{first ? (assisted ? t('rec.doneDescAssisted') : t('rec.doneDesc')) : t('rec.doneNoDraft')}</p>
             {first ? (
               <ButtonLink to={`/ban-nhap/${first}`} size="xl" fullWidth>
                 {t('rec.view')}
@@ -545,6 +682,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
                 {t('home.myStories')}
               </ButtonLink>
             )}
+            {followUpView()}
             <Button size="lg" variant="secondary" fullWidth onClick={continueWithNext}>
               {t('rec.next')}
             </Button>
@@ -557,7 +695,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
   }
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className={cn('flex flex-col gap-8', ELDER_CONTROLS)}>
       {assisted && <AssistedBanner name={narrator.display_name} />}
       <LeaveGuard when={unsaved} />
       <p className="sr-only" aria-live="polite">
@@ -565,24 +703,43 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
       </p>
 
       <section aria-labelledby="question-heading" className="flex flex-col gap-5">
-        <p className="text-[1.1rem] font-medium text-ink-soft">{topic ? t('session.topic', { topic: pick({ vi: topic.title_vi, en: topic.title_en }) }) : t('session.freeTopic')}</p>
-        <h1 id="question-heading" ref={headingRef} tabIndex={-1} className="font-serif text-[2rem] font-semibold leading-snug text-ink md:text-[2.4rem]">
+        <p className="text-[1.17rem] font-medium text-ink-soft">{topic ? t('session.topic', { topic: pick({ vi: topic.title_vi, en: topic.title_en }) }) : t('session.freeTopic')}</p>
+        <h1 id="question-heading" ref={headingRef} tabIndex={-1} lang={question || aiQuestion ? lang : undefined} className="font-serif text-[2rem] font-semibold leading-snug text-ink md:text-[2.4rem]">
           <span className="sr-only">{t('session.question')}: </span>
           {questionText}
         </h1>
+        {aiQuestion && <AiPill label={t('followUps.aiBadge')} className="self-start" />}
         {showQuestionTools && (
           <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            {question && <ListenButton text={questionText} />}
+            {(question || aiQuestion) && <ListenButton text={questionText} lang={lang} cache={audioCache} autoPlay={autoRead} />}
             {questions.length > 1 && (
-              <Button size="lg" variant="ghost" onClick={changeQuestion} leftIcon={<Shuffle className="size-5" aria-hidden="true" />} className="text-[1.05rem]">
+              <Button size="lg" variant="ghost" onClick={changeQuestion} leftIcon={<Shuffle className="size-5" aria-hidden="true" />}>
                 {t('session.change')}
               </Button>
             )}
             {questions.length > 1 && (
-              <Button size="lg" variant="ghost" onClick={skipQuestion} leftIcon={<SkipForward className="size-5" aria-hidden="true" />} className="text-[1.05rem]">
+              <Button size="lg" variant="ghost" onClick={skipQuestion} leftIcon={<SkipForward className="size-5" aria-hidden="true" />}>
                 {t('session.skip')}
               </Button>
             )}
+          </div>
+        )}
+        {showQuestionTools && (question || aiQuestion) && (
+          <div className="flex flex-col gap-1">
+            <label htmlFor={autoReadId} className="inline-flex min-h-14 cursor-pointer items-center gap-4 self-start rounded-2xl px-1 text-[1.17rem] font-medium text-ink">
+              <input
+                id={autoReadId}
+                type="checkbox"
+                checked={autoRead}
+                onChange={(e) => toggleAutoRead(e.target.checked)}
+                aria-describedby={`${autoReadId}-hint`}
+                className="size-7 shrink-0 cursor-pointer accent-heritage"
+              />
+              {t('session.autoRead')}
+            </label>
+            <p id={`${autoReadId}-hint`} className="pl-12 text-[1.17rem] text-ink-soft">
+              {t('session.autoReadHint')}
+            </p>
           </div>
         )}
       </section>
@@ -591,11 +748,43 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
         {phase.kind !== 'record' ? phaseView() : take ? reviewView(take) : recorderView()}
       </section>
 
-      <div className="flex justify-center border-t border-line pt-6">
-        <Button size="lg" variant="secondary" onClick={() => void finish()} disabled={phase.kind === 'uploading'}>
+      <div className="flex flex-col items-center gap-3 border-t border-line pt-6 sm:flex-row sm:justify-center">
+        <Button size="lg" variant="secondary" onClick={() => setEndOpen(true)} disabled={phase.kind === 'uploading'}>
           {t('session.end')}
         </Button>
+        <Button size="lg" variant="ghost" onClick={() => setHowToOpen(true)} leftIcon={<CircleHelp className="size-5" aria-hidden="true" />}>
+          {t('session.howtoAgain')}
+        </Button>
       </div>
+
+      <HowToGuide open={howToOpen} onClose={closeHowTo} />
+      <Dialog
+        open={endOpen}
+        onClose={() => setEndOpen(false)}
+        title={t('end.title')}
+        size="sm"
+        className={DIALOG_ELDER}
+        footer={
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <Button size="lg" variant="secondary" onClick={() => setEndOpen(false)} disabled={ending}>
+              {t('end.cancel')}
+            </Button>
+            <Button size="lg" onClick={() => void finish()} loading={ending}>
+              {t('end.confirm')}
+            </Button>
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          <p className="font-semibold text-heritage-deep">{t(keptKey(kept), { count: kept, who: address(narrator.display_name) })}</p>
+          {kept > 0 && <p>{t('end.thanks')}</p>}
+          {unsaved && (
+            <p role="alert" className="font-medium text-terracotta">
+              {t('end.unsaved')}
+            </p>
+          )}
+        </div>
+      </Dialog>
 
       <Dialog
         open={redoOpen}
@@ -603,6 +792,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
         title={t('rec.redoTitle')}
         description={t('rec.redoDesc')}
         size="sm"
+        className={DIALOG_ELDER}
         footer={
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <Button size="lg" variant="secondary" onClick={() => setRedoOpen(false)}>
@@ -627,6 +817,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
         title={t('errors.discardTitle')}
         description={t('errors.discardDesc')}
         size="sm"
+        className={DIALOG_ELDER}
         footer={
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <Button size="lg" variant="secondary" onClick={() => setDiscardOpen(false)}>

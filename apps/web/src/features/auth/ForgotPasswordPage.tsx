@@ -54,7 +54,7 @@ export default function ForgotPasswordPage() {
         <div role="status" className="rounded-[1.5rem] bg-mint/60 p-6 ring-1 ring-heritage/10">
           <MailCheck aria-hidden="true" className="size-8 text-heritage" />
           <h2 className="mt-3 font-serif text-[1.4rem] font-semibold text-heritage-deep">{t('forgot.sentTitle')}</h2>
-          <p className="mt-2 leading-relaxed text-ink">{t('forgot.sentBody', { email: email.trim() })}</p>
+          <p className="mt-2 leading-relaxed text-ink [overflow-wrap:anywhere]">{t('forgot.sentBody', { email: email.trim() })}</p>
         </div>
       ) : (
         <form noValidate onSubmit={onSubmit} className="flex flex-col gap-5">

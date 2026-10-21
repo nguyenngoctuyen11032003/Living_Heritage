@@ -4,7 +4,7 @@ import { Button, EmptyState, Skeleton } from '@/components/ui';
 import { usePick, useT } from '@/i18n';
 import { getSupabase } from '@/lib/supabase';
 import { useAddress } from '@/features/storytelling/address';
-import { AssistedBanner, StorytellerGate, TopicIcon } from '@/features/storytelling/components';
+import { AssistedBanner, ELDER_CONTROLS, StorytellerGate, TopicIcon } from '@/features/storytelling/components';
 import { fetchTopics, useAsync, useStoryteller } from '@/features/storytelling/data';
 import { elderButton, elderEmpty, useNarratorTitle } from './elder';
 
@@ -26,14 +26,14 @@ export default function StorytellingHome() {
   const { narrator, assisted, query } = ctx;
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className={`flex flex-col gap-10 ${ELDER_CONTROLS}`}>
       {assisted && <AssistedBanner name={narrator.display_name} />}
       <header className="flex flex-col gap-3">
-        <p className="text-[1.2rem] font-semibold leading-snug text-terracotta">
+        <p className="text-[1.17rem] font-medium text-heritage">
           {narrator.family_name ? t('home.family', { family: narrator.family_name }) : t('home.eyebrow')}
         </p>
-        <h1 className="break-words font-serif text-[clamp(2.25rem,7vw,3rem)] font-semibold leading-[1.2] text-ink">{t('home.greeting', { who: address(narrator.display_name) })}</h1>
-        <p className="max-w-[38ch] text-[1.3rem] leading-relaxed text-ink-soft">{t('home.intro', { pronoun: t('home.pronoun') })}</p>
+        <h1 className="break-words font-serif text-[2.2rem] font-semibold leading-tight text-ink md:text-[2.75rem]">{t('home.greeting', { who: address(narrator.display_name) })}</h1>
+        <p className="max-w-2xl text-[1.25rem] leading-relaxed text-ink-soft">{t('home.intro', { pronoun: t('home.pronoun') })}</p>
       </header>
 
       <section aria-labelledby="topics-heading" className="flex flex-col gap-5">
@@ -97,7 +97,7 @@ export default function StorytellingHome() {
                   </span>
                   <span className="flex flex-col gap-1">
                     <span className="font-serif text-[1.6rem] font-semibold leading-snug text-ink">{t('home.unsureTitle')}</span>
-                    <span className="text-[1.25rem] leading-snug text-ink-soft">{t('home.unsureHint')}</span>
+                    <span className="text-[1.17rem] leading-snug text-ink-soft">{t('home.unsureHint')}</span>
                   </span>
                 </span>
                 <span aria-hidden="true" className="hidden size-12 shrink-0 items-center justify-center rounded-full bg-paper text-heritage ring-1 ring-line sm:flex">

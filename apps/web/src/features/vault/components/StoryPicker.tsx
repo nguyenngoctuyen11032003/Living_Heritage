@@ -36,7 +36,7 @@ export function StoryPicker({ stories, selected, onAdd, busyId, labels, narrator
             return (
               <li key={s.id} className="flex items-center gap-3 px-4 py-3">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-serif font-semibold leading-[1.4] text-ink">{title}</p>
+                  <p className="line-clamp-2 break-words font-serif font-semibold leading-[1.4] text-ink">{title}</p>
                   {narratorName && <p className="truncate text-[0.9rem] text-ink-soft">{narratorName(s.narrator_id) ?? ''}</p>}
                 </div>
                 {isIn ? (

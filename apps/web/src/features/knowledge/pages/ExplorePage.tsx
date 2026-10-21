@@ -6,6 +6,7 @@ import { Button, EmptyState, Field, Select } from '@/components/ui';
 import { usePick, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { REGIONS, STORY_KINDS, type Region, type StoryKind } from '@lh/shared';
+import { AskTheElders } from '../components/AskTheElders';
 import { KnowledgeCard, KnowledgeCardSkeleton } from '../components/KnowledgeCard';
 import { SampleBanner } from '../components/SampleBanner';
 import { TopicMotif } from '../components/TopicMotif';
@@ -61,6 +62,18 @@ export default function ExplorePage() {
     e.preventDefault();
     update({ q: qInput });
     resultsRef.current?.focus({ preventScroll: false });
+  }
+
+  function focusResults() {
+    resultsRef.current?.focus({ preventScroll: true });
+    resultsRef.current?.scrollIntoView?.({ block: 'start' });
+  }
+
+  function searchFor(q: string) {
+    const text = q.trim().slice(0, 120);
+    setQInput(text);
+    update({ q: text });
+    focusResults();
   }
 
   function reset() {
@@ -119,7 +132,7 @@ export default function ExplorePage() {
               {t('hero.searchLabel')}
             </label>
             <div className="relative flex items-center rounded-full bg-paper shadow-[0_18px_40px_-28px_rgba(22,58,49,0.5)] ring-1 ring-line focus-within:ring-2 focus-within:ring-heritage">
-              <Search aria-hidden="true" className="pointer-events-none absolute left-4 size-5 text-ink-soft sm:left-5 sm:size-6" />
+              <Search aria-hidden="true" className="pointer-events-none absolute left-5 hidden size-6 text-ink-soft sm:block" />
               <input
                 id={searchId}
                 type="search"
@@ -129,7 +142,7 @@ export default function ExplorePage() {
                 autoComplete="off"
                 enterKeyHint="search"
                 maxLength={120}
-                className="min-h-16 w-full min-w-0 flex-1 rounded-full bg-transparent pl-11 pr-2 text-[1.05rem] sm:pl-14 sm:pr-3 sm:text-[1.08rem] text-ink placeholder:text-ink-soft/75 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+                className="min-h-16 w-full min-w-0 flex-1 rounded-full bg-transparent pl-5 pr-2 text-[1.08rem] sm:pl-14 sm:pr-3 text-ink placeholder:text-ink-soft/75 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
               />
               {qInput && (
                 <button
@@ -144,9 +157,11 @@ export default function ExplorePage() {
                   <X aria-hidden="true" className="size-5" />
                 </button>
               )}
-              <Button type="submit" size="lg" className="mr-1.5 size-13 min-h-13 shrink-0 px-0 sm:size-auto sm:min-h-14 sm:px-7">
-                <Search aria-hidden="true" className="size-5 sm:hidden" />
-                <span className="sr-only sm:not-sr-only">{t('hero.searchCta')}</span>
+              <Button type="submit" size="lg" className="mr-1.5 hidden shrink-0 sm:inline-flex">
+                {t('hero.searchCta')}
+              </Button>
+              <Button type="submit" iconOnly aria-label={t('hero.searchCta')} className="mr-1.5 shrink-0 sm:hidden">
+                <Search aria-hidden="true" className="size-5" />
               </Button>
             </div>
           </form>
@@ -186,6 +201,9 @@ export default function ExplorePage() {
       </section>
 
       <div className="mx-auto max-w-6xl px-4 py-10 md:px-8 md:py-14">
+        {/* Ask the elders (AI answers only from published items, with citations) */}
+        <AskTheElders hubMode={search.mode} notConfigured={search.notConfigured} onSearch={searchFor} onBrowse={focusResults} className="mb-10" />
+
         {/* Filters */}
         <section aria-labelledby="filters-title" className="rounded-[1.75rem] bg-paper p-5 ring-1 ring-line md:p-6">
           <h2 id="filters-title" className="sr-only">
@@ -214,11 +232,11 @@ export default function ExplorePage() {
                       aria-pressed={on}
                       onClick={() => update({ kind: k as StoryKind | null })}
                       className={cn(
-                        'min-h-12 rounded-xl px-1.5 text-[0.9rem] font-semibold leading-tight transition-colors',
+                        'min-h-12 whitespace-nowrap rounded-xl px-1.5 text-[0.875rem] font-semibold leading-tight transition-colors',
                         on ? 'bg-heritage text-cream shadow-sm' : 'text-ink-soft hover:bg-mint/60 hover:text-heritage',
                       )}
                     >
-                      {k ? t(`kinds.${k}`) : t('filters.allKinds')}
+                      {k ? t(`filters.kindShort.${k}`) : t('filters.allKinds')}
                     </button>
                   );
                 })}

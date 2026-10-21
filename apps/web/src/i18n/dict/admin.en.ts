@@ -3,6 +3,7 @@ import type vi from './admin.vi';
 
 export default {
   _ns: 'admin',
+  eyebrow: 'Admin',
   title: 'Content moderation',
   lede: 'Review publish requests and handle reports and requests from users. Every action is logged.',
   states: {
@@ -29,6 +30,8 @@ export default {
     refresh: 'Refresh',
     count: '{n} items',
     countOne: '1 item',
+    checkAgain: 'Check again',
+    openHub: 'View the public hub',
     at: 'At {time}',
     openItem: 'View public item',
     itemRemoved: 'The public item has been removed',
@@ -42,7 +45,7 @@ export default {
   publish: {
     audioNotice: 'When you approve an item that allows the narrator’s voice, the audio file must be copied to public storage by a server job. The public page only plays audio once the file has been synced.',
     emptyTitle: 'No pending requests',
-    emptyBody: 'When a narrator or family asks to publish, the request will appear here.',
+    emptyBody: 'Nothing reaches the public hub without this review. When a family asks to publish, the request will wait for you here.',
     storyHidden: 'The story can’t be read (it may have been deleted or edited).',
     requestedAt: 'Requested {time}',
     editStatus: {
@@ -66,6 +69,13 @@ export default {
     recent: 'Handled in this session',
     audioSync: 'Audio will be synced',
     audioNone: 'No public audio',
+    reindex: 'Update AI search index',
+    reindexHint: 'Indexes new or recently edited public items so the Q&A assistant can find them.',
+    reindexDone: 'Index updated for {n} items.',
+    reindexUpToDate: 'The index is complete; nothing needed updating.',
+    reindexRemaining: '{n} items are still not indexed. Press again to continue.',
+    reindexFailed: '{n} items could not be indexed yet and will be retried later.',
+    reindexError: 'Could not update the AI search index. Please try again later.',
     errors: {
       request_not_pending: 'This request has already been handled.',
       story_not_approved: 'The story was edited after the request and hasn’t been re-approved by the narrator.',
@@ -77,13 +87,13 @@ export default {
   },
   reports: {
     emptyTitle: 'No reports',
-    emptyBody: 'Reports from readers of the knowledge hub will appear here.',
+    emptyBody: 'Reports let us take down wrong or sensitive content quickly. When a reader reports an item, it will appear here.',
     statuses: { open: 'Open', resolved: 'Resolved', dismissed: 'Dismissed' },
     actions: { open: 'Reopen', resolved: 'Mark resolved', dismissed: 'Dismiss' },
   },
   connect: {
     emptyTitle: 'No connect requests',
-    emptyBody: 'Learners’ requests to connect will appear here for the coordinators to verify.',
+    emptyBody: 'Learners can only reach narrators through the coordinators, to keep narrators safe. New requests will appear here for you to verify.',
     statuses: { new: 'New', forwarded: 'Forwarded to narrator', closed: 'Closed' },
     actions: { new: 'Reopen', forwarded: 'Mark forwarded', closed: 'Close request' },
     from: 'From: {name}',
@@ -92,7 +102,7 @@ export default {
   },
   deletion: {
     emptyTitle: 'No deletion requests',
-    emptyBody: 'Deletion requests from narrators or families will appear here.',
+    emptyBody: 'The right to delete is a promise to narrators. Deletion requests from narrators or families will appear here and need prompt handling.',
     statuses: { open: 'Received', done: 'Completed', rejected: 'Rejected' },
     actions: { open: 'Reopen', done: 'Mark completed', rejected: 'Reject' },
     story: 'Story: {id}',
@@ -105,7 +115,7 @@ export default {
   },
   aiJobs: {
     emptyTitle: 'No failed AI jobs',
-    emptyBody: 'When transcription or drafting fails, the job appears here with its error code.',
+    emptyBody: 'A failed job keeps a family waiting for its draft. When transcription or drafting fails, the job appears here with its error code.',
     kind: 'Job type: {kind}',
     attempts: '{n} attempts',
     attemptsOne: '1 attempt',

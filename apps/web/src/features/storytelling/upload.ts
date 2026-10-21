@@ -38,6 +38,7 @@ export interface UploadBackend {
     narrator_id: string;
     session_id: string;
     question_id: string | null;
+    question_text: string | null;
     storage_path: string;
     duration_s: number;
     mime: string;
@@ -108,6 +109,7 @@ export async function uploadPending(pending: PendingUpload, backend: UploadBacke
         narrator_id: current.narratorId,
         session_id: current.sessionId,
         question_id: current.questionId,
+        question_text: current.questionText ?? null,
         storage_path: path,
         duration_s: clampDuration(current.duration),
         mime: current.mime.slice(0, 100) || 'audio/webm',

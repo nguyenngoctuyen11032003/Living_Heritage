@@ -1,7 +1,14 @@
 import { useLocale, useT, type Locale } from '@/i18n';
 import { cn } from '@/lib/cn';
 
-/** VI | EN segmented switch. `tone="dark"` for night sections; `size="lg"` for narrator mode (larger targets). */
+/**
+ * VI | EN segmented switch. `tone="dark"` for night sections; `size="lg"` for narrator mode (48px, 56px from sm).
+ * Each option is at least a 44px touch target.
+ *
+ * Layout note: `className` is for spacing/alignment only. Do not pass display utilities (`hidden sm:inline-flex`) —
+ * `cn()` does not merge classes, so they would fight the switch's own `inline-flex` (QA 2026-10-22 P0 #1).
+ * To show it only at some breakpoints, wrap it: `<div className="hidden sm:block"><LanguageSwitch /></div>`.
+ */
 export function LanguageSwitch({ tone = 'light', size = 'md', className }: { tone?: 'light' | 'dark'; size?: 'md' | 'lg'; className?: string }) {
   const { locale, setLocale } = useLocale();
   const t = useT('common');

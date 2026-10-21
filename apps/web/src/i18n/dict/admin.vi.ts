@@ -1,6 +1,7 @@
 // Namespace 'admin' - Vietnamese is the source of keys (see plan ownership table).
 export default {
   _ns: 'admin',
+  eyebrow: 'Quản trị',
   title: 'Quản trị nội dung',
   lede: 'Duyệt đề nghị công bố, xử lý báo cáo và các yêu cầu từ người dùng. Mọi thao tác đều được ghi nhật ký.',
   states: {
@@ -27,6 +28,8 @@ export default {
     refresh: 'Tải lại',
     count: '{n} mục',
     countOne: '1 mục',
+    checkAgain: 'Kiểm tra lại',
+    openHub: 'Xem kho tri thức công khai',
     at: 'Lúc {time}',
     openItem: 'Xem nội dung công khai',
     itemRemoved: 'Nội dung công khai đã được gỡ',
@@ -40,7 +43,7 @@ export default {
   publish: {
     audioNotice: 'Khi duyệt nội dung có cho phép công bố giọng kể, tệp âm thanh cần được sao chép sang kho công khai bằng tác vụ máy chủ. Trang công khai chỉ phát âm thanh sau khi tệp đã được đồng bộ.',
     emptyTitle: 'Không có đề nghị nào đang chờ',
-    emptyBody: 'Khi người kể hoặc gia đình đề nghị công bố, đề nghị sẽ xuất hiện ở đây.',
+    emptyBody: 'Không nội dung nào lên kho công khai mà chưa qua bước duyệt này. Khi gia đình đề nghị công bố, đề nghị sẽ chờ bạn ở đây.',
     storyHidden: 'Không đọc được câu chuyện (có thể đã bị xoá hoặc đã sửa).',
     requestedAt: 'Gửi lúc {time}',
     editStatus: {
@@ -64,6 +67,13 @@ export default {
     recent: 'Vừa xử lý trong phiên này',
     audioSync: 'Âm thanh sẽ được đồng bộ',
     audioNone: 'Không có âm thanh công khai',
+    reindex: 'Cập nhật chỉ mục tìm kiếm AI',
+    reindexHint: 'Tạo chỉ mục cho các nội dung công khai mới hoặc vừa sửa để trợ lý hỏi đáp tìm thấy chúng.',
+    reindexDone: 'Đã cập nhật chỉ mục cho {n} nội dung.',
+    reindexUpToDate: 'Chỉ mục đã đầy đủ, không có nội dung nào cần cập nhật.',
+    reindexRemaining: 'Còn {n} nội dung chưa có chỉ mục. Bấm lại để tiếp tục.',
+    reindexFailed: '{n} nội dung chưa tạo được chỉ mục, sẽ được thử lại sau.',
+    reindexError: 'Chưa cập nhật được chỉ mục tìm kiếm AI. Vui lòng thử lại sau.',
     errors: {
       request_not_pending: 'Đề nghị này đã được xử lý trước đó.',
       story_not_approved: 'Câu chuyện đã bị sửa sau khi gửi đề nghị và chưa được người kể duyệt lại.',
@@ -75,13 +85,13 @@ export default {
   },
   reports: {
     emptyTitle: 'Không có báo cáo nào',
-    emptyBody: 'Các báo cáo từ người đọc trên kho tri thức sẽ hiện ở đây.',
+    emptyBody: 'Báo cáo giúp gỡ kịp thời nội dung sai hoặc nhạy cảm. Khi người đọc báo cáo một nội dung, báo cáo sẽ hiện ở đây.',
     statuses: { open: 'Chưa xử lý', resolved: 'Đã xử lý', dismissed: 'Bỏ qua' },
     actions: { open: 'Mở lại', resolved: 'Đánh dấu đã xử lý', dismissed: 'Bỏ qua báo cáo' },
   },
   connect: {
     emptyTitle: 'Không có yêu cầu kết nối nào',
-    emptyBody: 'Đề nghị trao đổi từ người học sẽ hiện ở đây để nhóm điều phối xác minh.',
+    emptyBody: 'Người học chỉ liên hệ được người kể qua nhóm điều phối, để giữ an toàn cho người kể. Đề nghị mới sẽ hiện ở đây để bạn xác minh.',
     statuses: { new: 'Mới', forwarded: 'Đã chuyển người kể', closed: 'Đã đóng' },
     actions: { new: 'Mở lại', forwarded: 'Đánh dấu đã chuyển', closed: 'Đóng yêu cầu' },
     from: 'Từ: {name}',
@@ -90,7 +100,7 @@ export default {
   },
   deletion: {
     emptyTitle: 'Không có yêu cầu xoá nào',
-    emptyBody: 'Yêu cầu xoá từ người kể hoặc gia đình sẽ hiện ở đây.',
+    emptyBody: 'Quyền được xoá là cam kết với người kể. Yêu cầu xoá từ người kể hoặc gia đình sẽ hiện ở đây và cần được xử lý sớm.',
     statuses: { open: 'Đã tiếp nhận', done: 'Hoàn tất', rejected: 'Từ chối' },
     actions: { open: 'Mở lại', done: 'Đánh dấu hoàn tất', rejected: 'Từ chối' },
     story: 'Câu chuyện: {id}',
@@ -103,7 +113,7 @@ export default {
   },
   aiJobs: {
     emptyTitle: 'Không có tác vụ AI nào bị lỗi',
-    emptyBody: 'Khi chuyển chữ hoặc tạo bản nháp thất bại, tác vụ sẽ hiện ở đây kèm mã lỗi.',
+    emptyBody: 'Tác vụ lỗi khiến gia đình phải chờ bản nháp. Khi chuyển chữ hoặc tạo bản nháp thất bại, tác vụ sẽ hiện ở đây kèm mã lỗi.',
     kind: 'Loại tác vụ: {kind}',
     attempts: '{n} lần thử',
     attemptsOne: '1 lần thử',

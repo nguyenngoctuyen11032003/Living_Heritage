@@ -8,7 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.node.json"
+    "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.node.json",
+    "build:e2e": "vite build --mode e2e --outDir node_modules/.e2e-dist --emptyOutDir",
+    "e2e": "vite build --mode e2e --outDir node_modules/.e2e-dist --emptyOutDir && playwright test"
   },
   "dependencies": {
     "@fontsource/be-vietnam-pro": "^5.2.6",

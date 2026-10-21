@@ -44,6 +44,14 @@ Deno.test('transcribe sends inline audio with the key in a header only', async (
   assert.deepEqual(body.contents[0].parts[1], { inline_data: { mime_type: 'audio/webm', data: 'AQID' } });
 });
 
+Deno.test("transcribe passes the narrator's language as a hint", async () => {
+  const { rt, requests } = runtime([ok('Hello'), ok('Xin chào')]);
+  await createGemini(CFG, rt).transcribe(new Uint8Array(1), null, 'en');
+  await createGemini(CFG, rt).transcribe(new Uint8Array(1), null);
+  assert.match(JSON.parse(String(requests[0]!.init.body)).contents[0].parts[0].text, /usually speaks English/);
+  assert.doesNotMatch(JSON.parse(String(requests[1]!.init.body)).contents[0].parts[0].text, /usually speaks/);
+});
+
 Deno.test('draft uses JSON mode with responseSchema and parses the output', async () => {
   const { rt, requests } = runtime([ok('{"a":1}')]);
   const r = await createGemini(CFG, rt).draft({ lang: 'vi', transcript: 't', topic: 'Làm vườn', question: null });

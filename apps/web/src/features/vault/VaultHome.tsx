@@ -1,14 +1,16 @@
-import { ArrowRight, AudioLines, BookCheck, BookOpen, FolderHeart, Hourglass, Search, X } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import { BookOpen, ChevronDown, FolderHeart, Search, SlidersHorizontal, X } from 'lucide-react';
+import { useCallback, useEffect, useId, useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { StoryScene } from '@/components/illustrations/scenes';
 import { Button, ButtonLink, EmptyState, Field, Input, Select, Skeleton } from '@/components/ui';
 import { useCurrentFamily } from '@/features/families/current';
 import { usePick, useT } from '@/i18n';
+import { cn } from '@/lib/cn';
 import { getSupabase } from '@/lib/supabase';
 import { PAGE_SIZE, fetchRecordings, fetchReviewQueue, fetchStats, fetchStoriesPage, searchStories, type VaultStats } from './api';
 import { GridSkeleton, LoadError } from './components/States';
 import { NewStoryButton } from './components/NewStoryButton';
+import { VaultPageHeader } from './components/VaultPageHeader';
 import { StoryCard } from './components/StoryCard';
 import { FamilyGate, StoryStatusBadge } from './external';
 import { EMPTY_FILTERS, filtersFromParams, filtersToParams, hasActiveFilters, splitHours, type VaultFilters } from './filter';
@@ -148,29 +150,27 @@ function VaultHomeInner() {
   const vaultEmpty = !loading && !error && items.length === 0 && !hasActiveFilters(filters);
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 md:gap-10">
-      <header className="relative overflow-hidden rounded-[2rem] bg-paper px-5 py-7 ring-1 ring-line/80 sm:px-8 md:px-10 md:py-10">
-        <span aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 size-64 rounded-full bg-mint/70 blur-3xl" />
-        <span aria-hidden="true" className="pointer-events-none absolute -bottom-24 left-1/3 size-56 rounded-full bg-terracotta/10 blur-3xl" />
-        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="min-w-0 max-w-2xl">
-            <p className="text-[0.875rem] font-semibold uppercase tracking-[0.14em] text-terracotta">{t('header.eyebrow')}</p>
-            <h1 className="mt-2 break-words font-serif text-[clamp(2rem,1.45rem+2.2vw,2.75rem)] font-semibold leading-[1.2] text-heritage-deep">
-              {current?.name || t('header.fallbackName')}
-            </h1>
-            <p className="mt-3 max-w-[60ch] leading-relaxed text-ink-soft">{t('header.subtitle')}</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            {canEdit && !lookups.loading && <NewStoryButton narrators={lookups.narrators} />}
-            <ButtonLink to="/gia-dinh/bo-suu-tap" variant="secondary" leftIcon={<FolderHeart className="size-5" aria-hidden="true" />}>
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 md:gap-8">
+      <VaultPageHeader
+        eyebrow={t('header.eyebrow')}
+        title={current?.name || t('header.fallbackName')}
+        actions={
+          // Phones: the primary action full width, the two secondary ones side by side under it.
+          <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap md:items-center md:justify-end">
+            {canEdit && !lookups.loading && (
+              <div className="col-span-2 md:contents">
+                <NewStoryButton narrators={lookups.narrators} className="w-full md:w-auto" />
+              </div>
+            )}
+            <ButtonLink to="/gia-dinh/bo-suu-tap" variant="secondary" className="min-w-0 text-center" leftIcon={<FolderHeart className="size-5 shrink-0" aria-hidden="true" />}>
               {t('header.collections')}
             </ButtonLink>
-            <ButtonLink to="/sach" variant="secondary" leftIcon={<BookOpen className="size-5" aria-hidden="true" />}>
+            <ButtonLink to="/sach" variant="secondary" className="min-w-0 text-center" leftIcon={<BookOpen className="size-5 shrink-0" aria-hidden="true" />}>
               {t('header.books')}
             </ButtonLink>
           </div>
-        </div>
-      </header>
+        }
+      />
 
       <StatsRow stats={stats} error={statsError} onRetry={() => setStatsTick((x) => x + 1)} />
 
@@ -179,7 +179,7 @@ function VaultHomeInner() {
       {vaultEmpty ? (
         <VaultEmpty
           description={canEdit ? t('empty.description') : t('empty.viewer')}
-          action={canEdit && !lookups.loading ? <NewStoryButton narrators={lookups.narrators} label={t('empty.start')} /> : undefined}
+          action={canEdit && !lookups.loading ? <NewStoryButton narrators={lookups.narrators} label={t('empty.start')} size="md" /> : undefined}
         />
       ) : (
         <section aria-labelledby="vault-results" className="flex flex-col gap-6">
@@ -288,25 +288,27 @@ function StatsRow({ stats, error, onRetry }: { stats: VaultStats | null; error: 
   if (error) return <LoadError onRetry={onRetry} />;
   const audio = stats ? splitHours(stats.audioSeconds) : null;
   const cells = [
-    { label: t('stats.approved'), icon: BookCheck, value: stats ? String(stats.approved) : null },
-    { label: t('stats.pending'), icon: Hourglass, value: stats ? String(stats.pending) : null },
+    { key: 'approved', label: t('stats.approved'), short: t('stats.short.approved'), value: stats ? String(stats.approved) : null },
+    { key: 'pending', label: t('stats.pending'), short: t('stats.short.pending'), value: stats ? String(stats.pending) : null },
     {
+      key: 'audio',
       label: t('stats.audio'),
-      icon: AudioLines,
+      short: t('stats.short.audio'),
       value: audio ? (audio.hours > 0 ? t('stats.hours', { h: audio.hours, m: audio.minutes }) : t('stats.minutes', { m: audio.minutes })) : null,
     },
   ];
+  // One compact strip of three cells at every width (phones keep the story list close to the top).
   return (
     <section aria-label={t('stats.label')}>
-      <dl className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        {cells.map(({ label, icon: Icon, value }) => (
-          <div key={label} className="flex flex-col-reverse gap-2 rounded-3xl bg-paper px-5 py-4 ring-1 ring-line/80">
-            <dt className="flex items-center gap-2 text-[0.9rem] leading-snug text-ink-soft">
-              <Icon className="size-4 shrink-0 text-heritage" aria-hidden="true" />
-              {label}
+      <dl className="grid grid-cols-3 divide-x divide-line/80 overflow-hidden rounded-3xl bg-paper ring-1 ring-line/80">
+        {cells.map((c) => (
+          <div key={c.key} className="flex min-w-0 flex-col-reverse justify-end gap-1 px-3 py-3 sm:px-5 sm:py-4">
+            <dt className="text-[0.875rem] leading-snug text-ink-soft sm:text-[0.9rem]">
+              <span className="sm:hidden">{c.short}</span>
+              <span className="hidden sm:inline">{c.label}</span>
             </dt>
-            <dd className="font-serif text-[clamp(1.6rem,1.4rem+0.8vw,2rem)] font-semibold leading-[1.2] text-heritage-deep tabular-nums">
-              {value ?? <Skeleton className="h-8 w-20" />}
+            <dd className="break-words font-serif text-[1.3rem] font-semibold leading-tight text-heritage-deep sm:text-[1.8rem] sm:leading-[1.2]">
+              {c.value ?? <Skeleton className="h-7 w-14 sm:h-8 sm:w-20" />}
             </dd>
           </div>
         ))}
@@ -318,24 +320,29 @@ function StatsRow({ stats, error, onRetry }: { stats: VaultStats | null; error: 
 function ReviewRow({ review, narratorName }: { review: { items: VaultStory[]; total: number }; narratorName: (id: string) => string | undefined }) {
   const t = useT('vault');
   return (
-    <section aria-labelledby="vault-review" className="rounded-[1.75rem] bg-mint/50 p-5 ring-1 ring-heritage/10 md:p-6">
-      <h2 id="vault-review" className="font-serif text-[1.3rem] font-semibold leading-[1.25] text-heritage-deep">
+    <section aria-labelledby="vault-review" className="rounded-[1.75rem] bg-mint/50 p-4 ring-1 ring-heritage/10 md:p-6">
+      <h2 id="vault-review" className="font-serif text-[1.2rem] font-semibold text-heritage-deep md:text-[1.3rem]">
         {t('review.title')}
       </h2>
-      <p className="mt-1 text-ink-soft">{t('review.description')}</p>
-      <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <p className="mt-1 text-[0.95rem] text-ink-soft">{t('review.description')}</p>
+      <ul className="mt-3 grid gap-2 md:mt-4 md:grid-cols-2 md:gap-3 lg:grid-cols-3">
         {review.items.map((s) => (
           <li key={s.id}>
+            {/* Phones: one compact row per draft; md+: a small card with the status. */}
             <Link
               to={`/ban-nhap/${s.id}`}
-              className="flex h-full flex-col gap-2 rounded-2xl bg-paper p-4 ring-1 ring-line transition-shadow hover:ring-heritage/50 focus-visible:ring-2 focus-visible:ring-heritage"
+              className="flex h-full items-center gap-3 rounded-2xl bg-paper px-4 py-3 ring-1 ring-line transition-shadow hover:ring-heritage/50 focus-visible:ring-2 focus-visible:ring-heritage md:flex-col md:items-stretch md:gap-2 md:p-4"
             >
-              <span className="font-serif text-[1.05rem] font-semibold leading-snug text-ink">{s.title.trim() || t('card.untitled')}</span>
-              <span className="text-[0.9rem] text-ink-soft">{narratorName(s.narrator_id) ?? t('card.unknownNarrator')}</span>
-              <StoryStatusBadge size="sm" editStatus={s.edit_status} visibility={s.visibility} />
-              <span className="mt-auto inline-flex items-center gap-1.5 pt-1 text-[0.9rem] font-semibold text-heritage">
-                {t('review.open')}
-                <ArrowRight className="size-4" aria-hidden="true" />
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5 md:gap-2">
+                <span className="font-serif text-[1.05rem] font-semibold leading-snug text-ink">{s.title.trim() || t('card.untitled')}</span>
+                <span className="text-[0.9rem] text-ink-soft">{narratorName(s.narrator_id) ?? t('card.unknownNarrator')}</span>
+              </span>
+              <span className="hidden md:block">
+                <StoryStatusBadge size="sm" editStatus={s.edit_status} visibility={s.visibility} />
+              </span>
+              <span className="shrink-0 text-[0.9rem] font-semibold text-heritage md:mt-auto">
+                <span className="sr-only md:not-sr-only">{t('review.open')} </span>
+                <span aria-hidden="true">→</span>
               </span>
             </Link>
           </li>
@@ -368,17 +375,20 @@ function FilterBar({
     e.preventDefault();
     onChange({ q });
   }
-  const anyFilter = Boolean(filters.narratorId || filters.topicId || filters.status || filters.kind);
+  const activeCount = [filters.narratorId, filters.topicId, filters.status, filters.kind].filter(Boolean).length;
+  const anyFilter = activeCount > 0;
+  const [filtersOpen, setFiltersOpen] = useState(anyFilter);
+  const filtersId = useId();
 
   return (
     <div className="flex flex-col gap-4 rounded-[1.75rem] bg-paper p-4 ring-1 ring-line/80 md:p-5">
-      <form role="search" onSubmit={submit} className="flex flex-col gap-2 sm:flex-row sm:items-end">
-        <Field label={t('search.label')} className="flex-1">
+      <form role="search" onSubmit={submit} className="flex items-end gap-2">
+        <Field label={t('search.label')} className="min-w-0 flex-1">
           <Input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('search.placeholder')} className="min-h-12" />
         </Field>
-        <div className="flex gap-2">
+        <div className="flex shrink-0 gap-2">
           <Button type="submit" leftIcon={<Search className="size-5" aria-hidden="true" />}>
-            {t('search.submit')}
+            <span className="sr-only sm:not-sr-only">{t('search.submit')}</span>
           </Button>
           {filters.q && (
             <Button variant="ghost" iconOnly aria-label={t('search.clear')} onClick={() => onChange({ q: '' })}>
@@ -387,7 +397,21 @@ function FilterBar({
           )}
         </div>
       </form>
-      <fieldset className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-4">
+      {/* Phones: the four filters fold behind one toggle so the story list starts within the first screen. */}
+      <div className="md:hidden">
+        <Button
+          variant="ghost"
+          aria-expanded={filtersOpen}
+          aria-controls={filtersId}
+          onClick={() => setFiltersOpen((x) => !x)}
+          leftIcon={<SlidersHorizontal className="size-5" aria-hidden="true" />}
+          rightIcon={<ChevronDown className={cn('size-5 transition-transform motion-reduce:transition-none', filtersOpen && 'rotate-180')} aria-hidden="true" />}
+          className="-ml-2"
+        >
+          {activeCount > 0 ? t('filters.toggleActive', { n: activeCount }) : t('filters.toggle')}
+        </Button>
+      </div>
+      <fieldset id={filtersId} className={cn('grid-cols-1 gap-3 min-[420px]:grid-cols-2 md:grid lg:grid-cols-4', filtersOpen ? 'grid' : 'hidden')}>
         <legend className="sr-only">{t('filters.title')}</legend>
         <Field label={t('filters.narrator')}>
           <Select value={filters.narratorId} onChange={(e) => onChange({ narratorId: e.target.value })} className="min-h-12">

@@ -3,7 +3,7 @@ import { env, siteHref } from '@/lib/env';
 import { inviteUrl } from '@/features/families/urls';
 import { linkStatus } from './linkStatus';
 import { assistedTellPath, narratorLinkUrl } from './urls';
-import { toNarratorRow, validateNarrator } from './validation';
+import { toNarratorRow, validateNarrator, type NarratorDraft } from './validation';
 
 const TOKEN = 'Abc_def-0123456789ABCDEFGHIJKLMN';
 
@@ -43,7 +43,7 @@ describe('linkStatus', () => {
 });
 
 describe('validateNarrator', () => {
-  const base = { display_name: 'Bà nội Lan', pen_name: '', birth_year: '', region: '' as const };
+  const base: NarratorDraft = { display_name: 'Bà nội Lan', pen_name: '', birth_year: '', region: '', relation: '', lang: 'vi', generation: '' };
   it('accepts a minimal narrator', () => {
     expect(validateNarrator(base, 2026)).toEqual({});
   });
@@ -55,11 +55,27 @@ describe('validateNarrator', () => {
     expect(validateNarrator({ ...base, birth_year: '1942' }, 2026).birth_year).toBeUndefined();
   });
   it('maps empty fields to null', () => {
-    expect(toNarratorRow({ display_name: ' Ông ', pen_name: ' ', birth_year: '1940', region: 'bac' })).toEqual({
+    expect(toNarratorRow({ ...base, display_name: ' Ông ', pen_name: ' ', birth_year: '1940', region: 'bac' })).toEqual({
       display_name: 'Ông',
       pen_name: null,
       birth_year: 1940,
       region: 'bac',
+      relation: null,
+      lang: 'vi',
+      generation: null,
     });
+  });
+  it('validates relation, storytelling language and generation', () => {
+    expect(validateNarrator({ ...base, relation: 'Bà nội', lang: 'en', generation: '2' }, 2026)).toEqual({});
+    expect(validateNarrator({ ...base, relation: 'x'.repeat(61) }, 2026).relation).toBe('relationTooLong');
+    expect(validateNarrator({ ...base, relation: `  ${'x'.repeat(60)}  ` }, 2026).relation).toBeUndefined();
+    expect(validateNarrator({ ...base, lang: 'fr' as never }, 2026).lang).toBe('invalidLang');
+    expect(validateNarrator({ ...base, generation: '0' }, 2026).generation).toBe('invalidGeneration');
+    expect(validateNarrator({ ...base, generation: '7' }, 2026).generation).toBe('invalidGeneration');
+    expect(validateNarrator({ ...base, generation: '1.5' }, 2026).generation).toBe('invalidGeneration');
+    expect(validateNarrator({ ...base, generation: '6' }, 2026).generation).toBeUndefined();
+  });
+  it('maps relation, lang and generation to columns', () => {
+    expect(toNarratorRow({ ...base, relation: '  Bà   ngoại ', lang: 'en', generation: '3' })).toMatchObject({ relation: 'Bà ngoại', lang: 'en', generation: 3 });
   });
 });

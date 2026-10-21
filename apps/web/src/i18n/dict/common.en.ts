@@ -30,8 +30,8 @@ export default {
     skipToContent: 'Skip to main content',
     appNav: 'App navigation',
     footerNav: 'Footer links',
+    short: { family: 'Family', narrators: 'Narrators', books: 'Books', explore: 'Explore', settings: 'Settings' },
   },
-  tabs: { family: 'Family', narrators: 'Storytellers', books: 'Books', explore: 'Explore', settings: 'Settings' },
   lang: { label: 'Language', vi: 'Tiếng Việt', en: 'English' },
   textScale: { label: 'Text size', normal: 'Standard', large: 'Large', xlarge: 'Extra large' },
   actions: {

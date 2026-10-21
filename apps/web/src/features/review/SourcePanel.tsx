@@ -3,11 +3,19 @@ import { useEffect, useState } from 'react';
 import { AudioPlayer, Skeleton } from '@/components/ui';
 import { useLocale, useT } from '@/i18n';
 import { formatDate, formatDuration } from '@/lib/format';
+import { cn } from '@/lib/cn';
 import { getSupabase } from '@/lib/supabase';
 import { signedAudioUrl, type RecordingRow, type TranscriptRow } from './data';
 import { TranscriptView } from './TranscriptView';
 
-export function SourcePanel({ recording, transcript }: { recording: RecordingRow | null; transcript: TranscriptRow | null }) {
+export interface SourcePanelProps {
+  recording: RecordingRow | null;
+  transcript: TranscriptRow | null;
+  /** Desktop side rail: the player stays at the top and only the transcript scrolls (the rail itself is sticky). */
+  rail?: boolean;
+}
+
+export function SourcePanel({ recording, transcript, rail }: SourcePanelProps) {
   const t = useT('review');
   const { locale } = useLocale();
   const [audio, setAudio] = useState<{ path: string; url: string | null } | null>(null);
@@ -28,9 +36,9 @@ export function SourcePanel({ recording, transcript }: { recording: RecordingRow
   const audioState = !path ? null : audio?.path === path ? audio.url : undefined;
 
   return (
-    <section aria-labelledby="source-heading" className="flex flex-col gap-5">
-      <div>
-        <h2 id="source-heading" className="font-serif text-[1.35rem] font-semibold leading-snug text-heritage-deep">
+    <section aria-labelledby="source-heading" className={cn('flex flex-col gap-5', rail && 'h-full min-h-0')}>
+      <div className="shrink-0">
+        <h2 id="source-heading" tabIndex={-1} className="font-serif text-[1.2rem] font-semibold leading-snug text-heritage-deep focus:outline-none">
           {t('source.heading')}
         </h2>
         <p className="mt-1 text-[0.9rem] leading-relaxed text-ink-soft">{t('source.note')}</p>
@@ -39,7 +47,7 @@ export function SourcePanel({ recording, transcript }: { recording: RecordingRow
       {!recording ? (
         <p className="text-ink-soft">{t('source.noRecording')}</p>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div className="flex shrink-0 flex-col gap-3">
           {audioState === undefined ? (
             <Skeleton className="h-28 w-full" />
           ) : audioState === null ? (
@@ -65,12 +73,23 @@ export function SourcePanel({ recording, transcript }: { recording: RecordingRow
       )}
 
       {recording && (
-        <div className="flex flex-col gap-3">
-          <h3 className="flex flex-wrap items-baseline gap-2 font-semibold text-ink">
+        <div className={cn('flex flex-col gap-3', rail && 'min-h-0 flex-1')}>
+          <h3 id="transcript-heading" className="flex shrink-0 flex-wrap items-baseline gap-2 font-semibold text-ink">
             {t('source.transcriptHeading')}
-            {transcript && <span className="text-[0.82rem] font-normal text-ink-soft">{t('source.transcriptVersion', { v: transcript.version })}</span>}
+            {transcript && <span className="text-[0.875rem] font-normal text-ink-soft">{t('source.transcriptVersion', { v: transcript.version })}</span>}
           </h3>
-          {transcript ? <TranscriptView text={transcript.text} /> : <p className="text-ink-soft">{t('source.noTranscript')}</p>}
+          {transcript ? (
+            rail ? (
+              // Scrollable on its own, so it must be reachable by keyboard.
+              <div tabIndex={0} role="region" aria-labelledby="transcript-heading" className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-xl pr-2 text-[0.95rem]">
+                <TranscriptView text={transcript.text} />
+              </div>
+            ) : (
+              <TranscriptView text={transcript.text} />
+            )
+          ) : (
+            <p className="text-ink-soft">{t('source.noTranscript')}</p>
+          )}
         </div>
       )}
     </section>

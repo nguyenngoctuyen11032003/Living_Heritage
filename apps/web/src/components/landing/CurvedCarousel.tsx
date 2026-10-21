@@ -1,6 +1,7 @@
 import { Pause, Play } from 'lucide-react';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { StoryScene } from '@/components/illustrations/scenes';
+import { IllustrativeBadge } from '@/components/ui';
 import { useReducedMotionSafe } from '@/design/motion';
 import { useT, usePick } from '@/i18n';
 import { cn } from '@/lib/cn';
@@ -241,7 +242,8 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
               <p className="line-clamp-4 font-serif italic leading-[1.3]" style={fs(16, 14)}>
                 “{pick(story.quote)}”
               </p>
-              <p className="truncate font-semibold" style={{ ...fs(13, 14), marginTop: 'calc(var(--u) * 8)' }}>
+              {/* Name on its own line (wraps rather than truncating on narrow cards); age · duration beside the play button. */}
+              <p className="text-balance break-words font-semibold leading-tight" style={{ ...fs(13, 14), marginTop: 'calc(var(--u) * 8)' }}>
                 {pick(story.narrator)}
               </p>
               <div className="flex items-center" style={{ marginTop: 'calc(var(--u) * 2)', gap: 'calc(var(--u) * 2)' }}>
@@ -256,14 +258,16 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
                     <Play className="ml-0.5 size-3.5 fill-current" />
                   </span>
                 </button>
-                <span className="truncate tabular-nums opacity-85" style={fs(12, 14)}>
-                  {formatDuration(story.duration)}
+                <span className="min-w-0 tabular-nums leading-tight opacity-85" style={fs(12, 14)}>
+                  <span className="whitespace-nowrap">{t('meta.age', { age: story.age })}</span> · <span className="whitespace-nowrap">{formatDuration(story.duration)}</span>
                 </span>
               </div>
             </div>
           </div>
         ))}
       </div>
+      {/* The cards show named people: label them as illustrative right on the carousel (the band itself is aria-hidden). */}
+      <IllustrativeBadge className="absolute bottom-3 left-4 z-10 md:left-8" />
       {!reduced && (
         <button
           type="button"

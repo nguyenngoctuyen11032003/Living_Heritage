@@ -91,3 +91,26 @@ body {
   .no-print { display: none !important; }
   body { background: #fff; }
 }
+
+/*
+ * Display headings (hero h1, section h2s at ≥2rem). Vietnamese stacks two marks above a vowel (ữ, ể, Ỗ), which collide
+ * with the line above below ~1.12, so vi gets 1.15; English can sit tighter. QA 2026-10-22 P1 #10.
+ */
+@utility leading-display {
+  line-height: 1.12;
+  &:lang(vi) {
+    line-height: 1.15;
+  }
+}
+
+/*
+ * Caveat (font-hand) ships latin + latin-ext only: no U+1EA0–U+1EF1 (ạ ả ấ … ể ỉ ố ữ …), so Vietnamese hand notes
+ * fall back glyph-by-glyph mid-word. No Vietnamese-complete hand font is installed, so in Vietnamese the hand
+ * notes render in Noto Serif italic, scaled to Caveat's small x-height. English keeps Caveat.
+ */
+.font-hand:lang(vi) {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size-adjust: 0.42;
+  letter-spacing: -0.005em;
+}

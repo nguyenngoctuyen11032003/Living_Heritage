@@ -1,7 +1,7 @@
-import { ArrowLeft, ArrowRight, FolderHeart, Pencil, Plus, Trash2 } from 'lucide-react';
+import { ArrowRight, BookOpen, FolderHeart, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
-import { Button, Dialog, EmptyState, Field, Input, Skeleton, Textarea, useToast } from '@/components/ui';
+import { Button, ButtonLink, Dialog, EmptyState, Field, Input, Skeleton, Textarea, useToast } from '@/components/ui';
 import { moveItem, positionUpdates, renumber } from '@/features/books/reorder';
 import { useCurrentFamily } from '@/features/families/current';
 import { useT } from '@/i18n';
@@ -23,6 +23,7 @@ import {
 import { OrderedList } from './components/OrderedList';
 import { LoadError, Unavailable } from './components/States';
 import { StoryPicker } from './components/StoryPicker';
+import { VaultPageHeader } from './components/VaultPageHeader';
 import { FamilyGate, StoryStatusBadge } from './external';
 import type { VaultStory } from './types';
 import { useVaultLookups } from './useLookups';
@@ -84,23 +85,21 @@ function CollectionsInner() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-      <Link to="/gia-dinh" className="inline-flex min-h-11 w-fit items-center gap-2 text-[0.95rem] font-semibold text-heritage hover:underline">
-        <ArrowLeft className="size-5" aria-hidden="true" />
-        {t('detail.back')}
-      </Link>
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="min-w-0">
-          <p className="text-[0.875rem] font-semibold uppercase tracking-[0.14em] text-terracotta">{t('header.eyebrow')}</p>
-          <h1 className="mt-2 font-serif text-[clamp(2rem,1.5rem+2vw,2.5rem)] font-semibold leading-[1.2] text-heritage-deep">{t('collections.title')}</h1>
-          <p className="mt-2 max-w-[60ch] leading-relaxed text-ink-soft">{t('collections.intro')}</p>
-        </div>
-        {canEdit && (
-          <Button size="lg" leftIcon={<Plus className="size-5" />} onClick={() => setEditing('new')}>
-            {t('collections.create')}
-          </Button>
-        )}
-      </header>
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
+      <VaultPageHeader
+        back={{ to: '/gia-dinh', label: t('detail.back') }}
+        eyebrow={t('header.eyebrow')}
+        title={t('collections.title')}
+        lede={t('collections.intro')}
+        actions={
+          // An empty list shows the single create action in its empty state instead.
+          canEdit && items !== null && items.length > 0 && (
+            <Button size="lg" className="w-full md:w-auto" leftIcon={<Plus className="size-5" aria-hidden="true" />} onClick={() => setEditing('new')}>
+              {t('collections.create')}
+            </Button>
+          )
+        }
+      />
 
       {error ? (
         <LoadError onRetry={() => setTick((x) => x + 1)} />
@@ -117,10 +116,14 @@ function CollectionsInner() {
           description={canEdit ? t('collections.emptyBody') : t('collections.viewerEmpty')}
           action={
             canEdit ? (
-              <Button leftIcon={<Plus className="size-5" />} onClick={() => setEditing('new')}>
+              <Button leftIcon={<Plus className="size-5" aria-hidden="true" />} onClick={() => setEditing('new')}>
                 {t('collections.create')}
               </Button>
-            ) : undefined
+            ) : (
+              <ButtonLink to="/gia-dinh" variant="secondary" leftIcon={<BookOpen className="size-5" aria-hidden="true" />}>
+                {t('collections.viewerCta')}
+              </ButtonLink>
+            )
           }
         />
       ) : (
@@ -388,27 +391,25 @@ function CollectionInner({ collectionId }: { collectionId: string }) {
   const untitled = t('card.untitled');
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
-      <Link to="/gia-dinh/bo-suu-tap" className="inline-flex min-h-11 w-fit items-center gap-2 text-[0.95rem] font-semibold text-heritage hover:underline">
-        <ArrowLeft className="size-5" aria-hidden="true" />
-        {t('collections.back')}
-      </Link>
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="break-words font-serif text-[clamp(1.85rem,1.4rem+1.8vw,2.4rem)] font-semibold leading-[1.2] text-heritage-deep">{meta.title}</h1>
-          {meta.description && <p className="mt-2 max-w-[60ch] leading-relaxed text-ink-soft">{meta.description}</p>}
-          <p className="mt-2 text-[0.9rem] text-ink-soft">{rows.length === 1 ? t('collections.countOne') : t('collections.count', { n: rows.length })}</p>
-        </div>
-        {canEdit && (
-          <div className="flex flex-wrap gap-2">
-            <Button variant="secondary" leftIcon={<Pencil className="size-5" aria-hidden="true" />} onClick={() => setEditing(true)}>
-              {t('collections.rename')}
-            </Button>
-            <Button leftIcon={<Plus className="size-5" />} onClick={() => void openPicker()}>
-              {t('collections.items.add')}
-            </Button>
-          </div>
-        )}
-      </header>
+      <VaultPageHeader
+        back={{ to: '/gia-dinh/bo-suu-tap', label: t('collections.back') }}
+        eyebrow={t('collections.title')}
+        title={meta.title}
+        lede={meta.description || undefined}
+        meta={rows.length === 1 ? t('collections.countOne') : t('collections.count', { n: rows.length })}
+        actions={
+          canEdit && (
+            <div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap md:justify-end">
+              <Button variant="secondary" leftIcon={<Pencil className="size-5" aria-hidden="true" />} onClick={() => setEditing(true)}>
+                {t('collections.rename')}
+              </Button>
+              <Button leftIcon={<Plus className="size-5" aria-hidden="true" />} onClick={() => void openPicker()}>
+                {t('collections.items.add')}
+              </Button>
+            </div>
+          )
+        }
+      />
 
       {rows.length === 0 ? (
         <EmptyState
@@ -417,7 +418,7 @@ function CollectionInner({ collectionId }: { collectionId: string }) {
           description={t('collections.items.emptyBody')}
           action={
             canEdit ? (
-              <Button leftIcon={<Plus className="size-5" />} onClick={() => void openPicker()}>
+              <Button leftIcon={<Plus className="size-5" aria-hidden="true" />} onClick={() => void openPicker()}>
                 {t('collections.items.add')}
               </Button>
             ) : undefined

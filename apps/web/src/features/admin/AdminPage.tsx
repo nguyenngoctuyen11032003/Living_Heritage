@@ -2,6 +2,7 @@ import { Bot, CircleAlert, Flag, Globe2, Handshake, PlugZap, RotateCcw, ShieldAl
 import { useEffect, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router';
 import { Button, ButtonLink, EmptyState, Skeleton, Tab, TabList, TabPanel, Tabs } from '@/components/ui';
+import { PageHeader } from '@/features/families/states';
 import { useT } from '@/i18n';
 import { useSession } from '@/lib/session';
 import { getSupabase } from '@/lib/supabase';
@@ -132,10 +133,7 @@ export default function AdminPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl">
-      <header className="mb-8">
-        <h1 className="font-serif text-[clamp(1.9rem,5vw,2.4rem)] font-semibold leading-[1.2] text-heritage-deep">{t('title')}</h1>
-        <p className="mt-2 max-w-2xl leading-relaxed text-ink-soft">{t('lede')}</p>
-      </header>
+      <PageHeader eyebrow={t('eyebrow')} title={t('title')} description={t('lede')} />
       {content}
     </div>
   );

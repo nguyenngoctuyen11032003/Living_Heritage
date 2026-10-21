@@ -1,4 +1,4 @@
-import { Check, Eye, EyeOff, Headphones, Info, X } from 'lucide-react';
+import { Check, DatabaseZap, Eye, EyeOff, Headphones, Info, X } from 'lucide-react';
 import { useState } from 'react';
 import type { Database } from '@lh/shared';
 import { Button, Field, Spinner, Textarea, useToast } from '@/components/ui';
@@ -8,9 +8,10 @@ import { ItemBody, SourceBox } from '@/features/knowledge/components/ItemBody';
 import { fromPublicRow, type KnowledgeItem, type PublicItemRow } from '@/features/knowledge/types';
 import { reviewErrorCode } from '../access';
 import { useDateTime } from '../format';
-import { ListHeader, ListState, StatusPill } from '../shared';
+import { HubLink, ListHeader, ListState, StatusPill } from '../shared';
 import { must, useAdminQuery } from '../useAdminQuery';
 import { syncPublicAudio } from '@/lib/publicAudio';
+import { reindexKnowledge } from '@/features/knowledge/ask';
 
 type EditStatus = Database['public']['Enums']['edit_status'];
 
@@ -73,8 +74,9 @@ export function PublishTab() {
           </ul>
         </section>
       )}
+      <ReindexPanel />
       <ListHeader count={q.status === 'ready' ? rows.length : null} onRefresh={q.reload} loading={q.status === 'loading'} />
-      <ListState status={q.status} empty={rows.length === 0} emptyTitle={t('publish.emptyTitle')} emptyBody={t('publish.emptyBody')} onRetry={q.reload}>
+      <ListState status={q.status} empty={rows.length === 0} emptyTitle={t('publish.emptyTitle')} emptyBody={t('publish.emptyBody')} emptyAction={<HubLink />} onRetry={q.reload}>
         <ul className="flex flex-col gap-5">
           {rows.map((row) => (
             <PendingCard
@@ -135,6 +137,8 @@ function PendingCard({ row, onDone }: { row: PendingRow; onDone: (h: Handled) =>
       const { data: item } = await sb.from('public_items').select('audio_allowed, audio_path').eq('id', itemId).maybeSingle();
       if (item) audio = item.audio_allowed && item.audio_path ? 'sync' : 'none';
       if (audio === 'sync') void syncPublicAudio();
+      // Best effort: index the new public item for the Q&A assistant (it also self-heals on the next question).
+      void reindexKnowledge();
     }
     setBusy(null);
     toast({ title: approve ? t('publish.approved') : t('publish.rejected'), tone: 'success' });
@@ -219,5 +223,45 @@ function PendingCard({ row, onDone }: { row: PendingRow; onDone: (h: Handled) =>
         </div>
       </div>
     </li>
+  );
+}
+
+/** Embeds public items that have no AI search embedding yet (knowledge-ask reindex, admin only). */
+function ReindexPanel() {
+  const t = useT('admin');
+  const { toast } = useToast();
+  const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState('');
+
+  async function run() {
+    setBusy(true);
+    setStatus('');
+    const r = await reindexKnowledge();
+    setBusy(false);
+    if (!r) {
+      setStatus(t('publish.reindexError'));
+      toast({ title: t('publish.reindexError'), tone: 'error' });
+      return;
+    }
+    const parts = [r.embedded > 0 ? t('publish.reindexDone', { n: r.embedded }) : r.remaining === 0 ? t('publish.reindexUpToDate') : ''];
+    if (r.failed > 0) parts.push(t('publish.reindexFailed', { n: r.failed }));
+    if (r.remaining > 0) parts.push(t('publish.reindexRemaining', { n: r.remaining }));
+    const msg = parts.filter(Boolean).join(' ');
+    setStatus(msg);
+    toast({ title: msg, tone: r.failed > 0 ? 'info' : 'success' });
+  }
+
+  return (
+    <div className="mb-6 rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-6">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+        <Button variant="secondary" onClick={() => void run()} loading={busy} leftIcon={<DatabaseZap aria-hidden="true" className="size-4" />} className="max-w-full">
+          {t('publish.reindex')}
+        </Button>
+        <p aria-live="polite" className="min-w-0 flex-1 basis-56 text-[0.9rem] font-medium leading-snug text-heritage-deep">
+          {status}
+        </p>
+      </div>
+      <p className="mt-3 max-w-2xl text-[0.9rem] leading-relaxed text-ink-soft">{t('publish.reindexHint')}</p>
+    </div>
   );
 }
