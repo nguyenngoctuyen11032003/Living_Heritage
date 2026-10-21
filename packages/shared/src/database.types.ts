@@ -293,14 +293,14 @@ isOneToOne: false
                   ]
                 },"narrators": {
                   Row: {
-                    "avatar_path": string | null,"birth_year": number | null,"created_at": string,"created_by": string | null,"display_name": string,"family_id": string,"id": string,"pen_name": string | null,"region": string | null,"updated_at": string,"user_id": string | null
+                    "avatar_path": string | null,"birth_year": number | null,"created_at": string,"created_by": string | null,"display_name": string,"family_id": string,"generation": number | null,"id": string,"lang": string,"pen_name": string | null,"region": string | null,"relation": string | null,"updated_at": string,"user_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_path"?: string | null,"birth_year"?: number | null,"created_at"?: string,"created_by"?: string | null,"display_name": string,"family_id": string,"id"?: string,"pen_name"?: string | null,"region"?: string | null,"updated_at"?: string,"user_id"?: string | null
+                    "avatar_path"?: string | null,"birth_year"?: number | null,"created_at"?: string,"created_by"?: string | null,"display_name": string,"family_id": string,"generation"?: number | null,"id"?: string,"lang"?: string,"pen_name"?: string | null,"region"?: string | null,"relation"?: string | null,"updated_at"?: string,"user_id"?: string | null
                   }
                   Update: {
-                    "avatar_path"?: string | null,"birth_year"?: number | null,"created_at"?: string,"created_by"?: string | null,"display_name"?: string,"family_id"?: string,"id"?: string,"pen_name"?: string | null,"region"?: string | null,"updated_at"?: string,"user_id"?: string | null
+                    "avatar_path"?: string | null,"birth_year"?: number | null,"created_at"?: string,"created_by"?: string | null,"display_name"?: string,"family_id"?: string,"generation"?: number | null,"id"?: string,"lang"?: string,"pen_name"?: string | null,"region"?: string | null,"relation"?: string | null,"updated_at"?: string,"user_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -327,14 +327,14 @@ isOneToOne: false
                   ]
                 },"public_items": {
                   Row: {
-                    "audio_allowed": boolean,"audio_path": string | null,"body": string,"decade": number | null,"fields": NonNullable<Json>,"id": string,"kind": Database["public"]['Enums']["story_kind"],"lang": string,"narrator_label": string,"published_at": string,"region": string | null,"search_tsv": unknown,"story_id": string,"summary": string | null,"title": string,"topic_id": string | null,"topic_slug": string | null,"updated_at": string
+                    "audio_allowed": boolean,"audio_path": string | null,"body": string,"decade": number | null,"embedded_at": string | null,"embedding": string | null,"fields": NonNullable<Json>,"id": string,"kind": Database["public"]['Enums']["story_kind"],"lang": string,"narrator_label": string,"published_at": string,"region": string | null,"search_tsv": unknown,"story_id": string,"summary": string | null,"title": string,"topic_id": string | null,"topic_slug": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "audio_allowed"?: boolean,"audio_path"?: string | null,"body": string,"decade"?: number | null,"fields"?: NonNullable<Json>,"id"?: string,"kind": Database["public"]['Enums']["story_kind"],"lang"?: string,"narrator_label": string,"published_at"?: string,"region"?: string | null,"search_tsv"?: never,"story_id": string,"summary"?: string | null,"title": string,"topic_id"?: string | null,"topic_slug"?: string | null,"updated_at"?: string
+                    "audio_allowed"?: boolean,"audio_path"?: string | null,"body": string,"decade"?: number | null,"embedded_at"?: string | null,"embedding"?: string | null,"fields"?: NonNullable<Json>,"id"?: string,"kind": Database["public"]['Enums']["story_kind"],"lang"?: string,"narrator_label": string,"published_at"?: string,"region"?: string | null,"search_tsv"?: never,"story_id": string,"summary"?: string | null,"title": string,"topic_id"?: string | null,"topic_slug"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "audio_allowed"?: boolean,"audio_path"?: string | null,"body"?: string,"decade"?: number | null,"fields"?: NonNullable<Json>,"id"?: string,"kind"?: Database["public"]['Enums']["story_kind"],"lang"?: string,"narrator_label"?: string,"published_at"?: string,"region"?: string | null,"search_tsv"?: never,"story_id"?: string,"summary"?: string | null,"title"?: string,"topic_id"?: string | null,"topic_slug"?: string | null,"updated_at"?: string
+                    "audio_allowed"?: boolean,"audio_path"?: string | null,"body"?: string,"decade"?: number | null,"embedded_at"?: string | null,"embedding"?: string | null,"fields"?: NonNullable<Json>,"id"?: string,"kind"?: Database["public"]['Enums']["story_kind"],"lang"?: string,"narrator_label"?: string,"published_at"?: string,"region"?: string | null,"search_tsv"?: never,"story_id"?: string,"summary"?: string | null,"title"?: string,"topic_id"?: string | null,"topic_slug"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -507,6 +507,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"story_photos": {
+                  Row: {
+                    "caption": string | null,"created_at": string,"created_by": string | null,"family_id": string,"id": string,"position": number,"storage_path": string,"story_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "caption"?: string | null,"created_at"?: string,"created_by"?: string | null,"family_id": string,"id"?: string,"position"?: number,"storage_path": string,"story_id": string
+                  }
+                  Update: {
+                    "caption"?: string | null,"created_at"?: string,"created_by"?: string | null,"family_id"?: string,"id"?: string,"position"?: number,"storage_path"?: string,"story_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "story_photos_story_id_family_id_fkey"
+      columns: ["story_id","family_id"]
+isOneToOne: false
+      referencedRelation: "stories"
+      referencedColumns: ["id","family_id"]
+    }
+                  ]
                 },"story_share_settings": {
                   Row: {
                     "show_audio": boolean,"show_photos": boolean,"show_real_name": boolean,"show_region": boolean,"story_id": string,"updated_at": string,"updated_by": string | null
@@ -665,6 +685,11 @@ isOneToOne: false
 "lh_unaccent":
 { Args: { "p_text": string }; Returns: string
                            },
+"match_public_items":
+{ Args: { "p_embedding": string,"p_limit"?: number,"p_min_similarity"?: number }; Returns: {
+              "body": string,"decade": number,"fields": Json,"id": string,"kind": Database["public"]['Enums']["story_kind"],"narrator_label": string,"region": string,"similarity": number,"summary": string,"title": string,"topic_slug": string
+            }[]
+                           },
 "preview_public_item":
 { Args: { "p_story": string }; Returns: Json
                            },
@@ -686,6 +711,8 @@ isOneToOne: false
 "audio_path": string | null,
 "body": string,
 "decade": number | null,
+"embedded_at": string | null,
+"embedding": string | null,
 "fields": NonNullable<Json>,
 "id": string,
 "kind": Database["public"]['Enums']["story_kind"],

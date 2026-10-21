@@ -52,3 +52,10 @@ verify_jwt = true
 
 [functions.public-audio-sync]
 verify_jwt = true
+
+# Public "ask the knowledge hub" endpoint: callable without sign-in (publishable key), rate limited inside the function.
+[functions.knowledge-ask]
+verify_jwt = false
+
+[functions.question-tts]
+verify_jwt = true
