@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/lib/cn';
+import { baseDisplay } from './display';
 
 export type BadgeTone = 'mint' | 'neutral' | 'heritage' | 'terracotta' | 'outline' | 'night' | 'warning';
 
@@ -27,7 +28,8 @@ export function Badge({ tone = 'mint', size = 'md', icon, dot, className, childr
   return (
     <span
       className={cn(
-        'inline-flex max-w-full items-center gap-1.5 rounded-full font-semibold leading-snug',
+        baseDisplay('inline-flex', className),
+        'max-w-full items-center gap-1.5 rounded-full font-semibold leading-snug',
         size === 'sm' ? 'px-2.5 py-0.5 text-[0.72rem]' : 'px-3 py-1 text-[0.8rem]',
         tones[tone],
         className,

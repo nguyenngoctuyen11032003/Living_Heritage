@@ -24,6 +24,7 @@ export default {
     menu: 'Open menu',
     closeMenu: 'Close menu',
     skipToContent: 'Skip to main content',
+    short: { family: 'Family', narrators: 'Narrators', books: 'Books', explore: 'Explore', settings: 'Settings' },
   },
   lang: { label: 'Language', vi: 'Tiếng Việt', en: 'English' },
   textScale: { label: 'Text size', normal: 'Standard', large: 'Large', xlarge: 'Extra large' },

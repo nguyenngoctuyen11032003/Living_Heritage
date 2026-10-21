@@ -32,9 +32,6 @@ test('primary CTA leads to sign-up', async ({ page }) => {
 });
 
 test('no horizontal scroll at 360px', async ({ page }) => {
-  // Known bug (QA doc P1): the SiteHeader action cluster (VI/EN + Đăng nhập + CTA + menu) is ~2px wider than 360px.
-  // Remove this line once SiteHeader fits; the assertion below then guards the fix.
-  test.fail(true, 'SiteHeader overflows 360px by ~2px');
   await page.setViewportSize({ width: 360, height: 780 });
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();

@@ -1,6 +1,7 @@
 import { Pause, Play } from 'lucide-react';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { StoryScene } from '@/components/illustrations/scenes';
+import { IllustrativeBadge } from '@/components/ui';
 import { useReducedMotionSafe } from '@/design/motion';
 import { useT, usePick } from '@/i18n';
 import { cn } from '@/lib/cn';
@@ -251,12 +252,13 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
                 >
                   <Play className="ml-[8%] size-[42%] fill-current" />
                 </button>
+                {/* Name on its own line (wraps rather than truncating on narrow cards); age · duration below. */}
                 <span className="min-w-0 leading-tight">
-                  <span className="block truncate font-semibold" style={fs(11.5, 9)}>
-                    {pick(story.narrator)} · {t('meta.age', { age: story.age })}
+                  <span className="block text-balance break-words font-semibold" style={fs(11.5, 9)}>
+                    {pick(story.narrator)}
                   </span>
                   <span className="block opacity-80 tabular-nums" style={fs(10.5, 9)}>
-                    {formatDuration(story.duration)}
+                    <span className="whitespace-nowrap">{t('meta.age', { age: story.age })}</span> · <span className="whitespace-nowrap">{formatDuration(story.duration)}</span>
                   </span>
                 </span>
               </div>
@@ -264,6 +266,8 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
           </div>
         ))}
       </div>
+      {/* The cards show named people: label them as illustrative right on the carousel (the band itself is aria-hidden). */}
+      <IllustrativeBadge className="absolute bottom-3 left-4 z-10 md:left-8" />
       {!reduced && (
         <button
           type="button"

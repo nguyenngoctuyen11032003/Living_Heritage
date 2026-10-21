@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useId, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
+import { baseDisplay } from './display';
 
 interface TabsContextValue {
   value: string;
@@ -86,7 +87,8 @@ export function TabList({ label, className, children }: TabListProps) {
       aria-label={label}
       onKeyDown={onKeyDown}
       className={cn(
-        'inline-flex max-w-full gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none]',
+        baseDisplay('inline-flex', className),
+        'max-w-full gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none]',
         tone === 'light' ? 'bg-paper ring-1 ring-line' : 'bg-white/6 ring-1 ring-white/12',
         className,
       )}
@@ -119,7 +121,8 @@ export function Tab({ value, disabled, icon, className, children }: TabProps) {
       disabled={disabled}
       onClick={() => select(value)}
       className={cn(
-        'inline-flex min-h-12 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-5 text-[0.92rem] font-semibold transition-colors duration-200',
+        baseDisplay('inline-flex', className),
+        'min-h-12 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-5 text-[0.92rem] font-semibold transition-colors duration-200',
         tone === 'light'
           ? selected
             ? 'bg-heritage text-cream shadow-sm'

@@ -37,7 +37,16 @@ function useIsAdmin(): boolean {
   return admin;
 }
 
-const MOBILE_TABS = ['/gia-dinh', '/gia-dinh/nguoi-ke', '/sach', '/kham-pha', '/cai-dat'];
+/** Mobile tab bar: route → short label key (nav.short.*), so labels fit 72px tabs at 360px without truncation. */
+const MOBILE_TABS = {
+  '/gia-dinh': 'nav.short.family',
+  '/gia-dinh/nguoi-ke': 'nav.short.narrators',
+  '/sach': 'nav.short.books',
+  '/kham-pha': 'nav.short.explore',
+  '/cai-dat': 'nav.short.settings',
+} as const;
+type MobileTab = keyof typeof MOBILE_TABS;
+const isMobileTab = (to: string): to is MobileTab => to in MOBILE_TABS;
 
 export function AppShell() {
   const t = useT('common');
@@ -88,25 +97,29 @@ export function AppShell() {
           </div>
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
-          <header className="flex h-14 items-center justify-between border-b border-line px-4 lg:hidden">
-            <Logo />
+          <header className="flex h-14 min-w-0 items-center justify-between gap-3 border-b border-line px-4 lg:hidden">
+            <Logo className="min-w-0" />
             <LanguageSwitch />
           </header>
           <main id="main" className="flex-1 px-4 py-6 pb-24 md:px-8 lg:pb-8">
             <Outlet />
           </main>
           <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-paper/95 backdrop-blur lg:hidden" aria-label="App mobile">
-            {items.filter((i) => MOBILE_TABS.includes(i.to)).map(({ to, label, icon: Icon, end }) => (
-              <NavLink
-                key={to}
-                to={to}
-                end={end}
-                className={({ isActive }) => cn('flex min-h-16 flex-col items-center justify-center gap-1 text-[11px]', isActive ? 'text-heritage font-semibold' : 'text-ink-soft')}
-              >
-                <Icon className="size-5" aria-hidden="true" />
-                <span className="line-clamp-1">{label}</span>
-              </NavLink>
-            ))}
+            {items.map(({ to, icon: Icon, end }) =>
+              isMobileTab(to) ? (
+                <NavLink
+                  key={to}
+                  to={to}
+                  end={end}
+                  className={({ isActive }) =>
+                    cn('flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 px-0.5 text-center text-[12px] leading-tight', isActive ? 'text-heritage font-semibold' : 'text-ink-soft')
+                  }
+                >
+                  <Icon className="size-5 shrink-0" aria-hidden="true" />
+                  <span className="whitespace-nowrap">{t(MOBILE_TABS[to])}</span>
+                </NavLink>
+              ) : null,
+            )}
           </nav>
         </div>
       </div>
@@ -119,9 +132,10 @@ export function NarratorShell() {
   return (
     <RequireAuth allowAnonymous>
       <div className="narrator-mode flex min-h-dvh flex-col bg-cream">
-        <header className="flex h-16 items-center justify-between gap-3 border-b border-line px-4 md:px-8">
-          <Logo />
-          <div className="flex items-center gap-2">
+        {/* At 360px in English the wordmark + both switches don't fit: show only the mark below sm; controls never shrink. */}
+        <header className="flex min-h-16 min-w-0 items-center justify-between gap-3 border-b border-line px-4 py-2 md:px-8">
+          <Logo wordmark="sm" className="min-w-0" />
+          <div className="flex shrink-0 items-center gap-2">
             <TextScaleSwitch />
             <LanguageSwitch />
           </div>

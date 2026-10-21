@@ -22,6 +22,8 @@ export default {
     menu: 'Mở menu',
     closeMenu: 'Đóng menu',
     skipToContent: 'Bỏ qua đến nội dung chính',
+    /** Mobile tab bar labels (≤ 9 characters, never truncated). */
+    short: { family: 'Gia đình', narrators: 'Người kể', books: 'Sách', explore: 'Khám phá', settings: 'Cài đặt' },
   },
   lang: { label: 'Ngôn ngữ', vi: 'Tiếng Việt', en: 'English' },
   textScale: { label: 'Cỡ chữ', normal: 'Chuẩn', large: 'Lớn', xlarge: 'Rất lớn' },

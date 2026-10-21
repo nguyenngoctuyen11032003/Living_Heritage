@@ -53,7 +53,7 @@ export function Manifesto() {
           <div className="mt-24 border-t border-white/10 pt-16 md:mt-32 md:pt-24">
             <WordsPullUpMultiStyle
               as="h2"
-              className="max-w-5xl text-balance text-[clamp(2rem,5vw,4.2rem)] font-semibold leading-[1.12] tracking-[-0.03em]"
+              className="max-w-5xl text-balance text-[clamp(2rem,5vw,4.2rem)] font-semibold leading-display tracking-[-0.03em]"
               stagger={0.06}
               segments={[
                 { text: t('manifesto.statementA'), className: 'text-night-ink/55' },

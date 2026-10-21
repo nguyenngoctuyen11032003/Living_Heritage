@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import QRCode from 'qrcode';
 import { cn } from '@/lib/cn';
+import { baseDisplay } from './display';
 
 export interface QrCodeProps {
   /** Text/URL to encode — use siteHref('/nghe/…') for in-app links. */
@@ -30,7 +31,7 @@ export function QrCode({ value, label, size = 160, fg = 'var(--heritage-deep)', 
     return { path: d, dim: n + margin * 2 };
   }, [value, margin]);
   return (
-    <svg role="img" aria-label={label} viewBox={`0 0 ${dim} ${dim}`} width={size} height={size} shapeRendering="crispEdges" className={cn('block', className)}>
+    <svg role="img" aria-label={label} viewBox={`0 0 ${dim} ${dim}`} width={size} height={size} shapeRendering="crispEdges" className={cn(baseDisplay('block', className), className)}>
       <rect width={dim} height={dim} fill={bg} />
       <path d={path} fill={fg} />
     </svg>
