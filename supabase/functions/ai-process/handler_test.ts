@@ -465,6 +465,12 @@ Deno.test('GEMINI_MODEL / GEMINI_TIMEOUT_MS are honoured', async () => {
   assert.deepEqual(log.geminiCfg, { apiKey: 'k', model: 'gemini-x', timeoutMs: 90_000 });
 });
 
+Deno.test('GEMINI_FALLBACK_MODEL is passed to the model config when set', async () => {
+  const { deps, log } = setup({ env: { GEMINI_API_KEY: 'k', GEMINI_FALLBACK_MODEL: ' gemini-lite ' } });
+  await handle(post(TRANSCRIBE), deps);
+  assert.deepEqual(log.geminiCfg, { apiKey: 'k', model: 'gemini-3.8-flash', timeoutMs: 90_000, fallbackModel: 'gemini-lite' });
+});
+
 Deno.test('CORS preflight', async () => {
   const { deps } = setup();
   const res = await handle(new Request('http://localhost/ai-process', { method: 'OPTIONS' }), deps);

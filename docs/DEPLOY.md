@@ -82,7 +82,7 @@ push main ─────► Deploy (.github/workflows/deploy.yml)
 | `db push` từ chối migration số nhỏ hơn | Đổi tên file (khi chưa deploy) cho số lớn hơn migration cuối đã áp. |
 | `check-migrations-immutable` fail | Đã sửa migration đã deploy hoặc tên file sai: hoàn tác, tạo migration mới. |
 | Job `functions` chỉ in notice "Bỏ qua deploy" | Chưa có `SUPABASE_ACCESS_TOKEN`; thêm rồi chạy tay Deploy với `functions = true`. |
-| AI trả `ai_unavailable` | Thiếu `GEMINI_API_KEY`/`GEMINI_MODEL` trên Supabase secrets. |
+| AI trả `ai_unavailable` | Thiếu `GEMINI_API_KEY`/`GEMINI_MODEL` trên Supabase secrets, hoặc Google đang quá tải. Lý do cụ thể nằm ở `ai_jobs.error` (Quản trị → Tác vụ AI lỗi), ví dụ `gemini unavailable 503 … high demand`. Hệ thống tự thử lại 3 lần (1s, 2s, 4s); người kể bấm "Thử lại" sẽ dùng lại bản chép lời đã có. Có thể đặt thêm secret `GEMINI_FALLBACK_MODEL` để thử một model khác khi model chính vẫn quá tải. |
 | Deep link trên Pages trả 404 trắng | `404.html` phải có trong `dist` (plugin `spaFallback` ở `apps/web/vite.config.ts`) và `VITE_BASE_PATH` khớp tên repo (phân biệt hoa/thường). |
 | Magic link / đăng nhập chuyển về localhost | Sửa Site URL và Redirect URLs trên Supabase Auth. |
 | `deploy-pages` lỗi 404 / not enabled | Pages chưa bật Source = GitHub Actions (bước 2). |

@@ -1,6 +1,16 @@
 import assert from 'node:assert/strict';
 import { createBreaker } from './breaker.ts';
-import { baseMime, createGemini, GEMINI_BASE_URL, GeminiError, type GeminiRuntime, toBase64, tuning, upstreamDetail } from './gemini.ts';
+import {
+  backoffMs,
+  baseMime,
+  createGemini,
+  GEMINI_BASE_URL,
+  GeminiError,
+  type GeminiRuntime,
+  toBase64,
+  tuning,
+  upstreamDetail,
+} from './gemini.ts';
 
 const CFG = { apiKey: 'secret-key', model: 'gemini-2.5-flash', timeoutMs: 5_000 };
 
@@ -62,14 +72,14 @@ Deno.test('draft uses JSON mode with responseSchema and parses the output', asyn
   assert.match(body.systemInstruction.parts[0].text, /Vietnamese/);
 });
 
-Deno.test('one retry on 503, then GeminiError unavailable', async () => {
-  const { rt, requests } = runtime([new Response('x', { status: 503 }), new Response('x', { status: 503 })]);
+Deno.test('503 is retried with backoff (1 + 3 attempts), then GeminiError unavailable', async () => {
+  const { rt, requests } = runtime([503, 503, 503, 503].map(() => new Response('x', { status: 503 })));
   await assert.rejects(createGemini(CFG, rt).suggest({ lang: 'vi', topic: 't', previousTitles: [] }), (e) => {
     assert.ok(e instanceof GeminiError);
     assert.equal(e.kind, 'unavailable');
     return true;
   });
-  assert.equal(requests.length, 2);
+  assert.equal(requests.length, 4);
 });
 
 Deno.test('retry succeeds after a 429', async () => {
@@ -118,4 +128,32 @@ Deno.test('tuning: Gemini 3 keeps default temperature with low thinking; 2.5 dis
   assert.deepEqual(tuning('gemini-3.8-flash', 0), { thinkingConfig: { thinkingLevel: 'low' } });
   assert.deepEqual(tuning('gemini-2.5-flash', 0.4), { temperature: 0.4, thinkingConfig: { thinkingBudget: 0 } });
   assert.deepEqual(tuning('other-model', 0.7), { temperature: 0.7 });
+});
+
+Deno.test('backoff grows 1s, 2s, 4s with up to 0.5s jitter', () => {
+  assert.deepEqual([0, 1, 2].map((n) => backoffMs(n, 0)), [1_000, 2_000, 4_000]);
+  assert.equal(backoffMs(0, 0.999), 1_499);
+});
+
+Deno.test('a busy primary falls back to the fallback model once, with its own tuning', async () => {
+  const busy = () => new Response('{"error":{"message":"high demand"}}', { status: 503 });
+  const { rt, requests } = runtime([busy(), busy(), busy(), busy(), ok('{"questions":["b"]}')]);
+  const g = createGemini({ ...CFG, model: 'gemini-3.8-flash', fallbackModel: 'gemini-3.8-flash-lite' }, rt);
+  const r = await g.suggest({ lang: 'en', topic: 't', previousTitles: [] });
+  assert.deepEqual(r.value, { questions: ['b'] });
+  assert.equal(requests.length, 5);
+  assert.match(requests[0]!.url, /gemini-3.8-flash:generateContent$/);
+  assert.match(requests[4]!.url, /gemini-3.8-flash-lite:generateContent$/);
+});
+
+Deno.test('no fallback for 400, or when none is configured', async () => {
+  const a = runtime([new Response('bad', { status: 400 }), ok('{"questions":["x"]}')]);
+  await assert.rejects(
+    createGemini({ ...CFG, fallbackModel: 'other' }, a.rt).suggest({ lang: 'en', topic: 't', previousTitles: [] }),
+    /bad_request/,
+  );
+  assert.equal(a.requests.length, 1);
+  const b = runtime([503, 503, 503, 503].map(() => new Response('x', { status: 503 })));
+  await assert.rejects(createGemini(CFG, b.rt).suggest({ lang: 'en', topic: 't', previousTitles: [] }), /unavailable/);
+  assert.equal(b.requests.length, 4);
 });
