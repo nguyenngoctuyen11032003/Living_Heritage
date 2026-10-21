@@ -1,5 +1,5 @@
 import { Link2, Smartphone } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Badge, Button, ButtonLink, Dialog, EmptyState, Skeleton, useToast } from '@/components/ui';
 import type { FamilySummary } from '@/features/families/current';
 import { ErrorNotice, SectionCard } from '@/features/families/states';
@@ -28,10 +28,13 @@ export function LinksSection({ family, narrators, narratorsLoading, narratorsErr
 
   const ids = useMemo(() => narrators.map((n) => n.id).join(','), [narrators]);
   const names = useMemo(() => new Map(narrators.map((n) => [n.id, n.display_name])), [narrators]);
+  // Only the newest request may write state: a slow older response must not overwrite a newer one.
+  const seq = useRef(0);
 
   const load = useCallback(async () => {
     const sb = getSupabase();
     if (!sb) return;
+    const my = ++seq.current;
     if (!ids) {
       setLinks([]);
       setLoading(false);
@@ -43,6 +46,7 @@ export function LinksSection({ family, narrators, narratorsLoading, narratorsErr
       .select('id, narrator_id, created_at, expires_at, claimed_at, revoked_at')
       .in('narrator_id', ids.split(','))
       .is('revoked_at', null);
+    if (my !== seq.current) return;
     setError(Boolean(err));
     setLinks(activeLinks(data ?? []));
     setLoading(false);

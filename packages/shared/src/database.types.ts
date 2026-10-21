@@ -59,16 +59,30 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
-                },"audit_log": {
+                },"app_events": {
                   Row: {
-                    "action": string,"actor": string | null,"at": string,"details": NonNullable<Json>,"family_id": string | null,"id": number,"target_id": string | null,"target_type": string | null
+                    "code": string,"created_at": string,"id": number,"participant_code": string | null,"user_id": string | null,"web_version": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "action": string,"actor"?: string | null,"at"?: string,"details"?: NonNullable<Json>,"family_id"?: string | null,"id"?: never,"target_id"?: string | null,"target_type"?: string | null
+                    "code": string,"created_at"?: string,"id"?: never,"participant_code"?: string | null,"user_id"?: string | null,"web_version"?: string | null
                   }
                   Update: {
-                    "action"?: string,"actor"?: string | null,"at"?: string,"details"?: NonNullable<Json>,"family_id"?: string | null,"id"?: never,"target_id"?: string | null,"target_type"?: string | null
+                    "code"?: string,"created_at"?: string,"id"?: never,"participant_code"?: string | null,"user_id"?: string | null,"web_version"?: string | null
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"audit_log": {
+                  Row: {
+                    "action": string,"actor": string | null,"actor_role": string | null,"at": string,"details": NonNullable<Json>,"family_id": string | null,"id": number,"target_id": string | null,"target_type": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "action": string,"actor"?: string | null,"actor_role"?: string | null,"at"?: string,"details"?: NonNullable<Json>,"family_id"?: string | null,"id"?: never,"target_id"?: string | null,"target_type"?: string | null
+                  }
+                  Update: {
+                    "action"?: string,"actor"?: string | null,"actor_role"?: string | null,"at"?: string,"details"?: NonNullable<Json>,"family_id"?: string | null,"id"?: never,"target_id"?: string | null,"target_type"?: string | null
                   }
                   Relationships: [
                     {
@@ -173,14 +187,14 @@ isOneToOne: false
                   ]
                 },"connect_requests": {
                   Row: {
-                    "contact": string,"created_at": string,"id": string,"message": string,"name": string,"public_item_id": string,"requester": string | null,"status": string
+                    "contact": string,"created_at": string,"id": string,"message": string,"name": string,"public_item_id": string | null,"requester": string | null,"status": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "contact": string,"created_at"?: string,"id"?: string,"message": string,"name": string,"public_item_id": string,"requester"?: string | null,"status"?: string
+                    "contact": string,"created_at"?: string,"id"?: string,"message": string,"name": string,"public_item_id"?: string | null,"requester"?: string | null,"status"?: string
                   }
                   Update: {
-                    "contact"?: string,"created_at"?: string,"id"?: string,"message"?: string,"name"?: string,"public_item_id"?: string,"requester"?: string | null,"status"?: string
+                    "contact"?: string,"created_at"?: string,"id"?: string,"message"?: string,"name"?: string,"public_item_id"?: string | null,"requester"?: string | null,"status"?: string
                   }
                   Relationships: [
                     {
@@ -193,14 +207,14 @@ isOneToOne: false
                   ]
                 },"deletion_requests": {
                   Row: {
-                    "admin_note": string | null,"created_at": string,"family_id": string,"id": string,"reason": string | null,"requested_by": string | null,"resolved_at": string | null,"resolved_by": string | null,"status": string,"story_id": string | null
+                    "admin_note": string | null,"created_at": string,"erased_objects": Json | null,"family_id": string | null,"id": string,"reason": string | null,"requested_by": string | null,"resolved_at": string | null,"resolved_by": string | null,"scope": string | null,"status": string,"story_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "admin_note"?: string | null,"created_at"?: string,"family_id": string,"id"?: string,"reason"?: string | null,"requested_by"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"story_id"?: string | null
+                    "admin_note"?: string | null,"created_at"?: string,"erased_objects"?: Json | null,"family_id"?: string | null,"id"?: string,"reason"?: string | null,"requested_by"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"scope"?: string | null,"status"?: string,"story_id"?: string | null
                   }
                   Update: {
-                    "admin_note"?: string | null,"created_at"?: string,"family_id"?: string,"id"?: string,"reason"?: string | null,"requested_by"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"story_id"?: string | null
+                    "admin_note"?: string | null,"created_at"?: string,"erased_objects"?: Json | null,"family_id"?: string | null,"id"?: string,"reason"?: string | null,"requested_by"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"scope"?: string | null,"status"?: string,"story_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -293,14 +307,14 @@ isOneToOne: false
                   ]
                 },"narrators": {
                   Row: {
-                    "avatar_path": string | null,"birth_year": number | null,"created_at": string,"created_by": string | null,"display_name": string,"family_id": string,"generation": number | null,"id": string,"lang": string,"pen_name": string | null,"region": string | null,"relation": string | null,"updated_at": string,"user_id": string | null
+                    "avatar_path": string | null,"birth_year": number | null,"consent_method": string | null,"created_at": string,"created_by": string | null,"display_name": string,"family_id": string,"generation": number | null,"helper_note": string | null,"id": string,"lang": string,"pen_name": string | null,"region": string | null,"relation": string | null,"updated_at": string,"user_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_path"?: string | null,"birth_year"?: number | null,"created_at"?: string,"created_by"?: string | null,"display_name": string,"family_id": string,"generation"?: number | null,"id"?: string,"lang"?: string,"pen_name"?: string | null,"region"?: string | null,"relation"?: string | null,"updated_at"?: string,"user_id"?: string | null
+                    "avatar_path"?: string | null,"birth_year"?: number | null,"consent_method"?: string | null,"created_at"?: string,"created_by"?: string | null,"display_name": string,"family_id": string,"generation"?: number | null,"helper_note"?: string | null,"id"?: string,"lang"?: string,"pen_name"?: string | null,"region"?: string | null,"relation"?: string | null,"updated_at"?: string,"user_id"?: string | null
                   }
                   Update: {
-                    "avatar_path"?: string | null,"birth_year"?: number | null,"created_at"?: string,"created_by"?: string | null,"display_name"?: string,"family_id"?: string,"generation"?: number | null,"id"?: string,"lang"?: string,"pen_name"?: string | null,"region"?: string | null,"relation"?: string | null,"updated_at"?: string,"user_id"?: string | null
+                    "avatar_path"?: string | null,"birth_year"?: number | null,"consent_method"?: string | null,"created_at"?: string,"created_by"?: string | null,"display_name"?: string,"family_id"?: string,"generation"?: number | null,"helper_note"?: string | null,"id"?: string,"lang"?: string,"pen_name"?: string | null,"region"?: string | null,"relation"?: string | null,"updated_at"?: string,"user_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -313,14 +327,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "created_at": string,"display_name": string | null,"id": string,"is_admin": boolean,"locale": string,"updated_at": string
+                    "avatar_path": string | null,"created_at": string,"display_name": string | null,"id": string,"is_admin": boolean,"locale": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"display_name"?: string | null,"id": string,"is_admin"?: boolean,"locale"?: string,"updated_at"?: string
+                    "avatar_path"?: string | null,"created_at"?: string,"display_name"?: string | null,"id": string,"is_admin"?: boolean,"locale"?: string,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"display_name"?: string | null,"id"?: string,"is_admin"?: boolean,"locale"?: string,"updated_at"?: string
+                    "avatar_path"?: string | null,"created_at"?: string,"display_name"?: string | null,"id"?: string,"is_admin"?: boolean,"locale"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -379,14 +393,14 @@ isOneToOne: false
                   ]
                 },"questions": {
                   Row: {
-                    "id": string,"kind_hint": Database["public"]['Enums']["story_kind"] | null,"prompt_en": string,"prompt_vi": string,"sort": number,"topic_id": string
+                    "active": boolean,"id": string,"kind_hint": Database["public"]['Enums']["story_kind"] | null,"prompt_en": string,"prompt_vi": string,"sort": number,"topic_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "id"?: string,"kind_hint"?: Database["public"]['Enums']["story_kind"] | null,"prompt_en": string,"prompt_vi": string,"sort"?: number,"topic_id": string
+                    "active"?: boolean,"id"?: string,"kind_hint"?: Database["public"]['Enums']["story_kind"] | null,"prompt_en": string,"prompt_vi": string,"sort"?: number,"topic_id": string
                   }
                   Update: {
-                    "id"?: string,"kind_hint"?: Database["public"]['Enums']["story_kind"] | null,"prompt_en"?: string,"prompt_vi"?: string,"sort"?: number,"topic_id"?: string
+                    "active"?: boolean,"id"?: string,"kind_hint"?: Database["public"]['Enums']["story_kind"] | null,"prompt_en"?: string,"prompt_vi"?: string,"sort"?: number,"topic_id"?: string
                   }
                   Relationships: [
                     {
@@ -437,6 +451,26 @@ isOneToOne: false
                   Relationships: [
                     {
       foreignKeyName: "reports_public_item_id_fkey"
+      columns: ["public_item_id"]
+isOneToOne: false
+      referencedRelation: "public_items"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"saved_items": {
+                  Row: {
+                    "created_at": string,"public_item_id": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"public_item_id": string,"user_id"?: string
+                  }
+                  Update: {
+                    "created_at"?: string,"public_item_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "saved_items_public_item_id_fkey"
       columns: ["public_item_id"]
 isOneToOne: false
       referencedRelation: "public_items"
@@ -569,14 +603,14 @@ isOneToOne: false
                   ]
                 },"topics": {
                   Row: {
-                    "icon": string | null,"id": string,"slug": string,"sort": number,"title_en": string,"title_vi": string
+                    "active": boolean,"icon": string | null,"id": string,"slug": string,"sort": number,"title_en": string,"title_vi": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "icon"?: string | null,"id"?: string,"slug": string,"sort"?: number,"title_en": string,"title_vi": string
+                    "active"?: boolean,"icon"?: string | null,"id"?: string,"slug": string,"sort"?: number,"title_en": string,"title_vi": string
                   }
                   Update: {
-                    "icon"?: string | null,"id"?: string,"slug"?: string,"sort"?: number,"title_en"?: string,"title_vi"?: string
+                    "active"?: boolean,"icon"?: string | null,"id"?: string,"slug"?: string,"sort"?: number,"title_en"?: string,"title_vi"?: string
                   }
                   Relationships: [
                     
@@ -610,6 +644,14 @@ isOneToOne: false
             "accept_invite":
 { Args: { "p_token": string }; Returns: string
                            },
+"admin_process_deletion":
+{ Args: { "p_request": string }; Returns: {
+              "bucket": string,"path": string
+            }[]
+                           },
+"admin_withdraw_public":
+{ Args: { "p_item": string,"p_reason": string }; Returns: undefined
+                           },
 "ai_quota_consume":
 { Args: { "p_limit": number,"p_user": string }; Returns: boolean
                            },
@@ -623,7 +665,7 @@ isOneToOne: false
 { Args: { "p_kind": string,"p_user": string }; Returns: undefined
                            },
 "approve_story":
-{ Args: { "p_assisted_consent"?: boolean,"p_story": string }; Returns: number
+{ Args: { "p_assisted_consent"?: boolean,"p_consent_method"?: string,"p_expected_version"?: number,"p_helper_relation"?: string,"p_story": string }; Returns: number
                            },
 "can_read_media_object":
 { Args: { "p_name": string }; Returns: boolean
@@ -645,6 +687,11 @@ isOneToOne: false
                            },
 "claim_narrator_link":
 { Args: { "p_token": string }; Returns: string
+                           },
+"content_counts":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "approved_items": number,"approved_sources": number,"drafts": number,"public_items": number
+            }[]
                            },
 "create_family":
 { Args: { "name": string }; Returns: string
@@ -694,6 +741,9 @@ isOneToOne: false
 "lh_unaccent":
 { Args: { "p_text": string }; Returns: string
                            },
+"log_event":
+{ Args: { "p_code": string,"p_participant"?: string,"p_version"?: string }; Returns: undefined
+                           },
 "match_public_items":
 { Args: { "p_embedding": string,"p_limit"?: number,"p_min_similarity"?: number }; Returns: {
               "body": string,"decade": number,"fields": Json,"id": string,"kind": Database["public"]['Enums']["story_kind"],"narrator_label": string,"region": string,"similarity": number,"summary": string,"title": string,"topic_slug": string
@@ -701,6 +751,11 @@ isOneToOne: false
                            },
 "media_object_unreferenced":
 { Args: { "p_name": string }; Returns: boolean
+                           },
+"pilot_summary":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "completed": boolean,"counts": Json,"event_count": number,"first_at": string,"help_opened": number,"last_at": string,"participant_code": string
+            }[]
                            },
 "preview_public_item":
 { Args: { "p_story": string }; Returns: Json
@@ -715,7 +770,7 @@ isOneToOne: false
 { Args: { "p_link": string }; Returns: undefined
                            },
 "save_story_draft":
-{ Args: { "p_body": string,"p_fields": Json,"p_story": string,"p_summary": string,"p_title": string }; Returns: number
+{ Args: { "p_body": string,"p_expected_version"?: number,"p_fields": Json,"p_story": string,"p_summary": string,"p_title": string,"p_topic_id"?: string }; Returns: number
                            },
 "search_public":
 { Args: { "lim"?: number,"off"?: number,"p_decade"?: number,"p_kind"?: Database["public"]['Enums']["story_kind"],"p_region"?: string,"p_topic"?: string,"q"?: string }; Returns: {
@@ -723,8 +778,6 @@ isOneToOne: false
 "audio_path": string | null,
 "body": string,
 "decade": number | null,
-"embedded_at": string | null,
-"embedding": string | null,
 "fields": NonNullable<Json>,
 "id": string,
 "kind": Database["public"]['Enums']["story_kind"],
@@ -732,20 +785,13 @@ isOneToOne: false
 "narrator_label": string,
 "published_at": string,
 "region": string | null,
-"search_tsv": unknown,
-"story_id": string,
 "summary": string | null,
 "title": string,
 "topic_id": string | null,
 "topic_slug": string | null,
 "updated_at": string
             }[]
-                          SetofOptions: {
-        from: "*"
-        to: "public_items"
-        isOneToOne: false
-        isSetofReturn: true
-      } },
+                           },
 "shares_family_with":
 { Args: { "p_user": string }; Returns: boolean
                            },

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { AiProcessResponse, AiSuggestResponse } from '../_shared/ai-contract.ts';
 import { MAX_AUDIO_BYTES } from '../_shared/constants.ts';
-import { handle, type HandlerDeps, JOB_KIND, markedUncertain, STALE_JOB_MS } from './handler.ts';
+import { handle, type HandlerDeps, JOB_KIND, markedUncertain, MAX_JOB_ATTEMPTS, STALE_JOB_MS } from './handler.ts';
 import type { AdminDb, JobRow, RecordingCtx, StoryInsert, UsageRow, UserDb } from './lib/db.ts';
 import { type AiModel, type GeminiConfig, GeminiError } from './lib/gemini.ts';
 
@@ -55,6 +55,7 @@ const freshJob = (status: JobRow['status'], extra: Partial<JobRow> = {}): JobRow
   status,
   error: null,
   story_ids: [],
+  attempts: 0,
   updated_at: new Date(NOW - 30_000).toISOString(),
   ...extra,
 });
@@ -69,6 +70,8 @@ interface World {
   audioMissing: boolean;
   existingJob: JobRow | null;
   existingTranscript: boolean;
+  /** Draft ids already saved for the recording by an earlier run. */
+  savedStories: string[];
   approvedTitles: string[];
   /** narrators.lang as readable by the caller (null = unreadable → request lang fallback). */
   narratorLang: 'vi' | 'en' | null;
@@ -87,6 +90,7 @@ interface Log {
   geminiCfg: GeminiConfig | null;
   quotaLimit: number | null;
   refunds: number;
+  attempts: number[];
   /** Language passed to each Gemini call, in call order (e.g. ['transcribe:en', 'draft:en']). */
   langs: string[];
   count(name: string): number;
@@ -103,6 +107,7 @@ function setup(over: Partial<World> = {}): { deps: HandlerDeps; log: Log } {
     audioMissing: false,
     existingJob: null,
     existingTranscript: false,
+    savedStories: [],
     approvedTitles: ['Ngày cưới của ông bà', 'Cái giếng làng'],
     narratorLang: null,
     env: { GEMINI_API_KEY: 'test-key' },
@@ -120,6 +125,7 @@ function setup(over: Partial<World> = {}): { deps: HandlerDeps; log: Log } {
     geminiCfg: null,
     quotaLimit: null,
     refunds: 0,
+    attempts: [],
     langs: [],
     count: (name) => log.calls.filter((c) => c === name).length,
   };
@@ -157,6 +163,16 @@ function setup(over: Partial<World> = {}): { deps: HandlerDeps; log: Log } {
       assert.equal(id, JOB_ID);
       log.jobUpdates.push(patch);
       return Promise.resolve();
+    },
+    setAttempts: (id, n) => {
+      assert.equal(id, JOB_ID);
+      log.attempts.push(n);
+      return Promise.resolve();
+    },
+    storiesForRecording: (rid) => {
+      note('storiesForRecording');
+      assert.equal(rid, RECORDING_ID);
+      return Promise.resolve(w.savedStories);
     },
     quotaConsume: (userId, limit) => {
       note('quotaConsume');
@@ -538,4 +554,85 @@ Deno.test('suggest_questions: quota_exceeded', async () => {
 Deno.test('markedUncertain picks the words before each [?]', () => {
   assert.deepEqual(markedUncertain('Ông tôi tên là Tư [?] ở làng [?]. Không có gì.'), ['tên là Tư [?]', 'ở làng [?]']);
   assert.deepEqual(markedUncertain('không có dấu'), []);
+});
+
+// ---------------------------------------------------------------------------
+// Idempotent retries / cost cap
+// ---------------------------------------------------------------------------
+
+Deno.test('retry after a run that saved drafts but died: job finished with the saved ids, nothing inserted twice, no AI cost', async () => {
+  const saved = ['99999999-9999-4999-8999-999999999991', '99999999-9999-4999-8999-999999999992'];
+  const { deps, log } = setup({
+    existingJob: freshJob('drafting', { updated_at: new Date(NOW - STALE_JOB_MS - 1).toISOString(), attempts: 1 }),
+    savedStories: saved,
+  });
+  const res = await handle(post(TRANSCRIBE), deps);
+  assert.equal(res.status, 200);
+  const body = AiProcessResponse.parse(await res.json());
+  assert.deepEqual(body, { job_id: JOB_ID, status: 'done', story_ids: saved, error: null });
+  assert.equal(log.stories.length, 0);
+  assert.equal(log.count('quotaConsume'), 0);
+  assert.equal(log.count('gemini.transcribe') + log.count('gemini.draft'), 0);
+  assert.deepEqual(log.jobUpdates, [{ status: 'done', error: null, story_ids: saved }]);
+});
+
+Deno.test('every run that consumes quota counts one attempt', async () => {
+  const fresh = setup();
+  await handle(post(TRANSCRIBE), fresh.deps);
+  assert.deepEqual(fresh.log.attempts, [1]);
+  const retry = setup({ existingJob: freshJob('error', { error: 'ai_unavailable: gemini timeout', attempts: 3 }) });
+  await handle(post(TRANSCRIBE), retry.deps);
+  assert.deepEqual(retry.log.attempts, [4]);
+  const noQuota = setup({ quotaAllowed: false });
+  await handle(post(TRANSCRIBE), noQuota.deps);
+  assert.deepEqual(noQuota.log.attempts, []);
+});
+
+Deno.test('a job that failed MAX_JOB_ATTEMPTS times is not retried again (no restart, no quota, no Gemini)', async () => {
+  const { deps, log } = setup({ existingJob: freshJob('error', { error: 'ai_unavailable', attempts: MAX_JOB_ATTEMPTS }) });
+  const res = await handle(post(TRANSCRIBE), deps);
+  assert.equal(res.status, 429);
+  const body = AiProcessResponse.parse(await res.json());
+  assert.equal(body.error, 'quota_exceeded');
+  assert.equal(log.count('restartJob'), 0);
+  assert.equal(log.count('quotaConsume'), 0);
+  assert.equal(log.count('gemini.transcribe') + log.count('gemini.draft'), 0);
+});
+
+// ---------------------------------------------------------------------------
+// B8: opening, lesson, people, places
+// ---------------------------------------------------------------------------
+
+Deno.test('B8: opening / lesson go into the story fields, people / places into both kinds; empty values left out', async () => {
+  const draft = {
+    ...structuredClone(DRAFT),
+    story: { ...DRAFT.story, opening: '  Hồi tôi mười tuổi, ở quê. ', lesson: 'Rau phải tưới sớm. ' },
+    people: [' bà nội ', 'ông Tư', 'bà nội', ''],
+    places: ['ao sau nhà'],
+  };
+  const { deps, log } = setup({ draft: () => Promise.resolve(draft) });
+  assert.equal((await handle(post(TRANSCRIBE), deps)).status, 200);
+  const [story, exp] = log.stories;
+  assert.deepEqual(story!.fields, {
+    topics: DRAFT.topics,
+    opening: 'Hồi tôi mười tuổi, ở quê.',
+    lesson: 'Rau phải tưới sớm.',
+    people: ['bà nội', 'ông Tư'],
+    places: ['ao sau nhà'],
+  });
+  assert.deepEqual(exp!.fields, { ...DRAFT.experience.fields, context: null, people: ['bà nội', 'ông Tư'], places: ['ao sau nhà'] });
+});
+
+Deno.test('B8: an older draft without the new keys still validates; null / blank opening and lesson are not stored', async () => {
+  const a = setup();
+  assert.equal((await handle(post(TRANSCRIBE), a.deps)).status, 200);
+  assert.deepEqual(a.log.stories[0]!.fields, { topics: DRAFT.topics });
+
+  const b = setup({
+    draft: () =>
+      Promise.resolve({ ...structuredClone(DRAFT), story: { ...DRAFT.story, opening: null, lesson: '  ' }, people: [], places: [] }),
+  });
+  assert.equal((await handle(post(TRANSCRIBE), b.deps)).status, 200);
+  assert.deepEqual(b.log.stories[0]!.fields, { topics: DRAFT.topics });
+  assert.deepEqual(b.log.stories[1]!.fields, { ...DRAFT.experience.fields, context: null });
 });

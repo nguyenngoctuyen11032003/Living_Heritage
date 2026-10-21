@@ -9,6 +9,7 @@ import { OrderedList } from '@/features/vault/components/OrderedList';
 import { LoadError, Unavailable } from '@/features/vault/components/States';
 import { StoryPicker } from '@/features/vault/components/StoryPicker';
 import { VaultPageHeader } from '@/features/vault/components/VaultPageHeader';
+import { topicStyle } from '@/features/knowledge/topics';
 import { FamilyGate } from '@/features/vault/external';
 import type { VaultStory } from '@/features/vault/types';
 import { useVaultLookups } from '@/features/vault/useLookups';
@@ -18,6 +19,7 @@ import { addChapter, deleteBook, removeChapter, saveChapterPositions, updateBook
 import { BookPreview } from './components/BookPreview';
 import { CoverFields, type CoverValue } from './components/CoverFields';
 import { asCoverStyle } from './covers';
+import { canEditBook } from './permissions';
 import { moveItem, nextPosition, positionUpdates, renumber } from './reorder';
 import { useBook, useBookPages, type ChapterEntry } from './useBook';
 
@@ -58,10 +60,10 @@ function Builder({ book: initialBook, initialChapters }: { book: BookRow; initia
   const { toast } = useToast();
   const navigate = useNavigate();
   const { families } = useCurrentFamily();
-  const role = families.find((f) => f.id === initialBook.family_id)?.role;
-  const canEdit = role === 'owner' || role === 'manager' || role === 'editor';
+  const canEdit = canEditBook(families, initialBook.family_id);
   const lookups = useVaultLookups(initialBook.family_id);
   const narratorName = useCallback((id: string) => lookups.narratorById.get(id)?.display_name, [lookups.narratorById]);
+  const topicOf = useCallback((s: VaultStory) => topicStyle(s.topic_id ? lookups.topicById.get(s.topic_id)?.slug : null), [lookups.topicById]);
 
   const [book, setBook] = useState(initialBook);
   const [chapters, setChapters] = useState<ChapterEntry[]>(initialChapters);
@@ -159,14 +161,17 @@ function Builder({ book: initialBook, initialChapters }: { book: BookRow; initia
         lede={book.subtitle ? <span className="font-serif text-[1.1rem] italic">{book.subtitle}</span> : undefined}
         meta={t('builder.chapters.count', { n: chapters.length })}
         actions={
-          <div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap md:justify-end">
+          <>
             <Button leftIcon={<Eye className="size-5" />} onClick={() => setPreview(true)}>
               {t('builder.preview')}
             </Button>
-            <ButtonLink to={`/sach/${book.id}/in`} variant="secondary" leftIcon={<Printer className="size-5" />}>
-              {t('builder.print')}
-            </ButtonLink>
-          </div>
+            {/* B11: viewers read the book in the app; printing / saving a PDF is for editors. */}
+            {canEdit && (
+              <ButtonLink to={`/sach/${book.id}/in`} variant="secondary" leftIcon={<Printer className="size-5" />}>
+                {t('builder.print')}
+              </ButtonLink>
+            )}
+          </>
         }
       />
       {!canEdit && <p className="rounded-2xl bg-mint/50 px-4 py-3 text-ink">{t('builder.readOnly')}</p>}
@@ -196,6 +201,7 @@ function Builder({ book: initialBook, initialChapters }: { book: BookRow; initia
                 onAdd={(s) => void add(s)}
                 busyId={busyId}
                 narratorName={narratorName}
+                accentOf={(s) => topicOf(s).band}
                 labels={{
                   search: t('builder.picker.searchLabel'),
                   add: t('builder.picker.add'),
@@ -234,18 +240,21 @@ function Builder({ book: initialBook, initialChapters }: { book: BookRow; initia
                   remove: (title) => t('builder.chapters.remove', { title }),
                 }}
                 render={(c, i) => (
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-terracotta">{t('builder.chapters.chapterN', { n: i + 1 })}</span>
-                    <Link to={`/cau-chuyen/${c.story_id}`} className="font-serif text-[1.1rem] font-semibold leading-snug text-heritage-deep hover:underline">
-                      {c.story.title.trim() || untitled}
-                    </Link>
-                    <span className="text-[0.85rem] text-ink-soft">{narratorName(c.story.narrator_id) ?? ''}</span>
-                    {c.story.edit_status !== 'approved' && (
-                      <span className="inline-flex items-start gap-1.5 text-[0.85rem] text-[#6b4a0c]">
-                        <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-                        {t('builder.chapters.notApproved')}
-                      </span>
-                    )}
+                  <div className="flex min-w-0 items-start gap-3">
+                    <ChapterThumb n={i + 1} style={topicOf(c.story)} />
+                    <div className="flex min-w-0 flex-col gap-1">
+                      <span className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-terracotta">{t('builder.chapters.chapterN', { n: i + 1 })}</span>
+                      <Link to={`/cau-chuyen/${c.story_id}`} className="break-words font-serif text-[1.1rem] font-semibold leading-snug text-heritage-deep hover:underline">
+                        {c.story.title.trim() || untitled}
+                      </Link>
+                      <span className="text-[0.85rem] text-ink-soft">{narratorName(c.story.narrator_id) ?? ''}</span>
+                      {c.story.edit_status !== 'approved' && (
+                        <span className="inline-flex items-start gap-1.5 text-[0.85rem] text-[#6b4a0c]">
+                          <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                          {t('builder.chapters.notApproved')}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 )}
               />
@@ -331,5 +340,19 @@ function CoverEditor({ book, onSaved }: { book: BookRow; onSaved: (b: BookRow) =
         </div>
       </form>
     </section>
+  );
+}
+
+/** A small A5 "page" in the chapter's topic colours, carrying the chapter number. */
+function ChapterThumb({ n, style }: { n: number; style: { band: string; ink: string; wash: string } }) {
+  return (
+    <span
+      aria-hidden="true"
+      className="relative mt-0.5 hidden aspect-[148/210] w-11 shrink-0 items-center justify-center overflow-hidden rounded-[4px] font-serif text-[1.05rem] font-semibold shadow-[0_6px_14px_-8px_rgba(18,27,24,0.5)] min-[400px]:flex"
+      style={{ background: `linear-gradient(160deg, ${style.wash} 0%, ${style.band} 100%)`, color: style.ink }}
+    >
+      <span className="absolute inset-y-0 left-0 w-1" style={{ background: style.ink, opacity: 0.35 }} />
+      {String(n).padStart(2, '0')}
+    </span>
   );
 }

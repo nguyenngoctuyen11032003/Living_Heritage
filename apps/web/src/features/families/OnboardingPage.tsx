@@ -1,7 +1,7 @@
 // /gia-dinh/bat-dau: create the first family, then a 3-step guided checklist.
 import { ArrowRight, Check, Home, Link2, Mic, UserPlus } from 'lucide-react';
 import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react';
-import { Badge, Button, ButtonLink, Card, Field, Input, Skeleton } from '@/components/ui';
+import { Badge, Button, ButtonLink, Card, Field, Input, PageHeader, Skeleton } from '@/components/ui';
 import { Reveal } from '@/components/motion';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
@@ -10,7 +10,7 @@ import { loadProgress, type OnboardingProgress } from './api';
 import { useCurrentFamily } from './current';
 import { FamilySwitcher } from './FamilyGate';
 import { rpcErrorCode, type FamilyErrorCode } from './rpcError';
-import { ErrorNotice, NotConfiguredNotice, PageHeader } from './states';
+import { ErrorNotice, NotConfiguredNotice } from './states';
 
 export default function OnboardingPage() {
   const t = useT('family');
@@ -84,7 +84,7 @@ function CreateFamily({ onCreated, onCancel }: { onCreated: () => void; onCancel
 
   return (
     <Reveal>
-      <PageHeader eyebrow={t('onboarding.eyebrow')} title={t('onboarding.createTitle')} description={t('onboarding.createBody')} />
+      <PageHeader eyebrow={t('onboarding.eyebrow')} title={t('onboarding.createTitle')} lede={t('onboarding.createBody')} />
       <Card padding="lg">
         <form noValidate onSubmit={onSubmit} className="flex flex-col gap-5">
           <Field label={t('onboarding.nameLabel')} hint={t('onboarding.nameHint')} error={fieldError} required>
@@ -167,7 +167,7 @@ function Checklist({ familyId, familyName, canManage, canEdit }: { familyId: str
       <PageHeader
         eyebrow={t('onboarding.eyebrow')}
         title={t('onboarding.checklistTitle', { name: familyName })}
-        description={t('onboarding.checklistBody')}
+        lede={t('onboarding.checklistBody')}
         actions={
           <ButtonLink to="/gia-dinh" variant="secondary" leftIcon={<Home className="size-4" aria-hidden="true" />}>
             {t('onboarding.toVault')}

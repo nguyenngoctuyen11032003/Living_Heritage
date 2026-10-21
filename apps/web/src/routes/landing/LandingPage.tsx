@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router';
-import { BookShowcase, Faq, FeatureGrid, FinalCta, Hero, HowItWorks, KnowledgePreview, Manifesto, OneVoiceThreeOutputs, Plans, SampleStory, TrustPrivacy, ValueTrio } from '@/components/landing';
+import { BookShowcase, Faq, FeatureGrid, FinalCta, Hero, HowItWorks, KnowledgePreview, Manifesto, OneVoiceThreeOutputs, Plans, SampleStory, StoryRibbon, TrustPrivacy, ValueTrio } from '@/components/landing';
 import { useT } from '@/i18n';
 
 /** '/' — the 13-block bilingual homepage (spec §6.1). Header and footer come from SiteLayout. */
@@ -24,6 +24,7 @@ export default function LandingPage() {
   return (
     <>
       <Hero />
+      <StoryRibbon />
       <SampleStory />
       <Manifesto />
       <ValueTrio />

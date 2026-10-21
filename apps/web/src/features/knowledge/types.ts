@@ -102,3 +102,12 @@ export function isUuid(v: string | undefined | null): v is string {
 export function bareQuote(title: string): string {
   return title.trim().replace(/^["“”'‘’«»]+|["“”'‘’«»]+$/g, '').trim();
 }
+
+/** The label lh_public_snapshot writes when the narrator has neither a public real name nor a pen name. */
+export const ANONYMOUS_NARRATOR_LABEL = 'Người kể ẩn danh';
+
+/** Narrator label for display: the server's anonymous placeholder is translated; an empty label falls back to it too. */
+export function narratorText(label: string | null | undefined, anonymous: string): string {
+  const v = (label ?? '').trim();
+  return !v || v === ANONYMOUS_NARRATOR_LABEL ? anonymous : v;
+}

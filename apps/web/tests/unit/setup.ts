@@ -1,6 +1,10 @@
 import '@testing-library/jest-dom/vitest';
 import { afterEach } from 'vitest';
 import { cleanup } from '@testing-library/react';
+import { loadAllDictionaries } from '@/i18n';
+
+// Dictionaries are lazy chunks in the app (useT suspends until one arrives); tests render synchronously, so load all.
+await loadAllDictionaries();
 
 afterEach(() => {
   cleanup();

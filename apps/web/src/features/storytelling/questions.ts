@@ -23,6 +23,12 @@ export function nextQuestion<Q extends QuestionLike>(questions: readonly Q[], cu
   return list[(start + 1 + list.length) % list.length]!;
 }
 
+/** "Bỏ qua câu này": the next question not yet answered or skipped, or null when none is left (free telling). */
+export function nextUnusedQuestion<Q extends QuestionLike>(questions: readonly Q[], currentId: string | null, used: ReadonlySet<string> = new Set()): Q | null {
+  const q = nextQuestion(questions, currentId, used);
+  return q && q.id !== currentId && !used.has(q.id) ? q : null;
+}
+
 /** The question to open a session with: the requested one when it belongs to the list, else the first unused. */
 export function initialQuestion<Q extends QuestionLike>(questions: readonly Q[], requestedId: string | null, used: ReadonlySet<string> = new Set()): Q | null {
   const found = requestedId ? questions.find((q) => q.id === requestedId) : undefined;

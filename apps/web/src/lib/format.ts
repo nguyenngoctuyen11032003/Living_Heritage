@@ -12,10 +12,6 @@ export function formatDate(iso: string | Date, locale: Locale): string {
   return new Intl.DateTimeFormat(locale === 'vi' ? 'vi-VN' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(d);
 }
 
-export function formatVnd(amount: number, locale: Locale): string {
-  return new Intl.NumberFormat(locale === 'vi' ? 'vi-VN' : 'en-US', { style: 'currency', currency: 'VND', maximumFractionDigits: 0 }).format(amount);
-}
-
 /** Strip Vietnamese diacritics (đ → d): used for client-side matching of illustrative data. */
 export function stripDiacritics(s: string): string {
   return s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');

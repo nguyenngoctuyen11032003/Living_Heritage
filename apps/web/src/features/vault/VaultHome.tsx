@@ -12,7 +12,7 @@ import { NewStoryButton } from './components/NewStoryButton';
 import { VaultPageHeader } from './components/VaultPageHeader';
 import { StoryCard } from './components/StoryCard';
 import { FamilyGate, StoryStatusBadge } from './external';
-import { EMPTY_FILTERS, filtersFromParams, filtersToParams, hasActiveFilters, splitHours, type VaultFilters } from './filter';
+import { EMPTY_FILTERS, filtersFromParams, filtersToParams, hasActiveFilters, splitHours, topicNames, type VaultFilters } from './filter';
 import type { VaultStory } from './types';
 import { useVaultLookups } from './useLookups';
 
@@ -64,6 +64,8 @@ function VaultHomeInner() {
   const [error, setError] = useState(false);
   const [listTick, setListTick] = useState(0);
   const searching = filters.q.trim().length > 0;
+  // Search also matches topic names; re-run once the topics have loaded.
+  const searchTopics = useMemo(() => (searching ? topicNames(lookups.topics) : null), [searching, lookups.topics]);
 
   useEffect(() => {
     const sb = getSupabase();
@@ -73,7 +75,7 @@ function VaultHomeInner() {
     setError(false);
     setVisible(PAGE_SIZE);
     const f = filtersFromParams(new URLSearchParams(filterKey));
-    const run = f.q.trim() ? searchStories(sb, familyId, f) : fetchStoriesPage(sb, familyId, f, 0);
+    const run = f.q.trim() ? searchStories(sb, familyId, f, searchTopics ?? undefined) : fetchStoriesPage(sb, familyId, f, 0);
     run
       .then((rows) => {
         if (!alive) return;
@@ -85,7 +87,7 @@ function VaultHomeInner() {
     return () => {
       alive = false;
     };
-  }, [familyId, filterKey, listTick]);
+  }, [familyId, filterKey, listTick, searchTopics]);
 
   const shown = searching ? items.slice(0, visible) : items;
 
@@ -110,8 +112,8 @@ function VaultHomeInner() {
     }
   }
 
-  // ---- recording durations for visible cards
-  const [durations, setDurations] = useState<Map<string, number | null>>(new Map());
+  // ---- recording facts (duration, recorded date) for visible cards
+  const [durations, setDurations] = useState<Map<string, { durationS: number | null; recordedAt: string } | null>>(new Map());
   const recordingIds = shown.map((s) => s.recording_id).filter((id): id is string => !!id && !durations.has(id));
   const recordingKey = recordingIds.join(',');
   useEffect(() => {
@@ -123,13 +125,13 @@ function VaultHomeInner() {
         if (!alive) return;
         setDurations((prev) => {
           const next = new Map(prev);
-          for (const r of rows) next.set(r.id, r.duration_s === null ? null : Number(r.duration_s));
+          for (const r of rows) next.set(r.id, { durationS: r.duration_s === null ? null : Number(r.duration_s), recordedAt: r.created_at });
           for (const id of recordingKey.split(',')) if (!next.has(id)) next.set(id, null);
           return next;
         });
       })
       .catch(() => {
-        /* durations are optional decoration */
+        /* recording facts are optional decoration; the card falls back to the story date */
       });
     return () => {
       alive = false;
@@ -152,16 +154,16 @@ function VaultHomeInner() {
         title={current?.name || t('header.fallbackName')}
         actions={
           // Phones: the primary action full width, the two secondary ones side by side under it.
-          <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap md:items-center md:justify-end">
+          <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap md:items-center lg:justify-end">
             {canEdit && !lookups.loading && (
               <div className="col-span-2 md:contents">
                 <NewStoryButton narrators={lookups.narrators} className="w-full md:w-auto" />
               </div>
             )}
-            <ButtonLink to="/gia-dinh/bo-suu-tap" variant="secondary" className="min-w-0 text-center" leftIcon={<FolderHeart className="size-5 shrink-0" />}>
+            <ButtonLink to="/gia-dinh/bo-suu-tap" variant="secondary" className="min-w-0 text-center max-sm:gap-1.5 max-sm:px-3" leftIcon={<FolderHeart className="size-5 shrink-0" />}>
               {t('header.collections')}
             </ButtonLink>
-            <ButtonLink to="/sach" variant="secondary" className="min-w-0 text-center" leftIcon={<BookOpen className="size-5 shrink-0" />}>
+            <ButtonLink to="/sach" variant="secondary" className="min-w-0 text-center max-sm:gap-1.5 max-sm:px-3" leftIcon={<BookOpen className="size-5 shrink-0" />}>
               {t('header.books')}
             </ButtonLink>
           </div>
@@ -188,11 +190,11 @@ function VaultHomeInner() {
             topics={lookups.topics}
             onReset={() => setParams(filtersToParams({ ...EMPTY_FILTERS, q: filters.q }), { replace: true })}
           />
-          <div className="flex items-baseline justify-between gap-3">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
             <h2 id="vault-results" className="font-serif text-[1.4rem] font-semibold text-heritage-deep">
               {t('results.heading')}
             </h2>
-            <p className="text-[0.9rem] text-ink-soft" role="status" aria-live="polite">
+            <p className="shrink-0 whitespace-nowrap text-[0.9rem] text-ink-soft" role="status" aria-live="polite">
               {loading ? t('state.loading') : searching ? t('results.countSearch', { n: items.length }) : hasMore ? '' : t('results.count', { n: items.length })}
             </p>
           </div>
@@ -222,14 +224,15 @@ function VaultHomeInner() {
             />
           ) : (
             <>
-              <ul className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+              <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {shown.map((s) => (
-                  <li key={s.id} className="flex">
+                  <li key={s.id} className="flex min-w-0">
                     <StoryCard
                       story={s}
                       narrator={lookups.narratorById.get(s.narrator_id)}
                       topic={s.topic_id ? lookups.topicById.get(s.topic_id) : undefined}
-                      durationS={s.recording_id ? durations.get(s.recording_id) : null}
+                      durationS={s.recording_id ? durations.get(s.recording_id)?.durationS : null}
+                      recordedAt={s.recording_id ? durations.get(s.recording_id)?.recordedAt : undefined}
                     />
                   </li>
                 ))}
@@ -262,7 +265,7 @@ function StatsRow({ stats, error, onRetry }: { stats: VaultStats | null; error: 
       key: 'audio',
       label: t('stats.audio'),
       short: t('stats.short.audio'),
-      value: audio ? (audio.hours > 0 ? t('stats.hours', { h: audio.hours, m: audio.minutes }) : t('stats.minutes', { m: audio.minutes })) : null,
+      value: audio ? <DurationValue hours={audio.hours} minutes={audio.minutes} /> : null,
     },
   ];
   // One compact strip of three cells at every width (phones keep the story list close to the top).
@@ -426,5 +429,27 @@ function FilterBar({
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * "1 giờ 5 phút" as big numbers with small units: each number+unit pair never breaks, so on a 360px phone the
+ * value wraps between pairs instead of leaving the unit alone on a line. Screen readers get the plain sentence.
+ */
+function DurationValue({ hours, minutes }: { hours: number; minutes: number }) {
+  const t = useT('vault');
+  const pairs: Array<[number, string]> = hours > 0 ? [[hours, t('stats.unit.h')], [minutes, t('stats.unit.m')]] : [[minutes, t('stats.unit.m')]];
+  return (
+    <>
+      <span className="sr-only">{hours > 0 ? t('stats.hours', { h: hours, m: minutes }) : t('stats.minutes', { m: minutes })}</span>
+      <span aria-hidden="true" className="inline-flex flex-wrap items-baseline gap-x-1.5">
+        {pairs.map(([n, unit]) => (
+          <span key={unit} className="whitespace-nowrap">
+            {n}
+            <span className="ml-0.5 font-sans text-[0.8rem] font-medium text-ink-soft sm:text-[0.95rem]">{unit}</span>
+          </span>
+        ))}
+      </span>
+    </>
   );
 }

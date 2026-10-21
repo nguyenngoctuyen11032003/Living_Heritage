@@ -11,6 +11,11 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   icon?: ReactNode;
   /** Small status dot before the label. */
   dot?: boolean;
+  /**
+   * Cut the label to one line with an ellipsis. Off by default: status labels (B3/B12) must be readable in full, so a
+   * long label wraps onto a second line instead. Only for decorative/secondary labels whose full text is shown elsewhere.
+   */
+  truncate?: boolean;
 }
 
 const tones: Record<BadgeTone, string> = {
@@ -24,12 +29,13 @@ const tones: Record<BadgeTone, string> = {
 };
 
 /** Status / label pill. Always carries text — never colour alone (spec §5 a11y). */
-export function Badge({ tone = 'mint', size = 'md', icon, dot, className, children, ...rest }: BadgeProps) {
+export function Badge({ tone = 'mint', size = 'md', icon, dot, truncate = false, className, children, ...rest }: BadgeProps) {
   return (
     <span
       className={cn(
         baseDisplay('inline-flex', className),
-        'max-w-full items-center gap-1.5 rounded-full font-semibold leading-snug',
+        // rounded-[1rem] reads as a full pill on one line and stays a soft rectangle when the label wraps.
+        'max-w-full items-center gap-1.5 rounded-[1rem] font-semibold leading-snug',
         size === 'sm' ? 'px-2.5 py-0.5 text-[0.72rem]' : 'px-3 py-1 text-[0.8rem]',
         tones[tone],
         className,
@@ -38,7 +44,7 @@ export function Badge({ tone = 'mint', size = 'md', icon, dot, className, childr
     >
       {dot && <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-current opacity-80" />}
       {icon && <span aria-hidden="true" className="inline-flex shrink-0 [&>svg]:size-3.5">{icon}</span>}
-      <span className="truncate">{children}</span>
+      <span className={truncate ? 'truncate' : 'min-w-0 text-pretty break-words'}>{children}</span>
     </span>
   );
 }

@@ -3,33 +3,13 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { Button, ButtonLink, EmptyState } from '@/components/ui';
 import { useT } from '@/i18n';
-import { getSupabase, type Supabase } from '@/lib/supabase';
+import { getSupabase } from '@/lib/supabase';
 import { StatusBlock, StorytellerGate } from '@/features/storytelling/components';
-import { createSession, fetchAllQuestions, fetchTopics, useStoryteller, type NarratorInfo } from '@/features/storytelling/data';
-import { pickEasyQuestion } from '@/features/storytelling/questions';
-
-const EASY_SLUG = 'goi-y';
-
-type Started = { sessionId: string; questionId: string | null } | 'not-found';
+import { useStoryteller } from '@/features/storytelling/data';
+import { startSession, type Started } from '@/features/storytelling/startSession';
 
 // One in-flight start per narrator+topic, so React's double effects never open two sessions.
 const inflight = new Map<string, Promise<Started>>();
-
-async function startSession(sb: Supabase, narrator: NarratorInfo, slug: string): Promise<Started> {
-  let topicId: string | null;
-  let questionId: string | null = null;
-  if (slug === EASY_SLUG) {
-    const q = pickEasyQuestion(await fetchAllQuestions(sb));
-    topicId = q?.topic_id ?? null;
-    questionId = q?.id ?? null;
-  } else {
-    const topic = (await fetchTopics(sb)).find((tp) => tp.slug === slug);
-    if (!topic) return 'not-found';
-    topicId = topic.id;
-  }
-  const sessionId = await createSession(sb, { family_id: narrator.family_id, narrator_id: narrator.id, topic_id: topicId });
-  return { sessionId, questionId };
-}
 
 export default function TopicStartPage() {
   const t = useT('narrator');

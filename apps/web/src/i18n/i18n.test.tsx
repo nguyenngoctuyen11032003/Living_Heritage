@@ -1,6 +1,6 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
-import { dictionaries } from './dictionaries';
+import { getLoaded, NAMESPACES } from './dictionaries';
 import { LocaleProvider, LOCALE_STORAGE_KEY } from './LocaleProvider';
 import { translate, useLocale, useT } from './useT';
 
@@ -21,7 +21,7 @@ function leafKeys(obj: unknown, prefix = ''): string[] {
 }
 
 describe('i18n', () => {
-  it('switches language, persists it and updates <html lang>', () => {
+  it('switches language, persists it and updates <html lang>', async () => {
     render(
       <LocaleProvider initial="vi">
         <Probe />
@@ -30,7 +30,8 @@ describe('i18n', () => {
     expect(screen.getByTestId('out')).toHaveTextContent('Đăng nhập');
     expect(document.documentElement.lang).toBe('vi');
     act(() => screen.getByText('en').click());
-    expect(screen.getByTestId('out')).toHaveTextContent('Log in');
+    // The new language's dictionaries load before the switch (no raw keys on screen).
+    await waitFor(() => expect(screen.getByTestId('out')).toHaveTextContent('Log in'));
     expect(document.documentElement.lang).toBe('en');
     expect(localStorage.getItem(LOCALE_STORAGE_KEY)).toBe('en');
   });
@@ -41,8 +42,8 @@ describe('i18n', () => {
   });
 
   it('every namespace has identical vi/en key sets', () => {
-    for (const ns of Object.keys(dictionaries.vi) as (keyof typeof dictionaries.vi)[]) {
-      expect(leafKeys(dictionaries.en[ns]).sort(), ns).toEqual(leafKeys(dictionaries.vi[ns]).sort());
+    for (const ns of NAMESPACES) {
+      expect(leafKeys(getLoaded('en', ns)).sort(), ns).toEqual(leafKeys(getLoaded('vi', ns)).sort());
     }
   });
 });

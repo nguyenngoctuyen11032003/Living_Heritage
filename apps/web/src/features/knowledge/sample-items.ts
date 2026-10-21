@@ -2,7 +2,6 @@
 // a banner and an IllustrativeBadge. Every narrator here is a fictional character written by the project team;
 // none of this is a real recording. Ids start with 'mau-' so /tri-thuc/mau-… renders the sample.
 import type { Region, StoryKind } from '@lh/shared';
-import type { Locale } from '@/i18n';
 import { stripDiacritics } from '@/lib/format';
 import type { KnowledgeFilters } from './filters';
 
@@ -318,9 +317,4 @@ export function matchSamples(filters: KnowledgeFilters, items: readonly SampleIt
       return words.every((w) => h.includes(w));
     })
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
-}
-
-/** Locale pick helper for non-React code. */
-export function pickBi(value: Bi, locale: Locale): string {
-  return value[locale];
 }

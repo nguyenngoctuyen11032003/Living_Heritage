@@ -34,6 +34,11 @@ const deps: KnowledgeDeps = {
     }),
   limiter,
   dailyCap,
+  background: (task) => {
+    // Supabase Edge Runtime keeps the isolate alive for the task; elsewhere it simply runs unawaited.
+    const rt = (globalThis as { EdgeRuntime?: { waitUntil?: (p: Promise<unknown>) => void } }).EdgeRuntime;
+    if (typeof rt?.waitUntil === 'function') rt.waitUntil(task);
+  },
 };
 
 Deno.serve(async (req) => {

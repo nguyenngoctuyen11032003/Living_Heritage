@@ -12,12 +12,31 @@ import { area as narrator } from '@/routes/narrator';
 import { area as review } from '@/routes/review';
 import { area as settings } from '@/routes/settings';
 import { area as media } from '@/routes/media';
+import { area as demo } from '@/routes/demo';
 import { RouteError } from '@/routes/RouteError';
 import { NotFound } from '@/routes/NotFound';
 import type { AreaRoutes } from '@/routes/types';
+import { ensureSupabase } from '@/lib/supabase';
 
-const areas: AreaRoutes[] = [landing, legal, auth, narrator, family, review, books, knowledge, admin, settings, media];
-const collect = (key: keyof AreaRoutes): RouteObject[] => areas.flatMap((a) => a[key] ?? []);
+const areas: AreaRoutes[] = [landing, legal, auth, narrator, family, review, books, knowledge, admin, settings, media, demo];
+/**
+ * Every lazy route waits for the Supabase SDK alongside its page chunk (in parallel), so page code can use the
+ * synchronous getSupabase(). Routes with handle.noBackend (the landing page) skip it: the SDK stays off their
+ * critical path and loads once the page is idle (lib/session.tsx).
+ */
+function withBackend(list: RouteObject[]): RouteObject[] {
+  return list.map((r) => {
+    const out = { ...r } as RouteObject;
+    const lazy = r.lazy;
+    if (typeof lazy === 'function' && !(r.handle as { noBackend?: boolean } | undefined)?.noBackend) {
+      out.lazy = (async (...args: Parameters<typeof lazy>) => (await Promise.all([lazy(...args), ensureSupabase().catch(() => null)]))[0]) as typeof lazy;
+    }
+    if (r.children) out.children = withBackend(r.children);
+    return out;
+  });
+}
+
+const collect = (key: keyof AreaRoutes): RouteObject[] => withBackend(areas.flatMap((a) => a[key] ?? []));
 
 export const routes: RouteObject[] = [
   {

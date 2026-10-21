@@ -4,12 +4,15 @@ import { useCallback, useEffect, useId, useMemo, useState, type ReactNode } from
 import { Badge, Button, Dialog, Skeleton, useToast } from '@/components/ui';
 import { useCurrentFamily } from '@/features/families/current';
 import { reviewErrorKey } from '@/features/review/errors';
-import { useLocale, useT } from '@/i18n';
+import { ExperienceSections } from '@/features/knowledge/components/ExperienceSections';
+import { findTopic, useTopics } from '@/features/knowledge/topics';
+import { useLocale, usePick, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { formatDate } from '@/lib/format';
+import { track } from '@/lib/events';
 import { getSupabase } from '@/lib/supabase';
 import { loadPreview, loadShareState, requestPublish, saveToggles, setVisibility, withdrawPublic, type PublicPreview, type ShareState } from './data';
-import { canSubmitRequest, canWithdraw, currentChoice, SHARE_CHOICES, shareOptions, toggleNeedsNewRequest, type ShareChoice, type ShareContext, type ShareToggles } from './rules';
+import { canSubmitRequest, canWithdraw, currentChoice, togglePublishable, SHARE_CHOICES, shareOptions, toggleNeedsNewRequest, type ShareChoice, type ShareContext, type ShareToggles } from './rules';
 import { StoryStatusBadge } from './StoryStatusBadge';
 
 export interface ShareDialogProps {
@@ -40,6 +43,7 @@ export function ShareDialog({ storyId, open, onClose, onChanged }: ShareDialogPr
 
 function ShareBody({ storyId, onChanged }: { storyId: string; onChanged?: () => void }) {
   const t = useT('review');
+  const tv = useT('vault');
   const { locale } = useLocale();
   const { toast } = useToast();
   const { families } = useCurrentFamily();
@@ -153,6 +157,8 @@ function ShareBody({ storyId, onChanged }: { storyId: string; onChanged?: () => 
     try {
       if (state.request?.status === 'pending' && state.canPublish) await withdrawPublic(sb, storyId);
       await setVisibility(sb, storyId, choice);
+      // B17: sharing with the invited family is a share request; going back to private is un-sharing.
+      if (choice === 'family') track('share_request');
       await reload();
       done(t('share.scopeSaved'));
     } catch (e) {
@@ -183,6 +189,7 @@ function ShareBody({ storyId, onChanged }: { storyId: string; onChanged?: () => 
     setBusy('submit');
     try {
       await requestPublish(sb, storyId);
+      track('share_request');
       setAck(false);
       setToggleNote(false);
       await reload();
@@ -281,25 +288,36 @@ function ShareBody({ storyId, onChanged }: { storyId: string; onChanged?: () => 
             <p className="mt-1 text-[0.92rem] text-ink-soft">{t('share.publicPartsLead')}</p>
           </div>
           <ul className="flex flex-col gap-2">
-            {TOGGLES.map(([key, label]) => (
-              <li key={key}>
-                <label className="flex min-h-12 cursor-pointer items-start gap-3 rounded-2xl bg-paper p-3 ring-1 ring-line focus-within:ring-2 focus-within:ring-heritage">
-                  <input
-                    type="checkbox"
-                    role="switch"
-                    checked={state.toggles[key]}
-                    aria-checked={state.toggles[key]}
-                    disabled={!state.canWrite || busy !== null}
-                    onChange={(e) => void changeToggle(key, e.target.checked)}
-                    className="mt-1 size-5 shrink-0 accent-heritage"
-                  />
-                  <span className="flex flex-col">
-                    <span className="font-semibold">{t(`share.toggles.${label}.label`)}</span>
-                    <span className="text-[0.88rem] text-ink-soft">{t(`share.toggles.${label}.hint`)}</span>
-                  </span>
-                </label>
-              </li>
-            ))}
+            {TOGGLES.map(([key, label]) => {
+              // Public pages cannot show family photos yet (public_items has no photo column): the switch stays off and
+              // locked, with the reason, so nobody believes photos will be published.
+              const unavailable = !togglePublishable(key);
+              const on = unavailable ? false : state.toggles[key];
+              return (
+                <li key={key}>
+                  <label
+                    className={cn(
+                      'flex min-h-12 items-start gap-3 rounded-2xl bg-paper p-3 ring-1 ring-line focus-within:ring-2 focus-within:ring-heritage',
+                      unavailable ? 'cursor-not-allowed bg-cream' : 'cursor-pointer',
+                    )}
+                  >
+                    <input
+                      type="checkbox"
+                      role="switch"
+                      checked={on}
+                      aria-checked={on}
+                      disabled={unavailable || !state.canWrite || busy !== null}
+                      onChange={(e) => void changeToggle(key, e.target.checked)}
+                      className="mt-1 size-5 shrink-0 accent-heritage"
+                    />
+                    <span className="flex flex-col">
+                      <span className={cn('font-semibold', unavailable && 'text-ink-soft')}>{t(`share.toggles.${label}.label`)}</span>
+                      <span className="text-[0.88rem] text-ink-soft">{unavailable ? tv('sharing.photosUnavailable') : t(`share.toggles.${label}.hint`)}</span>
+                    </span>
+                  </label>
+                </li>
+              );
+            })}
           </ul>
           {toggleNote && (
             <p role="status" className="rounded-2xl bg-[#fbecc8] p-3 text-[0.92rem] text-[#6b4a0c]">
@@ -381,11 +399,11 @@ function RequestStatus({ request, locale }: { request: ShareState['request']; lo
   );
 }
 
-const asList = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string' && x.trim() !== '') : []);
-const asText = (v: unknown): string => (typeof v === 'string' ? v.trim() : '');
-
 function PreviewCard({ preview, state, onRetry }: { preview: PublicPreview | null; state: 'idle' | 'loading' | 'error'; onRetry: () => void }) {
   const t = useT('review');
+  const tv = useT('vault');
+  const pick = usePick();
+  const topics = useTopics();
   if (state === 'error')
     return (
       <div role="alert" className="flex flex-col items-start gap-2 rounded-[1.25rem] p-4 ring-1 ring-line">
@@ -402,9 +420,7 @@ function PreviewCard({ preview, state, onRetry }: { preview: PublicPreview | nul
       </div>
     );
   const region = preview.region === 'bac' || preview.region === 'trung' || preview.region === 'nam' ? t(`share.preview.regions.${preview.region}`) : t('share.preview.hidden');
-  const f = preview.fields;
-  const lists = (['conditions', 'steps', 'cautions'] as const).map((k) => [k, asList(f[k])] as const).filter(([, xs]) => xs.length > 0);
-  const texts = (['skill', 'context', 'limits'] as const).map((k) => [k, asText(f[k])] as const).filter(([, s]) => s !== '');
+  const topic = findTopic(topics, preview.topic_slug);
   return (
     <figure className="overflow-hidden rounded-[1.5rem] bg-paper ring-1 ring-heritage/30" aria-labelledby="share-preview-title">
       <figcaption id="share-preview-title" className="bg-mint/60 px-5 py-3 text-[0.88rem] font-semibold text-heritage-deep">
@@ -429,38 +445,26 @@ function PreviewCard({ preview, state, onRetry }: { preview: PublicPreview | nul
             <dt className="text-ink-soft">{t('share.preview.audio')}:</dt>
             <dd className="font-medium">{preview.audio_allowed ? t('share.preview.audioOn') : t('share.preview.audioOff')}</dd>
           </div>
+          <div className="flex gap-2">
+            <dt className="text-ink-soft">{tv('sharing.preview.topic')}:</dt>
+            <dd className="font-medium">{topic ? pick(topic.title) : t('share.preview.hidden')}</dd>
+          </div>
+          <div className="flex gap-2">
+            {/* Public pages never carry family photos (public_items has no photo column), whatever the toggle says. */}
+            <dt className="text-ink-soft">{tv('sharing.preview.photos')}:</dt>
+            <dd className="font-medium">{tv('sharing.preview.photosNone')}</dd>
+          </div>
         </dl>
         {preview.summary && <p className="leading-relaxed">{preview.summary}</p>}
-        {preview.kind === 'story' ? (
-          <p className="line-clamp-[12] whitespace-pre-line leading-relaxed text-ink">{preview.body}</p>
-        ) : (
-          <div className="flex flex-col gap-3">
-            {texts.map(([k, s]) => (
-              <div key={k}>
-                <p className="text-[0.85rem] font-semibold uppercase tracking-wide text-ink-soft">{t(`share.preview.sections.${k}`)}</p>
-                <p className="leading-relaxed">{s}</p>
-              </div>
-            ))}
-            {lists.map(([k, xs]) => (
-              <div key={k}>
-                <p className="text-[0.85rem] font-semibold uppercase tracking-wide text-ink-soft">{t(`share.preview.sections.${k}`)}</p>
-                {k === 'steps' ? (
-                  <ol className="ml-5 list-decimal leading-relaxed">
-                    {xs.map((x, i) => (
-                      <li key={i}>{x}</li>
-                    ))}
-                  </ol>
-                ) : (
-                  <ul className="ml-5 list-disc leading-relaxed">
-                    {xs.map((x, i) => (
-                      <li key={i}>{x}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+        {/* The whole text, scrollable: the preview shows exactly what outsiders will read, not a clipped excerpt.
+            Experience cards use the public page's own ExperienceSections, so empty parts read "Chưa có thông tin" there too. */}
+        <div tabIndex={0} role="region" aria-label={tv('sharing.preview.body')} className="max-h-80 overflow-y-auto rounded-xl focus-visible:outline-2 focus-visible:outline-heritage">
+          {preview.kind === 'story' ? (
+            <p className="whitespace-pre-line leading-relaxed text-ink">{preview.body}</p>
+          ) : (
+            <ExperienceSections fields={preview.fields} headingLevel="h3" />
+          )}
+        </div>
       </div>
     </figure>
   );

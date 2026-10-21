@@ -100,7 +100,7 @@ export function ReportDialog({ item, open, onClose }: { item: KnowledgeItem; ope
                 *
               </span>
             </legend>
-            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
               {REPORT_REASONS.map((r) => (
                 <label
                   key={r}

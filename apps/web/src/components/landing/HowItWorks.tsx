@@ -17,8 +17,15 @@ export function HowItWorks({ showLink = true, headingLevel = 2 }: { showLink?: b
   const H = headingLevel === 2 ? 'h3' : 'h4';
   return (
     <Section id="cach-hoat-dong" labelledBy="how-title" className="bg-paper/60">
-      <SectionHeading id="how-title" eyebrow={t('how.eyebrow')} title={t('how.title')} lead={t('how.lead')} aside={showLink ? <ArrowLink to="/cach-hoat-dong">{t('how.cta')}</ArrowLink> : undefined} />
-      <ol className="relative mt-14 grid gap-5 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-6">
+      <SectionHeading id="how-title" eyebrow={t('how.eyebrow')} title={t('how.title')} lead={t('how.lead')} aside={
+          showLink ? (
+            <div className="flex flex-wrap gap-x-6">
+              <ArrowLink to="/cach-hoat-dong">{t('how.cta')}</ArrowLink>
+              <ArrowLink to="/trai-nghiem">{t('how.try')}</ArrowLink>
+            </div>
+          ) : undefined
+        } />
+      <ol className="relative mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-6">
         <span aria-hidden="true" className="pointer-events-none absolute left-[12%] right-[12%] top-[3.25rem] hidden border-t-2 border-dashed border-heritage/20 lg:block" />
         {STEPS.map(({ key, icon: Icon, who }, i) => (
           <Reveal as="li" key={key} delay={i * 0.1} className="relative">

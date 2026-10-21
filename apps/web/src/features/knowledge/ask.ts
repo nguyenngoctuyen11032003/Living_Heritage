@@ -129,3 +129,14 @@ export function splitCitations(answer: string, max: number): (string | number)[]
   if (last < answer.length) out.push(answer.slice(last));
   return out;
 }
+
+/**
+ * How the UI presents a result. An answer is only shown when it cites at least one returned source; anything else
+ * is shown as "the sources don't answer this" (never as an unsourced AI answer — DỰ ÁN B10 / NT10).
+ */
+export function askOutcome(result: AskResult): 'no_sources' | 'not_in_sources' | 'answer' {
+  if (result.reason === 'no_sources' || result.sources.length === 0) return 'no_sources';
+  const cited = result.cited.filter((n) => n >= 1 && n <= result.sources.length);
+  if (result.answer === null || !result.answer.trim() || cited.length === 0) return 'not_in_sources';
+  return 'answer';
+}

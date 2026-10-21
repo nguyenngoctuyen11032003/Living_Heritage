@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { LocaleProvider } from '@/i18n';
 import { ApprovalBar, type ApprovalBarProps } from './ApprovalBar';
 import { ApprovalSection, type ApprovalSectionProps } from './ApprovalSection';
+import { EMPTY_ASSISTED_CONSENT } from './approval';
 
 const bar = (p: Partial<ApprovalBarProps>) =>
   render(
@@ -18,7 +19,7 @@ const section = (p: Partial<ApprovalSectionProps>) =>
         mode="narrator_confirm"
         canEdit
         dirty={false}
-        consent={false}
+        consent={EMPTY_ASSISTED_CONSENT}
         onConsentChange={vi.fn()}
         justApproved={false}
         approvedAt={null}
@@ -34,7 +35,7 @@ describe('ApprovalBar (slim: save state + one primary action)', () => {
   it('narrator: one confirm button, no save button when nothing changed', () => {
     bar({});
     expect(screen.getAllByRole('button')).toHaveLength(1);
-    expect(screen.getByRole('button', { name: 'Xác nhận đúng ý tôi' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Xác nhận nội dung' })).toBeEnabled();
     expect(screen.getByText('Mọi thay đổi đã được lưu')).toBeInTheDocument();
   });
 
@@ -72,9 +73,25 @@ describe('ApprovalSection (final step in the page flow)', () => {
     expect(screen.getByText('Nội dung này đã đúng điều bác muốn kể chưa?')).toHaveAttribute('id', 'hint');
   });
 
-  it('holds the assisted-consent checkbox', () => {
+  it('offers "Lưu để xem sau" and "Quay lại nguồn" as secondary actions next to the confirm step', () => {
+    const onSaveLater = vi.fn();
+    section({ onSaveLater });
+    screen.getByRole('button', { name: 'Lưu để xem sau' }).click();
+    expect(onSaveLater).toHaveBeenCalledOnce();
+    expect(screen.getByRole('button', { name: 'Quay lại nguồn' })).toBeInTheDocument();
+  });
+
+  it('does not offer "Lưu để xem sau" to helpers who send to the narrator', () => {
+    section({ mode: 'send_to_narrator', onSaveLater: vi.fn() });
+    expect(screen.queryByRole('button', { name: 'Lưu để xem sau' })).toBeNull();
+  });
+
+  it('records read-back, how the narrator agreed and who helped (not one checkbox)', () => {
     section({ mode: 'assisted' });
     expect(screen.getByRole('checkbox', { name: /Tôi đã đọc lại nội dung cho người kể/ })).not.toBeChecked();
+    expect(screen.getByRole('group', { name: 'Người kể đồng ý bằng cách nào?' })).toBeInTheDocument();
+    expect(screen.getAllByRole('radio')).toHaveLength(3);
+    expect(screen.getByRole('textbox', { name: /Bạn là gì của người kể/ })).toBeRequired();
   });
 
   it('shows exactly one "Chọn nơi lưu và chia sẻ" after approval', () => {

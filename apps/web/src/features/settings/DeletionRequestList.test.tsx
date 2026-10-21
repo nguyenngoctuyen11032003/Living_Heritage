@@ -16,6 +16,8 @@ const row = (o: Partial<DeletionRequestRow>): DeletionRequestRow => ({
   created_at: '2026-10-20T00:00:00Z',
   resolved_at: null,
   resolved_by: null,
+  scope: null,
+  erased_objects: null,
   ...o,
 });
 
@@ -52,5 +54,17 @@ describe('<DeletionRequestList>', () => {
     expect(screen.getByText('Một câu chuyện: Mùa gặt')).toBeTruthy();
     expect(screen.getByText('Ghi chú của nhóm: Đã xoá')).toBeTruthy();
     expect(screen.queryByText('tài khoản')).toBeNull();
+  });
+
+  it('shows the in-progress status between received and completed', () => {
+    renderList({ rows: [row({ id: 'p', status: 'processing' }), row({ id: 'o', status: 'open' })] });
+    expect(screen.getByText('Đang xử lý')).toBeTruthy();
+    expect(screen.getByText('Đã tiếp nhận')).toBeTruthy();
+  });
+
+  it('a done story request keeps its story scope after the story was erased (story_id is null)', () => {
+    renderList({ rows: [row({ id: 'e', story_id: null, scope: 'story', status: 'done' })], only: ['story', 'family'] });
+    expect(screen.getByText('Một câu chuyện')).toBeTruthy();
+    expect(screen.queryByText('Cả kho gia đình')).toBeNull();
   });
 });

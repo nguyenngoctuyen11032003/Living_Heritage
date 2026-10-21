@@ -7,9 +7,11 @@ import {
   hasActiveFilters,
   ilikeOrFilter,
   matchesQuery,
+  matchingTopicIds,
   mergeById,
   normalizeForSearch,
   splitHours,
+  topicNames,
   type SearchableStory,
 } from './filter';
 
@@ -45,6 +47,32 @@ describe('matchesQuery', () => {
     expect(matchesQuery(stories[0]!, 'banh pho')).toBe(false);
     expect(matchesQuery(stories[2]!, 'vuon rau')).toBe(true);
     expect(matchesQuery(stories[2]!, '   ')).toBe(true);
+  });
+});
+
+describe('search covers title, topic and reading text (B9)', () => {
+  const topics = topicNames([
+    { id: 't1', title_vi: 'Món ăn', title_en: 'Food & cooking' },
+    { id: '22222222-2222-2222-2222-222222222222', title_vi: 'Làm vườn', title_en: 'Gardening' },
+  ]);
+  it('matches the topic name in either language, with or without accents', () => {
+    expect(matchesQuery(stories[0]!, 'mon an', topics)).toBe(true);
+    expect(matchesQuery(stories[0]!, 'cooking', topics)).toBe(true);
+    expect(matchesQuery(stories[0]!, 'mon an')).toBe(false);
+    expect(filterStories(stories, { ...EMPTY_FILTERS, q: 'món ăn' }, topics).map((x) => x.id)).toEqual(['a']);
+  });
+  it('matches experience fields as reading text', () => {
+    const exp = s({ id: 'e', title: 'Ủ phân', kind: 'experience', fields: { steps: ['Trộn rơm với vôi bột'], cautions: ['Đeo găng tay'] } });
+    expect(matchesQuery(exp, 'voi bot')).toBe(true);
+    expect(matchesQuery(exp, 'gang tay')).toBe(true);
+    expect(matchesQuery(exp, 'recording.webm')).toBe(false);
+  });
+  it('finds matching topic ids and adds them to the server filter', () => {
+    expect(matchingTopicIds(topics, 'vuon')).toEqual(['22222222-2222-2222-2222-222222222222']);
+    expect(matchingTopicIds(topics, '  ')).toEqual([]);
+    expect(ilikeOrFilter('vườn', ['22222222-2222-2222-2222-222222222222', 'not-a-uuid'])).toBe(
+      'title.ilike.*vườn*,summary.ilike.*vườn*,body.ilike.*vườn*,topic_id.in.(22222222-2222-2222-2222-222222222222)',
+    );
   });
 });
 

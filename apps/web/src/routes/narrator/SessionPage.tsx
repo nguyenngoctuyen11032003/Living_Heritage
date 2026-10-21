@@ -27,7 +27,7 @@ export default function SessionPage() {
     if (!session) return null;
     const [narrator, topics, questions, answered, keptBefore] = await Promise.all([
       fetchNarratorById(sb, session.narrator_id),
-      fetchTopics(sb),
+      fetchTopics(sb, { activeOnly: false }),
       session.topic_id ? fetchQuestions(sb, session.topic_id) : Promise.resolve([]),
       fetchAnsweredQuestionIds(sb, session.id),
       fetchSessionRecordingCount(sb, session.id).catch(() => 0),

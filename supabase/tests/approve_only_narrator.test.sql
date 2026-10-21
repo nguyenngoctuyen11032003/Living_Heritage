@@ -1,7 +1,7 @@
 -- Only the narrator (or assisted consent while no narrator user exists) can approve a story.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(20);
+select plan(22);
 
 -- ===== Fixture =====
 -- O1 owner A, V1 viewer A, E1 editor A, N1 anonymous narrator device (narrator nA), O2 owner B,
@@ -103,7 +103,12 @@ select is(public.t_err($$select public.approve_story('d3000000-0000-4000-8000-00
 select public.t_as('11111111-1111-4111-8111-111111111111');
 select is(public.t_err($$select public.approve_story('d3000000-0000-4000-8000-000000000003')$$), '42501 not_narrator',
   'the owner must state assisted consent');
-select is(public.approve_story('d3000000-0000-4000-8000-000000000003', true), 2, 'the owner approves with assisted consent');
+select is(public.t_err($$select public.approve_story('d3000000-0000-4000-8000-000000000003', true)$$), '22023 invalid_consent_method',
+  'a bare consent checkbox is not enough: the method is required');
+select is(public.t_err($$select public.approve_story('d3000000-0000-4000-8000-000000000003', true, 'assisted_in_person')$$),
+  '22023 helper_relation_required', 'and so is the helper');
+select is(public.approve_story('d3000000-0000-4000-8000-000000000003', true, 'assisted_in_person', 'Cháu nội'), 2,
+  'the owner approves with recorded assisted consent');
 select is((select details ->> 'method' from public.audit_log where action = 'approve_story' and target_id = 'd3000000-0000-4000-8000-000000000003'),
   'assisted', 'assisted consent is logged');
 

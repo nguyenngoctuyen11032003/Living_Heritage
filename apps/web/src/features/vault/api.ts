@@ -1,6 +1,6 @@
 // Data access for the family vault. Every query runs as the signed-in user; RLS decides which rows come back.
 import type { Supabase } from '@/lib/supabase';
-import { filterStories, ilikeOrFilter, mergeById, type VaultFilters } from './filter';
+import { filterStories, ilikeOrFilter, matchingTopicIds, mergeById, type TopicNames, type VaultFilters } from './filter';
 import { STORY_COLUMNS, type NarratorLite, type RecordingLite, type TopicLite, type VaultStory } from './types';
 
 export const PAGE_SIZE = 24;
@@ -47,11 +47,12 @@ export async function fetchStoriesPage(sb: Supabase, familyId: string, f: VaultF
 }
 
 /**
- * Text search: a server ilike (exact accents) merged with a client-side, diacritic-insensitive pass over
- * the most recent SEARCH_SCAN_LIMIT stories, so "banh chung" also finds "Bánh chưng".
+ * Text search over title, topic name and reading text (never file names): a server ilike (exact accents, plus the
+ * matching topics) merged with a client-side, diacritic-insensitive pass over the most recent SEARCH_SCAN_LIMIT
+ * stories, so "banh chung" also finds "Bánh chưng".
  */
-export async function searchStories(sb: Supabase, familyId: string, f: VaultFilters): Promise<VaultStory[]> {
-  const or = ilikeOrFilter(f.q);
+export async function searchStories(sb: Supabase, familyId: string, f: VaultFilters, topics: TopicNames = new Map()): Promise<VaultStory[]> {
+  const or = ilikeOrFilter(f.q, matchingTopicIds(topics, f.q));
   const scan = applyServerFilters(sb.from('stories').select(STORY_COLUMNS), familyId, f)
     .order('created_at', { ascending: false })
     .limit(SEARCH_SCAN_LIMIT);
@@ -59,7 +60,7 @@ export async function searchStories(sb: Supabase, familyId: string, f: VaultFilt
     ? applyServerFilters(sb.from('stories').select(STORY_COLUMNS), familyId, f).or(or).order('created_at', { ascending: false }).limit(200)
     : null;
   const [scanned, matched] = await Promise.all([scan, server ?? Promise.resolve({ data: [], error: null })]);
-  const local = filterStories(check(scanned) as VaultStory[], f);
+  const local = filterStories(check(scanned) as VaultStory[], f, topics);
   return mergeById(check(matched) as VaultStory[], local);
 }
 

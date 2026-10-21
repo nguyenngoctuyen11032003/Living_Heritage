@@ -171,6 +171,7 @@ function PendingCard({ row, onDone }: { row: PendingRow; onDone: (h: Handled) =>
       >
         {open ? t('publish.hidePreview') : t('publish.preview')}
       </Button>
+      <p className="mt-2 text-[0.9rem] leading-relaxed text-ink-soft">{t('publish.previewLogged')}</p>
 
       {open && (
         <div id={previewId} className="mt-5 rounded-[1.25rem] border border-dashed border-heritage/30 bg-cream p-5 md:p-7">

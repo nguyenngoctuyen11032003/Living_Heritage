@@ -2,7 +2,6 @@
 import { ArrowUp } from 'lucide-react';
 import { Link } from 'react-router';
 import { useT } from '@/i18n';
-import { LanguageSwitch } from './LanguageSwitch';
 import { Logo } from './Logo';
 
 type FooterLink = { to: string; label: string };
@@ -34,6 +33,7 @@ export function SiteFooter() {
       links: [
         { to: '/to-chuc', label: t('footer.links.orgs') },
         { to: '/#cau-hoi', label: t('footer.links.faq') },
+        { to: '/to-chuc#lien-he', label: tc('footer.contact') },
       ],
     },
     {
@@ -48,10 +48,11 @@ export function SiteFooter() {
   return (
     <footer className="relative isolate overflow-hidden bg-night text-night-ink">
       <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 -z-10 opacity-[0.12] mix-blend-overlay" />
-      <div className="mx-auto max-w-7xl px-4 pb-10 pt-16 sm:px-6 md:pt-20 lg:px-8">
+      {/* @container: the link grid steps by available em-width, so at very large text it drops to one column. */}
+      <div className="@container mx-auto max-w-7xl px-4 pb-10 pt-16 sm:px-6 md:pt-20 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-12">
-          <div className="lg:col-span-4">
-            <Logo tone="dark" className="whitespace-nowrap" />
+          <div className="min-w-0 lg:col-span-4">
+            <Logo tone="dark" wrap />
             <p className="mt-4 max-w-xs font-serif text-[1.1rem] italic leading-relaxed text-night-ink/80">{t('footer.tagline')}</p>
             <div className="mt-6 inline-flex max-w-sm items-start gap-3 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
               <span aria-hidden="true" className="relative mt-1.5 inline-flex size-2 shrink-0">
@@ -64,7 +65,7 @@ export function SiteFooter() {
               </span>
             </div>
           </div>
-          <nav aria-label={tc('brand.name')} className="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:col-span-8">
+          <nav aria-label={tc('brand.name')} className="grid min-w-0 grid-cols-1 gap-8 @min-[16em]:grid-cols-2 @min-[32em]:grid-cols-4 lg:col-span-8">
             {columns.map((col) => (
               <div key={col.title}>
                 <h2 className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-mint">{col.title}</h2>
@@ -88,13 +89,10 @@ export function SiteFooter() {
 
         <div className="mt-6 flex flex-col gap-5 border-t border-white/10 pt-6 md:flex-row md:items-center md:justify-between">
           <p className="text-[0.82rem] text-night-ink/70">{tc('footer.rights')}</p>
-          <div className="flex items-center gap-3">
-            <LanguageSwitch tone="dark" />
-            <a href="#main" className="inline-flex min-h-12 items-center gap-2 rounded-full px-4 text-[0.85rem] font-semibold text-night-ink/85 ring-1 ring-white/15 transition-colors hover:bg-white/8">
-              <ArrowUp aria-hidden="true" className="size-4" />
-              {t('footer.backToTop')}
-            </a>
-          </div>
+          <a href="#main" className="inline-flex min-h-12 items-center gap-2 self-start rounded-full px-4 text-[0.85rem] font-semibold text-night-ink/85 ring-1 ring-white/15 transition-colors hover:bg-white/8 md:self-auto">
+            <ArrowUp aria-hidden="true" className="size-4" />
+            {t('footer.backToTop')}
+          </a>
         </div>
       </div>
     </footer>

@@ -4,6 +4,11 @@ export type NarratorLang = 'vi' | 'en';
 export const NARRATOR_LANGS: readonly NarratorLang[] = ['vi', 'en'];
 export const GENERATION_LEVELS = [1, 2, 3, 4, 5, 6] as const;
 export const MAX_RELATION = 60;
+export const MAX_HELPER_NOTE = 120;
+
+/** How the narrator confirms their stories (B11/B13): on their own device, or with a helper and how. */
+export const CONSENT_METHODS = ['self_device', 'assisted_in_person', 'assisted_phone', 'assisted_video'] as const;
+export type ConsentMethod = (typeof CONSENT_METHODS)[number];
 
 /** Suggestions for the relation field (free text is allowed). */
 export const RELATION_SUGGESTIONS = {
@@ -20,14 +25,29 @@ export interface NarratorDraft {
   lang: NarratorLang;
   /** '' (not placed in the tree) or '1'..'6' */
   generation: string;
+  /** '' (not recorded) or a ConsentMethod */
+  consent_method: ConsentMethod | '';
+  helper_note: string;
 }
 
 export type NarratorDraftErrors = Partial<
-  Record<'display_name' | 'pen_name' | 'birth_year' | 'relation' | 'lang' | 'generation', 'required' | 'tooLong' | 'invalidYear' | 'relationTooLong' | 'invalidLang' | 'invalidGeneration'>
+  Record<
+    'display_name' | 'pen_name' | 'birth_year' | 'relation' | 'lang' | 'generation' | 'consent_method' | 'helper_note',
+    'required' | 'tooLong' | 'invalidYear' | 'relationTooLong' | 'invalidLang' | 'invalidGeneration' | 'invalidConsentMethod' | 'helperRequired' | 'helperTooLong'
+  >
 >;
 
 export function isNarratorLang(v: unknown): v is NarratorLang {
   return v === 'vi' || v === 'en';
+}
+
+export function isConsentMethod(v: unknown): v is ConsentMethod {
+  return typeof v === 'string' && (CONSENT_METHODS as readonly string[]).includes(v);
+}
+
+/** Assisted methods need a named helper (B11: record who helped and how consent was confirmed). */
+export function isAssisted(m: ConsentMethod | ''): boolean {
+  return m !== '' && m !== 'self_device';
 }
 
 /** Pure validation, shared with tests. */
@@ -46,6 +66,10 @@ export function validateNarrator(d: NarratorDraft, currentYear = new Date().getF
     const g = Number(d.generation);
     if (!(GENERATION_LEVELS as readonly number[]).includes(g)) e.generation = 'invalidGeneration';
   }
+  if (d.consent_method !== '' && !isConsentMethod(d.consent_method)) e.consent_method = 'invalidConsentMethod';
+  const helper = d.helper_note.trim();
+  if (helper.length > MAX_HELPER_NOTE) e.helper_note = 'helperTooLong';
+  else if (!helper && isConsentMethod(d.consent_method) && isAssisted(d.consent_method)) e.helper_note = 'helperRequired';
   return e;
 }
 
@@ -58,5 +82,15 @@ export function toNarratorRow(d: NarratorDraft) {
     relation: d.relation.trim().replace(/\s+/g, ' ') || null,
     lang: d.lang,
     generation: d.generation ? Number(d.generation) : null,
+  };
+}
+
+/** narrators.consent_method / helper_note. */
+export function toConsentColumns(d: NarratorDraft): { consent_method: ConsentMethod | null; helper_note: string | null } {
+  const method = d.consent_method || null;
+  return {
+    consent_method: method,
+    // A helper note only makes sense with a recorded method; "self_device" keeps an optional note.
+    helper_note: method ? d.helper_note.trim().replace(/\s+/g, ' ') || null : null,
   };
 }

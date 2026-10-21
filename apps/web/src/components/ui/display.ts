@@ -1,4 +1,7 @@
-// `cn()` only joins classes; it does not resolve conflicts. A component whose base classes include a display
+// Since the 2026-10 audit `cn()` itself lets the last unprefixed display utility win (lib/cn.ts); baseDisplay() stays as
+// the explicit, belt-and-braces form for component code and for class strings built without cn().
+//
+// History: `cn()` used to only join classes, without resolving conflicts. A component whose base classes include a display
 // utility (`inline-flex`, `flex`, `block`…) therefore cannot be hidden by a caller passing `className="hidden sm:inline-flex"`:
 // both `display` rules apply and the stylesheet order, not the caller, decides the winner (QA 2026-10-22 P0 #1).
 //

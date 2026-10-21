@@ -1,22 +1,26 @@
-import { ArrowLeft, CheckCircle2, Share2 } from 'lucide-react';
+import { ArrowLeft, BookmarkCheck, CheckCircle2, Share2 } from 'lucide-react';
 import { useEffect, useId, useRef, type ReactNode } from 'react';
-import { Button } from '@/components/ui';
+import { Button, Field, Input } from '@/components/ui';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
-import type { ApprovalMode } from './approval';
+import { CONSENT_METHODS, HELPER_RELATION_MAX, isAssistedConsentComplete, type ApprovalMode, type AssistedConsent } from './approval';
 
 export interface ApprovalSectionProps {
   mode: ApprovalMode;
   canEdit: boolean;
   dirty: boolean;
-  consent: boolean;
-  onConsentChange: (next: boolean) => void;
+  /** Assisted mode: the helper's record (read-back checkbox, how the narrator agreed, who the helper is). */
+  consent: AssistedConsent;
+  onConsentChange: (next: AssistedConsent) => void;
   /** The narrator just confirmed in this session: show the success panel (with the single "share" CTA). */
   justApproved: boolean;
   /** Formatted approval date, when approved. */
   approvedAt: string | null;
   onShare: () => void;
   onBackToSource: () => void;
+  /** "Lưu để xem sau" (DỰ ÁN.md B8 secondary action): save any edits, then leave; confirmation can wait. */
+  onSaveLater?: () => void;
+  saving?: boolean;
   /** id given to the explanation the sticky bar's primary button points at (aria-describedby). */
   describedById: string;
   narratorMode?: boolean;
@@ -27,9 +31,11 @@ export interface ApprovalSectionProps {
  * explainer + checkbox, the success panel and the secondary actions. The primary action itself sits in the slim ApprovalBar.
  */
 export function ApprovalSection(props: ApprovalSectionProps) {
-  const { mode, canEdit, dirty, consent, onConsentChange, justApproved, approvedAt, onShare, onBackToSource, describedById, narratorMode } = props;
+  const { mode, canEdit, dirty, consent, onConsentChange, justApproved, approvedAt, onShare, onBackToSource, onSaveLater, saving, describedById, narratorMode } = props;
   const t = useT('review');
   const consentId = useId();
+  const methodName = useId();
+  const consentReady = isAssistedConsentComplete(consent);
   const successRef = useRef<HTMLDivElement>(null);
   const success = justApproved && mode === 'approved';
 
@@ -81,19 +87,31 @@ export function ApprovalSection(props: ApprovalSectionProps) {
       body = (
         <>
           <p className="font-semibold text-heritage-deep">{t('approval.assistedTitle')}</p>
-          <p id={!dirty && consent ? describedById : undefined} className={note}>
+          <p id={!dirty && consentReady ? describedById : undefined} className={note}>
             {t('approval.assistedLead')}
           </p>
           <label htmlFor={consentId} className="flex min-h-12 cursor-pointer items-start gap-3 rounded-2xl bg-paper p-3 text-[0.95rem] ring-1 ring-line">
-            <input id={consentId} type="checkbox" checked={consent} onChange={(e) => onConsentChange(e.target.checked)} className="mt-1 size-5 shrink-0 accent-heritage" />
+            <input id={consentId} type="checkbox" checked={consent.confirmed} onChange={(e) => onConsentChange({ ...consent, confirmed: e.target.checked })} className="mt-1 size-5 shrink-0 accent-heritage" />
             <span>{t('approval.assistedConsent')}</span>
           </label>
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-1.5 text-[0.9rem] font-semibold text-ink">{t('approval.method.legend')}</legend>
+            {CONSENT_METHODS.map((m) => (
+              <label key={m} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl bg-paper px-3 py-2 text-[0.95rem] ring-1 ring-line">
+                <input type="radio" name={methodName} value={m} checked={consent.method === m} onChange={() => onConsentChange({ ...consent, method: m })} className="size-5 shrink-0 accent-heritage" />
+                <span>{t(`approval.method.${m}`)}</span>
+              </label>
+            ))}
+          </fieldset>
+          <Field label={t('approval.relation.label')} hint={t('approval.relation.hint')} required className="max-w-md">
+            <Input value={consent.relation} maxLength={HELPER_RELATION_MAX} autoComplete="off" onChange={(e) => onConsentChange({ ...consent, relation: e.target.value })} />
+          </Field>
           {dirty ? (
             <p id={describedById} className="text-[0.88rem] font-semibold text-terracotta">
               {t('approval.saveFirst')}
             </p>
           ) : (
-            !consent && (
+            !consentReady && (
               <p id={describedById} className="text-[0.85rem] text-ink-soft">
                 {t('approval.assistedNeedConsent')}
               </p>
@@ -145,6 +163,11 @@ export function ApprovalSection(props: ApprovalSectionProps) {
         <Button variant="ghost" onClick={onBackToSource} leftIcon={<ArrowLeft className="size-5" aria-hidden="true" />}>
           {t('approval.backToSource')}
         </Button>
+        {onSaveLater && canEdit && (mode === 'narrator_confirm' || mode === 'assisted') && (
+          <Button variant="secondary" onClick={onSaveLater} loading={saving} leftIcon={<BookmarkCheck className="size-5" aria-hidden="true" />}>
+            {t('approval.saveLater')}
+          </Button>
+        )}
         {canEdit && mode !== 'send_to_narrator' && mode !== 'read_only' && <p className="max-w-md text-[0.82rem] text-ink-soft">{t('editor.saveNeedsApproval')}</p>}
       </div>
     </section>

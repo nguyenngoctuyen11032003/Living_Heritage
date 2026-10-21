@@ -34,7 +34,7 @@ export interface WordsPullUpMultiStyleProps extends BaseProps {
 }
 
 /**
- * Each word sits in an overflow-hidden slot and slides up y:20 → 0 (stagger 0.08 s) once it enters the viewport.
+ * Each word sits in a vertically clipped slot and slides up y:20 → 0 in 350 ms (stagger 0.08 s, B15) once it enters the viewport.
  * Slots carry vertical padding so Vietnamese stacked diacritics (ố, ẫ, ặ…) are never clipped.
  * Screen readers get the plain sentence; reduced motion renders static text.
  */
@@ -51,8 +51,11 @@ function PullUp({ as: Tag = 'p', className, delay = 0, stagger = 0.08, immediate
         {words.map(({ w, cls }, i) => {
           const last = i === words.length - 1;
           return (
-            <Fragment key={i}>
-              <span className="inline-block overflow-hidden pb-[0.1em] pt-[0.16em] align-bottom -mb-[0.1em] -mt-[0.16em]">
+            // Keyed on the word so a language switch remounts it and the pull-up replays with the new text.
+            <Fragment key={`${i}:${w}`}>
+              {/* Clip only vertically (overflow-y: clip, x stays visible): the rise is still masked, but a trailing
+                  suffix (superscript *) or negative tracking on the last glyph is never cut at the right edge. */}
+              <span className={cn('inline-block overflow-x-visible overflow-y-clip pb-[0.12em] pt-[0.22em] align-bottom -mb-[0.12em] -mt-[0.22em]', last && suffix ? 'pr-[0.08em]' : undefined)}>
               {reduced ? (
                 <span className={cn('inline-block', cls)}>
                   {w}
@@ -60,10 +63,10 @@ function PullUp({ as: Tag = 'p', className, delay = 0, stagger = 0.08, immediate
                 </span>
               ) : (
                 <motion.span
-                  className={cn('inline-block will-change-transform', cls)}
+                  className={cn('inline-block', cls)}
                   initial={{ y: distance, opacity: 0 }}
                   animate={show ? { y: 0, opacity: 1 } : undefined}
-                  transition={{ duration: 0.8, ease: EASE_CARD, delay: delay + i * stagger }}
+                  transition={{ duration: 0.35, ease: EASE_CARD, delay: delay + i * stagger }}
                 >
                   {w}
                   {last && suffix}

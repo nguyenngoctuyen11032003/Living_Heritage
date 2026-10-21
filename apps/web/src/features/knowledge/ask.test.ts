@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { askElders, AskError, askErrorFrom, isValidQuestion, normalizeQuestion, splitCitations } from './ask';
+import { askElders, AskError, askErrorFrom, askOutcome, isValidQuestion, normalizeQuestion, splitCitations } from './ask';
 
 const CONFIG = { url: 'https://demo.supabase.co/', key: 'sb_publishable_test', configured: true };
 
@@ -59,5 +59,20 @@ describe('helpers', () => {
   it('splitCitations keeps only markers that point at a source', () => {
     expect(splitCitations('A [1]. B [3] C [2][1].', 2)).toEqual(['A ', 1, '. B [3] C ', 2, 1, '.']);
     expect(splitCitations('Không có.', 2)).toEqual(['Không có.']);
+  });
+});
+
+describe('askOutcome', () => {
+  const src = okBody.sources as never;
+  it('shows an answer only when it cites a returned source', () => {
+    expect(askOutcome({ answer: 'A [1].', cited: [1], sources: src, reason: null })).toBe('answer');
+    expect(askOutcome({ answer: 'A.', cited: [], sources: src, reason: null })).toBe('not_in_sources');
+    expect(askOutcome({ answer: 'A [3].', cited: [3], sources: src, reason: null })).toBe('not_in_sources');
+    expect(askOutcome({ answer: '  ', cited: [1], sources: src, reason: null })).toBe('not_in_sources');
+    expect(askOutcome({ answer: null, cited: [], sources: src, reason: 'not_in_sources' })).toBe('not_in_sources');
+  });
+  it('says clearly when there is nothing to cite', () => {
+    expect(askOutcome({ answer: null, cited: [], sources: [], reason: 'no_sources' })).toBe('no_sources');
+    expect(askOutcome({ answer: 'Made up.', cited: [1], sources: [], reason: null })).toBe('no_sources');
   });
 });

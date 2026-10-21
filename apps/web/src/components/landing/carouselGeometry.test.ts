@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cardGeometry, cardWidth, edgeHeight, FRAME, pushX, roundedPolygonPath, wrap } from './carouselGeometry';
+import { cardGeometry, cardWidth, edgeHeight, FRAME, pushX, quadMatrix3d, roundedPolygonPath, wrap } from './carouselGeometry';
 
 describe('curved carousel geometry', () => {
   it('centre card is 170 × 280 units at d = 0', () => {
@@ -54,5 +54,29 @@ describe('curved carousel geometry', () => {
     expect(p.startsWith('M')).toBe(true);
     expect(p.endsWith('Z')).toBe(true);
     expect(p.match(/Q/g)).toHaveLength(4);
+  });
+
+  it('quadMatrix3d maps the box corners onto the quad', () => {
+    const quad = [
+      [10, 20],
+      [130, 5],
+      [140, 300],
+      [12, 260],
+    ] as const;
+    const [tl, tr, br, bl] = quad;
+    const m = quadMatrix3d(200, 400, tl, tr, br, bl)
+      .slice('matrix3d('.length, -1)
+      .split(',')
+      .map(Number);
+    // column-major 4×4 applied to (x, y, 0, 1), then divided by w
+    const apply = (x: number, y: number) => {
+      const w = m[3]! * x + m[7]! * y + m[15]!;
+      return [(m[0]! * x + m[4]! * y + m[12]!) / w, (m[1]! * x + m[5]! * y + m[13]!) / w];
+    };
+    const corners = [apply(0, 0), apply(200, 0), apply(200, 400), apply(0, 400)];
+    corners.forEach(([x, y], i) => {
+      expect(x).toBeCloseTo(quad[i]![0], 3);
+      expect(y).toBeCloseTo(quad[i]![1], 3);
+    });
   });
 });

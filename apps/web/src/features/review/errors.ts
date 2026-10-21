@@ -9,6 +9,13 @@ export const REVIEW_ERROR_CODES = [
   'story_not_approved',
   'invalid_fields',
   'anonymous_not_allowed',
+  /** Someone else saved or confirmed a newer version meanwhile (client check; a future RPC argument may raise it too). */
+  // approve_story (assisted path) argument checks.
+  'invalid_consent_method',
+  'helper_relation_required',
+  // save_story_draft p_topic_id names a missing or retired topic.
+  'invalid_topic',
+  'stale_version',
 ] as const;
 
 export type ReviewErrorKey = (typeof REVIEW_ERROR_CODES)[number] | 'generic';

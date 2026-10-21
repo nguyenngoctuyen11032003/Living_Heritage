@@ -59,3 +59,7 @@ verify_jwt = false
 
 [functions.question-tts]
 verify_jwt = true
+
+# Admin-only: runs admin_process_deletion as the caller (is_admin checked in the DB), then erases the returned storage objects.
+[functions.admin-erase]
+verify_jwt = true

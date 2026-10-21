@@ -1,7 +1,7 @@
 import { useLocale, useT } from '@/i18n';
 import { formatDate } from '@/lib/format';
 import { paragraphs } from '../experience';
-import type { KnowledgeItem } from '../types';
+import { narratorText, type KnowledgeItem } from '../types';
 import { ExperienceSections } from './ExperienceSections';
 
 /** Lede + full narration (story) or the experience sections. Also used for the admin's exact preview. */
@@ -50,7 +50,7 @@ export function SourceBox({ item, topicTitle, headingLevel = 'h2' }: { item: Kno
   const { locale } = useLocale();
   const H = headingLevel;
   const rows: [string, string][] = [
-    [t('detail.sourceNarrator'), item.narratorLabel || t('detail.missing')],
+    [t('detail.sourceNarrator'), narratorText(item.narratorLabel, t('card.anonymous'))],
     [t('detail.sourceRegion'), item.region ? t(`regions.${item.region}`) : t('detail.missing')],
     [t('detail.sourceDecade'), item.decade ? t('card.decade', { decade: item.decade }) : t('detail.missing')],
   ];
@@ -61,9 +61,9 @@ export function SourceBox({ item, topicTitle, headingLevel = 'h2' }: { item: Kno
       {topicTitle && <p className="mt-1 text-[0.85rem] text-ink-soft">{topicTitle}</p>}
       <dl className="mt-4 divide-y divide-line/70 text-[0.95rem]">
         {rows.map(([k, v]) => (
-          <div key={k} className="flex justify-between gap-4 py-2.5">
+          <div key={k} className="flex flex-wrap justify-between gap-x-4 gap-y-1 py-2.5">
             <dt className="text-ink-soft">{k}</dt>
-            <dd className="text-right font-semibold text-ink">{v}</dd>
+            <dd className="min-w-0 break-words text-right font-semibold text-ink">{v}</dd>
           </div>
         ))}
       </dl>

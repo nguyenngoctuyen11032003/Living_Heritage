@@ -5,13 +5,14 @@ import { Reveal } from '@/components/motion';
 import { Button, EmptyState, Field, Select } from '@/components/ui';
 import { usePick, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
+import { track } from '@/lib/events';
 import { REGIONS, STORY_KINDS, type Region, type StoryKind } from '@lh/shared';
 import { AskTheElders } from '../components/AskTheElders';
 import { KnowledgeCard, KnowledgeCardSkeleton } from '../components/KnowledgeCard';
 import { SampleBanner } from '../components/SampleBanner';
 import { TopicMotif } from '../components/TopicMotif';
 import { activeFilterCount, DECADES, EMPTY_FILTERS, filtersFromParams, filtersToParams, type KnowledgeFilters } from '../filters';
-import { useSavedList } from '../saved';
+import { useSaved } from '../useSaved';
 import { findTopic, topicStyle, useTopics } from '../topics';
 import { useKnowledgeSearch } from '../useKnowledgeSearch';
 
@@ -21,7 +22,7 @@ export default function ExplorePage() {
   const t = useT('knowledge');
   const pick = usePick();
   const topics = useTopics();
-  const saved = useSavedList();
+  const saved = useSaved().list;
   const [params, setParams] = useSearchParams();
   const filters = useMemo(() => filtersFromParams(params), [params]);
   const [qInput, setQInput] = useState(filters.q);
@@ -56,6 +57,7 @@ export default function ExplorePage() {
 
   function onSubmit(e: FormEvent) {
     e.preventDefault();
+    track('search');
     update({ q: qInput });
     resultsRef.current?.focus({ preventScroll: false });
   }
@@ -67,10 +69,13 @@ export default function ExplorePage() {
 
   function searchFor(q: string) {
     const text = q.trim().slice(0, 120);
+    track('search');
     setQInput(text);
     update({ q: text });
     focusResults();
   }
+
+  const openResult = useCallback(() => track('open_result'), []);
 
   function reset() {
     setQInput('');
@@ -108,20 +113,16 @@ export default function ExplorePage() {
         <div className="relative mx-auto max-w-6xl px-4 pb-12 pt-12 md:px-8 md:pb-16 md:pt-20">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-[0.78rem] font-bold uppercase tracking-[0.2em] text-terracotta">{t('hero.kicker')}</p>
-            <Link
-              to="/da-luu"
-              className="inline-flex min-h-12 items-center gap-2 rounded-full px-4 text-[0.9rem] font-semibold text-heritage ring-1 ring-line transition-colors hover:bg-mint/60"
-            >
-              <Bookmark aria-hidden="true" className="size-4" />
-              {t('hero.savedLink', { n: saved.length })}
-            </Link>
+            {/* Phones: the pill moves under the lede so it never sits between the eyebrow and the h1. */}
+            <SavedPill n={saved.length} className="hidden sm:inline-flex" />
           </div>
           <Reveal>
-            <h1 id="hub-title" className="mt-5 max-w-4xl font-serif text-[2.3rem] font-semibold leading-[1.12] tracking-[-0.01em] text-heritage-deep sm:text-[3rem] md:text-[4rem]">
+            <h1 id="hub-title" className="mt-5 max-w-4xl font-serif text-[2.3rem] font-semibold leading-display tracking-[-0.01em] text-heritage-deep sm:text-[3rem] md:text-[4rem]">
               {t('hero.title')}
             </h1>
           </Reveal>
           <p className="mt-5 max-w-2xl text-[1.08rem] leading-relaxed text-ink-soft">{t('hero.lede')}</p>
+          <SavedPill n={saved.length} className="mt-5 sm:hidden" />
 
           <form role="search" onSubmit={onSubmit} className="mt-8 max-w-3xl">
             <label htmlFor={searchId} className="sr-only">
@@ -202,7 +203,7 @@ export default function ExplorePage() {
           <h2 id="filters-title" className="sr-only">
             {t('filters.title')}
           </h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1.2fr_1.4fr_1fr_1fr]">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-[1.2fr_1.4fr_1fr_1fr]">
             <Field label={t('filters.topic')}>
               <Select value={filters.topic ?? ''} onChange={(e) => update({ topic: e.target.value || null })}>
                 <option value="">{t('filters.allTopics')}</option>
@@ -215,7 +216,7 @@ export default function ExplorePage() {
             </Field>
             <fieldset className="flex flex-col gap-1.5">
               <legend className="mb-1.5 text-[0.9rem] font-semibold text-ink">{t('filters.kind')}</legend>
-              <div className="grid grid-cols-3 gap-1 rounded-2xl bg-cream p-1 ring-1 ring-line">
+              <div className="flex flex-wrap gap-1 rounded-2xl bg-cream p-1 ring-1 ring-line">
                 {[null, ...STORY_KINDS].map((k) => {
                   const on = filters.kind === k;
                   return (
@@ -225,7 +226,8 @@ export default function ExplorePage() {
                       aria-pressed={on}
                       onClick={() => update({ kind: k as StoryKind | null })}
                       className={cn(
-                        'min-h-11 whitespace-nowrap rounded-xl px-1.5 text-[0.84rem] font-semibold leading-tight transition-colors',
+                        // Share one row while the labels fit; wrap (200% text, long locales) instead of overflowing.
+                        'min-h-11 min-w-fit max-w-full grow basis-0 break-words rounded-xl px-2.5 py-1 text-[0.84rem] font-semibold leading-tight transition-colors',
                         on ? 'bg-heritage text-cream shadow-sm' : 'text-ink-soft hover:bg-mint/60 hover:text-heritage',
                       )}
                     >
@@ -264,10 +266,10 @@ export default function ExplorePage() {
                   type="button"
                   onClick={() => removeChip(c.key)}
                   aria-label={t('filters.remove', { label: c.label })}
-                  className="inline-flex min-h-10 items-center gap-1.5 rounded-full bg-mint px-3.5 text-[0.85rem] font-semibold text-heritage-deep hover:bg-mint/70"
+                  className="inline-flex min-h-10 max-w-full items-center gap-1.5 break-words rounded-full bg-mint px-3.5 py-1 text-left text-[0.85rem] font-semibold text-heritage-deep hover:bg-mint/70"
                 >
-                  {c.label}
-                  <X aria-hidden="true" className="size-4" />
+                  <span className="min-w-0">{c.label}</span>
+                  <X aria-hidden="true" className="size-4 shrink-0" />
                 </button>
               ))}
               <Button variant="ghost" onClick={reset} leftIcon={<RotateCcw aria-hidden="true" className="size-4" />}>
@@ -303,9 +305,9 @@ export default function ExplorePage() {
               />
             </div>
           ) : search.loading && search.items.length === 0 ? (
-            <ul className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3" aria-hidden="true">
+            <ul className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" aria-hidden="true">
               {Array.from({ length: 6 }, (_, i) => (
-                <li key={i} className={cn(i === 0 && !narrowing && 'md:col-span-2')}>
+                <li key={i} className={cn(i === 0 && !narrowing && 'md:col-span-2 lg:col-span-3')}>
                   <KnowledgeCardSkeleton featured={i === 0 && !narrowing} />
                 </li>
               ))}
@@ -314,12 +316,12 @@ export default function ExplorePage() {
             <NoResults filters={filters} chips={chips} onRemove={removeChip} onReset={reset} />
           ) : (
             <>
-              <ul className={cn('mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3', search.loading && 'opacity-60 transition-opacity')}>
+              <ul className={cn('mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3', search.loading && 'opacity-60 transition-opacity')}>
                 {search.items.map((item, i) => {
                   const featured = showFeatured && i === 0;
                   return (
                     <Reveal as="li" key={item.id} delay={Math.min(i % 3, 2) * 0.06} className={cn(featured && 'md:col-span-2 lg:col-span-3')}>
-                      <KnowledgeCard item={item} topics={topics} featured={featured} />
+                      <KnowledgeCard item={item} topics={topics} featured={featured} onOpen={openResult} />
                     </Reveal>
                   );
                 })}
@@ -346,6 +348,22 @@ export default function ExplorePage() {
   );
 }
 
+function SavedPill({ n, className }: { n: number; className?: string }) {
+  const t = useT('knowledge');
+  return (
+    <Link
+      to="/da-luu"
+      className={cn(
+        'inline-flex min-h-12 items-center gap-2 rounded-full px-4 text-[0.9rem] font-semibold text-heritage ring-1 ring-line transition-colors hover:bg-mint/60',
+        className,
+      )}
+    >
+      <Bookmark aria-hidden="true" className="size-4" />
+      {t('hero.savedLink', { n })}
+    </Link>
+  );
+}
+
 function NoResults({
   filters,
   chips,
@@ -361,11 +379,11 @@ function NoResults({
   const q = filters.q.trim();
   return (
     <div className="mt-6 rounded-[1.75rem] border border-dashed border-line bg-paper/70 px-6 py-10 md:px-10">
-      <div className="flex items-start gap-4">
+      <div className="flex flex-col items-start gap-4 sm:flex-row">
         <span aria-hidden="true" className="inline-flex size-14 shrink-0 items-center justify-center rounded-2xl bg-mint text-heritage">
           <SearchX className="size-7" />
         </span>
-        <div className="min-w-0">
+        <div className="min-w-0 max-w-full">
           <h3 className="font-serif text-[1.35rem] font-semibold text-heritage-deep">{t('empty.title')}</h3>
           <p className="mt-2 max-w-2xl leading-relaxed text-ink-soft">{t('empty.body')}</p>
           <ul className="mt-3 list-disc space-y-1 pl-5 text-ink-soft marker:text-terracotta">
@@ -382,10 +400,10 @@ function NoResults({
                   type="button"
                   onClick={() => onRemove(c.key)}
                   aria-label={t('filters.remove', { label: c.label })}
-                  className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-paper px-4 text-[0.88rem] font-semibold text-heritage ring-1 ring-line hover:ring-heritage/50"
+                  className="inline-flex min-h-11 max-w-full items-center gap-1.5 break-words rounded-full bg-paper px-4 py-1 text-left text-[0.88rem] font-semibold text-heritage ring-1 ring-line hover:ring-heritage/50"
                 >
-                  {c.label}
-                  <X aria-hidden="true" className="size-4" />
+                  <span className="min-w-0">{c.label}</span>
+                  <X aria-hidden="true" className="size-4 shrink-0" />
                 </button>
               ))}
             </div>

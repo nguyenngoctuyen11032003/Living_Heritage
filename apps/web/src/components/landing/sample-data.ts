@@ -1,6 +1,7 @@
 // Illustrative data for the landing page (plan rule 6: always shown with the "Dữ liệu minh họa / Illustrative data" label).
 // All narrators are fictional characters; durations are illustrative.
 import type { SceneKind } from '@/components/illustrations/scenes';
+import { getSampleItem, type SampleItem } from '@/features/knowledge/sample-items';
 
 export interface Bi {
   vi: string;
@@ -39,20 +40,26 @@ export interface TimedLine {
   uncertain?: boolean;
 }
 
-/** Block 3 — one family memory with a timed transcript (58 s, simulated clock). */
+/**
+ * Block 3 — a 58 s excerpt (B6: 30–60 s) of the illustrative hub story `mau-tet-ao-moi`, with a timed transcript
+ * (simulated clock). "Xem câu chuyện" opens the full story at /tri-thuc/mau-tet-ao-moi, so the lines below must stay
+ * verbatim sentences of that sample's body (features/knowledge/sample-items.ts) — see SampleStory.test.tsx.
+ */
 export const SAMPLE_STORY = {
-  title: { vi: 'Cái Tết đầu tiên ở nhà mới', en: 'Our first Tết in the new house' },
-  narrator: { vi: 'Bà Ba, 85 tuổi · Nam Định', en: 'Grandma Ba, 85 · Nam Định' },
-  topic: { vi: 'Gia đình · Ký ức', en: 'Family · Memory' },
+  /** Detail screen the "Xem câu chuyện" link opens. */
+  itemId: 'mau-tet-ao-moi',
+  title: { vi: 'Bộ áo mới sáng mùng Một', en: 'A new outfit on New Year’s morning' },
+  narrator: { vi: 'Bà Út Bến Tre (bút danh) · Miền Nam', en: 'Grandma Út of Bến Tre (pen name) · The South' },
+  topic: { vi: 'Tuổi thơ · Ký ức', en: 'Childhood · Memory' },
   duration: 58,
-  scene: 'porch' as SceneKind,
+  scene: 'tet' as SceneKind,
   lines: [
-    { t: 0, text: { vi: 'Năm đó nhà mới dựng xong, vách còn thơm mùi vôi.', en: 'That year the house was newly built — the walls still smelled of fresh lime.' } },
-    { t: 8, text: { vi: 'Ông nhà tôi chặt cây tre ngoài ngõ về dựng cây nêu.', en: 'My husband cut a bamboo from the lane to raise the New Year pole.' } },
-    { t: 17, text: { vi: 'Bọn trẻ thì tranh nhau rửa lá dong ngoài giếng.', en: 'The children squabbled over who got to wash the dong leaves at the well.' } },
-    { t: 27, text: { vi: 'Tôi gói mười hai cái bánh, cái nào cũng vuông vức.', en: 'I wrapped twelve bánh chưng, every one of them perfectly square.' } },
-    { t: 38, text: { vi: 'Đêm ấy cả nhà ngồi quanh bếp lửa, chẳng ai muốn đi ngủ.', en: 'That night we sat around the fire and nobody wanted to go to bed.' } },
-    { t: 48, text: { vi: 'Giờ nghĩ lại, ấm nhất là được ngồi cạnh nhau.', en: 'Looking back, the warmest part was simply sitting side by side.' } },
+    { t: 0, text: { vi: 'Nhà nghèo, cả năm có một bộ áo mới là quý lắm.', en: 'We were poor, so one new outfit a year was precious.' } },
+    { t: 7, text: { vi: 'Mẹ mua vải từ tháng Chín, cất trong rương, tới hai mươi tháng Chạp mới đem ra may.', en: 'Mother bought the cloth in the ninth month, kept it in a chest, and only took it out to sew on the twentieth of the twelfth month.' } },
+    { t: 19, text: { vi: 'Đêm Giao thừa tôi không ngủ được, cứ sờ cái áo hoài.', en: 'On New Year’s Eve I couldn’t sleep; I kept touching the shirt.' } },
+    { t: 28, text: { vi: 'Sáng mùng Một, tôi mặc áo mới chạy qua nhà ông bà.', en: 'On the first morning I put it on and ran to my grandparents’ house.' } },
+    { t: 37, text: { vi: 'Ông xoa đầu, cho tôi một phong bao đỏ, trong có tờ tiền mới tinh.', en: 'Grandfather patted my head and gave me a red envelope with a crisp new note inside.' } },
+    { t: 47, text: { vi: 'Tôi giữ tờ tiền đó tới tận hết tháng Giêng mới dám tiêu.', en: 'I kept that note until the end of the first month before I dared to spend it.' } },
   ] satisfies TimedLine[],
 };
 
@@ -95,84 +102,13 @@ export const OUTPUT_SAMPLE = {
   },
 };
 
-export interface KnowledgeSample {
-  id: string;
-  scene: SceneKind;
-  kind: 'experience' | 'story';
-  topic: Bi;
-  title: Bi;
-  excerpt: Bi;
-  narrator: Bi;
-  region: Bi;
-  duration: number;
-}
+/**
+ * Knowledge preview (B6 #7): six of the illustrative hub samples — cooking, gardening and crafts first — so every card
+ * opens a real detail screen (/tri-thuc/mau-…) with the same title, narrator and source.
+ */
+export const KNOWLEDGE_PREVIEW_IDS = ['mau-ca-kho-to', 'mau-tuot-la-mai', 'mau-dan-ro-tre', 'mau-nhuom-cu-nau', 'mau-hat-giong-gac-bep', 'mau-nam-lut-lon'] as const;
 
-/** Block 9 — six magazine cards. Titles are verbatim-style quotes (StoryCorps pattern). */
-export const KNOWLEDGE_SAMPLES: KnowledgeSample[] = [
-  {
-    id: 'kho-ca',
-    scene: 'kitchen',
-    kind: 'experience',
-    topic: { vi: 'Món ăn', en: 'Cooking' },
-    title: { vi: '“Nước kho sệt lại thì mới tắt bếp”', en: '“Only turn off the stove once the sauce turns glossy”' },
-    excerpt: { vi: 'Cách kho cá bằng nồi đất: thắng nước màu, lửa riu riu và mẹo giữ cá không nát.', en: 'Braising fish in a clay pot: caramel, a low flame, and how to keep the fish whole.' },
-    narrator: { vi: 'Bà Năm', en: 'Grandma Năm' },
-    region: { vi: 'Nam Định', en: 'Nam Định' },
-    duration: 192,
-  },
-  {
-    id: 'lat-la-mai',
-    scene: 'garden',
-    kind: 'experience',
-    topic: { vi: 'Làm vườn', en: 'Gardening' },
-    title: { vi: '“Lặt lá mai trước Tết chừng mười lăm ngày”', en: '“Strip the mai about fifteen days before Tết”' },
-    excerpt: { vi: 'Thời điểm lặt lá, cách tưới và điều cần tránh để mai nở đúng dịp.', en: 'When to strip the leaves, how to water, and what to avoid so it blooms on time.' },
-    narrator: { vi: 'Bà Tư', en: 'Grandma Tư' },
-    region: { vi: 'Bến Tre', en: 'Bến Tre' },
-    duration: 41,
-  },
-  {
-    id: 'nhao-dat',
-    scene: 'pottery',
-    kind: 'experience',
-    topic: { vi: 'Nghề thủ công', en: 'Crafts' },
-    title: { vi: '“Đất phải nhào ba lượt mới lên bàn xoay”', en: '“Knead three times before it goes on the wheel”' },
-    excerpt: { vi: 'Chọn đất, ủ đất và nhào cho mịn — kinh nghiệm của một người thợ gốm lâu năm.', en: 'Choosing, resting and kneading clay — from a potter with a lifetime at the wheel.' },
-    narrator: { vi: 'Ông Hai', en: 'Grandpa Hai' },
-    region: { vi: 'Bát Tràng, Hà Nội', en: 'Bát Tràng, Hà Nội' },
-    duration: 245,
-  },
-  {
-    id: 'xem-may',
-    scene: 'boat',
-    kind: 'experience',
-    topic: { vi: 'Nghề nghiệp', en: 'Working life' },
-    title: { vi: '“Mây vảy cá cuối trời là mai có gió”', en: '“Fish-scale clouds on the horizon mean wind tomorrow”' },
-    excerpt: { vi: 'Những dấu hiệu thời tiết người đi biển truyền miệng, kèm giới hạn khi áp dụng.', en: 'Weather signs fishermen passed down by word of mouth — with their limits spelled out.' },
-    narrator: { vi: 'Ông Tám', en: 'Grandpa Tám' },
-    region: { vi: 'Quảng Ngãi', en: 'Quảng Ngãi' },
-    duration: 140,
-  },
-  {
-    id: 'ao-dai',
-    scene: 'tailor',
-    kind: 'story',
-    topic: { vi: 'Gia đình', en: 'Family' },
-    title: { vi: '“Chiếc áo dài đầu tiên tôi may cho con gái”', en: '“The first áo dài I sewed for my daughter”' },
-    excerpt: { vi: 'Một tấm vải để dành nhiều năm và buổi sáng con gái đi thi.', en: 'A length of silk saved for years, and the morning her daughter sat her exams.' },
-    narrator: { vi: 'Bà Chín', en: 'Grandma Chín' },
-    region: { vi: 'Huế', en: 'Huế' },
-    duration: 228,
-  },
-  {
-    id: 'mua-gat',
-    scene: 'field',
-    kind: 'story',
-    topic: { vi: 'Quê hương', en: 'Hometown' },
-    title: { vi: '“Cả xóm ra đồng từ lúc gà gáy”', en: '“The whole village was out before the roosters”' },
-    excerpt: { vi: 'Mùa gặt những năm sáu mươi: đổi công, nắm cơm và tiếng hò trên bờ ruộng.', en: 'Harvest in the sixties: shared labour, rice balls and songs along the dykes.' },
-    narrator: { vi: 'Ông Sáu', en: 'Grandpa Sáu' },
-    region: { vi: 'Thái Bình', en: 'Thái Bình' },
-    duration: 125,
-  },
-];
+/** The preview cards, resolved from the hub's illustrative set (ids that no longer exist are skipped). */
+export function previewItems(): SampleItem[] {
+  return KNOWLEDGE_PREVIEW_IDS.map((id) => getSampleItem(id)).filter((x): x is SampleItem => x !== null);
+}

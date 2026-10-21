@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useToast } from '@/components/ui';
 import { TextScaleSwitch } from '@/components/layout/TextScaleSwitch';
+import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { useReducedMotionSafe } from '@/design/motion';
 import { SectionCard } from '@/features/families/states';
-import { translate, useLocale, useT, type Locale } from '@/i18n';
+import { loadNamespace, translate, useLocale, useT, type Locale } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { useSession } from '@/lib/session';
 import { getSupabase } from '@/lib/supabase';
@@ -12,6 +13,7 @@ const LOCALE_OPTIONS: Locale[] = ['vi', 'en'];
 
 export function DisplaySection() {
   const t = useT('settings');
+  const tc = useT('common');
   const { locale, setLocale } = useLocale();
   const { user } = useSession();
   const { toast } = useToast();
@@ -25,7 +27,10 @@ export function DisplaySection() {
     if (!sb || !user) return;
     const { error } = await sb.from('profiles').update({ locale: next }).eq('id', user.id);
     // Messages are built with the dictionary of the language just chosen.
-    if (error) toast({ title: translate(next, 'settings', 'display.languageLocalOnly'), tone: 'error' });
+    if (error) {
+      await loadNamespace(next, 'settings').catch(() => {});
+      toast({ title: translate(next, 'settings', 'display.languageLocalOnly'), tone: 'error' });
+    }
     else setStatus(next);
   }
 
@@ -55,8 +60,12 @@ export function DisplaySection() {
         </p>
       </SectionCard>
 
-      <SectionCard title={t('display.textTitle')} description={t('display.textDescription')}>
+      <SectionCard title={tc('textScale.label')}>
         <TextScaleSwitch />
+      </SectionCard>
+
+      <SectionCard title={t('display.themeTitle')} description={t('display.themeDescription')}>
+        <ThemeToggle />
       </SectionCard>
 
       <SectionCard title={t('display.motionTitle')}>

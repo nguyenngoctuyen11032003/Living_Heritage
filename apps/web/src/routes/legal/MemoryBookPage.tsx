@@ -1,66 +1,44 @@
-import { QrCode as QrIcon } from 'lucide-react';
-import { BookShowcase, Faq, PrimaryCta, Section, SectionHeading } from '@/components/landing';
-import { DrawArrow, Reveal } from '@/components/motion';
-import { useT } from '@/i18n';
-import { PageHero, StepGrid } from './StaticPage';
-import { useDocumentTitle, useLegalDict } from './hooks';
+import { useEffect } from 'react';
+import { MbAbout, MbCta, MbFaq, MbFeatured, MbFormats, MbHero, MbPhilosophy, MbShowcase, MbSteps, VideoPlaybackProvider } from '@/components/memory-book';
+import { useLocale, useT } from '@/i18n';
+import { useDocumentTitle } from './hooks';
 
-const QR_POINTS = ['a', 'b', 'c'] as const;
+const INSTRUMENT_SERIF = 'https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap';
 
-/** /sach-ky-uc — marketing page for memory books. */
+/**
+ * Instrument Serif (display face of this page) has no Vietnamese glyphs, so it is only fetched for English; Vietnamese
+ * headings use the bundled Noto Serif (see memory-book.css).
+ */
+function useInstrumentSerif(enabled: boolean) {
+  useEffect(() => {
+    if (!enabled || document.getElementById('font-instrument-serif')) return;
+    const link = document.createElement('link');
+    link.id = 'font-instrument-serif';
+    link.rel = 'stylesheet';
+    link.href = INSTRUMENT_SERIF;
+    document.head.appendChild(link);
+  }, [enabled]);
+}
+
+/** /sach-ky-uc — cinematic marketing page (light and dark) for memory books. */
 export default function MemoryBookPage() {
   const t = useT('legal');
-  const d = useLegalDict().book;
+  const { locale } = useLocale();
   useDocumentTitle(t('book.title'));
+  useInstrumentSerif(locale === 'en');
   return (
-    <>
-      <PageHero eyebrow={t('book.eyebrow')} heading={t('book.heading')} lead={t('book.lead')} />
-      <BookShowcase showLink={false} />
-
-      <Section labelledBy="book-steps" className="bg-paper/60">
-        <SectionHeading id="book-steps" eyebrow={t('book.eyebrow')} title={t('book.stepsTitle')} />
-        <Reveal className="mt-12">
-          <StepGrid steps={(['s1', 's2', 's3', 's4'] as const).map((k) => d.steps[k])} />
-        </Reveal>
-      </Section>
-
-      <Section labelledBy="qr-title">
-        <Reveal className="mx-auto grid max-w-5xl gap-8 rounded-[2rem] bg-paper p-7 ring-1 ring-line md:grid-cols-12 md:p-10">
-          <div className="md:col-span-5">
-            <span aria-hidden="true" className="inline-flex size-12 items-center justify-center rounded-2xl bg-mint text-heritage">
-              <QrIcon className="size-5" />
-            </span>
-            <h2 id="qr-title" className="mt-5 font-serif text-[1.8rem] font-semibold leading-snug text-heritage-deep">
-              {t('book.qrTitle')}
-            </h2>
-            <p className="mt-3 leading-relaxed text-ink-soft">{t('book.qrBody')}</p>
-          </div>
-          <ol className="flex flex-col gap-4 md:col-span-7 md:border-l md:border-line md:pl-8">
-            {QR_POINTS.map((k, i) => (
-              <li key={k} className="flex gap-4 leading-relaxed text-ink">
-                <span aria-hidden="true" className="inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-heritage text-[0.85rem] font-bold text-cream">
-                  {i + 1}
-                </span>
-                <span className="pt-1">{t(`book.qr.${k}`)}</span>
-              </li>
-            ))}
-          </ol>
-        </Reveal>
-      </Section>
-
-      <Section labelledBy="book-cta" className="!pt-0">
-        <Reveal className="mx-auto max-w-3xl text-center">
-          <DrawArrow viewBox="0 0 80 40" className="mx-auto mb-4 h-10 w-20" d="M6 30 C 22 4, 52 4, 74 26" head="M60 26 L 75 27 L 72 12" />
-          <h2 id="book-cta" className="text-balance font-serif text-[clamp(1.9rem,4.4vw,3rem)] font-semibold leading-[1.15] text-heritage-deep">
-            {t('book.ctaTitle')}
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl leading-relaxed text-ink-soft">{t('book.ctaBody')}</p>
-          <div className="mt-8 flex justify-center">
-            <PrimaryCta />
-          </div>
-        </Reveal>
-      </Section>
-      <Faq keys={['who', 'delete', 'paid']} />
-    </>
+    <VideoPlaybackProvider>
+      <div className="mb-page bg-mb-bg text-mb">
+        <MbHero />
+        <MbAbout />
+        <MbFeatured />
+        <MbShowcase />
+        <MbSteps />
+        <MbPhilosophy />
+        <MbFormats />
+        <MbCta />
+        <MbFaq keys={['who', 'delete', 'paid']} />
+      </div>
+    </VideoPlaybackProvider>
   );
 }

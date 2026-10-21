@@ -6,6 +6,27 @@
 import { fail, json } from '../_shared/http.ts';
 import { preflight } from '../_shared/cors.ts';
 
+/** Browser/CDN cache lifetime of a public audio copy: short, so a revoked recording stops being served within about a minute (NT09). */
+export const PUBLIC_AUDIO_CACHE_SECONDS = 60;
+
+export const PAGE_SIZE = 1000;
+
+/**
+ * Reads every page (offset paging) until an empty page. It never stops on a short page: the server may cap a page
+ * below the requested size (PostgREST max_rows), and a missed page would make published audio look unreferenced
+ * and get deleted by reconcile().
+ */
+export async function collectPages<T>(fetchPage: (offset: number, limit: number) => Promise<T[]>, pageSize = PAGE_SIZE): Promise<T[]> {
+  const all: T[] = [];
+  for (let offset = 0, guard = 0; guard < 10_000; guard++) {
+    const page = await fetchPage(offset, pageSize);
+    if (page.length === 0) break;
+    all.push(...page);
+    offset += page.length;
+  }
+  return all;
+}
+
 export interface PublicItemAudio {
   id: string;
   audio_path: string;
@@ -33,6 +54,9 @@ export interface SyncResult {
   failed: string[];
 }
 
+/** review_publish only ever writes `items/<public_item id>.webm`; anything else is never copied into the public bucket. */
+const PUBLIC_AUDIO_PATH = /^items\/[A-Za-z0-9-]{1,64}\.[a-z0-9]{1,8}$/;
+
 export async function reconcile(store: SyncStore): Promise<SyncResult> {
   const [items, files] = await Promise.all([store.listPublishedAudio(), store.listPublicFiles()]);
   const present = new Set(files);
@@ -41,7 +65,7 @@ export async function reconcile(store: SyncStore): Promise<SyncResult> {
 
   for (const item of items) {
     if (present.has(item.audio_path)) continue;
-    if (!item.source_path) {
+    if (!item.source_path || !PUBLIC_AUDIO_PATH.test(item.audio_path)) {
       result.failed.push(item.id);
       continue;
     }

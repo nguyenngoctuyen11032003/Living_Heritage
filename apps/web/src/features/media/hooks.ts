@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { getSupabase, type Supabase } from '@/lib/supabase';
-import { signPhotoUrls, type StoryPhotoRow } from './photos';
+import { SIGNED_URL_TTL, signPhotoUrls, type StoryPhotoRow } from './photos';
 
 export interface PhotoWithUrl extends StoryPhotoRow {
   /** Signed URL (1 h), or null when it could not be created (e.g. no storage access on this device). */
@@ -9,12 +9,48 @@ export interface PhotoWithUrl extends StoryPhotoRow {
 
 export type LoadState = 'loading' | 'ready' | 'error' | 'not_configured';
 
+/** Signed URLs live SIGNED_URL_TTL (1 h); lists re-sign 10 minutes before that so open pages keep their images. */
+export const URL_REFRESH_MS = (SIGNED_URL_TTL - 10 * 60) * 1000;
+/** An image that fails to load triggers a re-sign at most this often (expired URL after sleep, clock skew…). */
+export const RESIGN_MIN_GAP_MS = 60 * 1000;
+
+/** Milliseconds until the next scheduled re-sign of URLs signed at `signedAt` (0 = due now). */
+export function msUntilResign(signedAt: number, now = Date.now()): number {
+  return Math.max(0, signedAt + URL_REFRESH_MS - now);
+}
+
+/** Whether a failed image may trigger a re-sign now (throttled, so a broken file cannot loop). */
+export function mayResign(lastResignAt: number, now = Date.now()): boolean {
+  return now - lastResignAt >= RESIGN_MIN_GAP_MS;
+}
+
+/**
+ * Keeps signed URLs fresh: re-runs `reload` before they expire, and exposes `onImageError` for <img onError>,
+ * which re-signs at most once a minute.
+ */
+function useFreshUrls(signedAt: number | null, reload: () => Promise<void>): () => void {
+  const lastResign = useRef(0);
+  useEffect(() => {
+    if (signedAt === null) return;
+    const id = setTimeout(() => void reload(), msUntilResign(signedAt));
+    return () => clearTimeout(id);
+  }, [signedAt, reload]);
+  return useCallback(() => {
+    const now = Date.now();
+    if (!mayResign(lastResign.current, now)) return;
+    lastResign.current = now;
+    void reload();
+  }, [reload]);
+}
+
 export interface StoryPhotosState {
   photos: PhotoWithUrl[];
   state: LoadState;
   refresh: () => Promise<void>;
   /** Local update after a reorder/caption edit, without a round trip. */
   setPhotos: (next: PhotoWithUrl[]) => void;
+  /** For <img onError>: re-sign the URLs (throttled). */
+  onImageError: () => void;
 }
 
 async function withUrls(sb: Supabase, rows: StoryPhotoRow[]): Promise<PhotoWithUrl[]> {
@@ -22,11 +58,13 @@ async function withUrls(sb: Supabase, rows: StoryPhotoRow[]): Promise<PhotoWithU
   return rows.map((r) => ({ ...r, url: urls.get(r.storage_path) ?? null }));
 }
 
-/** Photos of one story, ordered by position, with signed URLs. */
+/** Photos of one story, ordered by position, with signed URLs (re-signed before they expire). */
 export function useStoryPhotos(storyId: string | null | undefined): StoryPhotosState {
   const [photos, setPhotos] = useState<PhotoWithUrl[]>([]);
   const [state, setState] = useState<LoadState>('loading');
+  const [signedAt, setSignedAt] = useState<number | null>(null);
   const seq = useRef(0);
+  const loaded = useRef(false);
 
   const refresh = useCallback(async () => {
     const sb = getSupabase();
@@ -43,21 +81,27 @@ export function useStoryPhotos(storyId: string | null | undefined): StoryPhotosS
     const res = await sb.from('story_photos').select('*').eq('story_id', storyId).order('position').order('created_at');
     if (my !== seq.current) return;
     if (res.error) {
-      setState('error');
+      // A failed background re-sign (or reload after an edit) keeps the photos on screen; the next try fixes it.
+      if (!loaded.current) setState('error');
       return;
     }
+    const at = Date.now();
     const list = await withUrls(sb, res.data ?? []);
     if (my !== seq.current) return;
     setPhotos(list);
+    loaded.current = true;
+    setSignedAt(at);
     setState('ready');
     invalidateCover(storyId);
   }, [storyId]);
 
   useEffect(() => {
+    loaded.current = false;
     void refresh();
   }, [refresh]);
 
-  return { photos, state, refresh, setPhotos };
+  const onImageError = useFreshUrls(signedAt, refresh);
+  return { photos, state, refresh, setPhotos, onImageError };
 }
 
 export interface AlbumPhoto extends PhotoWithUrl {
@@ -69,6 +113,8 @@ export interface FamilyPhotosState {
   photos: AlbumPhoto[];
   state: LoadState;
   refresh: () => Promise<void>;
+  /** For <img onError>: re-sign the URLs (throttled). */
+  onImageError: () => void;
 }
 
 export const ALBUM_LIMIT = 500;
@@ -77,7 +123,9 @@ export const ALBUM_LIMIT = 500;
 export function useFamilyPhotos(familyId: string | null | undefined): FamilyPhotosState {
   const [photos, setPhotos] = useState<AlbumPhoto[]>([]);
   const [state, setState] = useState<LoadState>('loading');
+  const [signedAt, setSignedAt] = useState<number | null>(null);
   const seq = useRef(0);
+  const loaded = useRef(false);
 
   const refresh = useCallback(async () => {
     const sb = getSupabase();
@@ -91,7 +139,8 @@ export function useFamilyPhotos(familyId: string | null | undefined): FamilyPhot
       return;
     }
     const my = ++seq.current;
-    setState('loading');
+    // A re-sign of an album already on screen happens in place, without flashing the skeleton.
+    if (!loaded.current) setState('loading');
     const res = await sb
       .from('story_photos')
       .select('*, stories(title, narrator_id)')
@@ -100,10 +149,12 @@ export function useFamilyPhotos(familyId: string | null | undefined): FamilyPhot
       .limit(ALBUM_LIMIT);
     if (my !== seq.current) return;
     if (res.error) {
-      setState('error');
+      // A failed background re-sign keeps the album on screen; the next image error or timer tries again.
+      if (!loaded.current) setState('error');
       return;
     }
     const rows = (res.data ?? []) as unknown as Array<StoryPhotoRow & { stories: { title: string; narrator_id: string } | null }>;
+    const at = Date.now();
     const signed = await withUrls(sb, rows);
     if (my !== seq.current) return;
     setPhotos(
@@ -113,14 +164,18 @@ export function useFamilyPhotos(familyId: string | null | undefined): FamilyPhot
         narrator_id: rows[i]?.stories?.narrator_id ?? null,
       })),
     );
+    loaded.current = true;
+    setSignedAt(at);
     setState('ready');
   }, [familyId]);
 
   useEffect(() => {
+    loaded.current = false;
     void refresh();
   }, [refresh]);
 
-  return { photos, state, refresh };
+  const onImageError = useFreshUrls(signedAt, refresh);
+  return { photos, state, refresh, onImageError };
 }
 
 // ---------------------------------------------------------------------------

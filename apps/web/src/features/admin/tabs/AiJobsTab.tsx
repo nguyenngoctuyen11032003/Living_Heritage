@@ -1,6 +1,6 @@
 import { useT } from '@/i18n';
 import type { Supabase } from '@/lib/supabase';
-import { parseAiError } from '../access';
+import { AI_MAX_ATTEMPTS, aiRetryCapped, parseAiError } from '../access';
 import { useDateTime } from '../format';
 import { ListHeader, ListState, StatusPill } from '../shared';
 import { must, useAdminQuery } from '../useAdminQuery';
@@ -40,7 +40,9 @@ export function AiJobsTab() {
                   </p>
                   <p className="mt-0.5">{t('aiJobs.updatedAt', { time: dt(job.updated_at) })}</p>
                 </div>
-                <StatusPill tone="open">{t('aiJobs.attempts', { n: job.attempts })}</StatusPill>
+                <StatusPill tone={aiRetryCapped(job.attempts) ? 'muted' : 'open'}>
+                  {t(aiRetryCapped(job.attempts) ? 'aiJobs.retryCapped' : 'aiJobs.attempts', { n: job.attempts, max: AI_MAX_ATTEMPTS })}
+                </StatusPill>
               </li>
             );
           })}

@@ -13,3 +13,21 @@
   --night-card: #1b2622;
   --night-ink: #e9e4d4;
 }
+
+/*
+ * Dark theme for the signed-in app (lib/theme.ts sets html[data-theme] only while the app shell is mounted).
+ * Same token roles, so every bg-cream / bg-paper / text-ink / bg-heritage … flips without per-component changes:
+ * cream = page, paper = raised surface, heritage = primary (light green, so `bg-heritage text-cream` stays legible).
+ */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --cream: #111a17;
+  --paper: #18231f;
+  --ink: #e9e4d4;
+  --ink-soft: #a7b3ad;
+  --heritage: #8cc7b0;
+  --heritage-deep: #b9e0cf;
+  --terracotta: #e58e74;
+  --mint: #22372f;
+  --line: #2c3a35;
+}

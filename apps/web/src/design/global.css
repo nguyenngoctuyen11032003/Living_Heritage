@@ -12,23 +12,64 @@
   --color-terracotta: var(--terracotta);
   --color-mint: var(--mint);
   --color-line: var(--line);
+  --color-mb: var(--mb-fg);
+  --color-mb-bg: var(--mb-bg);
   --color-night: var(--night);
   --color-night-card: var(--night-card);
   --color-night-ink: var(--night-ink);
-  --font-sans: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Never flip with the theme: text on night sections and photo overlays that stay dark in both themes. */
+  --color-cream-fixed: #faf7f0;
+  --color-mint-fixed: #dce8d5;
+  --color-heritage-deep-fixed: #163a31;
+  --font-sans: 'Be Vietnam Pro', 'Be Vietnam Pro Fallback', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Noto Serif', Georgia, serif;
   --font-hand: 'Caveat', 'Segoe Print', cursive;
-  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  /* Compositor-only CSS animations (transform/opacity): no JS on the main thread per frame. */
+  --animate-drop-in: drop-in 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-wave: wave var(--wave-dur, 1.4s) ease-in-out var(--wave-delay, 0s) infinite alternate;
 }
 
+@keyframes drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes wave {
+  from {
+    transform: scaleY(var(--wave-from, 0.35));
+  }
+  to {
+    transform: scaleY(var(--wave-to, 1));
+  }
+}
+
+/*
+ * Base 18px at the browser default (16px × 112.5%). Percentages, not px, so a reader who raised the browser's own
+ * font size keeps that boost.
+ */
 html {
-  font-size: 18px;
+  font-size: 112.5%;
   background: var(--cream);
   color: var(--ink);
   -webkit-text-size-adjust: 100%;
+  /* Dialogs lock body scroll: keep the scrollbar's space so the page and sticky header don't jump sideways. */
+  scrollbar-gutter: stable;
 }
-html[data-text-scale='115'] { font-size: 20.7px; }
-html[data-text-scale='130'] { font-size: 23.4px; }
+/* Dark public pages (SiteLayout sets it with the dark header): the root background also fills the scrollbar gutter, so no cream strip. */
+html[data-page-tone='dark'], html[data-page-tone='dark'] body { background: #000; }
+/* In-app text size (lib/textScale.ts, B3): 115% / 130% of the 18px base. */
+html[data-text-scale='115'] { font-size: 129.375%; }
+html[data-text-scale='130'] { font-size: 146.25%; }
+
+/* Set for one frame while the theme flips (lib/theme.ts): every colour changes at once instead of dozens of
+   transition-colors elements animating (and repainting) together. */
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+}
 
 body {
   margin: 0;
@@ -48,14 +89,19 @@ body {
   border-radius: 6px;
 }
 
+/*
+ * Programmatic focus targets (route/step focus management moves focus to an h1 or a container with tabindex=-1 so
+ * screen readers announce it). They are not controls, so no red ring; real controls keep theirs.
+ */
+[tabindex='-1']:focus-visible:not(a, button, input, select, textarea, summary, [role='button'], [role='link'], [role='tab'], [role='option'], [role='menuitem'], [role='radio'], [role='switch'], [role='gridcell']) {
+  outline: none;
+}
+
 ::selection { background: var(--mint); color: var(--heritage-deep); }
 
 /* SVG fractal-noise textures for the dark cinematic sections. */
-.noise-overlay {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
 .bg-noise {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 @media (prefers-reduced-motion: reduce) {

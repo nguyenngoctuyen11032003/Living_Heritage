@@ -15,6 +15,13 @@ export const AUDIT_ACTIONS = [
   'approve_publish',
   'reject_publish',
   'withdraw_public',
+  // 20261022000400_access_hardening: an admin opened a private story to review a publish request; a deletion request changed status.
+  'admin_preview',
+  'deletion_status',
+  // 20261022000600_pilot_admin_ops: admin_process_deletion erased a story or a whole family.
+  'erase_story',
+  'erase_family',
+  'admin_withdraw',
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 
@@ -32,7 +39,7 @@ export function auditActionLabel(code: string, translateKnown: (code: AuditActio
   return isKnownAuditAction(code) ? translateKnown(code) : code;
 }
 
-export const AUDIT_TARGETS = ['family', 'family_invite', 'narrator_link', 'story'] as const;
+export const AUDIT_TARGETS = ['family', 'family_invite', 'narrator_link', 'story', 'deletion_request'] as const;
 export type AuditTarget = (typeof AUDIT_TARGETS)[number];
 
 export function isKnownAuditTarget(type: string | null): type is AuditTarget {
@@ -61,4 +68,13 @@ export function pageRange(page: number, size = AUDIT_PAGE_SIZE): [number, number
 
 export function pageCount(total: number, size = AUDIT_PAGE_SIZE): number {
   return Math.max(1, Math.ceil(Math.max(0, total) / size));
+}
+
+/** Values of audit_log.actor_role (20261022000400_access_hardening, lh_audit_enrich). 'none' and null get no label. */
+export const AUDIT_ROLES = ['owner', 'manager', 'editor', 'viewer', 'narrator', 'admin', 'service'] as const;
+export type AuditRole = (typeof AUDIT_ROLES)[number];
+
+/** Translation key suffix for an actor role, or null when there is nothing meaningful to show. */
+export function auditRoleKey(role: string | null | undefined): AuditRole | null {
+  return role && (AUDIT_ROLES as readonly string[]).includes(role) ? (role as AuditRole) : null;
 }

@@ -5,7 +5,8 @@ import { Badge, Button, Spinner } from '@/components/ui';
 import { useReducedMotionSafe } from '@/design/motion';
 import { useLocale, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
-import { askElders, AskError, isValidQuestion, normalizeQuestion, QUESTION_MAX, QUESTION_MIN, splitCitations, type AskResult, type AskSource } from '../ask';
+import { askElders, AskError, askOutcome, isValidQuestion, normalizeQuestion, QUESTION_MAX, QUESTION_MIN, splitCitations, type AskResult, type AskSource } from '../ask';
+import { narratorText } from '../types';
 import type { HubMode } from '../useKnowledgeSearch';
 
 type AskFn = typeof askElders;
@@ -97,11 +98,11 @@ export function AskTheElders({ hubMode, notConfigured, onSearch, onBrowse, ask =
   const count = normalizeQuestion(question).length;
 
   return (
-    <section aria-labelledby={ids.title} className={cn('relative overflow-hidden rounded-[2rem] bg-heritage-deep text-cream shadow-[0_30px_60px_-40px_rgba(22,58,49,0.9)]', className)}>
-      <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-20 size-72 rounded-full bg-mint/10 blur-2xl" />
+    <section aria-labelledby={ids.title} className={cn('relative overflow-hidden rounded-[2rem] bg-heritage-deep-fixed text-cream-fixed shadow-[0_30px_60px_-40px_rgba(22,58,49,0.9)]', className)}>
+      <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-28 size-96 bg-[radial-gradient(closest-side,rgb(220_232_213/0.12)_55%,transparent)]" />
       <div className="relative px-5 py-7 sm:px-8 md:px-10 md:py-10">
         <div className="flex flex-wrap items-center gap-3">
-          <p className="text-[0.78rem] font-bold uppercase tracking-[0.2em] text-mint">{t('ask.kicker')}</p>
+          <p className="text-[0.78rem] font-bold uppercase tracking-[0.2em] text-mint-fixed">{t('ask.kicker')}</p>
           <Badge tone="night" size="sm" icon={<Sparkles />}>
             {t('ask.aiBadge')}
           </Badge>
@@ -109,20 +110,20 @@ export function AskTheElders({ hubMode, notConfigured, onSearch, onBrowse, ask =
         <h2 id={ids.title} className="mt-3 max-w-3xl font-serif text-[1.75rem] font-semibold leading-tight sm:text-[2.1rem] md:text-[2.5rem]">
           {t('ask.title')}
         </h2>
-        <p className="mt-3 max-w-2xl text-[1rem] leading-relaxed text-cream/80">{t('ask.lede')}</p>
+        <p className="mt-3 max-w-2xl text-[1rem] leading-relaxed text-cream-fixed/80">{t('ask.lede')}</p>
 
         {disabled ? (
           <div className="mt-6 flex items-start gap-3 rounded-2xl bg-white/8 px-5 py-4 ring-1 ring-white/15">
-            <BookOpenText aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-mint" />
+            <BookOpenText aria-hidden="true" className="mt-0.5 size-5 shrink-0 text-mint-fixed" />
             <div>
               <p className="font-semibold">{t('ask.disabledTitle')}</p>
-              <p className="mt-1 text-[0.95rem] leading-relaxed text-cream/80">{notConfigured ? t('ask.disabledNotConfigured') : t('ask.disabledBody')}</p>
+              <p className="mt-1 text-[0.95rem] leading-relaxed text-cream-fixed/80">{notConfigured ? t('ask.disabledNotConfigured') : t('ask.disabledBody')}</p>
             </div>
           </div>
         ) : null}
 
         <form onSubmit={onSubmit} className="mt-6 max-w-3xl" aria-disabled={disabled || undefined}>
-          <label htmlFor={ids.input} className="text-[0.92rem] font-semibold text-cream">
+          <label htmlFor={ids.input} className="text-[0.92rem] font-semibold text-cream-fixed">
             {t('ask.label')}
           </label>
           <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end">
@@ -146,7 +147,7 @@ export function AskTheElders({ hubMode, notConfigured, onSearch, onBrowse, ask =
               placeholder={t('ask.placeholder')}
               aria-describedby={cn(ids.hint, invalid && ids.err) || undefined}
               aria-invalid={invalid || undefined}
-              className="min-h-16 w-full min-w-0 flex-1 resize-none rounded-2xl bg-paper px-4 py-3 text-[1.05rem] text-ink ring-1 ring-white/20 placeholder:text-ink-soft/70 focus:outline-none focus-visible:ring-4 focus-visible:ring-mint aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-terracotta disabled:cursor-not-allowed disabled:opacity-60"
+              className="min-h-16 w-full min-w-0 flex-1 resize-none rounded-2xl bg-paper px-4 py-3 text-[1.05rem] text-ink ring-1 ring-white/20 placeholder:text-ink-soft/70 focus:outline-none focus-visible:ring-4 focus-visible:ring-mint-fixed aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-terracotta disabled:cursor-not-allowed disabled:opacity-60"
             />
             <Button
               type="submit"
@@ -160,7 +161,7 @@ export function AskTheElders({ hubMode, notConfigured, onSearch, onBrowse, ask =
               {t('ask.submit')}
             </Button>
           </div>
-          <div className="mt-2 flex flex-wrap justify-between gap-2 text-[0.82rem] text-cream/70">
+          <div className="mt-2 flex flex-wrap justify-between gap-2 text-[0.82rem] text-cream-fixed/70">
             <p id={ids.hint}>{t('ask.hint', { min: QUESTION_MIN, max: QUESTION_MAX })}</p>
             <p aria-hidden="true">{t('ask.counter', { n: count, max: QUESTION_MAX })}</p>
           </div>
@@ -172,17 +173,17 @@ export function AskTheElders({ hubMode, notConfigured, onSearch, onBrowse, ask =
         </form>
 
         <div className="mt-5">
-          <p id={`${ids.title}-ex`} className="text-[0.85rem] font-semibold text-cream/75">
+          <p id={`${ids.title}-ex`} className="text-[0.85rem] font-semibold text-cream-fixed/75">
             {t('ask.examplesLabel')}
           </p>
           <ul aria-labelledby={`${ids.title}-ex`} className="mt-2 flex flex-wrap gap-2">
             {EXAMPLES.map((k) => (
-              <li key={k}>
+              <li key={k} className="min-w-0 max-w-full">
                 <button
                   type="button"
                   disabled={disabled || busy}
                   onClick={() => pickExample(t(`ask.examples.${k}`))}
-                  className="inline-flex min-h-12 max-w-full items-center rounded-full bg-white/8 px-4 py-2 text-left text-[0.92rem] font-semibold text-cream ring-1 ring-white/20 transition-colors hover:bg-white/15 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex min-h-12 max-w-full items-center rounded-full bg-white/8 px-4 py-2 text-left text-[0.92rem] font-semibold text-cream-fixed ring-1 ring-white/20 transition-colors hover:bg-white/15 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {t(`ask.examples.${k}`)}
                 </button>
@@ -192,11 +193,11 @@ export function AskTheElders({ hubMode, notConfigured, onSearch, onBrowse, ask =
         </div>
 
         <p role="status" aria-live="polite" className="sr-only">
-          {checking ? t('ask.checking') : busy ? t('ask.asking') : state.status === 'done' && state.result.answer ? t('ask.answered', { n: state.result.cited.length }) : ''}
+          {checking ? t('ask.checking') : busy ? t('ask.asking') : state.status === 'done' && askOutcome(state.result) === 'answer' ? t('ask.answered', { n: state.result.cited.length }) : ''}
         </p>
 
         {state.status !== 'idle' && (
-          <div ref={resultRef} tabIndex={-1} className="mt-8 rounded-[1.5rem] bg-paper p-5 text-ink ring-1 ring-white/10 focus:outline-none focus-visible:ring-4 focus-visible:ring-mint sm:p-7">
+          <div ref={resultRef} tabIndex={-1} className="mt-8 rounded-[1.5rem] bg-paper p-5 text-ink ring-1 ring-white/10 focus:outline-none focus-visible:ring-4 focus-visible:ring-mint-fixed sm:p-7">
             <p className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-ink-soft">{t('ask.youAsked')}</p>
             <p className="mt-1 font-serif text-[1.15rem] font-semibold text-heritage-deep">“{state.question}”</p>
             <div className="mt-5 border-t border-line/70 pt-5">
@@ -266,7 +267,8 @@ function ResultView({
 }) {
   const t = useT('knowledge');
 
-  if (result.reason === 'no_sources' || (result.answer === null && result.sources.length === 0)) {
+  const outcome = askOutcome(result);
+  if (outcome === 'no_sources') {
     return (
       <div>
         <h3 className="font-serif text-[1.25rem] font-semibold text-heritage-deep">{t('ask.noSourcesTitle')}</h3>
@@ -292,7 +294,7 @@ function ResultView({
     );
   }
 
-  if (result.answer === null) {
+  if (outcome === 'not_in_sources' || result.answer === null) {
     return (
       <div>
         <h3 className="font-serif text-[1.25rem] font-semibold text-heritage-deep">{t('ask.notInSourcesTitle')}</h3>
@@ -392,7 +394,7 @@ function Citation({ n, source, interactive, label }: { n: number; source: AskSou
   const cls = 'mx-0.5 inline-flex min-w-7 items-center justify-center rounded-full bg-mint px-1.5 align-[0.12em] text-[0.78rem] font-bold leading-6 text-heritage-deep';
   if (!interactive) return <span className={cls}>{n}</span>;
   return (
-    <Link to={`/tri-thuc/${source.id}`} aria-label={label} title={source.title} className={cn(cls, 'hover:bg-heritage hover:text-cream focus-visible:outline-offset-2')}>
+    <Link to={`/tri-thuc/${source.id}`} aria-label={label} title={source.title} className={cn(cls, 'hover:bg-heritage hover:text-cream-fixed focus-visible:outline-offset-2')}>
       {n}
     </Link>
   );
@@ -405,7 +407,7 @@ function SourceList({ sources, only, title, muted }: { sources: AskSource[]; onl
   return (
     <div className="mt-6">
       <h4 className={cn('text-[0.85rem] font-bold uppercase tracking-[0.14em]', muted ? 'text-ink-soft' : 'text-heritage')}>{title}</h4>
-      <ol className="mt-3 grid gap-3 sm:grid-cols-2">
+      <ol className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {list.map((s) => {
           const n = sources.indexOf(s) + 1;
           return (
@@ -421,7 +423,7 @@ function SourceList({ sources, only, title, muted }: { sources: AskSource[]; onl
                   <span className="sr-only">{t('ask.sourceN', { n })}: </span>
                   <span className="block font-semibold leading-snug text-heritage-deep group-hover:underline">{s.title}</span>
                   <span className="mt-0.5 block text-[0.85rem] text-ink-soft">
-                    {t(`kinds.${s.kind}`)} · {s.narrator_label}
+                    {t(`kinds.${s.kind}`)} · {narratorText(s.narrator_label, t('card.anonymous'))}
                   </span>
                 </span>
                 <ArrowRight aria-hidden="true" className="ml-auto mt-1 size-4 shrink-0 text-ink-soft group-hover:text-heritage" />

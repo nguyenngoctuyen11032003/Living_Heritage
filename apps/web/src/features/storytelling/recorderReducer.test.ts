@@ -60,3 +60,28 @@ describe('recorderReducer', () => {
     expect(isCapturing('idle')).toBe(false);
   });
 });
+
+describe('recorderReducer — "Kể tiếp" after listening back', () => {
+  const recording = run([{ type: 'REQUEST' }, { type: 'GRANTED' }]);
+
+  it('a manual stop keeps the take open and CONTINUE goes back to recording', () => {
+    const stopped = recorderReducer(recording, { type: 'STOP', canContinue: true });
+    expect(stopped).toMatchObject({ status: 'stopped', canContinue: true, autoStopped: false });
+    expect(recorderReducer(stopped, { type: 'CONTINUE' })).toMatchObject({ status: 'recording', canContinue: false });
+  });
+
+  it('the time limit ends the take for good', () => {
+    const auto = recorderReducer(recording, { type: 'STOP', auto: true, canContinue: true });
+    expect(auto).toMatchObject({ status: 'stopped', autoStopped: true, canContinue: false });
+    expect(recorderReducer(auto, { type: 'CONTINUE' })).toBe(auto);
+  });
+
+  it('a lost microphone while listening back makes the take final', () => {
+    const stopped = recorderReducer(recording, { type: 'STOP', canContinue: true });
+    expect(recorderReducer(stopped, { type: 'STOP' })).toMatchObject({ status: 'stopped', canContinue: false });
+  });
+
+  it('a new request clears the continue flag', () => {
+    expect(recorderReducer(initialRecorderState, { type: 'REQUEST' }).canContinue).toBe(false);
+  });
+});

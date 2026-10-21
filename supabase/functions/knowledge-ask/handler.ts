@@ -25,6 +25,8 @@ export interface KnowledgeDeps {
   limiter: RateLimiter;
   /** Global daily cap for `ask` (one per isolate). */
   dailyCap: DailyCap;
+  /** Keeps work alive after the response is sent (EdgeRuntime.waitUntil); absent → fire and forget. */
+  background?: (task: Promise<unknown>) => void;
 }
 
 export const DEFAULT_MODEL = 'gemini-3.8-flash';
@@ -32,8 +34,10 @@ export const DEFAULT_EMBED_MODEL = 'gemini-embedding-001';
 export const DEFAULT_TIMEOUT_MS = 25_000;
 export const MATCH_LIMIT = 6;
 export const DEFAULT_MIN_SIMILARITY = 0.55;
-/** Rows embedded lazily on each question (self-healing index). */
-export const LAZY_EMBED_LIMIT = 20;
+/** Rows embedded lazily after each question (self-healing index); small so a backlog never costs much per visitor. */
+export const LAZY_EMBED_LIMIT = 5;
+/** Per-call timeout of the lazy embed (it runs after the answer, but must not hold the isolate for long). */
+export const LAZY_EMBED_TIMEOUT_MS = 8_000;
 /** Rows embedded per reindex call. */
 export const REINDEX_LIMIT = 200;
 export const RATE_LIMIT_PER_MIN = 10;
@@ -139,13 +143,24 @@ async function ask(deps: KnowledgeDeps, req: Request, body: Extract<Req, { actio
     return fail(codeOf(e));
   }
 
-  // Self-healing index: newly published / edited items get embedded by the next visitor's question.
   try {
-    await embedPending(deps, db, ai, LAZY_EMBED_LIMIT);
-  } catch {
-    // best effort: searching what is already indexed is still correct
+    return await answerFrom(deps, db, ai, body, query);
+  } finally {
+    // Self-healing index: newly published / edited items get embedded after this answer (never before it, so the
+    // answer's latency does not depend on the backlog). Best effort: searching what is already indexed is correct.
+    const lazyAi = deps.ai({ ...cfg, timeoutMs: Math.min(cfg.timeoutMs, LAZY_EMBED_TIMEOUT_MS) });
+    const task = embedPending(deps, db, lazyAi, LAZY_EMBED_LIMIT).catch(() => undefined);
+    deps.background?.(task);
   }
+}
 
+async function answerFrom(
+  deps: KnowledgeDeps,
+  db: KnowledgeDb,
+  ai: KnowledgeAi,
+  body: Extract<Req, { action: 'ask' }>,
+  query: number[],
+): Promise<Response> {
   const minSimilarity = numEnv(deps, 'KNOWLEDGE_MIN_SIMILARITY', DEFAULT_MIN_SIMILARITY, 0, 1);
   const matches = await db.match(query, MATCH_LIMIT, minSimilarity);
   if (matches.length === 0) {

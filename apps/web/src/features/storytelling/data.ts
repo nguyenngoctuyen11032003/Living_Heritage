@@ -81,8 +81,14 @@ export async function fetchNarratorForUser(sb: Supabase, userId: string, preferr
   return row ? toNarrator(row) : null;
 }
 
-export async function fetchTopics(sb: Supabase): Promise<Topic[]> {
-  const { data, error } = await sb.from('topics').select('id, slug, title_vi, title_en, icon, sort').order('sort', { ascending: true });
+/**
+ * Topics to choose from: active ones only (admins can read soft-disabled rows too). An open session still shows the
+ * name of a topic that was disabled since, so SessionPage asks with `activeOnly: false`.
+ */
+export async function fetchTopics(sb: Supabase, { activeOnly = true }: { activeOnly?: boolean } = {}): Promise<Topic[]> {
+  let query = sb.from('topics').select('id, slug, title_vi, title_en, icon, sort');
+  if (activeOnly) query = query.eq('active', true);
+  const { data, error } = await query.order('sort', { ascending: true });
   if (error) throw error;
   return (data ?? []) as Topic[];
 }
@@ -90,13 +96,14 @@ export async function fetchTopics(sb: Supabase): Promise<Topic[]> {
 const QUESTION_COLUMNS = 'id, topic_id, prompt_vi, prompt_en, kind_hint, sort';
 
 export async function fetchQuestions(sb: Supabase, topicId: string): Promise<Question[]> {
-  const { data, error } = await sb.from('questions').select(QUESTION_COLUMNS).eq('topic_id', topicId).order('sort', { ascending: true });
+  // Soft-disabled questions are never asked (admins could otherwise read them).
+  const { data, error } = await sb.from('questions').select(QUESTION_COLUMNS).eq('topic_id', topicId).eq('active', true).order('sort', { ascending: true });
   if (error) throw error;
   return (data ?? []) as Question[];
 }
 
 export async function fetchAllQuestions(sb: Supabase): Promise<Question[]> {
-  const { data, error } = await sb.from('questions').select(QUESTION_COLUMNS).order('sort', { ascending: true });
+  const { data, error } = await sb.from('questions').select(QUESTION_COLUMNS).eq('active', true).order('sort', { ascending: true });
   if (error) throw error;
   return (data ?? []) as Question[];
 }

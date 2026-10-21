@@ -86,7 +86,7 @@ select is((select array_agg(title) from public.search_public('canh chuaa')), arr
 select is((select count(*)::integer from public.search_public('xyzxyz')), 0, 'nonsense finds nothing');
 select is((select array_agg(title) from public.search_public($$ cham' & | ! (cay $$)), array['Kinh nghiệm chăm cây bưởi'],
   'operators in the query are ignored, not errors');
-select is((select array_agg(story_id::text) from public.search_public()),
+select is((select array_agg(pi.story_id::text order by r.ordinality) from public.search_public() with ordinality r join public.public_items pi on pi.id = r.id),
   array['d4000000-0000-4000-8000-000000000004', 'd1000000-0000-4000-8000-000000000001',
         'd2000000-0000-4000-8000-000000000002', 'd3000000-0000-4000-8000-000000000003'],
   'no query: newest first');
@@ -95,7 +95,7 @@ select is((select count(*)::integer from public.search_public(p_kind => 'story')
 select is((select count(*)::integer from public.search_public(p_region => 'nam')), 2, 'region filter');
 select is((select array_agg(title) from public.search_public(p_decade => 1960)), array['Đồng lúa quê tôi'], 'decade filter');
 select is((select array_agg(title) from public.search_public('cay', p_region => 'bac')), null, 'query and filters combine');
-select is((select array_agg(story_id::text) from public.search_public(lim => 2, off => 2)),
+select is((select array_agg(pi.story_id::text order by r.ordinality) from public.search_public(lim => 2, off => 2) with ordinality r join public.public_items pi on pi.id = r.id),
   array['d2000000-0000-4000-8000-000000000002', 'd3000000-0000-4000-8000-000000000003'], 'paging with lim/off');
 select is((select count(*)::integer from public.search_public(lim => 0)), 1, 'lim is clamped to at least 1');
 

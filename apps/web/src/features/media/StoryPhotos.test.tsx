@@ -5,7 +5,11 @@ import { ToastProvider } from '@/components/ui';
 import { LocaleProvider } from '@/i18n';
 
 const FAM = '7c1e0a9e-1111-4222-8333-444455556666';
-const db: { photos: Array<Record<string, unknown>> } = { photos: [] };
+const db: { photos: Array<Record<string, unknown>>; selects: number; selectError?: boolean; update: (id: string) => Promise<{ error: unknown }> } = {
+  photos: [],
+  selects: 0,
+  update: async () => ({ error: null }),
+};
 
 const fakeSb = {
   from: () => {
@@ -13,7 +17,11 @@ const fakeSb = {
       select: () => chain,
       eq: () => chain,
       order: () => chain,
-      then: (resolve: (v: unknown) => void) => resolve({ data: db.photos, error: null }),
+      update: () => ({ eq: (_c: string, id: string) => db.update(id) }),
+      then: (resolve: (v: unknown) => void) => {
+        db.selects += 1;
+        resolve(db.selectError ? { data: null, error: { message: 'offline' } } : { data: db.photos, error: null });
+      },
     };
     return chain;
   },
@@ -51,6 +59,9 @@ const renderUi = (canEdit: boolean) =>
 describe('StoryPhotos', () => {
   beforeEach(() => {
     db.photos = [];
+    db.selects = 0;
+    db.selectError = false;
+    db.update = async () => ({ error: null });
   });
 
   it('shows the empty state to viewers without upload controls', async () => {
@@ -66,7 +77,7 @@ describe('StoryPhotos', () => {
     ];
     renderUi(false);
     expect(await screen.findByAltText('Tết 1975')).toHaveAttribute('src', `https://x.test/${FAM}/a.jpg`);
-    expect(screen.getByAltText('Ảnh minh họa câu chuyện')).toBeInTheDocument();
+    expect(screen.getByAltText('Ảnh kỷ niệm chưa có chú thích')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Phóng to ảnh 2' }));
     expect(screen.getByRole('dialog')).toHaveTextContent('Ảnh 2/2');
     fireEvent.keyDown(window, { key: 'ArrowRight' });
@@ -82,5 +93,33 @@ describe('StoryPhotos', () => {
     fireEvent.change(inputs[0]!, { target: { files: [new File(['x'], 'scan.gif', { type: 'image/gif' })] } });
     expect(await screen.findByText(/Định dạng chưa hỗ trợ/)).toBeInTheDocument();
     expect(screen.getByText('scan.gif')).toBeInTheDocument();
+  });
+
+  it('reorder: one move at a time, and a failed save reloads the real order instead of guessing it', async () => {
+    db.photos = ['a', 'b', 'c'].map((id, i) => ({ id, story_id: 's1', family_id: FAM, storage_path: `${FAM}/${id}.jpg`, caption: id, position: i, created_at: '', created_by: null }));
+    let fail: (v: { error: unknown }) => void = () => undefined;
+    db.update = (id) => (id === 'a' ? Promise.resolve({ error: null }) : new Promise((r) => (fail = r)));
+    renderUi(true);
+    fireEvent.click(await screen.findByRole('button', { name: 'Đưa ảnh 1 ra sau' }));
+    // While saving, every move button is disabled.
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Đưa ảnh 2 lên trước' })).toBeDisabled());
+    expect(screen.getByRole('button', { name: 'Đưa ảnh 1 ra sau' })).toBeDisabled();
+    const before = db.selects;
+    fail({ error: { message: 'boom' } });
+    await waitFor(() => expect(db.selects).toBe(before + 1));
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Đưa ảnh 1 ra sau' })).not.toBeDisabled());
+  });
+
+  it('a failed re-sign after an image error keeps the loaded photos instead of the error panel', async () => {
+    db.photos = [{ id: 'a', story_id: 's1', family_id: FAM, storage_path: `${FAM}/a.jpg`, caption: 'Tết 1975', position: 0, created_at: '', created_by: null }];
+    renderUi(false);
+    const img = await screen.findByAltText('Tết 1975');
+    const before = db.selects;
+    db.selectError = true;
+    fireEvent.error(img);
+    await waitFor(() => expect(db.selects).toBe(before + 1));
+    await new Promise((r) => setTimeout(r, 20));
+    expect(screen.getByAltText('Tết 1975')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).toBeNull();
   });
 });

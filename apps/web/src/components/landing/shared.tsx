@@ -11,8 +11,8 @@ import { cn } from '@/lib/cn';
 export function PrimaryCta({ className, size = 'xl', to = '/ke-chuyen' }: { className?: string; size?: 'lg' | 'xl'; to?: string }) {
   const t = useT('landing');
   return (
-    <span className={cn(baseDisplay('inline-flex', className), 'rounded-full border-[1.5px] border-dashed border-heritage/50 p-[5px]', className)}>
-      <Link to={to} className={buttonClasses({ variant: 'primary', size, className: 'gap-3 whitespace-nowrap pl-6 pr-7 max-[400px]:min-h-14 max-[400px]:pl-4 max-[400px]:pr-5 max-[400px]:text-[0.95rem]' })}>
+    <span className={cn(baseDisplay('inline-flex', className), 'max-w-full rounded-full border-[1.5px] border-dashed border-heritage/50 p-[5px]', className)}>
+      <Link to={to} className={buttonClasses({ variant: 'primary', size, className: 'min-w-0 gap-3 text-balance text-center pl-6 pr-7 max-[400px]:min-h-14 max-[400px]:pl-4 max-[400px]:pr-5 max-[400px]:text-[0.95rem]' })}>
         <span aria-hidden="true" className="inline-flex size-8 items-center justify-center rounded-full bg-cream/15">
           <Mic className="size-4" />
         </span>
@@ -40,7 +40,7 @@ export function SectionHeading({ eyebrow, title, lead, align = 'left', tone = 'l
   return (
     <Reveal className={cn('flex flex-col gap-6', align === 'left' && Boolean(aside) && 'md:flex-row md:items-end md:justify-between', className)}>
       <div className={cn(align === 'center' ? 'mx-auto max-w-3xl text-center' : 'max-w-3xl')}>
-        <p className={cn('inline-flex items-center gap-2 text-[0.8rem] font-semibold uppercase tracking-[0.14em]', dark ? 'text-mint' : 'text-terracotta')}>
+        <p className={cn('inline-flex items-center gap-2 text-[0.8rem] font-semibold uppercase tracking-[0.14em]', dark ? 'text-mint-fixed' : 'text-terracotta')}>
           <span aria-hidden="true" className={cn('h-px w-6', dark ? 'bg-mint/60' : 'bg-terracotta/60')} />
           {eyebrow}
         </p>
@@ -72,10 +72,10 @@ export function ArrowLink({ to, children, tone = 'light', diagonal, className }:
   );
 }
 
-/** Standard section wrapper: generous padding, max-w-7xl. */
+/** Standard section wrapper: generous padding, max-w-7xl. Long words hyphenate/break so 200% text never widens the page. */
 export function Section({ id, labelledBy, className, children, inner }: { id?: string; labelledBy?: string; className?: string; inner?: string; children: ReactNode }) {
   return (
-    <section id={id} aria-labelledby={labelledBy} className={cn('scroll-mt-24 py-20 md:py-28 lg:py-32', className)}>
+    <section id={id} aria-labelledby={labelledBy} className={cn('scroll-mt-24 py-20 hyphens-auto wrap-anywhere md:py-28 lg:py-32', className)}>
       <div className={cn('mx-auto max-w-7xl px-4 sm:px-6 lg:px-8', inner)}>{children}</div>
     </section>
   );

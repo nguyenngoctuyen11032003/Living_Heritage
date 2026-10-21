@@ -1,6 +1,7 @@
 import { CheckCircle2, Save, Send } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { useT } from '@/i18n';
+import { cn } from '@/lib/cn';
 import type { ReactNode } from 'react';
 import type { ApprovalMode } from './approval';
 
@@ -18,13 +19,15 @@ export interface ApprovalBarProps {
   /** id of the explanation in the approval section (the narrator question / the consent hint). */
   describedBy?: string;
   narratorMode?: boolean;
+  /** Desktop: rendered inside the draft column (no bleed to the page edges, rounded, no top margin). */
+  inColumn?: boolean;
 }
 
 /**
  * Slim sticky bar: save state + the single primary action of the moment (one row, ≤ 72px tall on phones).
  * Explanations, the narrator question and the consent checkbox live in the page flow (ApprovalSection).
  */
-export function ApprovalBar({ mode, canEdit, dirty, waiting, busy, consent, onSave, onApprove, describedBy, narratorMode }: ApprovalBarProps) {
+export function ApprovalBar({ mode, canEdit, dirty, waiting, busy, consent, onSave, onApprove, describedBy, narratorMode, inColumn }: ApprovalBarProps) {
   const t = useT('review');
   if (mode === 'read_only') return null;
   const size = narratorMode ? 'lg' : 'md';
@@ -74,11 +77,18 @@ export function ApprovalBar({ mode, canEdit, dirty, waiting, busy, consent, onSa
       </span>
     );
   else if (mode === 'send_to_narrator' && waiting) status = <span className="font-semibold text-ink">{t('approval.waiting')}</span>;
-  else if (canEdit) status = <span className="text-ink-soft">{t('editor.allSaved')}</span>;
+  // Low-value "all saved" note: dropped on phones whenever a primary button needs the row (it was clipped at 360px).
+  else if (canEdit && !primary) status = <span className="text-ink-soft">{t('editor.allSaved')}</span>;
+  else if (canEdit) status = <span className="hidden text-ink-soft sm:inline">{t('editor.allSaved')}</span>;
   else status = null;
 
   return (
-    <div className="sticky bottom-0 z-20 -mx-4 mt-8 border-t border-line bg-paper/95 px-4 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-12px_30px_-24px_rgba(18,27,24,0.5)] backdrop-blur md:-mx-8 md:px-8">
+    <div
+      className={cn(
+        'sticky bottom-0 z-20 border-t border-line bg-paper pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-12px_30px_-24px_rgba(18,27,24,0.5)]',
+        inColumn ? 'rounded-t-[1.5rem] px-6 ring-1 ring-line/70' : '-mx-4 mt-8 px-4 md:-mx-8 md:px-8',
+      )}
+    >
       <div className="mx-auto flex min-h-14 max-w-6xl items-center justify-between gap-3">
         <p className="min-w-0 text-[0.85rem] leading-snug line-clamp-2" aria-live="polite">
           {status}

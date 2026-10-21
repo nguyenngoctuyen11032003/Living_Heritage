@@ -50,6 +50,21 @@ describe('StoryCard', () => {
     expect(screen.getByText('Cả gia đình')).toBeInTheDocument();
   });
 
+  it('shows the recorded date of the source and the family name of the narrator (not the pen name)', () => {
+    renderUi(
+      <StoryCard
+        story={story}
+        narrator={{ id: 'n', display_name: 'Nguyễn Thị Lan', pen_name: 'Bà Tư' }}
+        durationS={75}
+        recordedAt="2025-12-24T08:00:00Z"
+      />,
+    );
+    expect(screen.getByText('Nguyễn Thị Lan')).toBeInTheDocument();
+    expect(screen.queryByText('Bà Tư')).not.toBeInTheDocument();
+    expect(screen.getByText('Ngày ghi')).toBeInTheDocument();
+    expect(document.querySelector('time')).toHaveAttribute('dateTime', '2025-12-24T08:00:00Z');
+  });
+
   it('falls back gracefully for untitled stories without text or narrator (English)', () => {
     renderUi(<StoryCard story={{ ...story, title: ' ', body: '', topic_id: null }} />, 'en');
     expect(screen.getByRole('link', { name: 'Untitled story' })).toBeInTheDocument();

@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
   ADMIN_TABS,
+  AI_MAX_ATTEMPTS,
+  aiRetryCapped,
+  DELETION_UNRESOLVED,
+  deletionScope,
   nextConnectStatuses,
   nextDeletionStatuses,
   nextReportStatuses,
@@ -45,6 +49,8 @@ describe('admin access gating', () => {
   it('parses ?tab= with a safe default', () => {
     expect(parseAdminTab('reports')).toBe('reports');
     expect(parseAdminTab('aiJobs')).toBe('aiJobs');
+    expect(parseAdminTab('metrics')).toBe('metrics');
+    expect(parseAdminTab('questions')).toBe('questions');
     expect(parseAdminTab('hack')).toBe('publish');
     expect(parseAdminTab(null)).toBe('publish');
   });
@@ -56,15 +62,34 @@ describe('status transitions', () => {
     expect(nextReportStatuses('resolved')).toEqual(['open']);
     expect(nextConnectStatuses('new')).toEqual(['forwarded', 'closed']);
     expect(nextConnectStatuses('forwarded')).toEqual(['closed']);
-    expect(nextDeletionStatuses('open')).toEqual(['done', 'rejected']);
-    expect(nextDeletionStatuses('done')).toEqual(['open']);
-    expect(nextDeletionStatuses('weird')).toEqual([]);
+    // B12: tiếp nhận (open) → đang xử lý (processing) → hoàn tất (done / rejected).
+    // Story / family: 'done' only through the erase action, and an erased request is never reopened.
+    expect(nextDeletionStatuses('open', 'story')).toEqual(['processing', 'rejected']);
+    expect(nextDeletionStatuses('processing', 'story')).toEqual(['rejected']);
+    expect(nextDeletionStatuses('processing', 'family')).toEqual(['rejected']);
+    expect(nextDeletionStatuses('done', 'family')).toEqual([]);
+    expect(nextDeletionStatuses('rejected', 'story')).toEqual(['open']);
+    // Account deletion is handled by hand, so it can be marked done (and reopened).
+    expect(nextDeletionStatuses('processing', 'account')).toEqual(['done', 'rejected']);
+    expect(nextDeletionStatuses('done', 'account')).toEqual(['processing']);
+    expect(nextDeletionStatuses('weird', 'story')).toEqual([]);
   });
 
   it('resolution columns are set on close and cleared on reopen', () => {
     const now = new Date('2026-10-21T10:00:00Z');
     expect(resolutionPatch('done', 'open', 'u1', now)).toEqual({ status: 'done', resolved_at: now.toISOString(), resolved_by: 'u1' });
     expect(resolutionPatch('open', 'open', 'u1', now)).toEqual({ status: 'open', resolved_at: null, resolved_by: null });
+  });
+
+  it('an in-progress deletion request is not resolved yet', () => {
+    const now = new Date('2026-10-21T10:00:00Z');
+    expect(resolutionPatch('processing', DELETION_UNRESOLVED, 'u1', now)).toEqual({ status: 'processing', resolved_at: null, resolved_by: null });
+    expect(resolutionPatch('done', DELETION_UNRESOLVED, 'u1', now)).toEqual({ status: 'done', resolved_at: now.toISOString(), resolved_by: 'u1' });
+  });
+
+  it('flags AI jobs that reached the retry cap', () => {
+    expect(aiRetryCapped(AI_MAX_ATTEMPTS)).toBe(true);
+    expect(aiRetryCapped(AI_MAX_ATTEMPTS - 1)).toBe(false);
   });
 });
 
@@ -79,5 +104,16 @@ describe('error code parsing', () => {
   it('review_publish errors', () => {
     expect(reviewErrorCode('request_not_pending')).toBe('request_not_pending');
     expect(reviewErrorCode('boom')).toBe('unknown');
+  });
+});
+
+describe('deletionScope', () => {
+  it('uses the stored scope, else the DB insert rule', () => {
+    expect(deletionScope({ scope: 'family', story_id: null, reason: null })).toBe('family');
+    // A story request keeps scope 'story' after the story row is gone (story_id set null).
+    expect(deletionScope({ scope: 'story', story_id: null, reason: null })).toBe('story');
+    expect(deletionScope({ story_id: 's1', reason: null })).toBe('story');
+    expect(deletionScope({ story_id: null, reason: '[account] xoá tài khoản' })).toBe('account');
+    expect(deletionScope({ story_id: null, reason: 'Xoá hết' })).toBe('family');
   });
 });

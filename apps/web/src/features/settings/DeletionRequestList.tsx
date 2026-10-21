@@ -6,7 +6,7 @@ import { formatDate } from '@/lib/format';
 import { deletionStatus, describeDeletionRow, type DeletionScope, type DeletionStatus } from './deletion';
 import type { DeletionRequestRow } from './useDeletionRequests';
 
-const STATUS_TONE: Record<DeletionStatus, BadgeTone> = { open: 'warning', done: 'mint', rejected: 'terracotta', unknown: 'outline' };
+const STATUS_TONE: Record<DeletionStatus, BadgeTone> = { open: 'warning', processing: 'heritage', done: 'mint', rejected: 'terracotta', unknown: 'outline' };
 const SCOPE_KEY: Record<DeletionScope, 'deletion.scopeFamily' | 'deletion.scopeStory' | 'deletion.scopeAccount'> = {
   family: 'deletion.scopeFamily',
   story: 'deletion.scopeStory',

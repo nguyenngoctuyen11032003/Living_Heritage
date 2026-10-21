@@ -63,3 +63,11 @@ export const DEFAULT_TOGGLES: ShareToggles = { show_audio: false, show_real_name
 export function toggleNeedsNewRequest(visibility: Visibility, before: boolean, after: boolean): boolean {
   return visibility === 'public' && !before && after;
 }
+
+/**
+ * Whether a share toggle can take effect publicly. Family photos are never part of the public snapshot
+ * (lh_public_snapshot / public_items carry no photos), so `show_photos` stays locked off until they are.
+ */
+export function togglePublishable(key: keyof ShareToggles): boolean {
+  return key !== 'show_photos';
+}

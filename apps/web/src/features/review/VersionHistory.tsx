@@ -91,7 +91,7 @@ export function VersionHistory({ open, onClose, storyId, kind, currentVersion }:
                       )}
                       {v.edit_status === 'approved' && (
                         <Badge size="sm" tone="mint">
-                          {v.note === 'assisted' ? t('history.approvedAssisted') : t('history.approved')}
+                          {v.note?.startsWith('assisted') ? t('history.approvedAssisted') : t('history.approved')}
                         </Badge>
                       )}
                     </span>

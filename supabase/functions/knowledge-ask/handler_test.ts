@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { KnowledgeAskResponse, KnowledgeReindexResponse } from '../_shared/knowledge-contract.ts';
 import { GeminiError } from '../ai-process/lib/gemini.ts';
-import { handle, type KnowledgeDeps, LAZY_EMBED_LIMIT, MATCH_LIMIT, REINDEX_LIMIT } from './handler.ts';
+import { handle, type KnowledgeDeps, LAZY_EMBED_LIMIT, LAZY_EMBED_TIMEOUT_MS, MATCH_LIMIT, REINDEX_LIMIT } from './handler.ts';
 import type { AnswerInput, EmbedTask, KnowledgeAi, KnowledgeAiConfig } from './lib/ai.ts';
 import type { AdminCheck, KnowledgeDb, MatchRow, UnembeddedRow } from './lib/db.ts';
 import { createDailyCap, createRateLimiter } from './lib/limits.ts';
@@ -60,8 +60,14 @@ interface Log {
   saved: { id: string; at: string; dims: number }[];
   matchArgs: { limit: number; min: number } | null;
   listLimits: number[];
+  /** First AI config built for the request (the answer path's). */
   aiCfg: KnowledgeAiConfig | null;
+  aiCfgs: KnowledgeAiConfig[];
   adminTokens: string[];
+  /** Work handed to deps.background (the lazy embed after an answer). */
+  background: Promise<unknown>[];
+  /** Order of observable steps: 'answer', 'listUnembedded'. */
+  steps: string[];
 }
 
 const vec = () => Array.from({ length: 768 }, () => 0.01);
@@ -83,11 +89,23 @@ function setup(over: Partial<World> = {}) {
     dailyCap: 1000,
     ...over,
   };
-  const log: Log = { embedCalls: [], answerCalls: [], saved: [], matchArgs: null, listLimits: [], aiCfg: null, adminTokens: [] };
+  const log: Log = {
+    embedCalls: [],
+    answerCalls: [],
+    saved: [],
+    matchArgs: null,
+    listLimits: [],
+    aiCfg: null,
+    aiCfgs: [],
+    adminTokens: [],
+    background: [],
+    steps: [],
+  };
 
   const db: KnowledgeDb = {
     listUnembedded: (limit) => {
       log.listLimits.push(limit);
+      log.steps.push('listUnembedded');
       return Promise.resolve(w.unembedded.slice(0, limit));
     },
     saveEmbedding: (row, v, at) => {
@@ -103,7 +121,8 @@ function setup(over: Partial<World> = {}) {
   };
 
   const ai = (cfg: KnowledgeAiConfig): KnowledgeAi => {
-    log.aiCfg = cfg;
+    log.aiCfg ??= cfg;
+    log.aiCfgs.push(cfg);
     return {
       embed: (texts, task) => {
         log.embedCalls.push({ task, texts });
@@ -111,6 +130,7 @@ function setup(over: Partial<World> = {}) {
       },
       answer: (input) => {
         log.answerCalls.push(input);
+        log.steps.push('answer');
         return w.answer(input);
       },
     };
@@ -127,6 +147,7 @@ function setup(over: Partial<World> = {}) {
     ai,
     limiter: createRateLimiter({ limit: w.ratePerMin, windowMs: 60_000, now: () => NOW }),
     dailyCap: createDailyCap({ cap: w.dailyCap, now: () => NOW }),
+    background: (task) => log.background.push(task),
   };
   return { deps, log, w };
 }
@@ -189,17 +210,23 @@ Deno.test('sources that do not answer (or an uncited answer) are never shown: re
   assert.equal(rb.reason, 'not_in_sources');
 });
 
-Deno.test('lazy embedding: rows without an embedding are embedded (RETRIEVAL_DOCUMENT) before searching', async () => {
+Deno.test('lazy embedding: a few rows are embedded (RETRIEVAL_DOCUMENT) after the answer, in the background', async () => {
   const { deps, log, w } = setup({ unembedded: pending(25) });
   const res = await handle(post(ASK), deps);
   assert.equal(res.status, 200);
+  assert.equal(log.background.length, 1);
+  await Promise.all(log.background);
+  // The answer never waits for the backlog; the lazy embed is small and uses a short timeout.
+  assert.deepEqual(log.steps, ['answer', 'listUnembedded']);
+  assert.ok(LAZY_EMBED_LIMIT <= 5);
+  assert.equal(log.aiCfgs.at(-1)!.timeoutMs, LAZY_EMBED_TIMEOUT_MS);
   assert.deepEqual(log.listLimits, [LAZY_EMBED_LIMIT]);
   assert.equal(log.embedCalls[1]!.task, 'RETRIEVAL_DOCUMENT');
   assert.equal(log.embedCalls[1]!.texts.length, LAZY_EMBED_LIMIT);
   assert.equal(log.embedCalls[1]!.texts[0], 'Tiêu đề 0\nTóm tắt 0\nNội dung 0\nBước 0');
   assert.equal(log.saved.length, LAZY_EMBED_LIMIT);
   assert.ok(log.saved.every((s) => s.dims === 768 && s.at === new Date(NOW).toISOString()));
-  assert.equal(w.unembedded.length, 5);
+  assert.equal(w.unembedded.length, 25 - LAZY_EMBED_LIMIT);
 });
 
 Deno.test('lazy embedding failure does not fail the question', async () => {
@@ -343,4 +370,31 @@ Deno.test('reindex: everything failing upstream → 503 ai_unavailable with coun
   assert.equal(body.error, 'ai_unavailable');
   assert.equal(body.failed, 3);
   assert.equal(body.remaining, 3);
+});
+
+Deno.test('a stalled lazy embed never delays the answer', async () => {
+  let release!: () => void;
+  const stalled = new Promise<void>((r) => (release = r));
+  const { deps, log } = setup({
+    unembedded: pending(3),
+    embed: async (texts, task) => {
+      if (task === 'RETRIEVAL_DOCUMENT') await stalled;
+      return texts.map(vec);
+    },
+  });
+  const res = await handle(post(ASK), deps);
+  assert.equal(res.status, 200);
+  assert.equal(KnowledgeAskResponse.parse(await res.json()).reason, null);
+  assert.equal(log.saved.length, 0);
+  release();
+  await Promise.all(log.background);
+  assert.equal(log.saved.length, 3);
+});
+
+Deno.test('lazy embed also runs after a no_sources answer (new items become searchable)', async () => {
+  const { deps, log } = setup({ matches: [], unembedded: pending(2) });
+  const res = await handle(post(ASK), deps);
+  assert.equal((await res.json()).reason, 'no_sources');
+  await Promise.all(log.background);
+  assert.equal(log.saved.length, 2);
 });

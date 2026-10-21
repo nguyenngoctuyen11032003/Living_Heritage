@@ -92,7 +92,7 @@ export function Dialog({ open, onClose, title, description, children, footer, si
       {open && (
         <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center sm:p-6">
           <motion.div
-            className="absolute inset-0 bg-night/55 backdrop-blur-[3px]"
+            className="absolute inset-0 bg-night/60"
             initial={reduced ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

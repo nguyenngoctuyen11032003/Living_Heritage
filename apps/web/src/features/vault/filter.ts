@@ -1,6 +1,7 @@
 import type { EditStatus, StoryKind } from '@lh/shared';
 import { EDIT_STATUSES, STORY_KINDS } from '@lh/shared';
 import { stripDiacritics } from '@/lib/format';
+import { readExperienceFields } from './types';
 
 export interface VaultFilters {
   q: string;
@@ -17,6 +18,8 @@ export interface SearchableStory {
   title: string;
   summary: string | null;
   body: string;
+  /** Experience fields (skill, context, steps…): part of the reading text. */
+  fields?: unknown;
   narrator_id: string;
   topic_id: string | null;
   edit_status: EditStatus;
@@ -28,26 +31,51 @@ export function normalizeForSearch(text: string): string {
   return stripDiacritics(text).toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
-/** Every word of the query must appear in title, summary or body (diacritic-insensitive). */
-export function matchesQuery(story: Pick<SearchableStory, 'title' | 'summary' | 'body'>, q: string): boolean {
+/** Topic names (vi + en) by topic id, so a search also matches the topic (DỰ ÁN.md B9). */
+export type TopicNames = ReadonlyMap<string, string>;
+
+export function topicNames(topics: ReadonlyArray<{ id: string; title_vi: string; title_en: string }>): TopicNames {
+  return new Map(topics.map((tp) => [tp.id, `${tp.title_vi} ${tp.title_en}`]));
+}
+
+/** The reading text of a story: title, summary, body and the experience fields. Never file names. */
+function searchText(story: SearchableText): string {
+  const f = readExperienceFields(story.fields);
+  return [story.title, story.summary, story.body, f.skill, f.context, f.limits, ...(f.conditions ?? []), ...(f.steps ?? []), ...(f.cautions ?? [])]
+    .filter(Boolean)
+    .join(' ');
+}
+
+type SearchableText = Pick<SearchableStory, 'title' | 'summary' | 'body'> & { fields?: unknown; topic_id?: string | null };
+
+/** Every word of the query must appear in the title, the topic name or the reading text (diacritic-insensitive). */
+export function matchesQuery(story: SearchableText, q: string, topics?: TopicNames): boolean {
   const tokens = normalizeForSearch(q).split(' ').filter(Boolean);
   if (tokens.length === 0) return true;
-  const hay = normalizeForSearch(`${story.title} ${story.summary ?? ''} ${story.body}`);
+  const topic = story.topic_id ? (topics?.get(story.topic_id) ?? '') : '';
+  const hay = normalizeForSearch(`${searchText(story)} ${topic}`);
   return tokens.every((tok) => hay.includes(tok));
 }
 
-export function matchesFilters(story: SearchableStory, f: VaultFilters): boolean {
+export function matchesFilters(story: SearchableStory, f: VaultFilters, topics?: TopicNames): boolean {
   if (f.narratorId && story.narrator_id !== f.narratorId) return false;
   if (f.topicId === 'none') {
     if (story.topic_id !== null) return false;
   } else if (f.topicId && story.topic_id !== f.topicId) return false;
   if (f.status && story.edit_status !== f.status) return false;
   if (f.kind && story.kind !== f.kind) return false;
-  return matchesQuery(story, f.q);
+  return matchesQuery(story, f.q, topics);
 }
 
-export function filterStories<T extends SearchableStory>(stories: readonly T[], f: VaultFilters): T[] {
-  return stories.filter((s) => matchesFilters(s, f));
+export function filterStories<T extends SearchableStory>(stories: readonly T[], f: VaultFilters, topics?: TopicNames): T[] {
+  return stories.filter((s) => matchesFilters(s, f, topics));
+}
+
+/** Ids of the topics whose name contains every word of the query (diacritic-insensitive). */
+export function matchingTopicIds(topics: TopicNames, q: string): string[] {
+  const tokens = normalizeForSearch(q).split(' ').filter(Boolean);
+  if (tokens.length === 0) return [];
+  return [...topics].filter(([, name]) => tokens.every((tok) => normalizeForSearch(name).includes(tok))).map(([id]) => id);
 }
 
 export function hasActiveFilters(f: VaultFilters): boolean {
@@ -55,14 +83,17 @@ export function hasActiveFilters(f: VaultFilters): boolean {
 }
 
 /**
- * PostgREST `or=` expression for a server-side ilike over title/summary/body.
- * Characters with meaning in the filter grammar are dropped; returns null for an empty query.
+ * PostgREST `or=` expression for a server-side ilike over title/summary/body, plus the topics whose name
+ * matches. Characters with meaning in the filter grammar are dropped; returns null for an empty query.
  */
-export function ilikeOrFilter(q: string): string | null {
+export function ilikeOrFilter(q: string, topicIds: readonly string[] = []): string | null {
   const safe = q.replace(/[,()*%_\\":.]/g, ' ').replace(/\s+/g, ' ').trim();
   if (!safe) return null;
   const pattern = `*${safe}*`;
-  return ['title', 'summary', 'body'].map((col) => `${col}.ilike.${pattern}`).join(',');
+  const parts = ['title', 'summary', 'body'].map((col) => `${col}.ilike.${pattern}`);
+  const ids = topicIds.filter((id) => /^[0-9a-f-]{36}$/i.test(id));
+  if (ids.length > 0) parts.push(`topic_id.in.(${ids.join(',')})`);
+  return parts.join(',');
 }
 
 /** Merge lists by id (first occurrence wins), newest first. */

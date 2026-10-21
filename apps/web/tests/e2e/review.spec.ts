@@ -29,7 +29,12 @@ test('a family owner cannot approve for the narrator without recorded consent', 
   await expect(page.getByRole('button', { name: t.approval.confirm })).toHaveCount(0);
   const assisted = page.getByRole('button', { name: t.approval.assistedButton });
   await expect(assisted).toBeDisabled();
+  // The helper's record: read back + how the narrator agreed + who the helper is. Each one alone is not enough.
   await page.getByRole('checkbox', { name: t.approval.assistedConsent }).check();
+  await expect(assisted).toBeDisabled();
+  await page.getByRole('group', { name: t.approval.method.legend }).getByRole('radio', { name: t.approval.method.assisted_phone }).check();
+  await expect(assisted).toBeDisabled();
+  await page.getByRole('textbox', { name: t.approval.relation.label }).fill('Cháu nội');
   await expect(assisted).toBeEnabled();
 });
 
@@ -41,10 +46,10 @@ test('the narrator confirms the draft (approve_story) and is offered the sharing
   await expect(page.getByText(t.approval.question)).toBeVisible();
   await page.getByRole('button', { name: t.approval.confirm }).click();
   await expect(page.getByText(t.approval.successTitle)).toBeVisible();
-  expect(mock.rpcCalls('approve_story')).toEqual([{ p_story: IDS.storyHarvest, p_assisted_consent: false }]);
+  expect(mock.rpcCalls('approve_story')).toEqual([{ p_story: IDS.storyHarvest, p_assisted_consent: false, p_expected_version: 1 }]);
   expect(mock.db.stories!.find((s) => s.id === IDS.storyHarvest)?.edit_status).toBe('approved');
 
-  // The success panel (a status region) carries the next step. (ReviewPage renders a second identical CTA — see QA doc.)
+  // The success panel (a status region) carries the single next step: where to keep and share the story.
   await page.getByRole('status').getByRole('button', { name: t.approval.nextStep }).click();
   const dialog = page.getByRole('dialog', { name: t.share.title });
   await expect(dialog).toBeVisible();

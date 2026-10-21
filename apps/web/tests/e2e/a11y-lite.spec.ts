@@ -40,6 +40,8 @@ for (const route of SCREENS) {
     const unlabelledFields = await page.$$eval('input:not([type="hidden"]), select, textarea', (els) =>
       els
         .filter((el) => (el as HTMLElement).checkVisibility?.() ?? true)
+        // A hidden file input driven by a labelled button (aria-hidden, tabindex=-1) is not a field the user meets.
+        .filter((el) => !(el.getAttribute('aria-hidden') === 'true' && el.getAttribute('tabindex') === '-1'))
         .filter((el) => {
           const f = el as HTMLInputElement;
           return !(f.labels?.length || f.getAttribute('aria-label') || f.getAttribute('aria-labelledby') || f.getAttribute('title'));

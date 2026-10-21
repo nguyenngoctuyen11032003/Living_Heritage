@@ -75,7 +75,7 @@ function useFieldProps<T extends { id?: string; 'aria-describedby'?: string; 'ar
 }
 
 const control =
-  'w-full rounded-2xl bg-paper px-4 text-[1rem] text-ink ring-1 ring-line placeholder:text-ink-soft/70 transition-shadow duration-150 hover:ring-heritage/40 focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-heritage aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-terracotta disabled:cursor-not-allowed disabled:bg-cream disabled:opacity-70';
+  'w-full rounded-2xl bg-paper px-4 text-[1rem] text-ink ring-1 ring-line placeholder:text-ink-soft transition-shadow duration-150 hover:ring-heritage/40 focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-heritage aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-terracotta disabled:cursor-not-allowed disabled:bg-cream disabled:opacity-70';
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   ref?: Ref<HTMLInputElement>;

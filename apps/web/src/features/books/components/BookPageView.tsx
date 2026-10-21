@@ -21,12 +21,15 @@ export function BookPageView({
   book,
   chapters,
   coverTitleAs: CoverTitle = 'h2',
+  onGoToPage,
 }: {
   page: BookPage;
   book: BookMeta;
   chapters: ChapterInput[];
   /** The print view makes the cover title the page h1; the preview dialog keeps it an h2. */
   coverTitleAs?: 'h1' | 'h2';
+  /** Preview only: table-of-contents entries become links to their page. */
+  onGoToPage?: (page: number) => void;
 }) {
   const t = useT('books');
   const base: CSSProperties = { fontSize: '2.65cqw', lineHeight: 1.6 };
@@ -72,7 +75,18 @@ export function BookPageView({
               <span className="shrink-0 font-sans font-semibold text-terracotta" style={{ fontSize: '2.3cqw' }}>
                 {String(e.chapter).padStart(2, '0')}
               </span>
-              <span className="min-w-0 break-words">{e.title}</span>
+              {onGoToPage ? (
+                <button
+                  type="button"
+                  onClick={() => onGoToPage(e.page)}
+                  aria-label={t('preview.goToChapter', { n: e.chapter, title: e.title, page: e.page })}
+                  className="min-w-0 break-words rounded-sm text-left underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-heritage"
+                >
+                  {e.title}
+                </button>
+              ) : (
+                <span className="min-w-0 break-words">{e.title}</span>
+              )}
               <span aria-hidden="true" className="mx-[1cqw] min-w-[4cqw] flex-1 border-b border-dotted border-ink-soft/50" />
               <span className="shrink-0 tabular-nums text-ink-soft">{e.page}</span>
             </li>

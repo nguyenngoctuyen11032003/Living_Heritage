@@ -2,33 +2,40 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { fail } from '../_shared/http.ts';
 import { createAdminClient, createUserClient } from '../_shared/supabase.ts';
-import { handle, type SyncStore } from './handler.ts';
+import { collectPages, handle, PUBLIC_AUDIO_CACHE_SECONDS, type SyncStore } from './handler.ts';
 
 const PUBLIC_BUCKET = 'public-audio';
 const PRIVATE_BUCKET = 'recordings';
 
 function createStore(admin: SupabaseClient): SyncStore {
   return {
-    async listPublishedAudio() {
-      const { data, error } = await admin
-        .from('public_items')
-        .select('id, audio_path, stories(recordings(storage_path))')
-        .not('audio_path', 'is', null);
-      if (error) throw error;
-      return (data ?? []).map((row) => {
-        const r = row as unknown as { id: string; audio_path: string; stories: { recordings: { storage_path: string } | null } | null };
-        return { id: r.id, audio_path: r.audio_path, source_path: r.stories?.recordings?.storage_path ?? null };
+    listPublishedAudio() {
+      // Paged with a stable order: an unpaged read stops at max_rows and the rest would be deleted as orphans.
+      return collectPages(async (offset, limit) => {
+        const { data, error } = await admin
+          .from('public_items')
+          .select('id, audio_path, stories(recordings(storage_path))')
+          .not('audio_path', 'is', null)
+          .order('id')
+          .range(offset, offset + limit - 1);
+        if (error) throw error;
+        return (data ?? []).map((row) => {
+          const r = row as unknown as { id: string; audio_path: string; stories: { recordings: { storage_path: string } | null } | null };
+          return { id: r.id, audio_path: r.audio_path, source_path: r.stories?.recordings?.storage_path ?? null };
+        });
       });
     },
     async listPublicFiles() {
-      const names: string[] = [];
-      for (let offset = 0;; offset += 1000) {
-        const { data, error } = await admin.storage.from(PUBLIC_BUCKET).list('items', { limit: 1000, offset });
+      const entries = await collectPages(async (offset, limit) => {
+        const { data, error } = await admin.storage.from(PUBLIC_BUCKET).list('items', {
+          limit,
+          offset,
+          sortBy: { column: 'name', order: 'asc' },
+        });
         if (error) throw error;
-        names.push(...(data ?? []).filter((f) => f.id).map((f) => `items/${f.name}`));
-        if (!data || data.length < 1000) break;
-      }
-      return names;
+        return data ?? [];
+      });
+      return entries.filter((f) => f.id).map((f) => `items/${f.name}`);
     },
     async copyToPublic(sourcePath, targetPath) {
       const { data, error } = await admin.storage.from(PRIVATE_BUCKET).download(sourcePath);
@@ -36,7 +43,7 @@ function createStore(admin: SupabaseClient): SyncStore {
       const up = await admin.storage.from(PUBLIC_BUCKET).upload(targetPath, data, {
         contentType: data.type || 'audio/webm',
         upsert: true,
-        cacheControl: '3600',
+        cacheControl: String(PUBLIC_AUDIO_CACHE_SECONDS),
       });
       if (up.error) throw up.error;
     },

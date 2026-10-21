@@ -12,7 +12,7 @@ import { ErrorNotice, NotConfiguredNotice } from '@/features/families/states';
 import { NarratorAvatar } from '@/features/vault/components/NarratorAvatar';
 import { VaultPageHeader } from '@/features/vault/components/VaultPageHeader';
 import { assistedTellPath, useNarrators, type Narrator } from '@/features/narrators';
-import { buildTiers, connectorPaths, countByNarrator, packedCenters, vaultByNarratorPath, type Generation } from './tree';
+import { buildTiers, connectorPaths, countByNarrator, packedCenters, readPaged, vaultByNarratorPath, type Generation } from './tree';
 
 export default function FamilyTreePage() {
   return (
@@ -22,13 +22,20 @@ export default function FamilyTreePage() {
   );
 }
 
+/** null while loading; 'failed' when the count could not be read (never shown as "no stories"). */
+type Counts = Map<string, number> | null | 'failed';
+
 function useApprovedCounts(familyId: string) {
-  const [counts, setCounts] = useState<Map<string, number> | null>(null);
+  const [counts, setCounts] = useState<Counts>(null);
   const load = useCallback(async () => {
     const sb = getSupabase();
     if (!sb) return;
-    const res = await sb.from('stories').select('narrator_id').eq('family_id', familyId).eq('edit_status', 'approved').limit(5000);
-    setCounts(res.error ? new Map() : countByNarrator(res.data ?? []));
+    // Paged: one response is capped at max_rows (1000), and a silently truncated list would under-count.
+    const res = await readPaged<{ narrator_id: string }>((a, b) =>
+      sb.from('stories').select('narrator_id').eq('family_id', familyId).eq('edit_status', 'approved').order('id').range(a, b),
+    );
+    // A failed count is not "no approved stories": the cards then show no count at all rather than a wrong one.
+    setCounts(res.error ? 'failed' : countByNarrator(res.data ?? []));
   }, [familyId]);
   useEffect(() => {
     void load();
@@ -126,7 +133,7 @@ function FamilyTree() {
               <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {unplaced.map((n) => (
                   <li key={n.id} className="flex">
-                    <PersonCard narrator={n} count={counts?.get(n.id) ?? 0} countsReady={counts !== null} canEdit={fam.canEdit} className="w-full" />
+                    <PersonCard narrator={n} count={counts instanceof Map ? (counts.get(n.id) ?? 0) : 0} countsState={counts === null ? 'loading' : counts === 'failed' ? 'failed' : 'ready'} canEdit={fam.canEdit} className="w-full" />
                   </li>
                 ))}
               </ul>
@@ -160,7 +167,7 @@ function FamilyTree() {
 const CARD_W = 224;
 const CARD_GAP = 20;
 
-function TreeTiers({ tiers, counts, canEdit }: { tiers: Array<{ generation: Generation; narrators: Narrator[] }>; counts: Map<string, number> | null; canEdit: boolean }) {
+function TreeTiers({ tiers, counts, canEdit }: { tiers: Array<{ generation: Generation; narrators: Narrator[] }>; counts: Counts; canEdit: boolean }) {
   const t = useT('media');
   const widest = Math.max(...tiers.map((x) => x.narrators.length));
   const width = widest * CARD_W + (widest - 1) * CARD_GAP;
@@ -188,12 +195,12 @@ function TreeTiers({ tiers, counts, canEdit }: { tiers: Array<{ generation: Gene
 }
 
 /** One generation: a centred, wrapping row of equal-height cards (one per line on phones, two from sm, fixed width from md). */
-function TierRow({ narrators, counts, canEdit }: { narrators: Narrator[]; counts: Map<string, number> | null; canEdit: boolean }) {
+function TierRow({ narrators, counts, canEdit }: { narrators: Narrator[]; counts: Counts; canEdit: boolean }) {
   return (
     <ul className="flex flex-wrap items-stretch justify-center gap-4 md:flex-nowrap md:gap-5">
       {narrators.map((n) => (
         <li key={n.id} className="flex w-full sm:w-[calc(50%-0.5rem)] md:w-[224px] md:shrink-0">
-          <PersonCard narrator={n} count={counts?.get(n.id) ?? 0} countsReady={counts !== null} canEdit={canEdit} className="w-full" />
+          <PersonCard narrator={n} count={counts instanceof Map ? (counts.get(n.id) ?? 0) : 0} countsState={counts === null ? 'loading' : counts === 'failed' ? 'failed' : 'ready'} canEdit={canEdit} className="w-full" />
         </li>
       ))}
     </ul>
@@ -214,7 +221,7 @@ function Connector({ paths }: { paths: string[] }) {
   );
 }
 
-function PersonCard({ narrator: n, count, countsReady, canEdit, className }: { narrator: Narrator; count: number; countsReady: boolean; canEdit: boolean; className?: string }) {
+function PersonCard({ narrator: n, count, countsState, canEdit, className }: { narrator: Narrator; count: number; countsState: 'loading' | 'ready' | 'failed'; canEdit: boolean; className?: string }) {
   const t = useT('media');
   return (
     <article className={`flex flex-col gap-3 rounded-[1.5rem] bg-paper p-4 shadow-[0_12px_30px_-24px_rgba(22,58,49,0.5)] ring-1 ring-line/80 print:shadow-none ${className ?? ''}`}>
@@ -226,7 +233,7 @@ function PersonCard({ narrator: n, count, countsReady, canEdit, className }: { n
         </div>
       </div>
       <p className="text-[0.88rem]">
-        {countsReady ? (
+        {countsState === 'failed' ? null : countsState === 'ready' ? (
           count > 0 ? (
             <Badge size="sm" tone="mint" icon={<BookOpen />}>
               {t('tree.stories', { n: count })}

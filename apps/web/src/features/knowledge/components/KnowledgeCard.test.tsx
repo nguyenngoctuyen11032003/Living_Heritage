@@ -1,6 +1,6 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { LocaleProvider } from '@/i18n';
 import { getSampleItem } from '../sample-items';
 import { STATIC_TOPICS } from '../topics';
@@ -35,5 +35,27 @@ describe('KnowledgeCard', () => {
     renderCard(<KnowledgeCard item={item} topics={STATIC_TOPICS} />, 'en');
     expect(screen.getByText('Text only')).toBeInTheDocument();
     expect(screen.getByRole('link').textContent).toBe('Mẹ dặn');
+  });
+
+  it('shows the skill name and summary on every card (B10)', () => {
+    const item = sampleToItem(getSampleItem('mau-tuot-la-mai')!, 'vi');
+    renderCard(<KnowledgeCard item={item} topics={STATIC_TOPICS} />);
+    expect(screen.getByText('Tuốt lá mai vàng để hoa nở đúng Tết')).toBeInTheDocument();
+    expect(screen.getByText(/Cách canh ngày tuốt lá/)).toBeInTheDocument();
+  });
+
+  it('translates the server anonymous narrator label', () => {
+    const item = fromPublicRow({ id: 'x2', kind: 'story', title: 'Chuyện', narrator_label: 'Người kể ẩn danh', audio_allowed: false, fields: {} });
+    renderCard(<KnowledgeCard item={item} topics={STATIC_TOPICS} />, 'en');
+    expect(screen.getByText('Anonymous narrator')).toBeInTheDocument();
+    expect(screen.queryByText('Người kể ẩn danh')).toBeNull();
+  });
+
+  it('reports when its link is opened', () => {
+    const onOpen = vi.fn();
+    const item = sampleToItem(getSampleItem('mau-ca-kho-to')!, 'vi');
+    renderCard(<KnowledgeCard item={item} topics={STATIC_TOPICS} onOpen={onOpen} />);
+    fireEvent.click(screen.getByRole('link'));
+    expect(onOpen).toHaveBeenCalledTimes(1);
   });
 });

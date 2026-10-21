@@ -1,7 +1,7 @@
 import type { StoryKind } from '@lh/shared';
 import { ArrowDown, ArrowUp, Plus, Sparkles, Trash2 } from 'lucide-react';
 import { useLayoutEffect, useRef, type ChangeEvent } from 'react';
-import { Button, Field, Input, Textarea } from '@/components/ui';
+import { Button, Field, Input, Select, Textarea } from '@/components/ui';
 import { useT } from '@/i18n';
 import type { DraftForm } from './fields';
 
@@ -11,6 +11,10 @@ export interface DraftEditorProps {
   onChange: (next: DraftForm) => void;
   readOnly?: boolean;
   errors?: { title?: string; decade?: string };
+  /** Current topic title. undefined hides the topic row; null = none. */
+  topic?: string | null;
+  /** Topics to choose from (save_story_draft p_topic_id). Empty or absent: the topic is shown read-only. */
+  topics?: { id: string; title: string }[];
 }
 
 /** Textarea that grows with its content (keeps the native resize handle as a fallback). */
@@ -25,7 +29,7 @@ function AutoTextarea(props: React.ComponentProps<typeof Textarea>) {
   return <Textarea ref={ref} {...props} />;
 }
 
-type ListKey = 'conditions' | 'steps' | 'cautions';
+type ListKey = 'conditions' | 'steps' | 'cautions' | 'people' | 'places';
 
 function ListEditor({ label, items, onChange, readOnly, ordered }: { label: string; items: string[]; onChange: (xs: string[]) => void; readOnly?: boolean; ordered?: boolean }) {
   const t = useT('review');
@@ -88,11 +92,11 @@ function ListEditor({ label, items, onChange, readOnly, ordered }: { label: stri
 }
 
 /** Story: title + body. Experience: title, summary, skill, context, conditions[], steps[], cautions[], limits. Both: optional decade. */
-export function DraftEditor({ kind, form, onChange, readOnly, errors }: DraftEditorProps) {
+export function DraftEditor({ kind, form, onChange, readOnly, errors, topic, topics }: DraftEditorProps) {
   const t = useT('review');
   const empty = t('editor.empty');
   const set = <K extends keyof DraftForm>(key: K, value: DraftForm[K]) => onChange({ ...form, [key]: value });
-  const text = (key: 'title' | 'summary' | 'body' | 'skill' | 'context' | 'limits') => ({
+  const text = (key: 'title' | 'summary' | 'body' | 'skill' | 'context' | 'limits' | 'opening' | 'lesson') => ({
     value: form[key],
     readOnly,
     placeholder: empty,
@@ -116,9 +120,17 @@ export function DraftEditor({ kind, form, onChange, readOnly, errors }: DraftEdi
       </Field>
 
       {kind === 'story' ? (
-        <Field label={t('editor.body')} hint={t('editor.bodyHint')}>
-          <AutoTextarea {...text('body')} rows={12} className="px-5! py-5! font-serif text-[1.15rem]! leading-[1.9]! md:px-7!" />
-        </Field>
+        <>
+          <Field label={t('editor.opening')}>
+            <AutoTextarea {...text('opening')} rows={2} className="font-serif text-[1.08rem]! leading-[1.8]!" />
+          </Field>
+          <Field label={t('editor.body')} hint={t('editor.bodyHint')}>
+            <AutoTextarea {...text('body')} rows={12} className="px-5! py-5! font-serif text-[1.15rem]! leading-[1.9]! md:px-7!" />
+          </Field>
+          <Field label={t('editor.lesson')} hint={t('editor.lessonHint')}>
+            <AutoTextarea {...text('lesson')} rows={2} />
+          </Field>
+        </>
       ) : (
         <>
           <Field label={t('editor.summary')}>
@@ -139,9 +151,35 @@ export function DraftEditor({ kind, form, onChange, readOnly, errors }: DraftEdi
         </>
       )}
 
-      <Field label={t('editor.decade')} hint={t('editor.decadeHint')} error={errors?.decade} className="max-w-xs">
+      <div className="flex flex-col gap-5 rounded-2xl bg-cream/60 p-4 ring-1 ring-line/70">
+        <p className="text-[0.88rem] leading-relaxed text-ink-soft">{t('editor.detailsLead')}</p>
+        {list('people', t('editor.people'))}
+        {list('places', t('editor.places'))}
+        {!readOnly && topics && topics.length > 0 ? (
+          <Field label={t('editor.topic')} hint={t('editor.topicChangeHint')} className="max-w-md">
+            <Select value={form.topicId} onChange={(e) => set('topicId', e.target.value)}>
+              {form.topicId === '' && <option value="">{t('editor.noInfo')}</option>}
+              {/* A retired current topic stays selectable so nothing changes unless the user picks another one. */}
+              {form.topicId !== '' && !topics.some((x) => x.id === form.topicId) && <option value={form.topicId}>{topic ?? t('editor.noInfo')}</option>}
+              {topics.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.title}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        ) : (
+          topic !== undefined && (
+            <p className="flex flex-col gap-1 text-[0.95rem]">
+              <span className="text-[0.9rem] font-semibold text-ink">{t('editor.topic')}</span>
+              <span className={topic ? undefined : 'italic text-ink-soft'}>{topic ?? t('editor.noInfo')}</span>
+            </p>
+          )
+        )}
+        <Field label={t('editor.decade')} hint={t('editor.decadeHint')} error={errors?.decade} className="max-w-xs">
         <Input value={form.decade} readOnly={readOnly} inputMode="numeric" maxLength={4} placeholder="1970" onChange={(e) => set('decade', e.target.value)} />
-      </Field>
+        </Field>
+      </div>
     </div>
   );
 }

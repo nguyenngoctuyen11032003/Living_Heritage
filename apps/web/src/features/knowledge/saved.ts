@@ -1,7 +1,9 @@
 // "Lưu để xem sau": a per-device list in localStorage (never sent to the server).
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { StoryKind } from '@lh/shared';
-import type { KnowledgeItem } from './types';
+import { getSupabase } from '@/lib/supabase';
+import { stillPublicIds } from './api';
+import { isUuid, type KnowledgeItem } from './types';
 
 export const SAVED_STORAGE_KEY = 'lh-knowledge-saved';
 const EVENT = 'lh-knowledge-saved-change';
@@ -33,7 +35,7 @@ export function readSaved(): SavedEntry[] {
   }
 }
 
-function write(list: SavedEntry[]) {
+export function writeSaved(list: SavedEntry[]) {
   try {
     localStorage.setItem(SAVED_STORAGE_KEY, JSON.stringify(list.slice(0, MAX)));
   } catch {
@@ -58,15 +60,15 @@ export function toSavedEntry(item: KnowledgeItem, now = new Date()): SavedEntry 
 export function toggleSaved(item: KnowledgeItem): boolean {
   const list = readSaved();
   if (list.some((e) => e.id === item.id)) {
-    write(list.filter((e) => e.id !== item.id));
+    writeSaved(list.filter((e) => e.id !== item.id));
     return false;
   }
-  write([toSavedEntry(item), ...list]);
+  writeSaved([toSavedEntry(item), ...list]);
   return true;
 }
 
 export function removeSaved(id: string) {
-  write(readSaved().filter((e) => e.id !== id));
+  writeSaved(readSaved().filter((e) => e.id !== id));
 }
 
 /** Reactive saved list (syncs across components and tabs). */
@@ -84,8 +86,40 @@ export function useSavedList(): SavedEntry[] {
   return list;
 }
 
-export function useIsSaved(id: string): [boolean, (item: KnowledgeItem) => boolean] {
-  const list = useSavedList();
-  const toggle = useCallback((item: KnowledgeItem) => toggleSaved(item), []);
-  return [list.some((e) => e.id === id), toggle];
+/** Saved real items that are no longer public (samples and unchecked ids are never listed). */
+export function withdrawnIds(list: readonly SavedEntry[], live: ReadonlySet<string>): Set<string> {
+  return new Set(list.filter((e) => isUuid(e.id) && !live.has(e.id)).map((e) => e.id));
+}
+
+/**
+ * Ids in the saved list that the narrator has withdrawn (NT09): their stored title must not be shown again.
+ * Best effort: on a network error nothing is marked, the detail page still shows the not-found state.
+ */
+export function useWithdrawnSaved(list: readonly SavedEntry[]): ReadonlySet<string> {
+  const [gone, setGone] = useState<ReadonlySet<string>>(() => new Set());
+  const key = list
+    .map((e) => e.id)
+    .filter(isUuid)
+    .sort()
+    .join(',');
+  useEffect(() => {
+    const sb = getSupabase();
+    const ids = key ? key.split(',') : [];
+    if (!sb || ids.length === 0) return;
+    let alive = true;
+    stillPublicIds(sb, ids)
+      .then((live) => {
+        if (!alive) return;
+        const now = withdrawnIds(
+          ids.map((id) => ({ id }) as SavedEntry),
+          live,
+        );
+        setGone((prev) => (prev.size === now.size && [...now].every((id) => prev.has(id)) ? prev : now));
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [key]);
+  return gone;
 }

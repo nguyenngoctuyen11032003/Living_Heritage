@@ -1,5 +1,5 @@
 // Landing sections (Workstream C). Reusable on static pages.
-export { Hero } from './Hero';
+export { Hero, StoryRibbon } from './Hero';
 export { CurvedCarousel } from './CurvedCarousel';
 export { SampleStory } from './SampleStory';
 export { Manifesto, CreamPillLink } from './Manifesto';

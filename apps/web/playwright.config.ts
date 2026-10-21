@@ -5,7 +5,9 @@ import { defineConfig, devices } from '@playwright/test';
 // The build goes to its own folder so a parallel `pnpm build` (real .env) can never be the build under test.
 // PLAYWRIGHT_PORT lets parallel checkouts each serve their own build; an already-running server is only reused
 // with PLAYWRIGHT_REUSE_SERVER=1.
-const E2E_OUT_DIR = 'node_modules/.e2e-dist';
+// PLAYWRIGHT_E2E_DIST serves another build folder (e.g. `vite build --mode e2e --outDir node_modules/.e2e-dist-a13`), so
+// parallel checkouts or agents never test a bundle someone else is rebuilding.
+const E2E_OUT_DIR = process.env.PLAYWRIGHT_E2E_DIST ?? 'node_modules/.e2e-dist';
 const PORT = Number(process.env.PLAYWRIGHT_PORT ?? 4173);
 // A CLI --grep naming @visual must not be cancelled by the default grepInvert below.
 const wantsVisual = !!process.env.PLAYWRIGHT_VISUAL || process.argv.some((a) => a.includes('@visual'));

@@ -6,12 +6,19 @@ import { useReducedMotionSafe } from '@/design/motion';
 import { useT, usePick } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { formatDuration } from '@/lib/format';
-import { cardGeometry, FRAME, roundedPolygonPath, wrap } from './carouselGeometry';
+import { cardGeometry, cardWidth, edgeHeight, FRAME, quadMatrix3d, wrap } from './carouselGeometry';
 import type { CarouselStory } from './sample-data';
 
 const DRIFT = -50; // units / s, right → left
 const DECAY = 0.05; // momentum keeps 5% after one second (decays ~95%/s)
 const PHONE_MAX = 820;
+/**
+ * Cards are laid out once at K× the centre card's size and projected onto their quad with matrix3d(), so every frame is
+ * compositor-only. K ≈ the side/centre size ratio keeps the projection a downscale almost everywhere (text stays crisp).
+ */
+const K = 1.4;
+const BASE_W = cardWidth(0) * K;
+const BASE_H = edgeHeight(0) * K;
 
 interface Frame {
   u: number;
@@ -38,7 +45,7 @@ export interface CurvedCarouselProps {
 }
 
 /**
- * Arched row of tall story cards drawn as rounded quads (clip-path recomputed every frame).
+ * Arched row of tall story cards projected onto quads (one matrix3d per card per frame: no layout, no repaint).
  * Auto-drifts ~50u/s, can be dragged 1:1 with momentum, loops seamlessly, pauses off-screen, and is static under reduced motion.
  * Decorative for assistive tech: the same stories are reachable via the sample and knowledge sections.
  */
@@ -50,9 +57,8 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
   const cardRefs = useRef<Array<HTMLDivElement | null>>([]);
   const [frame, setFrame] = useState<Frame>(() => measure(typeof window !== 'undefined' ? window.innerWidth : 1440));
   const [userPaused, setUserPaused] = useState(false);
-  const [grabbing, setGrabbing] = useState(false);
 
-  const state = useRef({ offset: 0, momentum: 0, dragging: false, lastX: 0, lastT: 0, moved: 0, pointerId: -1, suppressClick: false, visible: true });
+  const state = useRef({ offset: 0, momentum: 0, dirty: false, dragging: false, lastX: 0, lastT: 0, moved: 0, pointerId: -1, suppressClick: false, visible: true });
 
   const copies = Math.max(1, Math.ceil((frame.wUnits + 900) / (stories.length * FRAME.pitch)));
   const slots = useMemo(() => Array.from({ length: stories.length * copies }, (_, i) => stories[i % stories.length]!), [stories, copies]);
@@ -63,7 +69,6 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
     const centre = wUnits / 2;
     const centreY = hUnits / 2 + 12;
     const { offset } = state.current;
-    const r = FRAME.radius * u;
     for (let i = 0; i < slots.length; i++) {
       const el = cardRefs.current[i];
       if (!el) continue;
@@ -74,24 +79,10 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
         el.style.visibility = 'hidden';
         continue;
       }
-      const top = Math.min(g.left.top, g.right.top);
-      const bottom = Math.max(g.left.bottom, g.right.bottom);
-      const w = g.width * u;
-      const h = (bottom - top) * u;
+      const xl = (g.x - halfW) * u;
+      const xr = (g.x + halfW) * u;
       el.style.visibility = 'visible';
-      el.style.width = `${w.toFixed(2)}px`;
-      el.style.height = `${h.toFixed(2)}px`;
-      el.style.transform = `translate3d(${((g.x - halfW) * u).toFixed(2)}px, ${(top * u).toFixed(2)}px, 0)`;
-      const path = roundedPolygonPath(
-        [
-          [0, (g.left.top - top) * u],
-          [w, (g.right.top - top) * u],
-          [w, (g.right.bottom - top) * u],
-          [0, (g.left.bottom - top) * u],
-        ],
-        r,
-      );
-      el.style.clipPath = `path('${path}')`;
+      el.style.transform = quadMatrix3d(BASE_W * u, BASE_H * u, [xl, g.left.top * u], [xr, g.right.top * u], [xr, g.right.bottom * u], [xl, g.left.bottom * u]);
     }
   }, [frame, slots.length, loop]);
 
@@ -99,17 +90,17 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
   useEffect(() => {
     const band = bandRef.current;
     if (!band) return;
-    const update = () => setFrame(measure(band.clientWidth || window.innerWidth));
+    const update = () => {
+      const next = measure(band.clientWidth || window.innerWidth);
+      setFrame((f) => (f.u === next.u && f.wUnits === next.wUnits && f.hUnits === next.hUnits && f.phone === next.phone ? f : next));
+    };
     update();
-    if (typeof ResizeObserver === 'undefined') {
-      window.addEventListener('resize', update);
-      return () => window.removeEventListener('resize', update);
-    }
-    const ro = new ResizeObserver(update);
-    ro.observe(band);
+    // The window listener catches viewport-height changes (u depends on innerHeight on desktop) that ResizeObserver misses.
     window.addEventListener('resize', update);
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update);
+    ro?.observe(band);
     return () => {
-      ro.disconnect();
+      ro?.disconnect();
       window.removeEventListener('resize', update);
     };
   }, []);
@@ -118,40 +109,67 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
     layout();
   }, [layout]);
 
+  // Animation loop: schedules frames only while something moves (drift, momentum or a drag) and the band is on screen;
+  // otherwise it stops completely (no idle 120 Hz wake-ups) until start() is called again.
+  const startRef = useRef<() => void>(() => {});
+  useEffect(() => {
+    let raf = 0;
+    let last = 0;
+    const tick = (now: number) => {
+      raf = 0;
+      const dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
+      last = now;
+      const s = state.current;
+      if (!s.visible) return;
+      if (s.dragging) {
+        if (s.dirty) {
+          s.dirty = false;
+          layout();
+        }
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+      const drift = reduced || userPaused ? 0 : DRIFT;
+      const momentum = reduced ? 0 : s.momentum;
+      if (drift === 0 && Math.abs(momentum) <= 0.5) {
+        s.momentum = 0;
+        if (s.dirty) {
+          s.dirty = false;
+          layout();
+        }
+        return;
+      }
+      s.offset = wrap(s.offset + (drift + momentum) * dt, loop);
+      s.momentum *= Math.pow(DECAY, dt);
+      s.dirty = false;
+      layout();
+      raf = requestAnimationFrame(tick);
+    };
+    const start = () => {
+      if (raf || !state.current.visible) return;
+      last = 0;
+      raf = requestAnimationFrame(tick);
+    };
+    startRef.current = start;
+    start();
+    return () => {
+      cancelAnimationFrame(raf);
+      raf = 0;
+      startRef.current = () => {};
+    };
+  }, [layout, loop, reduced, userPaused]);
+
   // Visibility → only animate while on screen.
   useEffect(() => {
     const band = bandRef.current;
     if (!band || typeof IntersectionObserver === 'undefined') return;
     const io = new IntersectionObserver(([entry]) => {
       state.current.visible = entry?.isIntersecting ?? true;
+      if (state.current.visible) startRef.current();
     });
     io.observe(band);
     return () => io.disconnect();
   }, []);
-
-  // Animation loop.
-  useEffect(() => {
-    let raf = 0;
-    let last = performance.now();
-    const tick = (now: number) => {
-      const dt = Math.min(0.05, (now - last) / 1000);
-      last = now;
-      const s = state.current;
-      if (s.visible && !s.dragging) {
-        const drift = reduced || userPaused ? 0 : DRIFT;
-        const momentum = reduced ? 0 : s.momentum;
-        if (drift !== 0 || Math.abs(momentum) > 0.5) {
-          s.offset += (drift + momentum) * dt;
-          s.offset = wrap(s.offset, loop);
-          layout();
-        }
-        s.momentum *= Math.pow(DECAY, dt);
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [layout, loop, reduced, userPaused]);
 
   function onPointerDown(e: ReactPointerEvent<HTMLDivElement>) {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
@@ -163,6 +181,7 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
     s.momentum = 0;
     s.pointerId = e.pointerId;
     s.suppressClick = false;
+    startRef.current();
   }
 
   function onPointerMove(e: ReactPointerEvent<HTMLDivElement>) {
@@ -176,7 +195,7 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
     s.moved += Math.abs(dx);
     if (s.moved > 6 && !s.suppressClick) {
       s.suppressClick = true;
-      setGrabbing(true);
+      bandRef.current?.classList.add('cursor-grabbing');
       try {
         bandRef.current?.setPointerCapture(e.pointerId);
       } catch {
@@ -187,7 +206,7 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
     s.offset = wrap(s.offset + du, loop);
     const v = (du / dtMs) * 1000;
     s.momentum = s.momentum * 0.6 + v * 0.4;
-    layout();
+    s.dirty = true; // applied once on the next frame, however many pointer events arrive before it
   }
 
   function endDrag(e: ReactPointerEvent<HTMLDivElement>) {
@@ -195,18 +214,28 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
     if (!s.dragging || e.pointerId !== s.pointerId) return;
     s.dragging = false;
     if (performance.now() - s.lastT > 80) s.momentum = 0;
-    setGrabbing(false);
+    bandRef.current?.classList.remove('cursor-grabbing');
+    startRef.current();
   }
 
   const bandStyle = { height: `${(frame.hUnits * frame.u).toFixed(1)}px`, '--u': `${frame.u}px`, touchAction: 'pan-y' } as CSSProperties;
-  const fs = (n: number, min: number) => ({ fontSize: `max(${min}px, calc(var(--u) * ${n}))` });
+  // Inside a card --u is K× the band's unit: the card is laid out at K× size, then projected down.
+  const fs = (n: number, min: number) => ({ fontSize: `max(${min * K}px, calc(var(--u) * ${n}))` });
+  const cardStyle = {
+    visibility: 'hidden',
+    width: `${(BASE_W * frame.u).toFixed(2)}px`,
+    height: `${(BASE_H * frame.u).toFixed(2)}px`,
+    borderRadius: `${(FRAME.radius * K * frame.u).toFixed(2)}px`,
+    transformOrigin: '0 0',
+    '--u': `${frame.u * K}px`,
+  } as CSSProperties;
 
   return (
     <div className={cn('relative', className)}>
       <div
         ref={bandRef}
         aria-hidden="true"
-        className={cn('relative w-full select-none overflow-hidden', grabbing ? 'cursor-grabbing' : 'cursor-grab')}
+        className="relative w-full cursor-grab select-none overflow-hidden"
         style={bandStyle}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -227,17 +256,17 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
             ref={(el) => {
               cardRefs.current[i] = el;
             }}
-            className="absolute left-0 top-0 overflow-hidden will-change-transform"
-            style={{ visibility: 'hidden' }}
+            className="absolute left-0 top-0 overflow-hidden will-change-transform [backface-visibility:hidden]"
+            style={cardStyle}
           >
             <StoryScene kind={story.scene} className="absolute inset-0" />
             <div className="absolute inset-0 bg-[linear-gradient(to_top,rgba(18,27,24,0.88)_0%,rgba(18,27,24,0.45)_38%,rgba(18,27,24,0)_62%)]" />
             <div className="absolute inset-x-0 top-0 flex items-center justify-between" style={{ padding: 'calc(var(--u) * 26) calc(var(--u) * 14) 0' }}>
-              <span className="rounded-full bg-cream/85 font-semibold text-heritage-deep backdrop-blur-sm" style={{ ...fs(11, 9), padding: 'calc(var(--u) * 3) calc(var(--u) * 9)' }}>
+              <span className="rounded-full bg-cream/90 font-semibold text-heritage-deep" style={{ ...fs(11, 9), padding: 'calc(var(--u) * 3) calc(var(--u) * 9)' }}>
                 {pick(story.topic)}
               </span>
             </div>
-            <div className="absolute inset-x-0 bottom-0 text-cream" style={{ padding: '0 calc(var(--u) * 14) calc(var(--u) * 30)' }}>
+            <div className="absolute inset-x-0 bottom-0 text-cream-fixed" style={{ padding: '0 calc(var(--u) * 14) calc(var(--u) * 30)' }}>
               <p className="font-serif italic leading-[1.3]" style={fs(15.5, 11)}>
                 “{pick(story.quote)}”
               </p>
@@ -246,8 +275,8 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
                   type="button"
                   tabIndex={-1}
                   onClick={() => onPlay?.(story)}
-                  className="inline-flex shrink-0 items-center justify-center rounded-full bg-white/25 text-white ring-1 ring-white/40 backdrop-blur-md transition-transform hover:scale-110"
-                  style={{ width: 'max(30px, calc(var(--u) * 38))', height: 'max(30px, calc(var(--u) * 38))' }}
+                  className="inline-flex shrink-0 items-center justify-center rounded-full bg-white/25 text-white ring-1 ring-white/40 transition-transform hover:scale-110"
+                  style={{ width: `max(${30 * K}px, calc(var(--u) * 38))`, height: `max(${30 * K}px, calc(var(--u) * 38))` }}
                   aria-label={t('ui.carousel.listen', { title: pick(story.quote) })}
                 >
                   <Play className="ml-[8%] size-[42%] fill-current" />
@@ -266,20 +295,23 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
           </div>
         ))}
       </div>
-      {/* The cards show named people: label them as illustrative right on the carousel (the band itself is aria-hidden). */}
-      <IllustrativeBadge className="absolute bottom-3 left-4 z-10 md:left-8" />
-      {!reduced && (
-        <button
-          type="button"
-          onClick={() => setUserPaused((p) => !p)}
-          aria-pressed={userPaused}
-          aria-label={userPaused ? t('ui.carousel.resume') : t('ui.carousel.pause')}
-          title={userPaused ? t('ui.carousel.resume') : t('ui.carousel.pause')}
-          className="absolute bottom-1 right-4 z-10 inline-flex size-12 items-center justify-center rounded-full bg-paper/80 text-heritage ring-1 ring-line backdrop-blur transition-colors hover:bg-paper md:right-8"
-        >
-          {userPaused ? <Play className="ml-0.5 size-4 fill-current" aria-hidden="true" /> : <Pause className="size-4 fill-current" aria-hidden="true" />}
-        </button>
-      )}
+      {/* Controls row under the band (never over a card): the cards show named people, so label them as illustrative
+          (the band itself is aria-hidden), plus the pause control. */}
+      <div className="mx-auto mt-3 flex min-h-12 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+        <IllustrativeBadge />
+        {!reduced && (
+          <button
+            type="button"
+            onClick={() => setUserPaused((p) => !p)}
+            aria-pressed={userPaused}
+            aria-label={userPaused ? t('ui.carousel.resume') : t('ui.carousel.pause')}
+            title={userPaused ? t('ui.carousel.resume') : t('ui.carousel.pause')}
+            className="inline-flex size-12 items-center justify-center rounded-full bg-paper text-heritage ring-1 ring-line transition-colors hover:bg-paper"
+          >
+            {userPaused ? <Play className="ml-0.5 size-4 fill-current" aria-hidden="true" /> : <Pause className="size-4 fill-current" aria-hidden="true" />}
+          </button>
+        )}
+      </div>
     </div>
   );
 }
