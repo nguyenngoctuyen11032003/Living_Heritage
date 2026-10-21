@@ -30,3 +30,8 @@ if (!('IntersectionObserver' in window)) {
   }
   (window as unknown as { IntersectionObserver: unknown }).IntersectionObserver = IO;
 }
+
+// motion's WAAPI path makes happy-dom raise unhandled AbortErrors; force the JS animation fallback in tests.
+if ('animate' in Element.prototype) {
+  delete (Element.prototype as unknown as Record<string, unknown>).animate;
+}

@@ -10,6 +10,7 @@ import { reviewErrorCode } from '../access';
 import { useDateTime } from '../format';
 import { ListHeader, ListState, StatusPill } from '../shared';
 import { must, useAdminQuery } from '../useAdminQuery';
+import { syncPublicAudio } from '@/lib/publicAudio';
 
 type EditStatus = Database['public']['Enums']['edit_status'];
 
@@ -133,6 +134,7 @@ function PendingCard({ row, onDone }: { row: PendingRow; onDone: (h: Handled) =>
     if (approve && itemId) {
       const { data: item } = await sb.from('public_items').select('audio_allowed, audio_path').eq('id', itemId).maybeSingle();
       if (item) audio = item.audio_allowed && item.audio_path ? 'sync' : 'none';
+      if (audio === 'sync') void syncPublicAudio();
     }
     setBusy(null);
     toast({ title: approve ? t('publish.approved') : t('publish.rejected'), tone: 'success' });
