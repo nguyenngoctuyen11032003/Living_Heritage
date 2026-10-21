@@ -108,7 +108,7 @@ jobs:
         run: supabase db push --db-url "$SUPABASE_DB_URL" --yes
 
   functions:
-    name: Supabase functions deploy (ai-process)
+    name: Supabase functions deploy
     needs: [verify, changes, migrate]
     if: >-
       always() &&
@@ -166,7 +166,7 @@ jobs:
           echo "Updated Edge Function secrets: ${names[*]}"
       - name: Deploy ai-process
         if: steps.token.outputs.ok == 'true'
-        run: supabase functions deploy ai-process --project-ref "$SUPABASE_PROJECT_ID"
+        run: supabase functions deploy ai-process --project-ref "$SUPABASE_PROJECT_ID" && supabase functions deploy public-audio-sync --project-ref "$SUPABASE_PROJECT_ID"
 
   build:
     name: Build site

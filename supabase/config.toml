@@ -49,3 +49,6 @@ deno_version = 2
 
 [functions.ai-process]
 verify_jwt = true
+
+[functions.public-audio-sync]
+verify_jwt = true
