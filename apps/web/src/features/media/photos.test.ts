@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { Supabase } from '@/lib/supabase';
-import { MAX_PHOTO_BYTES, PhotoError, buildPhotoPath, deleteStoryPhoto, extensionFor, fitWithin, movePhoto, nextPosition, photoErrorCode, uploadStoryPhoto, validatePhotoFile } from './photos';
+import { MAX_PHOTO_BYTES, PhotoError, buildPhotoPath, deleteStoryPhoto, extensionFor, fitWithin, movePhoto, nextPosition, photoErrorCode, resizeImage, uploadStoryPhoto, validatePhotoFile } from './photos';
 
 const FAM = '7c1e0a9e-1111-4222-8333-444455556666';
 const UUID = '0b5a8d3c-aaaa-4bbb-8ccc-dddddddddddd';
@@ -145,5 +145,71 @@ describe('uploadStoryPhoto', () => {
     await deleteStoryPhoto(sb, { id: 'p1', storage_path: `${FAM}/${UUID}.jpg` });
     expect(calls.delete).toEqual(['p1']);
     expect(calls.remove).toEqual([[`${FAM}/${UUID}.jpg`]]);
+  });
+});
+
+describe('resizeImage', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it('refuses a file no decoder can read instead of uploading it as is', async () => {
+    const decode = vi.fn(async () => {
+      throw new DOMException('The source image could not be decoded.', 'InvalidStateError');
+    });
+    vi.stubGlobal('createImageBitmap', decode);
+    await expect(resizeImage(file())).rejects.toMatchObject({ code: 'decode' });
+    expect(decode).toHaveBeenCalledTimes(2);
+  });
+
+  /** A canvas that records what was drawn and encodes to a fixed blob. */
+  function fakeCanvas() {
+    const out = new Blob(['jpeg'], { type: 'image/jpeg' });
+    const ctx = { fillStyle: '', fillRect: vi.fn(), drawImage: vi.fn() };
+    const canvas = { width: 0, height: 0, getContext: () => ctx, toBlob: (cb: (b: Blob | null) => void) => cb(out) };
+    const real = document.createElement.bind(document);
+    vi.spyOn(document, 'createElement').mockImplementation(((tag: string) => (tag === 'canvas' ? canvas : real(tag))) as typeof document.createElement);
+    return { canvas, ctx, out };
+  }
+
+  it('retries without options when only the options bag is rejected', async () => {
+    const bitmap = { width: 800, height: 600, close: vi.fn() };
+    const decode = vi.fn(async (_f: Blob, o?: unknown) => {
+      if (o) throw new TypeError('options not supported');
+      return bitmap;
+    });
+    vi.stubGlobal('createImageBitmap', decode);
+    const { out } = fakeCanvas();
+    await expect(resizeImage(file('image/jpeg', 2000))).resolves.toEqual({ blob: out, mime: 'image/jpeg' });
+    expect(decode).toHaveBeenCalledTimes(2);
+    expect(bitmap.close).toHaveBeenCalled();
+  });
+
+  it('re-encodes even a small JPEG so EXIF/GPS metadata never reaches storage', async () => {
+    vi.stubGlobal('createImageBitmap', async () => ({ width: 640, height: 480, close: vi.fn() }));
+    const { canvas, ctx, out } = fakeCanvas();
+    const small = file('image/jpeg', 50 * 1024);
+    const res = await resizeImage(small);
+    expect(res.blob).toBe(out);
+    expect(res.blob).not.toBe(small);
+    expect(ctx.drawImage).toHaveBeenCalled();
+    expect([canvas.width, canvas.height]).toEqual([640, 480]);
+  });
+
+  it('downscales a large photo to 2000 px on the longest edge', async () => {
+    vi.stubGlobal('createImageBitmap', async () => ({ width: 4000, height: 3000, close: vi.fn() }));
+    const { canvas } = fakeCanvas();
+    await resizeImage(file('image/png', 3 * 1024 * 1024));
+    expect([canvas.width, canvas.height]).toEqual([2000, 1500]);
+  });
+
+  it('a decode failure surfaces as a per-file upload error, before any request', async () => {
+    vi.stubGlobal('createImageBitmap', async () => {
+      throw new Error('bad');
+    });
+    const { sb, calls } = fakeSb();
+    await expect(uploadStoryPhoto(file(), { familyId: FAM, storyId: 's1' }, { sb, uuid: () => UUID })).rejects.toMatchObject({ code: 'decode' });
+    expect(calls.upload).toHaveLength(0);
   });
 });

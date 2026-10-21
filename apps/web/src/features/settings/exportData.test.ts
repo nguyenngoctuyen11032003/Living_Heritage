@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildExport, chunk, emptyRows, EXPORT_FORMAT, EXPORT_TABLES, exportFileName, initialProgress, SIGNED_URL_TTL_S, type ExportRows } from './exportData';
+import { buildExport, chunk, emptyRows, EXPORT_FORMAT, EXPORT_TABLES, exportFileName, initialProgress, readAllPages, SIGNED_URL_TTL_S, type ExportRows } from './exportData';
 
 const F = 'f0000000-0000-0000-0000-000000000001';
 const NOW = new Date('2026-10-21T08:00:00.000Z');
@@ -88,5 +88,39 @@ describe('helpers', () => {
     const p = initialProgress();
     expect(Object.keys(p)).toEqual([...EXPORT_TABLES, 'files']);
     expect(Object.values(p).every((x) => x.status === 'pending' && x.count === 0)).toBe(true);
+  });
+});
+
+describe('readAllPages', () => {
+  const source = Array.from({ length: 2345 }, (_, i) => i);
+  const page = (from: number, to: number) => Promise.resolve({ data: source.slice(from, to + 1), error: null });
+
+  it('reads past the 1000-row response cap instead of truncating', async () => {
+    const calls: Array<[number, number]> = [];
+    const all = await readAllPages((a, b) => {
+      calls.push([a, b]);
+      return page(a, b);
+    });
+    expect(all).toHaveLength(2345);
+    expect(all[2344]).toBe(2344);
+    expect(calls).toEqual([
+      [0, 999],
+      [1000, 1999],
+      [2000, 2999],
+    ]);
+  });
+
+  it('asks one extra empty page when the total is an exact multiple', async () => {
+    let n = 0;
+    const all = await readAllPages((a, b) => {
+      n += 1;
+      return Promise.resolve({ data: source.slice(0, 4).slice(a, b + 1), error: null });
+    }, 2);
+    expect(all).toEqual([0, 1, 2, 3]);
+    expect(n).toBe(3);
+  });
+
+  it('throws on the first error so a partial export is never offered', async () => {
+    await expect(readAllPages((a) => Promise.resolve(a === 0 ? { data: [1], error: null } : { data: null, error: { message: 'boom' } }), 1)).rejects.toThrow('boom');
   });
 });

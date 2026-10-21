@@ -4,6 +4,7 @@ import { useLocale, useT } from '@/i18n';
 import { formatDate } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase';
 import { AssistedBanner, ELDER_CONTROLS, StorytellerGate } from '@/features/storytelling/components';
+import { NarratorHelp } from '@/features/storytelling/NarratorHelp';
 import { fetchMyStories, useAsync, useStoryteller, type MyStory } from '@/features/storytelling/data';
 
 export default function MyStoriesPage() {
@@ -12,6 +13,7 @@ export default function MyStoriesPage() {
   if (ctx.status !== 'ready') return <StorytellerGate ctx={ctx} />;
   return (
     <div className={`flex flex-col gap-8 ${ELDER_CONTROLS}`}>
+      <NarratorHelp />
       {ctx.assisted && <AssistedBanner name={ctx.narrator.display_name} />}
       <ButtonLink to={`/ke-chuyen${ctx.query}`} variant="ghost" size="lg" className="-ml-3 self-start px-3! text-[1.17rem]" leftIcon={<ArrowLeft className="size-5" aria-hidden="true" />}>
         {t('mine.back')}

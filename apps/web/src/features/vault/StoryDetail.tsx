@@ -130,7 +130,7 @@ function StoryView({ data, onChanged }: { data: Loaded; onChanged: () => void })
           }
         />
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="flex min-w-0 flex-col gap-8">
             <section aria-labelledby="story-audio" className="flex flex-col gap-3">
               <h2 id="story-audio" className="text-[0.85rem] font-semibold uppercase tracking-[0.12em] text-ink-soft">
@@ -150,7 +150,7 @@ function StoryView({ data, onChanged }: { data: Loaded; onChanged: () => void })
             <StoryPhotos storyId={story.id} familyId={story.family_id} canEdit={data.canWrite && isEditor} />
           </div>
 
-          <aside className="flex flex-col gap-6">
+          <aside className="flex min-w-0 flex-col gap-6">
             <section aria-labelledby="story-actions" className="flex flex-col gap-3 rounded-[1.75rem] bg-paper p-5 ring-1 ring-line/80">
               <h2 id="story-actions" className="text-[0.85rem] font-semibold uppercase tracking-[0.12em] text-ink-soft">
                 {t('detail.actions.label')}

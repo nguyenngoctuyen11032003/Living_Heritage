@@ -3,11 +3,12 @@ import { useId, useState, type FormEvent } from 'react';
 import { useLocation } from 'react-router';
 import { Button, ButtonLink, Dialog, Field, Input, Select, Textarea, useToast } from '@/components/ui';
 import { useT } from '@/i18n';
+import { track } from '@/lib/events';
 import { useSession } from '@/lib/session';
 import { getSupabase } from '@/lib/supabase';
 import { submitConnect } from '../api';
 import { composeConnectMessage, CONNECT_FORMATS, validateConnect, type ConnectErrors, type ConnectFormat } from '../connect';
-import type { KnowledgeItem } from '../types';
+import { bareQuote, type KnowledgeItem } from '../types';
 
 /** "Đề nghị trao đổi": requires a session (connect_requests accepts signed-in inserts only). */
 export function ConnectDialog({ item, open, onClose }: { item: KnowledgeItem; open: boolean; onClose: () => void }) {
@@ -54,6 +55,7 @@ export function ConnectDialog({ item, open, onClose }: { item: KnowledgeItem; op
     try {
       await submitConnect(sb, item.id, { name, contact, message: composeConnectMessage(t(`connect.formats.${format}`), message) });
       setDone(true);
+      track('connect_sent');
       toast({ title: t('connect.success'), tone: 'success' });
     } catch {
       setSubmitError(true);
@@ -126,7 +128,11 @@ export function ConnectDialog({ item, open, onClose }: { item: KnowledgeItem; op
         </p>
       ) : (
         <form id={formId} onSubmit={onSubmit} noValidate className="flex flex-col gap-5 pb-2">
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="rounded-2xl bg-cream px-4 py-3 ring-1 ring-line">
+            <p className="text-[0.85rem] font-semibold text-ink-soft">{t('connect.about')}</p>
+            <p className="mt-1 font-serif font-semibold leading-snug text-heritage-deep">“{bareQuote(item.title)}”</p>
+          </div>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <Field label={t('connect.name')} required error={err('name')}>
               <Input value={name} onChange={(e) => setName(e.target.value)} maxLength={80} autoComplete="name" />
             </Field>

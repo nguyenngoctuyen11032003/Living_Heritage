@@ -1,4 +1,4 @@
-import { Play } from 'lucide-react';
+import { Info, Play } from 'lucide-react';
 import { useState } from 'react';
 import { StoryScene } from '@/components/illustrations/scenes';
 import { Reveal } from '@/components/motion';
@@ -56,7 +56,7 @@ export function Book3D({ className }: { className?: string }) {
           <div className="absolute inset-0 flex flex-col overflow-hidden rounded-r-md rounded-l-sm bg-heritage-deep p-7 text-left text-night-ink shadow-[inset_8px_0_14px_-8px_rgba(0,0,0,0.5)]">
             <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-overlay" />
             <div className="absolute inset-3 rounded-sm border border-[#d8b46a]/40" aria-hidden="true" />
-            <p className="relative text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-[#d8b46a]">Di Sản Sống</p>
+            <p className="relative text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-[#d8b46a]">{t('manifesto.wordmark')}</p>
             <div className="relative mx-auto mt-6 size-28 overflow-hidden rounded-full ring-2 ring-[#d8b46a]/50 sm:size-32">
               <StoryScene kind="garden" />
             </div>
@@ -78,6 +78,10 @@ export function BookShowcase({ showLink = true }: { showLink?: boolean }) {
         <Reveal className="relative order-2 lg:order-1 lg:col-span-6">
           <div className="relative mx-auto flex max-w-xl flex-col items-center justify-center gap-8 overflow-hidden rounded-[2rem] bg-mint/70 px-6 py-12 sm:min-h-[34rem] sm:py-14">
             <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(50%_50%_at_45%_45%,rgba(255,255,255,0.75),rgba(255,255,255,0))]" />
+            {/* The cover, quote and "1:12" are a mock-up of a book that does not exist yet (NT03, B9). */}
+            <Badge tone="warning" size="sm" icon={<Info />} className="relative z-10 max-w-full whitespace-normal text-center sm:absolute sm:left-4 sm:top-4">
+              {t('book.sampleLabel')}
+            </Badge>
             <Book3D className="relative sm:-translate-x-16" />
             {/* QR card */}
             <div className="relative w-[11rem] rotate-[4deg] rounded-[1.25rem] bg-paper p-3 shadow-[0_24px_50px_-24px_rgba(18,27,24,0.45)] ring-1 ring-line sm:absolute sm:bottom-8 sm:right-5 sm:w-[10.5rem]">
@@ -99,7 +103,7 @@ export function BookShowcase({ showLink = true }: { showLink?: boolean }) {
         <div className="order-1 lg:order-2 lg:col-span-6 lg:pl-6">
           <SectionHeading id="book-title" eyebrow={t('book.eyebrow')} title={t('book.title')} lead={t('book.lead')} />
           <Reveal delay={0.1} className="mt-10">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <h3 className="font-semibold text-ink">{t('book.specsTitle')}</h3>
               <Badge tone="warning" size="sm">
                 {t('meta.planned')}

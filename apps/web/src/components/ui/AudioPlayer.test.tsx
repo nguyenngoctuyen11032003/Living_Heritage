@@ -57,4 +57,22 @@ describe('AudioPlayer', () => {
     expect(screen.getByRole('button', { name: 'Tạm dừng' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByText(/Phát mô phỏng/)).toBeInTheDocument();
   });
+
+  it('shows a load failure in the compact layout too, and clears it when the source changes', () => {
+    const view = render(
+      <LocaleProvider initial="en">
+        <AudioPlayer src="https://example.test/a.m4a" duration={30} compact />
+      </LocaleProvider>,
+    );
+    const audio = view.container.querySelector('audio')!;
+    fireEvent.error(audio);
+    expect(screen.getByRole('alert')).toBeInTheDocument();
+    view.rerender(
+      <LocaleProvider initial="en">
+        <AudioPlayer src="https://example.test/b.m4a" duration={30} compact />
+      </LocaleProvider>,
+    );
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByText('0:00 / 0:30')).toBeInTheDocument();
+  });
 });

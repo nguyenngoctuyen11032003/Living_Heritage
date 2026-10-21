@@ -49,3 +49,14 @@ export function shouldShowHowTo(store: KeyValueStore | null = storage()): boolea
 export function markHowToSeen(store: KeyValueStore | null = storage()): void {
   write(HOWTO_KEY, '1', store);
 }
+
+export const CONSENT_KEY = 'lh.narrator.consent.v1';
+
+/** The "Trước khi ghi âm" explanation was accepted on this device (shown before the first recording until then). */
+export function hasRecordingConsent(store: KeyValueStore | null = storage()): boolean {
+  return read(CONSENT_KEY, store) === '1';
+}
+
+export function markRecordingConsent(store: KeyValueStore | null = storage()): void {
+  write(CONSENT_KEY, '1', store);
+}

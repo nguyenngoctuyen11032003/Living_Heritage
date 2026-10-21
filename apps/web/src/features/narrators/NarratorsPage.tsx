@@ -2,7 +2,7 @@
 import { HeartHandshake, Languages, Link2, Mic, Network, Pencil, Plus, Smartphone } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { Badge, Button, Card, Dialog, EmptyState, Skeleton, useToast } from '@/components/ui';
+import { Badge, Button, Card, Dialog, EmptyState, PageHeader, Skeleton, useToast } from '@/components/ui';
 import { useLocale, useT } from '@/i18n';
 import { formatDate } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase';
@@ -11,7 +11,7 @@ import { useCurrentFamily } from '@/features/families/current';
 import { HeritageAvatar } from '@/features/families/HeritageAvatar';
 import { FamilyGate } from '@/features/families/FamilyGate';
 import { rpcErrorCode } from '@/features/families/rpcError';
-import { ErrorNotice, PageHeader } from '@/features/families/states';
+import { ErrorNotice } from '@/features/families/states';
 import { CreateLinkDialog } from './CreateLinkDialog';
 import { useNarrators, type Narrator, type NarratorLink } from './hooks';
 import { linkStatus, type LinkStatus } from './linkStatus';
@@ -92,7 +92,7 @@ function Narrators() {
     <div className="mx-auto max-w-5xl">
       <PageHeader
         title={t('narrators.title')}
-        description={t('narrators.subtitle')}
+        lede={t('narrators.subtitle')}
         actions={
           fam.canEdit &&
           narrators.length > 0 && (
@@ -231,7 +231,7 @@ function NarratorCard({
         <ul className="flex flex-wrap gap-2" aria-label={t('narrators.detailsLabel')}>
           {n.relation && (
             <li className="max-w-full">
-              <Badge tone="mint" icon={<HeartHandshake />}>
+              <Badge tone="mint" icon={<HeartHandshake />} className="rounded-2xl [&>span:last-child]:whitespace-normal [&>span:last-child]:[overflow-wrap:anywhere]">
                 {n.relation}
               </Badge>
             </li>

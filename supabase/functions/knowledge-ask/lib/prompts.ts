@@ -1,5 +1,6 @@
 // Prompt, response schema and text helpers for knowledge-ask. Instructions are in English for the model; the
 // answer is in the visitor's language. Question and sources are wrapped in tags and declared as data.
+import { asData } from '../../_shared/prompt-data.ts';
 
 export type Lang = 'vi' | 'en';
 
@@ -84,11 +85,11 @@ export function answerSystem(lang: Lang): string {
 }
 
 export function answerUser(lang: Lang, question: string, sources: PromptSource[]): string {
-  const lines = ['<question>', question, '</question>', '<sources>'];
+  const lines = ['<question>', asData(question), '</question>', '<sources>'];
   sources.forEach((s, i) => {
     const meta = [
       `type: ${s.kind === 'experience' ? 'experience card (practical know-how)' : 'story'}`,
-      `narrator: ${s.narrator_label || '—'}`,
+      `narrator: ${asData(s.narrator_label) || '—'}`,
       s.region ? `region: ${REGION_NAME[lang][s.region] ?? s.region}` : null,
       s.decade ? `decade: ${s.decade}s` : null,
     ].filter((x) => x !== null).join('; ');
@@ -97,7 +98,7 @@ export function answerUser(lang: Lang, question: string, sources: PromptSource[]
       .filter((x, j, all) => x !== '' && all.indexOf(x) === j)
       .join('\n')
       .slice(0, SOURCE_MAX_CHARS);
-    lines.push(`[${i + 1}] ${s.title}`, `(${meta})`, text, '');
+    lines.push(`[${i + 1}] ${asData(s.title)}`, `(${meta})`, asData(text), '');
   });
   lines.push('</sources>');
   return lines.join('\n');

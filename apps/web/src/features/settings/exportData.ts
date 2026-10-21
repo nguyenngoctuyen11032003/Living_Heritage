@@ -165,6 +165,24 @@ export function initialProgress(): ExportProgress {
 
 type QueryResult<T> = PromiseLike<{ data: T[] | null; error: { message: string } | null }>;
 
+/** PostgREST returns at most `max_rows` (1000, supabase/config.toml) rows per request, so every table is read in pages. */
+export const EXPORT_PAGE_SIZE = 1000;
+
+/**
+ * Reads every page of a query: `page(from, to)` must apply `.range(from, to)` to a stably ordered query.
+ * Stops at the first short page; throws on the first error, so a truncated export is never offered as complete.
+ */
+export async function readAllPages<T>(page: (from: number, to: number) => QueryResult<T>, size = EXPORT_PAGE_SIZE): Promise<T[]> {
+  const out: T[] = [];
+  for (let from = 0; ; from += size) {
+    const { data, error } = await page(from, from + size - 1);
+    if (error) throw new Error(error.message);
+    const rows = data ?? [];
+    out.push(...rows);
+    if (rows.length < size) return out;
+  }
+}
+
 /** Fetches every table for the family, reporting progress per table, then signs file URLs. Throws on the first table error. */
 export async function collectFamilyExport(
   sb: Supabase,
@@ -185,31 +203,28 @@ export async function collectFamilyExport(
       throw e;
     }
   }
-  async function one<T>(q: QueryResult<T>): Promise<T[]> {
-    const { data, error } = await q;
-    if (error) throw new Error(error.message);
-    return data ?? [];
-  }
-  async function byIds<T>(ids: string[], q: (part: string[]) => QueryResult<T>): Promise<T[]> {
+  async function byIds<T>(ids: string[], q: (part: string[], from: number, to: number) => QueryResult<T>): Promise<T[]> {
     const out: T[] = [];
-    for (const part of chunk(ids)) out.push(...(await one(q(part))));
+    for (const part of chunk(ids)) out.push(...(await readAllPages((a, b) => q(part, a, b))));
     return out;
   }
 
-  await load('families', () => one(sb.from('families').select('*').eq('id', fid)));
-  await load('narrators', () => one(sb.from('narrators').select('*').eq('family_id', fid).order('created_at')));
-  await load('stories', () => one(sb.from('stories').select('*').eq('family_id', fid).order('created_at')));
+  await load('families', () => readAllPages((a, b) => sb.from('families').select('*').eq('id', fid).range(a, b)));
+  await load('narrators', () => readAllPages((a, b) => sb.from('narrators').select('*').eq('family_id', fid).order('created_at').order('id').range(a, b)));
+  await load('stories', () => readAllPages((a, b) => sb.from('stories').select('*').eq('family_id', fid).order('created_at').order('id').range(a, b)));
   const storyIds = rows.stories.map((s) => s.id);
-  await load('story_versions', () => byIds(storyIds, (p) => sb.from('story_versions').select('*').in('story_id', p)));
-  await load('story_share_settings', () => byIds(storyIds, (p) => sb.from('story_share_settings').select('*').in('story_id', p)));
-  await load('recordings', () => one(sb.from('recordings').select('*').eq('family_id', fid).order('created_at')));
+  await load('story_versions', () => byIds(storyIds, (p, a, b) => sb.from('story_versions').select('*').in('story_id', p).order('id').range(a, b)));
+  await load('story_share_settings', () => byIds(storyIds, (p, a, b) => sb.from('story_share_settings').select('*').in('story_id', p).order('story_id').range(a, b)));
+  await load('recordings', () => readAllPages((a, b) => sb.from('recordings').select('*').eq('family_id', fid).order('created_at').order('id').range(a, b)));
   const recordingIds = rows.recordings.map((r) => r.id);
-  await load('transcripts', () => byIds(recordingIds, (p) => sb.from('transcripts').select('*').in('recording_id', p)));
-  await load('collections', () => one(sb.from('collections').select('*').eq('family_id', fid)));
-  await load('collection_items', () => one(sb.from('collection_items').select('*').eq('family_id', fid)));
-  await load('books', () => one(sb.from('books').select('*').eq('family_id', fid)));
-  await load('book_chapters', () => one(sb.from('book_chapters').select('*').eq('family_id', fid)));
-  await load('story_photos', () => one(sb.from('story_photos').select('*').eq('family_id', fid)));
+  await load('transcripts', () => byIds(recordingIds, (p, a, b) => sb.from('transcripts').select('*').in('recording_id', p).order('id').range(a, b)));
+  await load('collections', () => readAllPages((a, b) => sb.from('collections').select('*').eq('family_id', fid).order('id').range(a, b)));
+  await load('collection_items', () =>
+    readAllPages((a, b) => sb.from('collection_items').select('*').eq('family_id', fid).order('collection_id').order('story_id').range(a, b)),
+  );
+  await load('books', () => readAllPages((a, b) => sb.from('books').select('*').eq('family_id', fid).order('id').range(a, b)));
+  await load('book_chapters', () => readAllPages((a, b) => sb.from('book_chapters').select('*').eq('family_id', fid).order('book_id').order('position').range(a, b)));
+  await load('story_photos', () => readAllPages((a, b) => sb.from('story_photos').select('*').eq('family_id', fid).order('id').range(a, b)));
 
   onProgress('files', { status: 'loading', count: 0 });
   const files: SignedFile[] = [];

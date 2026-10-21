@@ -54,6 +54,13 @@ export function AudioPlayer({ src, duration: durationProp = 0, title, subtitle, 
   const [time, setTime] = useState(0);
   const [loadedDuration, setLoadedDuration] = useState<number | null>(null);
   const [failed, setFailed] = useState(false);
+  // A new source (e.g. a refreshed signed URL, or the next story in a list) starts clean: no stale error or length.
+  const [lastSrc, setLastSrc] = useState(src);
+  if (lastSrc !== src) {
+    setLastSrc(src);
+    setFailed(false);
+    setLoadedDuration(null);
+  }
   const simulated = !src;
   const duration = loadedDuration ?? durationProp;
   const timeRef = useRef(0);
@@ -84,8 +91,12 @@ export function AudioPlayer({ src, duration: durationProp = 0, title, subtitle, 
     const tick = (now: number) => {
       const dt = (now - last) / 1000;
       last = now;
-      const next = Math.min(duration, timeRef.current + dt);
-      report(next);
+      const prev = timeRef.current;
+      const next = Math.min(duration, prev + dt);
+      // Advance every frame, but re-render (and tell the parent) only at the same ~4 Hz a real <audio> reports
+      // timeupdate: the clock text, waveform and transcript change no faster than that.
+      if (Math.floor(next * 4) !== Math.floor(prev * 4) || next >= duration) report(next);
+      else timeRef.current = next;
       if (next >= duration) {
         setPlayingState(false);
         return;
@@ -206,17 +217,23 @@ export function AudioPlayer({ src, duration: durationProp = 0, title, subtitle, 
         <>
           {playButton}
           {track}
-          <span className={cn('shrink-0 text-[0.8rem] font-medium tabular-nums', dark ? 'text-night-ink/80' : 'text-ink-soft')}>{timeText}</span>
+          {failed ? (
+            <span role="alert" className={cn('shrink-0 text-[0.8rem] font-medium', dark ? 'text-[#f0a48f]' : 'text-terracotta')}>
+              {t('ui.player.error')}
+            </span>
+          ) : (
+            <span className={cn('shrink-0 text-[0.8rem] font-medium tabular-nums', dark ? 'text-night-ink/80' : 'text-ink-soft')}>{timeText}</span>
+          )}
         </>
       ) : (
         <>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             {playButton}
             <div className="min-w-0 flex-1">
-              {title && <p className="truncate font-semibold leading-snug">{title}</p>}
-              {subtitle && <p className={cn('truncate text-[0.85rem]', dark ? 'text-night-ink/75' : 'text-ink-soft')}>{subtitle}</p>}
+              {title && <p className="line-clamp-2 break-words font-semibold leading-snug">{title}</p>}
+              {subtitle && <p className={cn('line-clamp-2 break-words text-[0.85rem]', dark ? 'text-night-ink/75' : 'text-ink-soft')}>{subtitle}</p>}
             </div>
-            <span className={cn('shrink-0 text-[0.85rem] font-medium tabular-nums', dark ? 'text-night-ink/80' : 'text-ink-soft')} aria-hidden="true">
+            <span className={cn('basis-full text-right text-[0.85rem] font-medium tabular-nums sm:shrink-0 sm:basis-auto', dark ? 'text-night-ink/80' : 'text-ink-soft')} aria-hidden="true">
               {timeText}
             </span>
           </div>
@@ -230,7 +247,7 @@ export function AudioPlayer({ src, duration: durationProp = 0, title, subtitle, 
             </button>
           </div>
           {(simulated || failed) && (
-            <p className={cn('mt-2 text-[0.78rem]', failed ? 'text-terracotta' : dark ? 'text-night-ink/70' : 'text-ink-soft')}>
+            <p role={failed ? 'alert' : undefined} className={cn('mt-2 text-[0.78rem]', failed ? (dark ? 'text-[#f0a48f]' : 'text-terracotta') : dark ? 'text-night-ink/70' : 'text-ink-soft')}>
               {failed ? t('ui.player.error') : t('ui.player.simulated')}
             </p>
           )}

@@ -28,8 +28,11 @@ export default function AlbumPage() {
 function Album() {
   const t = useT('media');
   const tv = useT('vault');
-  const familyId = useCurrentFamily().current!.id;
-  const { photos, state, refresh } = useFamilyPhotos(familyId);
+  const fam = useCurrentFamily();
+  const familyId = fam.current!.id;
+  // Read-only members cannot add photos, so they are never invited to (B11).
+  const canAdd = fam.canEdit;
+  const { photos, state, refresh, onImageError } = useFamilyPhotos(familyId);
   const { narrators } = useNarrators(familyId);
   const [mode, setMode] = useState<AlbumGroupMode>('narrator');
   const [narratorId, setNarratorId] = useState('');
@@ -63,7 +66,7 @@ function Album() {
           ))}
         </div>
       ) : photos.length === 0 ? (
-        <EmptyState icon={<Images />} title={t('album.emptyTitle')} description={t('album.emptyBody')} action={<ButtonLink to="/gia-dinh">{t('album.emptyCta')}</ButtonLink>} />
+        <EmptyState icon={<Images />} title={t('album.emptyTitle')} description={canAdd ? t('album.emptyBody') : t('album.emptyBodyViewer')}action={<ButtonLink to="/gia-dinh">{t('album.emptyCta')}</ButtonLink>} />
       ) : (
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-4 rounded-[1.5rem] bg-paper p-4 ring-1 ring-line/80 sm:flex-row sm:flex-wrap sm:items-end sm:gap-x-6 md:p-5">
@@ -131,23 +134,23 @@ function Album() {
                   </h2>
                   <ul className="columns-2 gap-4 sm:columns-3 lg:columns-4">
                     {g.photos.map((p) => (
-                      <AlbumTile key={p.id} photo={p} showStory={mode === 'narrator'} onOpen={() => setOpen(indexOf.get(p.id) ?? 0)} />
+                      <AlbumTile key={p.id} photo={p} showStory={mode === 'narrator'} onOpen={() => setOpen(indexOf.get(p.id) ?? 0)} onImageError={onImageError} />
                     ))}
                   </ul>
                 </section>
               ))}
             </div>
           )}
-          {photos.length < FEW_PHOTOS && <AddPhotosHint />}
+          {canAdd && photos.length < FEW_PHOTOS && <AddPhotosHint />}
         </div>
       )}
 
-      <Lightbox items={items} index={open} onIndex={setOpen} onClose={() => setOpen(null)} />
+      <Lightbox items={items} index={open} onIndex={setOpen} onClose={() => setOpen(null)} onImageError={onImageError} />
     </div>
   );
 }
 
-function AlbumTile({ photo: p, showStory, onOpen }: { photo: AlbumPhoto; showStory: boolean; onOpen: () => void }) {
+function AlbumTile({ photo: p, showStory, onOpen, onImageError }: { photo: AlbumPhoto; showStory: boolean; onOpen: () => void; onImageError: () => void }) {
   const t = useT('media');
   const title = p.story_title.trim() || t('album.untitled');
   const alt = p.caption?.trim() || t('photos.altFallback');
@@ -160,6 +163,7 @@ function AlbumTile({ photo: p, showStory, onOpen }: { photo: AlbumPhoto; showSto
               src={p.url}
               alt=""
               loading="lazy"
+              onError={onImageError}
               className="block w-full transition-transform duration-300 group-hover:scale-[1.02] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
             />
           ) : (

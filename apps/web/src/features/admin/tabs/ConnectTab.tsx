@@ -9,7 +9,8 @@ import { must, publicTitles, useAdminQuery } from '../useAdminQuery';
 
 interface ConnectRow {
   id: string;
-  public_item_id: string;
+  /** Null once the public item was removed (the request is kept). */
+  public_item_id: string | null;
   name: string;
   contact: string;
   message: string;
@@ -83,7 +84,7 @@ export function ConnectTab() {
                 </StatusPill>
               </div>
               <div className="mt-2">
-                <ItemLink id={row.public_item_id} title={q.data?.titles[row.public_item_id]} />
+                <ItemLink id={row.public_item_id} title={row.public_item_id ? q.data?.titles[row.public_item_id] : undefined} />
               </div>
               <p className="mt-2 whitespace-pre-line rounded-2xl bg-cream px-4 py-3 leading-relaxed text-ink">{row.message}</p>
               <div className="mt-4 flex flex-wrap gap-2.5">

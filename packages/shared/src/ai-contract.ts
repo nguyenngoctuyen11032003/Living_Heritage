@@ -20,12 +20,26 @@ export const ExperienceFields = z.object({
 });
 export type ExperienceFields = z.infer<typeof ExperienceFields>;
 
-/** What Gemini must return for a transcript (responseSchema mirrors this). */
+/**
+ * What Gemini must return for a transcript (responseSchema mirrors this). B8: an opening, the body in the order told,
+ * a lesson only when the narrator states one, and the people / places named. The B8 keys are optional so older
+ * drafts still validate. Saved into stories.fields as: story → { topics, opening?, lesson?, people?, places? };
+ * experience → { ...ExperienceFields, people?, places? } (null / empty values are left out).
+ */
 export const AiDraft = z.object({
-  story: z.object({ title: z.string(), body: z.string() }),
+  story: z.object({
+    title: z.string(),
+    body: z.string(),
+    opening: z.string().nullable().optional(),
+    lesson: z.string().nullable().optional(),
+  }),
   experience: z.object({ title: z.string(), summary: z.string(), fields: ExperienceFields }).nullable(),
   topics: z.array(z.string()),
   uncertain: z.array(z.string()),
+  /** People named in the narration (both kinds). */
+  people: z.array(z.string()).optional(),
+  /** Places named in the narration (both kinds). */
+  places: z.array(z.string()).optional(),
 });
 export type AiDraft = z.infer<typeof AiDraft>;
 

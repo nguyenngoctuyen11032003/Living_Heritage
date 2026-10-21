@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createMemoryPendingStore, pendingKey, type PendingUpload } from './pendingStore';
-import { buildRecordingPath, clampDuration, uploadPending, UploadError, type UploadBackend } from './upload';
+import { buildRecordingPath, checkAudioFile, clampDuration, uploadPending, UploadError, type UploadBackend } from './upload';
 
 const FAMILY = '11111111-1111-4111-8111-111111111111';
 const NARRATOR = '22222222-2222-4222-8222-222222222222';
@@ -134,5 +134,36 @@ describe('uploadPending', () => {
       findRecordingId: async () => null,
     };
     await expect(uploadPending(pending(), backend, createMemoryPendingStore())).rejects.toMatchObject({ code: 'forbidden' });
+  });
+});
+
+describe('checkAudioFile', () => {
+  const file = (name: string, type: string, size = 100) => ({ name, type, size });
+
+  it('keeps a real audio type as it is', () => {
+    expect(checkAudioFile(file('a.mp3', 'audio/mpeg'))).toEqual({ ok: true, mime: 'audio/mpeg' });
+  });
+
+  it('derives an audio type from the extension when the browser reports video/* or nothing', () => {
+    expect(checkAudioFile(file('memo.webm', 'video/webm'))).toEqual({ ok: true, mime: 'audio/webm' });
+    expect(checkAudioFile(file('Voice 001.m4a', ''))).toEqual({ ok: true, mime: 'audio/mp4' });
+    expect(checkAudioFile(file('call.3GP', 'video/3gpp'))).toEqual({ ok: true, mime: 'audio/3gpp' });
+  });
+
+  it('rejects non-audio, empty and oversized files', () => {
+    expect(checkAudioFile(file('photo.jpg', 'image/jpeg'))).toEqual({ ok: false, problem: 'not_audio' });
+    expect(checkAudioFile(file('clip.mov', 'video/quicktime'))).toEqual({ ok: false, problem: 'not_audio' });
+    expect(checkAudioFile(file('a.wav', 'audio/wav', 0))).toEqual({ ok: false, problem: 'empty' });
+    expect(checkAudioFile(file('a.wav', 'audio/wav', 21), 20)).toEqual({ ok: false, problem: 'too_large' });
+  });
+});
+
+describe('createMemoryPendingStore.list', () => {
+  it('returns the takes of one session only, oldest first', async () => {
+    const store = createMemoryPendingStore();
+    await store.put(pending({ key: 'sess/ai-x', createdAt: 2 }));
+    await store.put(pending({ key: 'sess/q1', createdAt: 1 }));
+    await store.put(pending({ key: 'other/q1', createdAt: 0 }));
+    expect((await store.list('sess/')).map((p) => p.key)).toEqual(['sess/q1', 'sess/ai-x']);
   });
 });

@@ -1,12 +1,14 @@
 import type { AiErrorCode, JobStatus } from '@lh/shared';
 import { AlertCircle, Check, RotateCcw } from 'lucide-react';
-import { Button, Card, Spinner } from '@/components/ui';
+import { Button, ButtonLink, Card, Spinner } from '@/components/ui';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 
 const STEPS = ['queued', 'transcribing', 'drafting'] as const;
 
 export interface ProcessingPanelProps {
+  /** The job finished but its drafts were deleted: nothing will open, so say so and offer a way out (no endless spinner). */
+  orphaned?: { backHref: string; backLabel: string };
   /** null = no job yet (never started). */
   status: JobStatus | null;
   errorCode: AiErrorCode | null;
@@ -15,8 +17,20 @@ export interface ProcessingPanelProps {
 }
 
 /** AI processing state: three labelled steps, aria-live progress, error with retry (the recording is always kept). */
-export function ProcessingPanel({ status, errorCode, retrying, onRetry }: ProcessingPanelProps) {
+export function ProcessingPanel({ status, errorCode, retrying, onRetry, orphaned }: ProcessingPanelProps) {
   const t = useT('review');
+  if (orphaned && !retrying && status === 'done' && errorCode === null)
+    return (
+      <Card padding="lg" className="mx-auto w-full max-w-2xl">
+        <div role="status" className="flex flex-col items-start gap-4">
+          <h1 className="font-serif text-[1.6rem] font-semibold leading-snug text-heritage-deep">{t('processing.orphanTitle')}</h1>
+          <p className="leading-relaxed">{t('processing.orphanBody')}</p>
+          <ButtonLink to={orphaned.backHref} size="lg">
+            {orphaned.backLabel}
+          </ButtonLink>
+        </div>
+      </Card>
+    );
   const failed = !retrying && (status === 'error' || errorCode !== null);
   const notStarted = !retrying && status === null && !failed;
   const activeIndex = retrying && (status === null || status === 'error') ? 0 : STEPS.indexOf(status as (typeof STEPS)[number]);

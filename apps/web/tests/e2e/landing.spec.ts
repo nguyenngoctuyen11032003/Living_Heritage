@@ -24,11 +24,36 @@ test('renders the hero in Vietnamese by default and switches to English', async 
   await expect(page.getByRole('heading', { level: 1 })).toContainText(en.landing.hero.line2);
 });
 
-test('primary CTA leads to sign-up', async ({ page }) => {
+test('primary CTA leads to the role choice (/bat-dau) with three ways in', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('banner').getByRole('link', { name: vi.common.nav.start }).click();
-  await expect(page).toHaveURL(/\/dang-ky$/);
+  await expect(page).toHaveURL(/\/bat-dau$/);
+  const s = vi.legal.start;
+  await expect(page.getByRole('heading', { level: 1, name: s.heading })).toBeVisible();
+  const roles = page.getByRole('region', { name: s.rolesTitle }).getByRole('listitem');
+  await expect(roles).toHaveCount(3);
+  const cards = [
+    { key: 'tell', href: '/ke-chuyen' },
+    { key: 'keep', href: '/dang-ky' },
+    { key: 'learn', href: '/kham-pha' },
+  ] as const;
+  for (const { key, href } of cards) {
+    const card = roles.filter({ has: page.getByRole('heading', { level: 3, name: s.roles[key].title }) });
+    await expect(card.getByRole('link', { name: s.roles[key].cta })).toHaveAttribute('href', href);
+  }
+  await expect(page.getByRole('link', { name: s.signIn })).toHaveAttribute('href', '/dang-nhap');
+
+  // The family card leads to sign-up.
+  await roles.getByRole('link', { name: s.roles.keep.cta }).click();
   await expect(page.getByRole('heading', { level: 1, name: vi.auth.signup.title })).toBeVisible();
+});
+
+test('the hero reaches the no-account demo (/trai-nghiem)', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('link', { name: vi.landing.cta.demo }).first().click();
+  await expect(page).toHaveURL(/\/trai-nghiem$/);
+  await expect(page.getByRole('heading', { level: 1, name: vi.demo.header.title })).toBeVisible();
+  await expect(page.getByText(vi.demo.banner.text)).toBeVisible();
 });
 
 test('no horizontal scroll at 360px', async ({ page }) => {

@@ -3,7 +3,7 @@ import { env, siteHref } from '@/lib/env';
 import { inviteUrl } from '@/features/families/urls';
 import { linkStatus } from './linkStatus';
 import { assistedTellPath, narratorLinkUrl } from './urls';
-import { toNarratorRow, validateNarrator, type NarratorDraft } from './validation';
+import { toConsentColumns, toNarratorRow, validateNarrator, type NarratorDraft } from './validation';
 
 const TOKEN = 'Abc_def-0123456789ABCDEFGHIJKLMN';
 
@@ -43,7 +43,7 @@ describe('linkStatus', () => {
 });
 
 describe('validateNarrator', () => {
-  const base: NarratorDraft = { display_name: 'Bà nội Lan', pen_name: '', birth_year: '', region: '', relation: '', lang: 'vi', generation: '' };
+  const base: NarratorDraft = { display_name: 'Bà nội Lan', pen_name: '', birth_year: '', region: '', relation: '', lang: 'vi', generation: '', consent_method: '', helper_note: '' };
   it('accepts a minimal narrator', () => {
     expect(validateNarrator(base, 2026)).toEqual({});
   });
@@ -77,5 +77,18 @@ describe('validateNarrator', () => {
   });
   it('maps relation, lang and generation to columns', () => {
     expect(toNarratorRow({ ...base, relation: '  Bà   ngoại ', lang: 'en', generation: '3' })).toMatchObject({ relation: 'Bà ngoại', lang: 'en', generation: 3 });
+  });
+  it('records how consent is confirmed and who helped (B11)', () => {
+    expect(validateNarrator({ ...base, consent_method: 'self_device' }, 2026)).toEqual({});
+    expect(validateNarrator({ ...base, consent_method: 'assisted_phone' }, 2026).helper_note).toBe('helperRequired');
+    expect(validateNarrator({ ...base, consent_method: 'assisted_phone', helper_note: '   ' }, 2026).helper_note).toBe('helperRequired');
+    expect(validateNarrator({ ...base, consent_method: 'assisted_in_person', helper_note: 'Cháu Minh Anh' }, 2026)).toEqual({});
+    expect(validateNarrator({ ...base, consent_method: 'assisted_video', helper_note: 'x'.repeat(121) }, 2026).helper_note).toBe('helperTooLong');
+    expect(validateNarrator({ ...base, consent_method: 'checkbox' as never }, 2026).consent_method).toBe('invalidConsentMethod');
+  });
+  it('maps consent columns, dropping a helper note when no method is recorded', () => {
+    expect(toConsentColumns(base)).toEqual({ consent_method: null, helper_note: null });
+    expect(toConsentColumns({ ...base, helper_note: 'Minh Anh' })).toEqual({ consent_method: null, helper_note: null });
+    expect(toConsentColumns({ ...base, consent_method: 'assisted_phone', helper_note: '  Cháu   Minh Anh ' })).toEqual({ consent_method: 'assisted_phone', helper_note: 'Cháu Minh Anh' });
   });
 });

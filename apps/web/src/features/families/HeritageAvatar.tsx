@@ -3,8 +3,10 @@ import { cn } from '@/lib/cn';
 import { avatarInitial, avatarPalette } from './avatar';
 
 const sizes = {
+  sm: 'size-9 text-[0.95rem]',
   md: 'size-12 text-[1.25rem]',
   lg: 'size-16 text-[1.7rem]',
+  xl: 'size-24 text-[2.4rem]',
 } as const;
 
 export function HeritageAvatar({ name, seed, size = 'md', className }: { name: string | null | undefined; seed: string; size?: keyof typeof sizes; className?: string }) {

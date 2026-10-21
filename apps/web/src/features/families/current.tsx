@@ -1,7 +1,7 @@
 // Shared contract (lead-owned): which family vault the signed-in user is working in.
 // Workstream E builds onboarding/members pages; F and G only consume useCurrentFamily().
 import type { MemberRole } from '@lh/shared';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useSession } from '@/lib/session';
 import { getSupabase } from '@/lib/supabase';
 
@@ -38,16 +38,24 @@ export function CurrentFamilyProvider({ children }: { children: ReactNode }) {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const userId = user && !isAnonymous ? user.id : null;
+  /** Whose families are in state: later reloads for the same person refresh in the background (no skeleton, no remount). */
+  const loadedFor = useRef<string | null>(null);
 
   const reload = useCallback(async () => {
     const sb = getSupabase();
-    if (!sb || !user || isAnonymous) {
+    if (!sb || !userId) {
+      loadedFor.current = null;
       setFamilies([]);
       setLoading(false);
       return;
     }
-    setLoading(true);
-    const { data, error: err } = await sb.from('family_members').select('role, families(id, name)').eq('user_id', user.id);
+    if (loadedFor.current !== userId) {
+      setFamilies([]);
+      setLoading(true);
+    }
+    const { data, error: err } = await sb.from('family_members').select('role, families(id, name)').eq('user_id', userId);
+    loadedFor.current = userId;
     if (err) {
       setError(err.message);
       setFamilies([]);
@@ -57,7 +65,7 @@ export function CurrentFamilyProvider({ children }: { children: ReactNode }) {
       setFamilies(rows.filter((r) => r.families).map((r) => ({ id: r.families!.id, name: r.families!.name, role: r.role })));
     }
     setLoading(false);
-  }, [user, isAnonymous]);
+  }, [userId]);
 
   useEffect(() => {
     void reload();

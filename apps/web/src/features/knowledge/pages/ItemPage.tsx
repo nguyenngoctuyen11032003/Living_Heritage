@@ -15,7 +15,7 @@ import { PageState } from '../components/PageState';
 import { SampleBanner } from '../components/SampleBanner';
 import { TopicMotif } from '../components/TopicMotif';
 import { findTopic, topicStyle, useTopics } from '../topics';
-import { bareQuote, type KnowledgeItem } from '../types';
+import { bareQuote, narratorText, type KnowledgeItem } from '../types';
 import { useKnowledgeItem } from '../useKnowledgeItem';
 
 export default function ItemPage() {
@@ -26,8 +26,10 @@ export default function ItemPage() {
   const topics = useTopics();
 
   useEffect(() => {
+    // A withdrawn / unknown item must not keep a previous title in the tab (B16: no title leak).
     if (item) document.title = `${bareQuote(item.title)} · ${tc('brand.name')}`;
-  }, [item, tc]);
+    else if (status === 'not-found') document.title = `${t('states.notFoundTitle')} · ${tc('brand.name')}`;
+  }, [item, status, t, tc]);
 
   if (status === 'loading') return <ItemSkeleton />;
   if (status === 'not-configured') {
@@ -83,6 +85,7 @@ function ItemView({ item, related, topics }: { item: KnowledgeItem; related: Kno
   const sb = getSupabase();
   const audioSrc = !item.sample && item.audioAllowed && item.audioPath && sb ? publicAudioUrl(sb, item.audioPath) : undefined;
   const showSamplePlayer = item.sample && item.audioAllowed && item.durationS;
+  const narrator = narratorText(item.narratorLabel, t('card.anonymous'));
 
   return (
     <article className="bg-cream">
@@ -97,14 +100,14 @@ function ItemView({ item, related, topics }: { item: KnowledgeItem; related: Kno
             {t('detail.back')}
           </Link>
           {item.sample && <SampleBanner compact className="mt-4" />}
-          <div className="mt-6 grid items-end gap-10 lg:grid-cols-[minmax(0,1fr)_300px]">
+          <div className="mt-6 grid grid-cols-1 items-end gap-10 lg:grid-cols-[minmax(0,1fr)_300px]">
             <div className="min-w-0">
               <p className="text-[0.8rem] font-bold uppercase tracking-[0.2em]" style={{ color: style.ink }}>
                 {topicTitle ? `${topicTitle} · ` : ''}
                 {t(`kinds.${item.kind}`)}
               </p>
               <Reveal>
-                <h1 className="mt-4 font-serif text-[2rem] font-semibold leading-[1.18] tracking-[-0.01em] text-heritage-deep sm:text-[2.5rem] md:text-[3.1rem]">
+                <h1 className="mt-4 break-words font-serif text-[2rem] font-semibold leading-[1.18] tracking-[-0.01em] text-heritage-deep sm:text-[2.5rem] md:text-[3.1rem]">
                   <span aria-hidden="true" className="text-terracotta">
                     “
                   </span>
@@ -114,27 +117,34 @@ function ItemView({ item, related, topics }: { item: KnowledgeItem; related: Kno
                   </span>
                 </h1>
               </Reveal>
-              <p className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-[1rem] text-ink-soft">
+              {/* Each "·" travels with the item after it (never dangles at a line end); phones drop the dots and wrap on the gap. */}
+              <p className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-[1rem] text-ink-soft sm:gap-x-3">
                 <span>
-                  {t('detail.by')}: <strong className="font-semibold text-ink">{item.narratorLabel}</strong>
+                  {t('detail.by')}: <strong className="font-semibold text-ink">{narrator}</strong>
                 </span>
                 {item.region && (
-                  <>
-                    <span aria-hidden="true">·</span>
-                    <span>{t(`regions.${item.region}`)}</span>
-                  </>
+                  <span className="min-w-0 break-words sm:whitespace-nowrap">
+                    <span aria-hidden="true" className="mr-3 hidden sm:inline">
+                      ·
+                    </span>
+                    {t(`regions.${item.region}`)}
+                  </span>
                 )}
                 {item.decade && (
-                  <>
-                    <span aria-hidden="true">·</span>
-                    <span>{t('card.decade', { decade: item.decade })}</span>
-                  </>
+                  <span className="min-w-0 break-words sm:whitespace-nowrap">
+                    <span aria-hidden="true" className="mr-3 hidden sm:inline">
+                      ·
+                    </span>
+                    {t('card.decade', { decade: item.decade })}
+                  </span>
                 )}
                 {item.publishedAt && !item.sample && (
-                  <>
-                    <span aria-hidden="true">·</span>
-                    <span>{t('detail.publishedOn', { date: formatDate(item.publishedAt, locale) })}</span>
-                  </>
+                  <span className="min-w-0 break-words sm:whitespace-nowrap">
+                    <span aria-hidden="true" className="mr-3 hidden sm:inline">
+                      ·
+                    </span>
+                    {t('detail.publishedOn', { date: formatDate(item.publishedAt, locale) })}
+                  </span>
                 )}
                 {item.sample && <IllustrativeBadge />}
               </p>
@@ -150,7 +160,7 @@ function ItemView({ item, related, topics }: { item: KnowledgeItem; related: Kno
       </header>
 
       {/* Body */}
-      <div className="mx-auto grid max-w-6xl gap-12 px-4 py-12 md:px-8 md:py-16 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-4 py-12 md:px-8 md:py-16 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0 max-w-3xl">
           {audioSrc || showSamplePlayer ? (
             <section aria-labelledby="listen-title" className="mb-12 rounded-[1.75rem] bg-night p-5 text-night-ink shadow-[0_30px_60px_-40px_rgba(18,27,24,0.8)] md:p-7">
@@ -162,7 +172,7 @@ function ItemView({ item, related, topics }: { item: KnowledgeItem; related: Kno
                 src={audioSrc}
                 duration={item.durationS ?? 0}
                 title={bareQuote(item.title)}
-                subtitle={item.narratorLabel}
+                subtitle={narrator}
                 tone="dark"
                 className="mt-4"
               />
@@ -195,7 +205,7 @@ function ItemView({ item, related, topics }: { item: KnowledgeItem; related: Kno
                 </Link>
               )}
             </div>
-            <ul className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {related.map((r) => (
                 <li key={r.id}>
                   <KnowledgeCard item={r} topics={topics} />

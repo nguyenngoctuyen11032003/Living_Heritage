@@ -14,7 +14,20 @@ export interface LightboxItem {
 }
 
 /** Full-size photo viewer: Dialog (focus trap, Esc closes) + ←/→ to browse. */
-export function Lightbox({ items, index, onIndex, onClose }: { items: readonly LightboxItem[]; index: number | null; onIndex: (i: number) => void; onClose: () => void }) {
+export function Lightbox({
+  items,
+  index,
+  onIndex,
+  onClose,
+  onImageError,
+}: {
+  items: readonly LightboxItem[];
+  index: number | null;
+  onIndex: (i: number) => void;
+  onClose: () => void;
+  /** Called when the full-size image fails to load (e.g. its signed URL expired), so the owner can re-sign. */
+  onImageError?: () => void;
+}) {
   const t = useT('media');
   const open = index !== null && index >= 0 && index < items.length;
   const item = open ? items[index] : undefined;
@@ -77,7 +90,7 @@ export function Lightbox({ items, index, onIndex, onClose }: { items: readonly L
         <figure className="flex flex-col gap-3 pb-2">
           <div className="flex min-h-48 items-center justify-center overflow-hidden rounded-2xl bg-night/90">
             {item.url ? (
-              <img src={item.url} alt={alt} className="max-h-[62dvh] w-auto max-w-full object-contain" />
+              <img src={item.url} alt={alt} onError={onImageError} className="max-h-[62dvh] w-auto max-w-full object-contain" />
             ) : (
               <p className="flex items-center gap-2 p-8 text-cream">
                 <ImageOff className="size-5" aria-hidden="true" />

@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { anonymousNarrator, fakeMicrophone, IDS, mockSupabase, TOPICS } from './fixtures';
+import { agreeToRecordingConsent } from './flows';
 import { fill, vi } from './i18n';
 
 const t = vi.narrator;
@@ -45,6 +46,8 @@ test('record → keep → upload → AI draft → open the draft', async ({ page
   await expect(page.getByRole('status').filter({ hasText: t.rec.status.idle })).toBeVisible();
 
   await page.getByRole('button', { name: t.rec.start }).click();
+  // First recording on this device: the consent sheet explains what is recorded, where it goes and that nothing is public.
+  await agreeToRecordingConsent(page);
   await expect(page.getByRole('status').filter({ hasText: t.rec.status.recording })).toBeVisible();
   await page.getByRole('button', { name: t.rec.stopLabel }).click();
 
@@ -52,6 +55,7 @@ test('record → keep → upload → AI draft → open the draft', async ({ page
   // Nothing has left the device before "keep".
   expect(mock.calls.some((c) => c.path.startsWith('/storage/v1/object/recordings/'))).toBe(false);
   await page.getByRole('button', { name: t.rec.keep }).click();
+  await agreeToRecordingConsent(page);
 
   const done = page.getByRole('status').filter({ hasText: t.rec.doneTitle });
   await expect(done).toBeVisible();

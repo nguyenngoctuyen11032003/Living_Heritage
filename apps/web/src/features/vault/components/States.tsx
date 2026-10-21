@@ -24,7 +24,9 @@ export function Unavailable({ title, body, backTo, backLabel }: { title?: string
   const t = useT('vault');
   return (
     <div className="mx-auto max-w-xl py-10">
+      {/* The whole page: its title is the page's h1 (the story title is never shown). */}
       <EmptyState
+        headingLevel={1}
         icon={<Lock />}
         title={title ?? t('detail.unavailableTitle')}
         description={body ?? t('detail.unavailableBody')}
@@ -36,7 +38,7 @@ export function Unavailable({ title, body, backTo, backLabel }: { title?: string
 
 export function GridSkeleton({ count = 6 }: { count?: number }) {
   return (
-    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: count }, (_, i) => (
         <div key={i} className="overflow-hidden rounded-[1.5rem] bg-paper ring-1 ring-line/80">
           <Skeleton className="h-32 rounded-none" />
@@ -48,14 +50,5 @@ export function GridSkeleton({ count = 6 }: { count?: number }) {
         </div>
       ))}
     </div>
-  );
-}
-
-export function LoadingLive() {
-  const t = useT('vault');
-  return (
-    <p className="sr-only" role="status" aria-live="polite">
-      {t('state.loading')}
-    </p>
   );
 }

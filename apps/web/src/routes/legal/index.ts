@@ -9,5 +9,6 @@ export const area: AreaRoutes = {
     page('quyen-rieng-tu', () => import('./PrivacyPage')),
     page('dieu-khoan', () => import('./TermsPage')),
     page('sach-ky-uc', () => import('./MemoryBookPage')),
+    page('bat-dau', () => import('./StartPage')),
   ],
 };

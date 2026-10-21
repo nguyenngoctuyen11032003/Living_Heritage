@@ -1,10 +1,13 @@
+import { EyeOff } from 'lucide-react';
 import { useState } from 'react';
-import { Button, Field, Select, useToast } from '@/components/ui';
+import { Button, Field, Select, Textarea, useToast } from '@/components/ui';
 import { useT } from '@/i18n';
 import { useSession } from '@/lib/session';
 import { getSupabase, type Supabase } from '@/lib/supabase';
 import { REPORT_REASONS } from '@/features/knowledge/api';
+import { syncPublicAudio } from '@/lib/publicAudio';
 import { nextReportStatuses, REPORT_STATUSES, resolutionPatch, type ReportStatus } from '../access';
+import { TAKEDOWN_REASON_MAX, takedownReasonValid, withdrawPublicItem } from '../adminApi';
 import { useDateTime } from '../format';
 import { HubLink, ItemLink, ListHeader, ListState, StatusPill } from '../shared';
 import { must, publicTitles, useAdminQuery } from '../useAdminQuery';
@@ -96,10 +99,77 @@ export function ReportsTab() {
                   </Button>
                 ))}
               </div>
+              {row.public_item_id && (
+                <TakedownForm
+                  itemId={row.public_item_id}
+                  // admin_withdraw_public resolves the item's open reports itself (reports survive the item since 0600).
+                  onDone={async () => q.reload()}
+                />
+              )}
             </li>
           ))}
         </ul>
       </ListState>
+    </div>
+  );
+}
+
+const TAKEDOWN_ERRORS = ['forbidden', 'not_found', 'not_authenticated', 'reason_required'] as const;
+
+/** B5/B11: take a reported item off the public hub (reason mandatory, audited by admin_withdraw_public). */
+function TakedownForm({ itemId, onDone }: { itemId: string; onDone: () => Promise<void> }) {
+  const t = useT('admin');
+  const { toast } = useToast();
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const formId = `takedown-${itemId}`;
+
+  async function submit() {
+    const sb = getSupabase();
+    if (!sb || busy || !takedownReasonValid(reason)) return;
+    setBusy(true);
+    setError(null);
+    const r = await withdrawPublicItem(sb, itemId, reason);
+    if (!r.ok) {
+      setBusy(false);
+      const code = (TAKEDOWN_ERRORS as readonly string[]).includes(r.code) ? (r.code as (typeof TAKEDOWN_ERRORS)[number]) : 'unknown';
+      setError(t(`reports.takedown.errors.${code}`));
+      return;
+    }
+    // Removes the public-audio copy of the withdrawn item (idempotent, best effort).
+    void syncPublicAudio();
+    toast({ title: t('reports.takedown.done'), tone: 'success' });
+    await onDone();
+    setBusy(false);
+  }
+
+  if (!open) {
+    return (
+      <Button variant="terracotta" className="mt-3" onClick={() => setOpen(true)} aria-controls={formId} aria-expanded={false} leftIcon={<EyeOff aria-hidden="true" className="size-4" />}>
+        {t('reports.takedown.open')}
+      </Button>
+    );
+  }
+  return (
+    <div id={formId} className="mt-4 rounded-[1.25rem] bg-terracotta/5 p-4 ring-1 ring-terracotta/25 md:p-5">
+      <Field label={t('reports.takedown.reasonLabel')} hint={t('reports.takedown.reasonHint')} required>
+        <Textarea value={reason} onChange={(e) => setReason(e.target.value)} maxLength={TAKEDOWN_REASON_MAX} rows={2} />
+      </Field>
+      {error && (
+        <p role="alert" className="mt-3 text-[0.92rem] font-medium text-terracotta">
+          {error}
+        </p>
+      )}
+      <div className="mt-4 flex flex-wrap gap-2.5">
+        <Button variant="terracotta" loading={busy} disabled={busy || !takedownReasonValid(reason)} onClick={() => void submit()}>
+          {t('reports.takedown.confirm')}
+        </Button>
+        <Button variant="secondary" disabled={busy} onClick={() => setOpen(false)}>
+          {t('reports.takedown.cancel')}
+        </Button>
+      </div>
     </div>
   );
 }

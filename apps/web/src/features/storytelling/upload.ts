@@ -70,6 +70,38 @@ const isNetwork = (e: { message: string }) => /fetch|network|timeout|offline|loa
 const isForbidden = (e: StorageErr | DbErr) =>
   ['403', '42501'].includes(String(('statusCode' in e && e.statusCode) || ('code' in e && e.code) || '')) || /row-level security|unauthori[sz]ed|forbidden/i.test(e.message);
 
+const EXT_MIME: Record<string, string> = {
+  m4a: 'audio/mp4',
+  mp4: 'audio/mp4',
+  aac: 'audio/aac',
+  mp3: 'audio/mpeg',
+  wav: 'audio/wav',
+  ogg: 'audio/ogg',
+  oga: 'audio/ogg',
+  opus: 'audio/ogg',
+  webm: 'audio/webm',
+  flac: 'audio/flac',
+  amr: 'audio/amr',
+  '3gp': 'audio/3gpp',
+};
+
+export type AudioFileProblem = 'not_audio' | 'too_large' | 'empty';
+
+/**
+ * Checks a picked file before anything is uploaded and returns the audio MIME type to store it with.
+ * Browsers often report audio-only .webm/.mp4/.3gp as `video/*` or give no type at all: the extension
+ * decides then, so the private bucket (audio/* only) and the transcription service get a correct type.
+ */
+export function checkAudioFile(file: { name: string; type: string; size: number }, maxBytes = MAX_AUDIO_BYTES): { ok: true; mime: string } | { ok: false; problem: AudioFileProblem } {
+  const ext = /\.([a-z0-9]+)$/i.exec(file.name)?.[1]?.toLowerCase() ?? '';
+  const type = file.type.toLowerCase();
+  const mime = type.startsWith('audio/') ? file.type : EXT_MIME[ext];
+  if (!mime) return { ok: false, problem: 'not_audio' };
+  if (file.size === 0) return { ok: false, problem: 'empty' };
+  if (file.size > maxBytes) return { ok: false, problem: 'too_large' };
+  return { ok: true, mime };
+}
+
 /** Clamp the duration to what the DB accepts (0..610 s, two decimals). */
 export function clampDuration(seconds: number): number {
   if (!Number.isFinite(seconds) || seconds < 0) return 0;

@@ -7,13 +7,19 @@ import { rpcErrorCode, type FamilyErrorCode } from '@/features/families/rpcError
 import { ErrorNotice } from '@/features/families/states';
 import type { Narrator } from './hooks';
 import {
+  CONSENT_METHODS,
   GENERATION_LEVELS,
+  MAX_HELPER_NOTE,
   MAX_RELATION,
   NARRATOR_LANGS,
   RELATION_SUGGESTIONS,
+  isAssisted,
+  isConsentMethod,
   isNarratorLang,
+  toConsentColumns,
   toNarratorRow,
   validateNarrator,
+  type ConsentMethod,
   type NarratorDraft,
   type NarratorDraftErrors,
   type NarratorLang,
@@ -28,6 +34,8 @@ function draftFrom(n: Narrator | null): NarratorDraft {
     relation: n?.relation ?? '',
     lang: isNarratorLang(n?.lang) ? n.lang : 'vi',
     generation: n?.generation ? String(n.generation) : '',
+    consent_method: isConsentMethod(n?.consent_method) ? n.consent_method : '',
+    helper_note: n?.helper_note ?? '',
   };
 }
 
@@ -57,7 +65,7 @@ function FormBody({ familyId, narrator, onClose, onSaved }: { familyId: string; 
     if (Object.keys(v).length > 0) return;
     setBusy(true);
     setError(null);
-    const row = toNarratorRow(draft);
+    const row = { ...toNarratorRow(draft), ...toConsentColumns(draft) };
     const { error: err } = narrator ? await sb.from('narrators').update(row).eq('id', narrator.id) : await sb.from('narrators').insert({ ...row, family_id: familyId });
     setBusy(false);
     if (err) {
@@ -135,6 +143,21 @@ function FormBody({ familyId, narrator, onClose, onSaved }: { familyId: string; 
             </Select>
           </Field>
         </div>
+        <Field label={t('narrators.form.consentMethod')} hint={t('narrators.form.consentMethodHint')} error={msg('consent_method')}>
+          <Select value={draft.consent_method} onChange={(e) => set('consent_method', e.target.value as ConsentMethod | '')}>
+            <option value="">{t('narrators.form.consentMethodNone')}</option>
+            {CONSENT_METHODS.map((m) => (
+              <option key={m} value={m}>
+                {t(`narrators.form.consentMethodOptions.${m}`)}
+              </option>
+            ))}
+          </Select>
+        </Field>
+        {draft.consent_method !== '' && (
+          <Field label={t('narrators.form.helperNote')} hint={t('narrators.form.helperNoteHint')} error={msg('helper_note')} required={isAssisted(draft.consent_method)}>
+            <Input value={draft.helper_note} maxLength={MAX_HELPER_NOTE} autoComplete="off" onChange={(e) => set('helper_note', e.target.value)} />
+          </Field>
+        )}
         <div aria-live="assertive">{error && <ErrorNotice message={t(`errors.${error}`)} />}</div>
       </form>
     </Dialog>

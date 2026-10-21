@@ -1,5 +1,5 @@
 /**
- * Book pagination (pure). The flip-book preview and the A5 print layout both render the same
+ * Book pagination (pure). The page preview and the A5 print layout both render the same
  * page list, so what the family previews is what they print.
  */
 import { readExperienceFields } from '@/features/vault/types';
@@ -18,17 +18,51 @@ export type BookPage =
   | { kind: 'toc'; number: number; entries: Array<{ chapter: number; title: string; page: number }> }
   | { kind: 'chapter'; number: number; chapter: number; paragraphs: string[]; first: boolean; last: boolean };
 
+/**
+ * Layout model of an A5 page, in body-text lines. Counting characters alone under-estimated pages made of
+ * many short paragraphs (each ends on a partial line and adds a gap), so text overflowed the sheet: clipped
+ * in the preview and spilling onto an extra sheet in print. The numbers follow the `cqw` sizes in
+ * BookPageView and are deliberately conservative (fewer characters per line than measured in Noto Serif).
+ */
 export interface PaginateOptions {
-  /** Character budget of a full page. */
-  charsPerPage: number;
-  /** Budget of a chapter's first page (it also holds the chapter heading). */
-  firstPageChars: number;
-  /** Budget of a chapter's last page (it also holds the QR block). Applied when the chapter has audio. */
-  qrReserve: number;
-  tocEntriesPerPage: number;
+  /** Body characters per line. */
+  charsPerLine: number;
+  /** Body lines on a chapter page (between the top padding and the page number). */
+  linesPerPage: number;
+  /** Lines taken by the gap after each paragraph. */
+  paragraphGap: number;
+  /** Chapter heading block on a chapter's first page, excluding the title lines. */
+  headerLines: number;
+  /** Title characters per line, and the height of one title line in body lines. */
+  titleCharsPerLine: number;
+  titleLineHeight: number;
+  /** The QR block on a chapter's last page (only when the chapter has audio). */
+  qrLines: number;
+  /** Table of contents: lines per page, its heading (first page), characters per entry line, gap between entries. */
+  tocLinesPerPage: number;
+  tocHeadingLines: number;
+  tocCharsPerLine: number;
+  tocGap: number;
 }
 
-export const DEFAULT_PAGINATION: PaginateOptions = { charsPerPage: 1500, firstPageChars: 950, qrReserve: 350, tocEntriesPerPage: 12 };
+export const DEFAULT_PAGINATION: PaginateOptions = {
+  charsPerLine: 55,
+  linesPerPage: 26,
+  paragraphGap: 0.6,
+  headerLines: 4.5,
+  titleCharsPerLine: 22,
+  titleLineHeight: 1.65,
+  qrLines: 7,
+  tocLinesPerPage: 25,
+  tocHeadingLines: 4,
+  tocCharsPerLine: 38,
+  tocGap: 0.6,
+};
+
+/** Lines a text of `length` characters wraps to (at least one). */
+export function lineCount(length: number, charsPerLine: number): number {
+  return Math.max(1, Math.ceil(length / Math.max(1, charsPerLine)));
+}
 
 /** Split text into trimmed, non-empty paragraphs (blank-line or single-newline separated). */
 export function splitParagraphs(text: string | null | undefined): string[] {
@@ -39,53 +73,90 @@ export function splitParagraphs(text: string | null | undefined): string[] {
     .filter(Boolean);
 }
 
+/**
+ * Cut `text` into a head of at most `max` chars and the rest: at the last sentence end that keeps at least
+ * half the budget, else at the last space, else a hard cut. The head is never empty.
+ */
+export function splitAt(text: string, max: number): [string, string] {
+  const limit = Math.max(1, Math.floor(max));
+  if (text.length <= limit) return [text, ''];
+  let cut = -1;
+  const sentenceEnd = /[.!?…]+["”’)]*\s+/g;
+  for (let m = sentenceEnd.exec(text); m; m = sentenceEnd.exec(text)) {
+    // The trailing whitespace is dropped, so a sentence ending exactly at the limit still fits.
+    if (m.index + m[0].trimEnd().length > limit) break;
+    if (m.index + m[0].length >= limit / 2) cut = m.index + m[0].length;
+  }
+  if (cut < 0) {
+    const space = text.lastIndexOf(' ', limit);
+    cut = space > 0 ? space : limit;
+  }
+  const head = text.slice(0, cut).trim();
+  if (!head) return [text.slice(0, limit), text.slice(limit).trim()];
+  return [head, text.slice(cut).trim()];
+}
+
 /** Break one paragraph into pieces of at most `max` chars, preferring sentence then word boundaries. */
 export function splitLongParagraph(paragraph: string, max: number): string[] {
-  if (paragraph.length <= max) return [paragraph];
-  const sentences = paragraph.match(/[^.!?…]+[.!?…]+["”’)]*\s*|[^.!?…]+$/g) ?? [paragraph];
   const out: string[] = [];
-  let buf = '';
-  const flush = () => {
-    if (buf.trim()) out.push(buf.trim());
-    buf = '';
-  };
-  for (const s of sentences) {
-    if ((buf + s).length <= max) {
-      buf += s;
-      continue;
-    }
-    flush();
-    if (s.length <= max) {
-      buf = s;
-      continue;
-    }
-    // A single sentence longer than a page: cut at word boundaries.
-    for (const word of s.split(/\s+/)) {
-      if (!word) continue;
-      if ((buf ? buf.length + 1 : 0) + word.length > max) flush();
-      buf = buf ? `${buf} ${word}` : word.slice(0, max);
-    }
+  let rest = paragraph.trim();
+  while (rest.length > max) {
+    const [head, tail] = splitAt(rest, max);
+    out.push(head);
+    rest = tail;
   }
-  flush();
+  if (rest) out.push(rest);
   return out;
 }
 
-/** Greedily pack paragraphs into pages: page 0 gets `first` chars, the rest `rest` chars. Never returns zero pages. */
-export function paginateParagraphs(paragraphs: string[], first: number, rest: number): string[][] {
+/**
+ * Greedily pack paragraphs into pages measured in lines: page 0 holds `firstLines`, later pages `restLines`.
+ * A paragraph that does not fit is split to fill the page (when at least two lines are free) and continues
+ * on the next page. Never returns zero pages.
+ */
+export function paginateParagraphs(paragraphs: string[], firstLines: number, restLines: number, charsPerLine: number, gap = 0): string[][] {
   const pages: string[][] = [[]];
   let used = 0;
-  const budget = () => (pages.length === 1 ? first : rest);
+  const capacity = () => (pages.length === 1 ? firstLines : restLines);
   for (const para of paragraphs) {
-    const pieces = splitLongParagraph(para, Math.min(first, rest));
-    for (const piece of pieces) {
+    let text = para;
+    while (text) {
       const current = pages[pages.length - 1]!;
-      if (current.length > 0 && used + piece.length > budget()) {
-        pages.push([piece]);
-        used = piece.length;
-      } else {
-        current.push(piece);
-        used += piece.length;
+      const free = capacity() - used;
+      const need = lineCount(text.length, charsPerLine) + gap;
+      if (need <= free) {
+        current.push(text);
+        used += need;
+        break;
       }
+      // Fill what is left of this page; on an empty later page always place a piece so the loop progresses.
+      const fit = Math.floor(free - gap);
+      if (fit >= 2 || (current.length === 0 && pages.length > 1)) {
+        const [head, tail] = splitAt(text, Math.max(1, fit) * charsPerLine);
+        current.push(head);
+        text = tail;
+      }
+      pages.push([]);
+      used = 0;
+    }
+  }
+  if (pages.length > 1 && pages[pages.length - 1]!.length === 0) pages.pop();
+  return pages;
+}
+
+/** Split TOC entries into pages by their wrapped height. Always at least one page. */
+function paginateToc<T extends { title: string }>(entries: T[], opts: PaginateOptions): T[][] {
+  const pages: T[][] = [[]];
+  let used = opts.tocHeadingLines;
+  for (const e of entries) {
+    const need = lineCount(e.title.length, opts.tocCharsPerLine) + opts.tocGap;
+    const current = pages[pages.length - 1]!;
+    if (current.length > 0 && used + need > opts.tocLinesPerPage) {
+      pages.push([e]);
+      used = need;
+    } else {
+      current.push(e);
+      used += need;
     }
   }
   return pages;
@@ -93,30 +164,37 @@ export function paginateParagraphs(paragraphs: string[], first: number, rest: nu
 
 /** Cover, table of contents (with page numbers) and each chapter's pages. Page numbers start at 1 after the cover. */
 export function buildBookPages(chapters: ChapterInput[], opts: PaginateOptions = DEFAULT_PAGINATION): BookPage[] {
-  const tocPageCount = Math.max(1, Math.ceil(chapters.length / opts.tocEntriesPerPage));
+  const cost = (list: string[]) => list.reduce((n, p) => n + lineCount(p.length, opts.charsPerLine) + opts.paragraphGap, 0);
   const chapterPages = chapters.map((c) => {
-    const pages = paginateParagraphs(c.paragraphs, opts.firstPageChars, opts.charsPerPage);
-    // Leave room for the QR block on the last page; overflow moves to a fresh page.
+    const firstLines = opts.linesPerPage - opts.headerLines - lineCount(c.title.length, opts.titleCharsPerLine) * opts.titleLineHeight;
+    const pages = paginateParagraphs(c.paragraphs, firstLines, opts.linesPerPage, opts.charsPerLine, opts.paragraphGap);
+    // The QR block goes on the last page. When it does not fit, carry the last paragraph over with it
+    // (if that fits beside the block), otherwise the block gets a page of its own.
     if (c.durationS !== null) {
       const last = pages[pages.length - 1]!;
-      const limit = (pages.length === 1 ? opts.firstPageChars : opts.charsPerPage) - opts.qrReserve;
-      const size = last.reduce((n, p) => n + p.length, 0);
-      if (size > limit && last.length > 1) pages.push([last.pop()!]);
+      const capacity = pages.length === 1 ? firstLines : opts.linesPerPage;
+      if (cost(last) + opts.qrLines > capacity) {
+        const piece = last[last.length - 1];
+        if (last.length > 1 && piece !== undefined && cost([piece]) + opts.qrLines <= opts.linesPerPage) pages.push([last.pop()!]);
+        else pages.push([]);
+      }
     }
     return pages;
   });
 
-  const out: BookPage[] = [{ kind: 'cover' }];
-  let pageNo = tocPageCount + 1;
-  const entries = chapters.map((c, i) => {
-    const entry = { chapter: i + 1, title: c.title, page: pageNo };
+  const tocPages = paginateToc(
+    chapters.map((c, i) => ({ chapter: i + 1, title: c.title, page: 0 })),
+    opts,
+  );
+  let pageNo = tocPages.length + 1;
+  tocPages.flat().forEach((entry, i) => {
+    entry.page = pageNo;
     pageNo += chapterPages[i]!.length;
-    return entry;
   });
-  for (let p = 0; p < tocPageCount; p++) {
-    out.push({ kind: 'toc', number: p + 1, entries: entries.slice(p * opts.tocEntriesPerPage, (p + 1) * opts.tocEntriesPerPage) });
-  }
-  let n = tocPageCount + 1;
+
+  const out: BookPage[] = [{ kind: 'cover' }];
+  tocPages.forEach((entries, p) => out.push({ kind: 'toc', number: p + 1, entries }));
+  let n = tocPages.length + 1;
   chapterPages.forEach((pages, ci) => {
     pages.forEach((paragraphs, pi) => {
       out.push({ kind: 'chapter', number: n++, chapter: ci, paragraphs, first: pi === 0, last: pi === pages.length - 1 });

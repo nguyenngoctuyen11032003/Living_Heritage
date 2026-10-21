@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { IDS, mockSupabase } from './fixtures';
+import { IDS, mockSupabase, signedIn } from './fixtures';
 import { fill, vi } from './i18n';
 
 const t = vi.knowledge;
@@ -80,4 +80,13 @@ test('unknown items show a not-found state instead of content', async ({ page })
   await expect(page.getByRole('heading', { name: t.states.notFoundTitle })).toBeVisible();
   await expect(page.getByRole('link', { name: t.states.backToHub })).toHaveAttribute('href', '/kham-pha');
   await expect(page.getByText('Cách ủ tương Bần')).toHaveCount(0);
+});
+
+test('signed in, /da-luu lists the items saved to the account (saved_items)', async ({ page }) => {
+  await mockSupabase(page, { db: { saved_items: [{ user_id: IDS.owner, public_item_id: IDS.pubTuongBan, created_at: '2026-10-20T00:00:00Z' }] } });
+  await signedIn(page);
+  await page.goto('/da-luu');
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Cách ủ tương Bần' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Chiếc xe đạp Phượng Hoàng' })).toHaveCount(0);
 });

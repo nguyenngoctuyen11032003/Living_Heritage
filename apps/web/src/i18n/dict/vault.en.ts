@@ -10,7 +10,7 @@ export default {
     pickNarrator: 'Who is telling this time?',
     addNarrator: 'Add a storyteller',
     collections: 'Collections',
-    books: 'Memory books',
+    books: 'Books',
   },
   stats: {
     label: 'Vault overview',
@@ -20,6 +20,7 @@ export default {
     hours: '{h} h {m} min',
     minutes: '{m} min',
     short: { approved: 'Approved', pending: 'Awaiting review', audio: 'Recorded' },
+    unit: { h: 'h', m: 'min' },
   },
   review: {
     title: 'Needs your attention',
@@ -29,7 +30,7 @@ export default {
   },
   search: {
     label: 'Search the vault',
-    placeholder: 'Title or text, with or without Vietnamese accents',
+    placeholder: 'Title, topic or text, with or without Vietnamese accents',
     submit: 'Search',
     clear: 'Clear search',
   },
@@ -60,6 +61,7 @@ export default {
     unknownNarrator: 'Unknown storyteller',
     noText: 'No text yet.',
     duration: 'Length {d}',
+    recorded: 'Recorded on',
   },
   empty: {
     title: 'Your family has no stories yet. Start with a memory that comes easily.',
@@ -180,6 +182,15 @@ export default {
       add: 'Add',
       added: 'Added',
       none: 'No matching stories.',
+    },
+  },
+  sharing: {
+    photosUnavailable: 'The public page does not post photos yet, so family photos always stay private. This option opens once that exists.',
+    preview: {
+      topic: 'Topic',
+      photos: 'Photos',
+      photosNone: 'Not posted on the public page',
+      body: 'Full text to be published',
     },
   },
 } satisfies Shape<typeof vi>;

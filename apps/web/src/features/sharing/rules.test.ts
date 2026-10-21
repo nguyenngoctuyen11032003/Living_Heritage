@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canSubmitRequest, canWithdraw, currentChoice, shareOptions, toggleNeedsNewRequest, type ShareContext } from './rules';
+import { canSubmitRequest, canWithdraw, currentChoice, shareOptions, toggleNeedsNewRequest, togglePublishable, type ShareContext } from './rules';
 
 const ctx: ShareContext = { editStatus: 'approved', visibility: 'private', canWrite: true, canPublish: true, requestStatus: null };
 
@@ -52,5 +52,14 @@ describe('current choice, submit and withdraw', () => {
     expect(toggleNeedsNewRequest('public', false, true)).toBe(true);
     expect(toggleNeedsNewRequest('public', true, false)).toBe(false);
     expect(toggleNeedsNewRequest('family', false, true)).toBe(false);
+  });
+});
+
+describe('togglePublishable', () => {
+  it('locks only the photos toggle (public pages carry no photos)', () => {
+    expect(togglePublishable('show_photos')).toBe(false);
+    expect(togglePublishable('show_audio')).toBe(true);
+    expect(togglePublishable('show_real_name')).toBe(true);
+    expect(togglePublishable('show_region')).toBe(true);
   });
 });

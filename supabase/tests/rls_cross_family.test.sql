@@ -72,8 +72,9 @@ select is((select count(*)::integer from pg_proc p
   'every security definer function pins search_path to empty');
 select is((select count(*)::integer from pg_proc p
     where p.pronamespace = 'public'::regnamespace and p.prosecdef and p.proname not like 't\_%'
+      and p.proname <> 'log_event'
       and has_function_privilege('anon', p.oid, 'execute')), 0,
-  'anon cannot execute any security definer function');
+  'anon cannot execute any security definer function (except the validated, rate-limited log_event)');
 select ok(not has_table_privilege('authenticated', 'public.audit_log', 'insert'), 'clients cannot insert audit_log');
 select ok(not has_column_privilege('authenticated', 'public.profiles', 'is_admin', 'update'), 'is_admin is not user-updatable');
 select ok(not has_column_privilege('authenticated', 'public.narrators', 'user_id', 'update'), 'narrators.user_id is set only by RPCs');

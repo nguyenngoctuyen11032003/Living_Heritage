@@ -72,6 +72,56 @@ push main ─────► Deploy (.github/workflows/deploy.yml)
 2. Deploy tự chạy. Có migration mới: xem log `Preview migrations to apply`, rồi ghi checksum (mục trên).
 3. Kiểm tra site sau khi job `pages` xanh.
 
+## Môi trường: demo, staging, production
+- Hiện chỉ có **một** project Supabase hosted (`dfohmtznhercbhutvyag`), đóng vai production cho site GitHub Pages. Chưa có project staging hay demo riêng.
+- Muốn có staging/demo: tạo project Supabase mới, áp cùng migration (`supabase db push --db-url <staging>`), đặt secrets riêng (khoá Gemini riêng, `AI_DAILY_LIMIT` thấp), và build web với `VITE_SUPABASE_URL`/`VITE_SUPABASE_PUBLISHABLE_KEY` của project đó. Không dùng chung tài khoản người dùng hay bucket giữa các môi trường; báo cáo số liệu dùng thật chỉ lấy từ production (DỰ ÁN.md B14).
+- Dữ liệu minh họa (thẻ `mau-*`, chuyện mẫu trang chủ, demo `/trai-nghiem` đang bổ sung) nằm trong mã web, **không** ghi vào database. Vì vậy nút "Khôi phục dữ liệu mẫu" chỉ đặt lại trạng thái trong trình duyệt.
+- **Production không có lệnh reset.** Không chạy `db reset`, seed, `config push` hay script xoá hàng loạt với project hosted (xem mục Quy tắc an toàn database). Xoá dữ liệu gia đình chỉ đi qua yêu cầu xoá và được ghi nhật ký.
+
+## Sao lưu và khôi phục
+Sao lưu tự động của Supabase phụ thuộc gói dịch vụ: xem Dashboard → Database → Backups trước khi có dữ liệu thật. Ngoài ra nên tự sao lưu định kỳ (máy có Supabase CLI, `SUPABASE_DB_URL` là session pooler như bảng trên; không commit tệp dump):
+
+```bash
+# Cấu trúc, vai trò và dữ liệu (ba tệp riêng)
+pnpm exec supabase db dump --db-url "$SUPABASE_DB_URL" -f backup/schema.sql
+pnpm exec supabase db dump --db-url "$SUPABASE_DB_URL" --role-only -f backup/roles.sql
+pnpm exec supabase db dump --db-url "$SUPABASE_DB_URL" --data-only -f backup/data.sql
+# Tệp trong Storage (lệnh experimental của CLI; cần đăng nhập `supabase login`)
+for b in recordings media public-audio avatars; do
+  pnpm exec supabase storage cp -r "ss:///$b" "backup/storage/$b" --experimental --linked
+done
+```
+
+- Kiểm tra trong `data.sql` có đủ schema cần thiết (`public`, và `auth` nếu muốn giữ tài khoản); nếu thiếu, dump thêm theo schema bằng `--schema`.
+- Tệp sao lưu chứa ghi âm và dữ liệu cá nhân: lưu mã hoá, giới hạn người truy cập, xoá bản cũ theo chính sách lưu trữ đã thống nhất; yêu cầu xoá đã hoàn tất cũng phải được xử lý trong các bản sao lưu còn giữ (DỰ ÁN.md B12).
+- Khôi phục vào project **mới** (không ghi đè production đang chạy): áp migration bằng `supabase db push`, rồi `psql "$NEW_DB_URL" -f backup/roles.sql` (nếu cần) và `psql "$NEW_DB_URL" -f backup/data.sql`, chép lại tệp Storage cùng đường dẫn, đặt lại secrets Edge Function và Auth (`docs/SETUP.md` mục 6). Thử khôi phục ít nhất một lần trước pilot và ghi kết quả.
+
+## Cấu trúc dữ liệu và xuất dữ liệu
+Mọi dữ liệu riêng gắn với `family_id`; quyền đọc do RLS kiểm tra trên từng hàng và từng tệp.
+
+| Nhóm | Bảng (schema `public`) |
+|---|---|
+| Tài khoản, gia đình | `profiles`, `families`, `family_members`, `family_invites`, `narrators`, `narrator_links` |
+| Câu hỏi | `topics`, `questions` (dùng chung, không theo gia đình) |
+| Nội dung | `sessions`, `recordings`, `transcripts` (mỗi lần sửa là phiên bản mới), `stories`, `story_versions`, `story_share_settings`, `story_photos`, `collections`, `collection_items`, `books`, `book_chapters` |
+| Công khai | `publish_requests`, `public_items` (bản chụp đã duyệt, có thể tìm), `reports`, `connect_requests` |
+| Vận hành | `deletion_requests`, `audit_log`, `ai_jobs`, `ai_quota`, `ai_usage` |
+
+| Bucket | Công khai | Đường dẫn tệp | Nội dung |
+|---|---|---|---|
+| `recordings` | Không | `{family_id}/{narrator_id}/{uuid}.webm` (kiểu thật ở `recordings.mime`) | Ghi âm gốc, ≤ 20 MB |
+| `media` | Không | `{family_id}/{uuid}.{ext}` | Ảnh câu chuyện (`story_photos`) |
+| `public-audio` | Có | `items/…` | Bản sao âm thanh của nội dung đã duyệt công bố kèm giọng kể; được đồng bộ lại bởi `public-audio-sync` |
+| `avatars` | Có | `{user_id}/…` (`profiles.avatar_path`) | Ảnh đại diện hồ sơ, ≤ 2 MB |
+
+Xuất dữ liệu cho gia đình: `/gia-dinh/du-lieu` → Xuất dữ liệu (`apps/web/src/features/settings/exportData.ts`). Tệp JSON `format = di-san-song.family-export`, `version = 1`, gồm `families`, `narrators`, `stories`, `story_versions`, `story_share_settings`, `recordings`, `transcripts`, `collections`, `collection_items`, `books`, `book_chapters`, `story_photos`, phần `stories_expanded` lồng lịch sử phiên bản, và danh sách `files` là liên kết tải ghi âm/ảnh có chữ ký hết hạn sau 1 giờ. Tệp chỉ chứa những gì người xuất được phép đọc.
+
+## Hạn mức và ngân sách AI
+- Hạn mức theo người dùng / ngày (giờ Việt Nam), lưu ở `ai_quota`: `AI_DAILY_LIMIT` (mặc định 30 lượt chép lời + soạn nháp) và `TTS_DAILY_LIMIT` (mặc định 60 lượt đọc câu hỏi). Hỏi đáp kho tri thức: `KNOWLEDGE_RATE_PER_MIN` (10) và `KNOWLEDGE_DAILY_CAP` (1 000), giữ trong bộ nhớ Edge Function. Đặt bằng `supabase secrets set` hoặc secret GitHub cùng tên (job `functions` chỉ đẩy secret có giá trị).
+- Gemini lỗi liên tục: ngắt mạch 5 lỗi / 60 giây, tạm ngừng 60 giây; bản ghi được giữ và người dùng thấy nút thử lại.
+- Theo dõi chi phí: `/quan-tri` → Số liệu (lượt gọi AI, lỗi, độ trễ, dung lượng 30 ngày, xuất CSV) và trang usage/billing của Google AI Studio. Đặt giới hạn chi tiêu hoặc cảnh báo ngân sách ở phía nhà cung cấp; hệ thống không tự biết số tiền đã tiêu.
+- Hết hạn mức thì bản ghi vẫn được lưu và xử lý lại sau; không có lệnh nào xoá bản ghi vì hết lượt.
+
 ## Xử lý sự cố
 | Triệu chứng | Nguyên nhân / cách sửa |
 |---|---|

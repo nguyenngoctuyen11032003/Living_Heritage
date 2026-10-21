@@ -2,6 +2,7 @@ import { ArrowLeft } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
 import { StoryScene, type SceneKind } from '@/components/illustrations/scenes';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { cn } from '@/lib/cn';
 
 export interface VaultPageHeaderProps {
@@ -22,9 +23,13 @@ export interface VaultPageHeaderProps {
 
 /**
  * Shared header for the family pages (vault, story, collections, books, album, tree): same top spacing,
- * eyebrow → h1 → lede → meta, with actions aligned to the h1.
+ * eyebrow → h1 → lede → meta, with actions aligned to the h1. Without a band it is the app-wide `PageHeader`
+ * (components/ui), so family pages share page tops and action alignment with every other AppShell page; the
+ * parent's flex gap spaces the sections, so the header's own bottom margin is dropped.
  */
 export function VaultPageHeader({ back, eyebrow, title, lede, meta, actions, band, className }: VaultPageHeaderProps) {
+  if (!band)
+    return <PageHeader back={back} eyebrow={eyebrow} title={title} lede={lede} meta={meta} actions={actions} className={cn('mb-0! md:mb-0!', className)} />;
   const body = (
     <div className={cn('grid gap-x-8 gap-y-3', actions ? 'md:grid-cols-[minmax(0,1fr)_auto]' : undefined)}>
       <div className="flex min-w-0 flex-col gap-2">

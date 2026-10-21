@@ -24,6 +24,8 @@ export interface HandlerDeps {
 export const JOB_KIND = 'transcribe_and_draft';
 /** An in-progress job not touched for this long is considered dead (isolate killed) and may be restarted. */
 export const STALE_JOB_MS = 15 * 60_000;
+/** Pipeline runs per recording (failed runs are refunded, so this cap is what stops a retry loop from burning Gemini cost). */
+export const MAX_JOB_ATTEMPTS = 10;
 export const DEFAULT_MODEL = 'gemini-3.8-flash';
 export const DEFAULT_DAILY_LIMIT = 30;
 export const DEFAULT_TIMEOUT_MS = 60_000;
@@ -60,9 +62,9 @@ function jobBody(job_id: string, status: JobRow['status'], story_ids: string[], 
   return { job_id, status, story_ids, error };
 }
 
-/** Existing job → response body (an unknown stored error text maps to `internal`). */
+/** Existing job → response body. The stored error is "<code>" or "<code>: <detail>"; an unknown code maps to `internal`. */
 function existingJobBody(job: JobRow) {
-  const code = AiErrorCode.safeParse(job.error);
+  const code = AiErrorCode.safeParse((job.error ?? '').split(/[:\s]/)[0]);
   return jobBody(job.id, job.status, job.story_ids, job.status === 'error' ? (code.success ? code.data : 'internal') : null);
 }
 
@@ -89,11 +91,20 @@ const clean = (s: string, max = 20_000) => s.trim().slice(0, max);
 const cleanList = (xs: string[]) => [...new Set(xs.map((x) => x.trim()).filter((x) => x !== ''))];
 const orNull = (s: string | null) => (s === null || s.trim() === '' ? null : s.trim());
 
+const optText = (s: string | null | undefined, max: number) => (s == null || s.trim() === '' ? null : clean(s, max));
+
 /** Trims the model output; an experience without a named skill is dropped (nothing practical was told). */
 export function normalizeDraft(d: Draft): Draft {
   const exp = d.experience;
   return {
-    story: { title: clean(d.story.title, TITLE_MAX), body: clean(d.story.body, 100_000) },
+    story: {
+      title: clean(d.story.title, TITLE_MAX),
+      body: clean(d.story.body, 100_000),
+      opening: optText(d.story.opening, 2_000),
+      lesson: optText(d.story.lesson, 2_000),
+    },
+    people: cleanList(d.people ?? []).map((x) => x.slice(0, 120)).slice(0, 30),
+    places: cleanList(d.places ?? []).map((x) => x.slice(0, 120)).slice(0, 30),
     experience: exp && exp.fields.skill.trim() !== ''
       ? {
         title: clean(exp.title, TITLE_MAX) || clean(exp.fields.skill, TITLE_MAX),
@@ -110,6 +121,24 @@ export function normalizeDraft(d: Draft): Draft {
       : null,
     topics: cleanList(d.topics).slice(0, 5),
     uncertain: cleanList(d.uncertain).slice(0, 50),
+  };
+}
+
+/** fields.people / fields.places (both kinds); empty lists are left out, like the web editor does. */
+export function namedFields(d: Draft): { people?: string[]; places?: string[] } {
+  return {
+    ...(d.people && d.people.length > 0 ? { people: d.people } : {}),
+    ...(d.places && d.places.length > 0 ? { places: d.places } : {}),
+  };
+}
+
+/** stories.fields of the story draft: { topics, opening?, lesson?, people?, places? } (null values left out). */
+export function storyFields(d: Draft): Record<string, unknown> {
+  return {
+    topics: d.topics,
+    ...(d.story.opening ? { opening: d.story.opening } : {}),
+    ...(d.story.lesson ? { lesson: d.story.lesson } : {}),
+    ...namedFields(d),
   };
 }
 
@@ -170,8 +199,16 @@ async function transcribeAndDraft(ctx: Ctx, req: Extract<Req, { action: 'transcr
     const inProgress = job.status !== 'error';
     const stale = inProgress && deps.now() - Date.parse(job.updated_at) > STALE_JOB_MS;
     if (inProgress && !stale) return json(200, existingJobBody(job));
-    // error (or a dead in-progress job): retry, unless a concurrent call restarted it first.
+    // error (or a dead in-progress job): retry, unless the cost cap is reached or a concurrent call restarted it first.
+    if (job.attempts >= MAX_JOB_ATTEMPTS) return fail('quota_exceeded', jobBody(job.id, 'error', [], 'quota_exceeded'));
     if (!(await admin.restartJob(job, nowIso()))) return json(200, jobBody(job.id, 'queued', [], null));
+  }
+
+  // Drafts already saved by an earlier run (it died before marking the job done): finish the job, never insert twice.
+  const saved = await admin.storiesForRecording(rec.id);
+  if (saved.length > 0) {
+    await admin.updateJob(job.id, { status: 'done', error: null, story_ids: saved }, nowIso());
+    return json(200, jobBody(job.id, 'done', saved, null));
   }
 
   const limit = intEnv(deps, 'AI_DAILY_LIMIT', DEFAULT_DAILY_LIMIT, 1, 100_000);
@@ -179,6 +216,7 @@ async function transcribeAndDraft(ctx: Ctx, req: Extract<Req, { action: 'transcr
     await quietly(() => admin.updateJob(job.id, { status: 'error', error: 'quota_exceeded', story_ids: [] }, nowIso()));
     return fail('quota_exceeded', jobBody(job.id, 'error', [], 'quota_exceeded'));
   }
+  await quietly(() => admin.setAttempts(job.id, job.attempts + 1));
 
   try {
     // The narrator's own language (narrators.lang) decides transcription and drafting; the request lang
@@ -245,13 +283,14 @@ async function runPipeline(
     lang,
     created_by: userId,
   };
+  const named = namedFields(draft);
   const rows: StoryInsert[] = [{
     ...base,
     kind: 'story',
     title: draft.story.title,
     summary: null,
     body: draft.story.body,
-    fields: { topics: draft.topics },
+    fields: storyFields(draft),
   }];
   if (draft.experience) {
     rows.push({
@@ -260,7 +299,7 @@ async function runPipeline(
       title: draft.experience.title,
       summary: draft.experience.summary,
       body: draft.experience.summary,
-      fields: draft.experience.fields,
+      fields: { ...draft.experience.fields, ...named },
     });
   }
   const ids = await admin.insertStories(rows);

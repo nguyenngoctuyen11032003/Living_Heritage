@@ -12,10 +12,9 @@ export const OUTPUT_QUALITY = 0.85;
 export const MAX_CAPTION = 300;
 export const SIGNED_URL_TTL = 3600;
 export const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
-export type AcceptedType = (typeof ACCEPTED_TYPES)[number];
 
 export type PhotoValidationError = 'type' | 'size' | 'empty';
-export type PhotoErrorCode = PhotoValidationError | 'upload' | 'save' | 'forbidden' | 'not_configured' | 'network' | 'unknown';
+export type PhotoErrorCode = PhotoValidationError | 'decode' | 'upload' | 'save' | 'forbidden' | 'not_configured' | 'network' | 'unknown';
 
 /** Client-side check before anything leaves the device. Returns null when the file is fine. */
 export function validatePhotoFile(file: Pick<File, 'type' | 'size'>): PhotoValidationError | null {
@@ -81,17 +80,42 @@ export interface Resized {
   mime: string;
 }
 
-/** Downscale to MAX_EDGE and re-encode as JPEG 0.85. Falls back to the original file if the browser cannot decode it. */
-export async function resizeImage(file: File, max = MAX_EDGE): Promise<Resized> {
+export class PhotoError extends Error {
+  constructor(public code: PhotoErrorCode) {
+    super(code);
+    this.name = 'PhotoError';
+  }
+}
+
+/**
+ * Decode the file once. A file that no decoder can read (corrupt, truncated, or e.g. HEIC renamed to .jpg) is refused
+ * with PhotoError('decode') instead of being uploaded as an image nobody can open.
+ */
+async function decodeBitmap(file: File): Promise<ImageBitmap> {
   try {
-    if (typeof createImageBitmap !== 'function' || typeof document === 'undefined') return { blob: file, mime: file.type };
-    const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' } as ImageBitmapOptions);
-    const { width, height, scaled } = fitWithin(bitmap.width, bitmap.height, max);
-    // Small JPEGs are uploaded as they are; everything else is re-encoded (also strips EXIF/GPS metadata).
-    if (!scaled && file.type === 'image/jpeg' && file.size < 1.5 * 1024 * 1024) {
-      bitmap.close?.();
-      return { blob: file, mime: file.type };
+    return await createImageBitmap(file, { imageOrientation: 'from-image' } as ImageBitmapOptions);
+  } catch {
+    // Older engines reject the options bag; a plain second attempt tells that apart from a real decoding failure.
+    try {
+      return await createImageBitmap(file);
+    } catch {
+      throw new PhotoError('decode');
     }
+  }
+}
+
+/**
+ * Downscale to MAX_EDGE and re-encode as JPEG 0.85. Throws PhotoError('decode') when the image cannot be decoded;
+ * falls back to the original file when the browser has no canvas/bitmap support or re-encoding fails.
+ */
+export async function resizeImage(file: File, max = MAX_EDGE): Promise<Resized> {
+  if (typeof createImageBitmap !== 'function' || typeof document === 'undefined') return { blob: file, mime: file.type };
+  const bitmap = await decodeBitmap(file);
+  try {
+    const { width, height } = fitWithin(bitmap.width, bitmap.height, max);
+    if (!(width > 0)) throw new PhotoError('decode');
+    // Every photo is re-encoded, even a small JPEG: drawing to a canvas drops EXIF metadata such as GPS location,
+    // which family photos must not carry into storage or exports.
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
@@ -103,7 +127,9 @@ export async function resizeImage(file: File, max = MAX_EDGE): Promise<Resized> 
     bitmap.close?.();
     const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', OUTPUT_QUALITY));
     return blob ? { blob, mime: 'image/jpeg' } : { blob: file, mime: file.type };
-  } catch {
+  } catch (e) {
+    bitmap.close?.();
+    if (e instanceof PhotoError) throw e;
     return { blob: file, mime: file.type };
   }
 }
@@ -125,13 +151,6 @@ export interface UploadDeps {
   uuid?: () => string;
   /** Stage callback for progress UI. */
   onStage?: (stage: 'resizing' | 'uploading' | 'saving') => void;
-}
-
-export class PhotoError extends Error {
-  constructor(public code: PhotoErrorCode) {
-    super(code);
-    this.name = 'PhotoError';
-  }
 }
 
 /** Validate → downscale → upload to media/{family}/{uuid}.jpg → insert story_photos. Removes the object if the insert fails. */
@@ -160,8 +179,8 @@ export async function uploadStoryPhoto(file: File, opts: UploadOptions, deps: Up
 }
 
 /**
- * Remove the row (story writers), then the object. Storage deletion is limited to owner/manager by policy:
- * for editors the object removal is a silent no-op, and the file is no longer referenced by any row.
+ * Remove the row (story writers), then the object. Storage lets owner/manager delete, and family editors delete an
+ * object once no row references it (migration 20261022000200_media_access), so the row must go first.
  */
 export async function deleteStoryPhoto(sb: Supabase, photo: Pick<StoryPhotoRow, 'id' | 'storage_path'>): Promise<void> {
   const del = await sb.from('story_photos').delete().eq('id', photo.id);

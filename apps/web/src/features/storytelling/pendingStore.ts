@@ -24,6 +24,15 @@ export interface PendingStore {
   get(key: string): Promise<PendingUpload | null>;
   put(item: PendingUpload): Promise<void>;
   delete(key: string): Promise<void>;
+  /** Every pending take whose key starts with `prefix` (e.g. all takes of one session), oldest first. */
+  list(prefix: string): Promise<PendingUpload[]>;
+}
+
+const byAge = (a: PendingUpload, b: PendingUpload) => a.createdAt - b.createdAt;
+
+/** All pending takes of a session (seeded questions, free telling and AI follow-ups alike). */
+export function sessionPrefix(sessionId: string): string {
+  return `${sessionId}/`;
 }
 
 export function pendingKey(sessionId: string, questionId: string | null): string {
@@ -41,6 +50,7 @@ export function createMemoryPendingStore(): PendingStore {
     delete: async (key) => {
       map.delete(key);
     },
+    list: async (prefix) => [...map.values()].filter((p) => p.key.startsWith(prefix)).sort(byAge),
   };
 }
 
@@ -89,6 +99,7 @@ export function createIdbPendingStore(): PendingStore {
     delete: async (key) => {
       await tx('readwrite', (s) => s.delete(key));
     },
+    list: async (prefix) => ((await tx('readonly', (s) => s.getAll())) as PendingUpload[]).filter((p) => p.key.startsWith(prefix)).sort(byAge),
   };
 }
 
@@ -114,6 +125,12 @@ export function createPendingStore(): PendingStore {
     delete: async (key) => {
       await memory.delete(key);
       await safe(idb.delete, async () => {})(key);
+    },
+    list: async (prefix) => {
+      const merged = new Map<string, PendingUpload>();
+      for (const p of await safe(idb.list, async () => [])(prefix)) merged.set(p.key, p);
+      for (const p of await memory.list(prefix)) merged.set(p.key, p);
+      return [...merged.values()].sort(byAge);
     },
   };
 }

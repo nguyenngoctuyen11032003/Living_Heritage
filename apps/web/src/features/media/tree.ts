@@ -98,3 +98,20 @@ export function initialOf(name: string): string {
 export function vaultByNarratorPath(narratorId: string): string {
   return `/gia-dinh?nguoi-ke=${encodeURIComponent(narratorId)}`;
 }
+
+type PageResult<T> = PromiseLike<{ data: T[] | null; error: unknown }>;
+
+/**
+ * Reads every page of an ordered query (`page(from, to)` applies `.range(from, to)`): PostgREST caps one response at
+ * max_rows = 1000. Returns `{ data, error }` like a single query; the first error stops the read.
+ */
+export async function readPaged<T>(page: (from: number, to: number) => PageResult<T>, size = 1000): Promise<{ data: T[]; error: unknown }> {
+  const out: T[] = [];
+  for (let from = 0; ; from += size) {
+    const { data, error } = await page(from, from + size - 1);
+    if (error) return { data: out, error };
+    const rows = data ?? [];
+    out.push(...rows);
+    if (rows.length < size) return { data: out, error: null };
+  }
+}

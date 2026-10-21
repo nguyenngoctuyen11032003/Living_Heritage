@@ -202,8 +202,10 @@ export function seedDb(): Db {
       { id: IDS.narratorOng, family_id: IDS.family, display_name: 'Nguyễn Văn Hùng', pen_name: null, relation: 'Ông nội', lang: 'vi', generation: 1, region: 'bac', birth_year: 1942, avatar_path: null, user_id: null, created_by: IDS.owner, created_at: T1, updated_at: T1 },
     ],
     narrator_links: [{ id: IDS.link, narrator_id: IDS.narratorBa, token_hash: 'x', created_by: IDS.owner, created_at: T1, expires_at: '2026-12-31T00:00:00Z', claimed_at: null, claimed_by: null, revoked_at: null }],
-    topics: TOPICS.map((t) => ({ ...t })),
-    questions: QUESTIONS.map((q) => ({ ...q })),
+    // Storytelling and the admin Questions tab only show active rows.
+    topics: TOPICS.map((t) => ({ ...t, active: true })),
+    questions: QUESTIONS.map((q) => ({ ...q, active: true })),
+    saved_items: [],
     sessions: [
       { id: IDS.session1, family_id: IDS.family, narrator_id: IDS.narratorBa, topic_id: topicId('tuoi-tho'), started_by: IDS.owner, created_at: T0, ended_at: T0 },
       { id: IDS.session2, family_id: IDS.family, narrator_id: IDS.narratorOng, topic_id: topicId('nghe-nghiep'), started_by: IDS.owner, created_at: T1, ended_at: T1 },
@@ -905,8 +907,11 @@ export async function fakeMicrophone(page: Page) {
         super();
         if (options?.mimeType) this.mimeType = options.mimeType;
       }
-      /** One take = a valid 1 s silent WAV (so the review player can load it), delivered when recording stops. */
+      private emitted = false;
+      /** One take = a valid 1 s silent WAV (so the review player can load it), delivered once: on requestData() or stop(). */
       private emit() {
+        if (this.emitted) return;
+        this.emitted = true;
         const rate = 8000;
         const buf = new ArrayBuffer(44 + rate * 2);
         const v = new DataView(buf);
@@ -925,7 +930,12 @@ export async function fakeMicrophone(page: Page) {
         v.setUint32(40, rate * 2, true);
         this.ondataavailable?.({ data: new Blob([buf], { type: this.mimeType }) });
       }
+      /** "Dừng" (listen back) pauses and asks for the buffered data. */
+      requestData() {
+        if (this.state !== 'inactive') this.emit();
+      }
       start(slice?: number) {
+        this.emitted = false;
         this.state = 'recording';
         void slice;
       }

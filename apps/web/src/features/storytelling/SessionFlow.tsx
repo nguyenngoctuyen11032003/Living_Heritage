@@ -1,13 +1,14 @@
 // The question + recording screen: one question, one primary action at a time.
 // record → review → uploading → processing → done, with B16 error states at every step.
 import { MAX_AUDIO_BYTES, MAX_RECORDING_SECONDS, type AiErrorCode } from '@lh/shared';
-import { CircleAlert, CircleHelp, FileAudio, Heart, Mic, Pause, Play, RefreshCw, Shuffle, SkipForward, Sparkles, Square, WifiOff } from 'lucide-react';
+import { CircleAlert, FileAudio, Heart, Mic, Pause, Play, RefreshCw, Shuffle, SkipForward, Sparkles, Square, WifiOff } from 'lucide-react';
 import { useCallback, useEffect, useId, useRef, useState, type ChangeEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { AudioPlayer, Button, ButtonLink, buttonClasses, Card, Dialog, Spinner } from '@/components/ui';
 import { aiErrorKey, suggestQuestions, transcribeAndDraft } from '@/features/ai/client';
 import { usePick, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
+import { track } from '@/lib/events';
 import { getSupabase } from '@/lib/supabase';
 import { useAddress } from './address';
 import { formatClock } from './clock';
@@ -15,16 +16,18 @@ import { AssistedBanner, ELDER_CONTROLS } from './components';
 import { endSession, fetchJobStatus, type NarratorInfo, type Question, type SessionRow, type Topic } from './data';
 import { promptIn, resolveFollowUps, seededFollowUps, textKey, type FollowUp, type FollowUpState } from './followUps';
 import { HowToGuide } from './HowToGuide';
+import { NarratorHelpButton } from './NarratorHelp';
 import { LeaveGuard } from './LeaveGuard';
 import { ListenButton } from './ListenButton';
-import { getPendingStore, pendingKey, type PendingUpload } from './pendingStore';
-import { markHowToSeen, readAutoRead, shouldShowHowTo, writeAutoRead } from './prefs';
-import { initialQuestion, nextQuestion } from './questions';
+import { getPendingStore, pendingKey, sessionPrefix, type PendingUpload } from './pendingStore';
+import { hasRecordingConsent, markHowToSeen, markRecordingConsent, readAutoRead, shouldShowHowTo, writeAutoRead } from './prefs';
+import { currentMicHelpBrowser } from './micHelp';
+import { initialQuestion, nextQuestion, nextUnusedQuestion } from './questions';
 import { isRecordingSupported, useRecorder, WARN_AT_SECONDS, type RecordingResult } from './recorder';
 import { isCapturing } from './recorderReducer';
 import { keptKey } from './summary';
 import { createAudioCache } from './tts';
-import { supabaseUploadBackend, uploadPending, UploadError, type UploadErrorCode } from './upload';
+import { checkAudioFile, supabaseUploadBackend, uploadPending, UploadError, type UploadErrorCode } from './upload';
 
 /** Dialogs render in a portal, outside narrator mode: give their text and buttons the same size. */
 const DIALOG_ELDER = `${ELDER_CONTROLS} [&_p]:text-[1.17rem]`;
@@ -72,8 +75,6 @@ function probeDuration(file: Blob): Promise<number | null> {
   });
 }
 
-const AUDIO_EXT = /\.(m4a|mp3|wav|ogg|oga|opus|webm|aac|flac|amr|3gp)$/i;
-
 export interface SessionFlowProps {
   session: SessionRow;
   narrator: NarratorInfo;
@@ -86,6 +87,31 @@ export interface SessionFlowProps {
 }
 
 /** "Gợi ý từ AI": an honest label on AI-suggested questions (text, not colour alone). */
+/**
+ * Live microphone level. Reads the recorder itself and writes the bar's transform (compositor-only) and aria-valuenow
+ * straight to the DOM, so the whole session screen does not re-render 8 times a second while recording.
+ */
+function LevelMeter({ read, active, label }: { read: () => number; active: boolean; label: string }) {
+  const meterRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const paint = () => {
+      const pct = active ? Math.round(read() * 100) : 0;
+      meterRef.current?.setAttribute('aria-valuenow', String(pct));
+      if (barRef.current) barRef.current.style.transform = `scaleX(${Math.max(active ? 3 : 0, pct) / 100})`;
+    };
+    paint();
+    if (!active) return;
+    const id = window.setInterval(paint, 100);
+    return () => window.clearInterval(id);
+  }, [read, active]);
+  return (
+    <div ref={meterRef} role="meter" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={0} className="h-4 w-full overflow-hidden rounded-full bg-line/60">
+      <div ref={barRef} className="h-full w-full origin-left rounded-full bg-heritage transition-transform duration-100" style={{ transform: 'scaleX(0)' }} />
+    </div>
+  );
+}
+
 function AiPill({ label, className }: { label: string; className?: string }) {
   return (
     <span className={cn('inline-flex items-center gap-2 rounded-full bg-[#fbecc8] px-4 py-1.5 text-[1.17rem] font-semibold text-[#5a3e0a] ring-1 ring-[#e9cf8f]', className)}>
@@ -117,9 +143,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
   const [discardOpen, setDiscardOpen] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [announce, setAnnounce] = useState('');
-  const [quiet, setQuiet] = useState(false);
   const pendingRef = useRef<PendingUpload | null>(null);
-  const lastLoudRef = useRef(0);
   /** An AI follow-up question being answered (not a row in `questions`). */
   const [aiQuestion, setAiQuestion] = useState<string | null>(null);
   const [followUps, setFollowUps] = useState<FollowUpState>({ status: 'idle' });
@@ -131,14 +155,31 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
   const [autoRead, setAutoRead] = useState(readAutoRead);
   const [audioCache] = useState(() => createAudioCache());
   const autoReadId = useId();
+  /** Keep / retry in flight: one tap saves one copy (B3 busy state). */
+  const [busy, setBusy] = useState(false);
+  const busyRef = useRef(false);
+  /** Set once "Kết thúc buổi kể" is confirmed: the leave guard stands down and we navigate after the render. */
+  const [leavingTo, setLeavingTo] = useState<string | null>(null);
+  const [micHelp] = useState(currentMicHelpBrowser);
+  /** "Trước khi ghi âm": what the explanation card will do once accepted (null = closed). */
+  const [consentFor, setConsentFor] = useState<'start' | 'keep' | null>(null);
 
   const question = questions.find((q) => q.id === currentId) ?? null;
   const questionText = aiQuestion ?? (question ? promptIn(question, lang) : t('session.freePrompt'));
   const key = pendingKey(session.id, aiQuestion ? textKey(aiQuestion) : currentId);
   const take: Take | null = fileTake ?? recorder.result;
+  const takeRef = useRef(take);
+  takeRef.current = take;
+  const phaseRef = useRef(phase);
+  phaseRef.current = phase;
   const status = recorder.state.status;
   const supported = isRecordingSupported();
   const narratorQuery = assisted ? `?narrator=${encodeURIComponent(narrator.id)}` : '';
+
+  // Navigate only after the render that switched the leave guard off (the blocker reads the last render).
+  useEffect(() => {
+    if (leavingTo) navigate(leavingTo);
+  }, [leavingTo, navigate]);
 
   // Question voices cached for this session are released when the screen goes away.
   useEffect(() => () => audioCache.clear(), [audioCache]);
@@ -154,29 +195,28 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     return () => URL.revokeObjectURL(url);
   }, [take]);
 
-  // A take for this question may still be waiting on this device (network failure, closed tab…).
+  // A take of this session may still be waiting on this device (network failure, closed tab…). It may belong to
+  // another question — or to an AI follow-up, which is not in the URL — so look across the whole session and
+  // bring its question back on screen before offering "Thử tải lại".
   useEffect(() => {
     let alive = true;
-    void store.get(key).then((found) => {
+    void (async () => {
+      const found = (await store.get(key).catch(() => null)) ?? (await store.list(sessionPrefix(session.id)).catch(() => []))[0] ?? null;
       if (!alive || !found) return;
+      if (found.key !== key && phaseRef.current.kind === 'record' && !takeRef.current) {
+        // Through goToQuestion so ?q= follows the question on screen (a reload then lands on the same take).
+        const seeded = found.questionId ? questions.find((q) => q.id === found.questionId) : undefined;
+        goToQuestionRef.current(seeded ?? null);
+        if (!seeded && found.questionText) setAiQuestion(found.questionText);
+      }
       pendingRef.current = found;
-      setPhase((p) => (p.kind === 'record' ? { kind: 'upload-failed', code: 'network', uploaded: found.uploaded, restored: true } : p));
-    });
+      setPhase((p) => (p.kind === 'record' && !takeRef.current ? { kind: 'upload-failed', code: 'network', uploaded: found.uploaded, restored: true } : p));
+    })();
     return () => {
       alive = false;
     };
-  }, [key, store]);
-
-  // "Chưa nghe rõ tiếng" only after ~2.5 s of silence, so the words do not flicker.
-  useEffect(() => {
-    if (status !== 'recording') {
-      setQuiet(false);
-      return;
-    }
-    const now = Date.now();
-    if (recorder.level > 0.06 || lastLoudRef.current === 0) lastLoudRef.current = now;
-    setQuiet(now - lastLoudRef.current > 2500);
-  }, [recorder.level, status]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- re-check only when the question (key) changes
+  }, [key, store, session.id]);
 
   // Show friendlier processing words when the job moves on to drafting.
   useEffect(() => {
@@ -236,6 +276,11 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     [params, setParams],
   );
 
+  const goToQuestionRef = useRef(goToQuestion);
+  useEffect(() => {
+    goToQuestionRef.current = goToQuestion;
+  }, [goToQuestion]);
+
   function resetTake() {
     recorder.reset();
     setFileTake(null);
@@ -248,9 +293,10 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
 
   function skipQuestion() {
     const nextUsed = new Set(used);
-    if (currentId) nextUsed.add(currentId);
+    if (currentId && !aiQuestion) nextUsed.add(currentId);
     setUsed(nextUsed);
-    goToQuestion(nextQuestion(questions, currentId, nextUsed), t('session.changed'));
+    // Nothing left to ask: fall back to free telling instead of showing the skipped question again.
+    goToQuestion(nextUnusedQuestion(questions, aiQuestion ? null : currentId, nextUsed), t('session.changed'));
   }
 
   const runAi = useCallback(
@@ -273,6 +319,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     setPhase({ kind: 'uploading' });
     try {
       const recordingId = await uploadPending(pending, supabaseUploadBackend(sb), store);
+      track('upload_ok');
       pendingRef.current = null;
       if (pending.questionId) setUsed((u) => new Set(u).add(pending.questionId!));
       setKept((n) => n + 1);
@@ -285,13 +332,26 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
   }
 
   async function keep() {
-    if (!take) return;
+    if (!take || busyRef.current) return;
+    busyRef.current = true;
+    setBusy(true);
+    try {
+      // A microphone take is only paused while listening back: finish it so the whole file is saved.
+      const final = fileTake ?? (await recorder.finalize()) ?? take;
+      await keepTake(final);
+    } finally {
+      busyRef.current = false;
+      setBusy(false);
+    }
+  }
+
+  async function keepTake(final: Take) {
     const pending: PendingUpload = {
       key,
       attemptId: newAttemptId(),
-      blob: take.blob,
-      mime: take.mime,
-      duration: take.duration,
+      blob: final.blob,
+      mime: final.mime,
+      duration: final.duration,
       familyId: session.family_id,
       narratorId: session.narrator_id,
       sessionId: session.id,
@@ -312,17 +372,26 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
   }
 
   async function retryUpload() {
-    const latest = (await store.get(key).catch(() => null)) ?? pendingRef.current;
-    if (!latest) {
-      setPhase({ kind: 'record' });
-      return;
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setBusy(true);
+    try {
+      const pendingKeyNow = pendingRef.current?.key ?? key;
+      const latest = (await store.get(pendingKeyNow).catch(() => null)) ?? pendingRef.current;
+      if (!latest) {
+        setPhase({ kind: 'record' });
+        return;
+      }
+      pendingRef.current = latest;
+      await runUpload(latest);
+    } finally {
+      busyRef.current = false;
+      setBusy(false);
     }
-    pendingRef.current = latest;
-    await runUpload(latest);
   }
 
   async function discardPending() {
-    await store.delete(key).catch(() => {});
+    await store.delete(pendingRef.current?.key ?? key).catch(() => {});
     pendingRef.current = null;
     setDiscardOpen(false);
     resetTake();
@@ -337,11 +406,15 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
   }
 
   async function finish() {
+    if (ending) return;
     setEnding(true);
+    track('session_end');
+    // The dialog already warned about an unsaved take: release the microphone and do not ask a second time.
+    recorder.reset();
     const sb = getSupabase();
     if (sb) await endSession(sb, session.id).catch(() => {});
     setEndOpen(false);
-    navigate(`/ke-chuyen${narratorQuery}`);
+    setLeavingTo(`/ke-chuyen${narratorQuery}`);
   }
 
   function startFollowUp(item: FollowUp) {
@@ -352,6 +425,25 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     if (seeded) return goToQuestion(seeded, t('session.changed'));
     goToQuestion(null, t('session.changed'));
     setAiQuestion(item.text);
+  }
+
+  // Spec 2.3: before the first recording (or the first kept file) the narrator reads what happens to it, once per device.
+  function requestStart() {
+    if (hasRecordingConsent()) void recorder.start();
+    else setConsentFor('start');
+  }
+
+  function requestKeep() {
+    if (hasRecordingConsent()) void keep();
+    else setConsentFor('keep');
+  }
+
+  function acceptConsent() {
+    const action = consentFor;
+    markRecordingConsent();
+    setConsentFor(null);
+    if (action === 'start') void recorder.start();
+    else if (action === 'keep') void keep();
   }
 
   function closeHowTo() {
@@ -369,12 +461,11 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     e.target.value = '';
     if (!file) return;
     setFileError(null);
-    if (!file.type.startsWith('audio/') && !AUDIO_EXT.test(file.name)) return setFileError(t('errors.fileNotAudio'));
-    if (file.size > MAX_AUDIO_BYTES) return setFileError(t('errors.fileTooLarge'));
+    const checked = checkAudioFile(file, MAX_AUDIO_BYTES);
+    if (!checked.ok) return setFileError(t(checked.problem === 'too_large' ? 'errors.fileTooLarge' : checked.problem === 'empty' ? 'errors.fileEmpty' : 'errors.fileNotAudio'));
     const duration = await probeDuration(file);
     if (duration !== null && duration > MAX_RECORDING_SECONDS + 5) return setFileError(t('errors.fileTooLong'));
-    const mime = file.type.startsWith('audio/') ? file.type : 'audio/mpeg';
-    setFileTake({ blob: file, duration: duration ?? 0, mime, fileName: file.name });
+    setFileTake({ blob: file, duration: duration ?? 0, mime: checked.mime, fileName: file.name });
   }
 
   const unsaved = isCapturing(status) || !!take || phase.kind === 'uploading' || phase.kind === 'upload-failed';
@@ -403,6 +494,13 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     </div>
   );
 
+  // B7: when the microphone cannot be used, the sample narration in the no-account demo shows how it works.
+  const demoLink = (
+    <ButtonLink to="/trai-nghiem" size="lg" variant="ghost" className="self-center">
+      {t('errors.tryDemo')}
+    </ButtonLink>
+  );
+
   function recorderView() {
     if (!supported || status === 'unsupported') {
       return (
@@ -410,6 +508,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
           <h2 className="font-serif text-[1.5rem] font-semibold text-heritage-deep">{t('errors.unsupportedTitle')}</h2>
           <p className="text-[1.2rem] leading-relaxed text-ink">{t('errors.unsupportedDesc')}</p>
           {filePicker}
+          {demoLink}
         </Card>
       );
     }
@@ -418,16 +517,18 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
         <Card padding="lg" className="flex flex-col gap-5">
           <h2 className="font-serif text-[1.5rem] font-semibold text-heritage-deep">{t('errors.deniedTitle')}</h2>
           <p className="text-[1.2rem] leading-relaxed">{t('errors.deniedDesc')}</p>
+          <p className="text-[1.17rem] font-semibold text-heritage-deep">{t(`errors.micHelp.${micHelp}.label`)}</p>
           <ol className="list-decimal space-y-2 pl-7 text-[1.2rem] leading-relaxed">
-            <li>{t('errors.deniedStep1')}</li>
-            <li>{t('errors.deniedStep2')}</li>
+            <li>{t(`errors.micHelp.${micHelp}.step1`)}</li>
+            <li>{t(`errors.micHelp.${micHelp}.step2`)}</li>
             <li>{t('errors.deniedStep3')}</li>
           </ol>
-          <p className="text-[1.17rem] text-ink-soft">{t('errors.deniedIos')}</p>
+          <p className="text-[1.17rem] text-ink-soft">{t('errors.deniedStill')}</p>
           <Button size="lg" onClick={() => void recorder.start()} leftIcon={<RefreshCw className="size-5" aria-hidden="true" />}>
             {t('errors.retryMic')}
           </Button>
           {filePicker}
+          {demoLink}
         </Card>
       );
     }
@@ -435,7 +536,6 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     const recording = status === 'recording';
     const live = recording || status === 'paused';
     const warn = live && recorder.elapsed >= WARN_AT_SECONDS;
-    const levelPct = Math.round(recorder.level * 100);
 
     return (
       <div className="flex flex-col items-center gap-6 text-center">
@@ -456,7 +556,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
           <>
             <button
               type="button"
-              onClick={() => void recorder.start()}
+              onClick={() => requestStart()}
               disabled={status === 'requesting'}
               aria-describedby="rec-start-hint"
               className="group flex flex-col items-center gap-3 rounded-[2rem] p-2 disabled:opacity-60"
@@ -480,19 +580,12 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
               <p className="mt-2 text-[1.17rem] text-ink-soft">{t('rec.elapsedValue', { time: formatClock(recorder.elapsed) })}</p>
             </div>
 
+            {recorder.metered && (
             <div className="w-full max-w-sm">
-              <div
-                role="meter"
-                aria-label={t('rec.level')}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={levelPct}
-                className="h-4 w-full overflow-hidden rounded-full bg-line/60"
-              >
-                <div className="h-full rounded-full bg-heritage transition-[width] duration-100" style={{ width: `${Math.max(recording ? 3 : 0, levelPct)}%` }} />
-              </div>
-              <p className="mt-2 text-[1.17rem] text-ink-soft">{!recording ? t('rec.levelPaused') : quiet ? t('rec.levelQuiet') : t('rec.levelGood')}</p>
+              <LevelMeter read={recorder.readLevel} active={recording} label={t('rec.level')} />
+              <p className="mt-2 text-[1.17rem] text-ink-soft">{!recording ? t('rec.levelPaused') : recorder.quiet ? t('rec.levelQuiet') : t('rec.levelGood')}</p>
             </div>
+            )}
 
             {warn && (
               <p role="alert" className="rounded-2xl bg-[#fbecc8] px-5 py-3 text-[1.17rem] font-medium text-[#5a3e0a]">
@@ -525,6 +618,8 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
 
   function reviewView(current: Take) {
     const empty = current.blob.size === 0;
+    // "Kể tiếp" appends to this same take (the recorder is only paused); a file or a finished take cannot grow.
+    const canContinue = !fileTake && recorder.state.canContinue;
     return (
       <Card padding="lg" className="flex flex-col gap-5">
         <div>
@@ -547,14 +642,19 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
         )}
         <div className="flex flex-col gap-3 sm:flex-row-reverse">
           {!empty && (
-            <Button size="xl" fullWidth onClick={() => void keep()}>
+            <Button size="xl" fullWidth onClick={() => requestKeep()} loading={busy}>
               {t('rec.keep')}
             </Button>
           )}
-          <Button size="lg" variant="secondary" fullWidth onClick={() => (empty ? resetTake() : setRedoOpen(true))} leftIcon={<RefreshCw className="size-5" aria-hidden="true" />}>
+          <Button size="lg" variant="secondary" fullWidth disabled={busy} onClick={() => (empty ? resetTake() : setRedoOpen(true))} leftIcon={<RefreshCw className="size-5" aria-hidden="true" />}>
             {t('rec.redo')}
           </Button>
         </div>
+        {canContinue && (
+          <Button size="lg" variant="ghost" fullWidth disabled={busy} onClick={recorder.continueTake} leftIcon={<Mic className="size-5 shrink-0" aria-hidden="true" />}>
+            {t('rec.continue')}
+          </Button>
+        )}
       </Card>
     );
   }
@@ -697,13 +797,16 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
   return (
     <div className={cn('flex flex-col gap-8', ELDER_CONTROLS)}>
       {assisted && <AssistedBanner name={narrator.display_name} />}
-      <LeaveGuard when={unsaved} />
+      <LeaveGuard when={unsaved && !leavingTo} />
       <p className="sr-only" aria-live="polite">
         {announce}
       </p>
 
       <section aria-labelledby="question-heading" className="flex flex-col gap-5">
-        <p className="text-[1.17rem] font-medium text-ink-soft">{topic ? t('session.topic', { topic: pick({ vi: topic.title_vi, en: topic.title_en }) }) : t('session.freeTopic')}</p>
+        {/* A topic this account can no longer read (disabled since) shows no label rather than a wrong "Kể tự do". */}
+        {(topic || !session.topic_id) && (
+          <p className="text-[1.17rem] font-medium text-ink-soft">{topic ? t('session.topic', { topic: pick({ vi: topic.title_vi, en: topic.title_en }) }) : t('session.freeTopic')}</p>
+        )}
         <h1 id="question-heading" ref={headingRef} tabIndex={-1} lang={question || aiQuestion ? lang : undefined} className="font-serif text-[2rem] font-semibold leading-snug text-ink md:text-[2.4rem]">
           <span className="sr-only">{t('session.question')}: </span>
           {questionText}
@@ -717,7 +820,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
                 {t('session.change')}
               </Button>
             )}
-            {questions.length > 1 && (
+            {(question || aiQuestion) && (
               <Button size="lg" variant="ghost" onClick={skipQuestion} leftIcon={<SkipForward className="size-5" aria-hidden="true" />}>
                 {t('session.skip')}
               </Button>
@@ -752,12 +855,35 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
         <Button size="lg" variant="secondary" onClick={() => setEndOpen(true)} disabled={phase.kind === 'uploading'}>
           {t('session.end')}
         </Button>
-        <Button size="lg" variant="ghost" onClick={() => setHowToOpen(true)} leftIcon={<CircleHelp className="size-5" aria-hidden="true" />}>
-          {t('session.howtoAgain')}
-        </Button>
       </div>
 
+      <NarratorHelpButton onOpen={() => setHowToOpen(true)} />
       <HowToGuide open={howToOpen} onClose={closeHowTo} />
+      <Dialog
+        open={consentFor !== null}
+        onClose={() => setConsentFor(null)}
+        title={t('consent.title')}
+        description={t('consent.intro')}
+        size="md"
+        className={DIALOG_ELDER}
+        footer={
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <Button size="lg" variant="secondary" onClick={() => setConsentFor(null)}>
+              {t('consent.later')}
+            </Button>
+            <Button size="lg" onClick={acceptConsent}>
+              {t('consent.agree')}
+            </Button>
+          </div>
+        }
+      >
+        <ul className="flex list-disc flex-col gap-3 pl-6 text-[1.17rem] leading-relaxed">
+          <li>{t('consent.what')}</li>
+          <li>{t('consent.where')}</li>
+          <li>{t('consent.how')}</li>
+          <li>{t('consent.public')}</li>
+        </ul>
+      </Dialog>
       <Dialog
         open={endOpen}
         onClose={() => setEndOpen(false)}

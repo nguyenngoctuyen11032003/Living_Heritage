@@ -24,3 +24,5 @@ export type { AudioPlayerProps, AudioPlayerHandle } from './AudioPlayer';
 export { QrCode } from './QrCode';
 export type { QrCodeProps } from './QrCode';
 export { IllustrativeBadge } from './IllustrativeBadge';
+export { PageHeader } from './PageHeader';
+export type { PageHeaderProps } from './PageHeader';

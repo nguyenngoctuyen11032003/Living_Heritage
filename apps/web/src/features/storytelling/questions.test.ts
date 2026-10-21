@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hasHonorific, initialQuestion, nextQuestion, pickEasyQuestion } from './questions';
+import { hasHonorific, initialQuestion, nextQuestion, nextUnusedQuestion, pickEasyQuestion } from './questions';
 
 const qs = [
   { id: 'c', sort: 3, topic_id: 't1' },
@@ -63,5 +63,13 @@ describe('hasHonorific', () => {
     expect(hasHonorific('ông Tư')).toBe(true);
     expect(hasHonorific('Nguyễn Văn Ba')).toBe(false);
     expect(hasHonorific('Bảo')).toBe(false);
+  });
+});
+
+describe('nextUnusedQuestion ("Bỏ qua câu này")', () => {
+  it('moves to the next unused question, or to free telling when none is left', () => {
+    expect(nextUnusedQuestion(qs, 'a', new Set(['a']))?.id).not.toBe('a');
+    expect(nextUnusedQuestion([{ id: 'only', sort: 1 }], 'only', new Set(['only']))).toBeNull();
+    expect(nextUnusedQuestion(qs, 'a', new Set(qs.map((q) => q.id)))).toBeNull();
   });
 });

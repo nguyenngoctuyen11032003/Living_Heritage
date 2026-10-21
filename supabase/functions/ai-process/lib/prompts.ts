@@ -3,6 +3,7 @@
 // tags and declared as data so a narration cannot act as instructions.
 import type { z } from 'zod';
 import type { AiLang } from '../../_shared/ai-contract.ts';
+import { asData } from '../../_shared/prompt-data.ts';
 
 export type Lang = z.infer<typeof AiLang>;
 
@@ -68,6 +69,10 @@ export function draftSystem(lang: Lang): string {
     "- Warm, respectful and plain. Keep the narrator's characteristic words, dialect and sayings; tidy repetitions and false starts only.",
     '- Keep the order of events as told. Use short paragraphs separated by a blank line. Do not add a moral or a conclusion the narrator did not say.',
     '- title: short (at most 10 words), concrete, taken from what was told.',
+    '- opening: one or two sentences that open the story (who, when, where), in the same voice, using only what was told;',
+    '  null if the narration is too short to need one. body: the story itself, events in the order told (do not repeat the opening).',
+    '- lesson: the lesson or advice ONLY if the narrator states one in their own words (keep their wording); otherwise null.',
+    '  Never draw a moral yourself.',
     '',
     'experience:',
     '- Only when the narration contains practical know-how someone could follow (a recipe, a farming or gardening technique, a craft, a remedy, a household or work skill).',
@@ -80,16 +85,18 @@ export function draftSystem(lang: Lang): string {
     '- Never fill a field with general knowledge the narrator did not say. Missing information stays null or [].',
     '',
     `topics: 1 to 5 short ${L} keywords about what was told. uncertain: words or phrases you could not be sure about ([] if none).`,
+    'people: names or forms of address of people explicitly named in the transcript ("bà nội", "ông Tư"), as said; [] if none.',
+    'places: places explicitly named in the transcript (villages, rivers, markets, provinces), as said; [] if none. Never add people or places that were not said.',
   ].join('\n');
 }
 
 export function draftUser(input: DraftInput): string {
   const transcript = input.transcript.length > TRANSCRIPT_MAX_CHARS ? input.transcript.slice(0, TRANSCRIPT_MAX_CHARS) : input.transcript;
   return [
-    input.topic ? `Topic: ${input.topic}` : null,
-    input.question ? `Question the narrator answered: ${input.question}` : null,
+    input.topic ? `Topic: ${asData(input.topic)}` : null,
+    input.question ? `Question the narrator answered: ${asData(input.question)}` : null,
     '<transcript>',
-    transcript,
+    asData(transcript),
     '</transcript>',
   ].filter((l) => l !== null).join('\n');
 }
@@ -104,9 +111,9 @@ export const DRAFT_SCHEMA: Record<string, unknown> = {
   properties: {
     story: {
       type: 'OBJECT',
-      properties: { title: STR, body: STR },
-      required: ['title', 'body'],
-      propertyOrdering: ['title', 'body'],
+      properties: { title: STR, opening: NULLABLE_STR, body: STR, lesson: NULLABLE_STR },
+      required: ['title', 'opening', 'body', 'lesson'],
+      propertyOrdering: ['title', 'opening', 'body', 'lesson'],
     },
     experience: {
       type: 'OBJECT',
@@ -133,9 +140,11 @@ export const DRAFT_SCHEMA: Record<string, unknown> = {
     },
     topics: STR_ARRAY,
     uncertain: STR_ARRAY,
+    people: STR_ARRAY,
+    places: STR_ARRAY,
   },
-  required: ['story', 'experience', 'topics', 'uncertain'],
-  propertyOrdering: ['story', 'experience', 'topics', 'uncertain'],
+  required: ['story', 'experience', 'topics', 'uncertain', 'people', 'places'],
+  propertyOrdering: ['story', 'experience', 'topics', 'uncertain', 'people', 'places'],
 };
 
 // ---------------------------------------------------------------------------
@@ -163,8 +172,8 @@ export function suggestSystem(lang: Lang): string {
 }
 
 export function suggestUser(input: SuggestInput): string {
-  const titles = input.previousTitles.slice(0, 5).map((t) => `- ${t}`).join('\n');
-  return [`Topic: ${input.topic}`, '<previous_story_titles>', titles || '(none yet)', '</previous_story_titles>'].join('\n');
+  const titles = input.previousTitles.slice(0, 5).map((t) => `- ${asData(t)}`).join('\n');
+  return [`Topic: ${asData(input.topic)}`, '<previous_story_titles>', titles || '(none yet)', '</previous_story_titles>'].join('\n');
 }
 
 export const SUGGEST_SCHEMA: Record<string, unknown> = {

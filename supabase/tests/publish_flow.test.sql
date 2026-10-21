@@ -2,7 +2,7 @@
 -- reject, and share settings tightening a live public item.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(49);
+select plan(50);
 
 -- ===== Fixture =====
 -- O1 owner A, V1 viewer A, E1 editor A, N1 anonymous narrator device (narrator nA), O2 owner B,
@@ -97,7 +97,10 @@ select is((public.preview_public_item('d1000000-0000-4000-8000-000000000001') ->
   'the admin can preview the exact public snapshot');
 select ok(public.review_publish(current_setting('test.req')::uuid, true, 'ok') is not null, 'the admin approves and gets the item id');
 select is((select status::text from public.publish_requests where id = current_setting('test.req')::uuid), 'approved', 'request approved');
+select is((select count(*)::integer from public.stories), 0, 'once reviewed, the admin no longer reads the story');
+select public.t_as('11111111-1111-4111-8111-111111111111');
 select is((select visibility::text from public.stories where id = 'd1000000-0000-4000-8000-000000000001'), 'public', 'the story is public');
+select public.t_as('66666666-6666-4666-8666-666666666666');
 select is((select narrator_label from public.public_items), 'Người kể ẩn danh', 'no pen name and real name hidden: anonymous label');
 select is((select region from public.public_items), 'nam', 'region is shown by default');
 select is((select audio_allowed from public.public_items), false, 'audio is off by default');

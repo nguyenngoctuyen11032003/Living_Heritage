@@ -1,14 +1,14 @@
 import type { Database, Json } from '@lh/shared';
 import { ChevronLeft, ChevronRight, ScrollText } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, EmptyState, Field, Select, Skeleton } from '@/components/ui';
 import type { FamilySummary } from '@/features/families/current';
 import { ErrorNotice, SectionCard } from '@/features/families/states';
 import { useLocale, useT, type Locale } from '@/i18n';
 import { getSupabase } from '@/lib/supabase';
-import { AUDIT_ACTIONS, auditActionLabel, auditActorKind, isKnownAuditTarget, pageCount, pageRange } from './audit';
+import { AUDIT_ACTIONS, auditActionLabel, auditActorKind, auditRoleKey, isKnownAuditTarget, pageCount, pageRange } from './audit';
 
-type AuditRow = Pick<Database['public']['Tables']['audit_log']['Row'], 'id' | 'actor' | 'action' | 'target_type' | 'target_id' | 'details' | 'at'>;
+type AuditRow = Pick<Database['public']['Tables']['audit_log']['Row'], 'id' | 'actor' | 'actor_role' | 'action' | 'target_type' | 'target_id' | 'details' | 'at'>;
 
 function formatDateTime(iso: string, locale: Locale): string {
   return new Intl.DateTimeFormat(locale === 'vi' ? 'vi-VN' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(iso));
@@ -32,15 +32,19 @@ export function AuditSection({ family, storyTitles, narratorNames }: { family: F
   const [names, setNames] = useState<Map<string, string>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  // Only the newest request may write state (fast filter/page changes would otherwise show a stale page).
+  const seq = useRef(0);
 
   const load = useCallback(async () => {
     const sb = getSupabase();
     if (!sb) return;
+    const my = ++seq.current;
     setLoading(true);
     const [from, to] = pageRange(page);
-    let q = sb.from('audit_log').select('id, actor, action, target_type, target_id, details, at', { count: 'exact' }).eq('family_id', family.id);
+    let q = sb.from('audit_log').select('id, actor, actor_role, action, target_type, target_id, details, at', { count: 'exact' }).eq('family_id', family.id);
     if (filter) q = q.eq('action', filter);
     const { data, error: err, count } = await q.order('at', { ascending: false }).range(from, to);
+    if (my !== seq.current) return;
     if (err) {
       setError(true);
       setLoading(false);
@@ -53,6 +57,7 @@ export function AuditSection({ family, storyTitles, narratorNames }: { family: F
       // Co-member profiles are readable; anyone else (e.g. narrator devices) stays unnamed.
       const { data: profiles } = await sb.from('profiles').select('id, display_name').in('id', actorIds);
       for (const p of profiles ?? []) if (p.display_name) map.set(p.id, p.display_name);
+      if (my !== seq.current) return;
     }
     setNames(map);
     setRows(list);
@@ -72,6 +77,12 @@ export function AuditSection({ family, storyTitles, narratorNames }: { family: F
 
   const pages = pageCount(total);
   const actionLabel = (code: string) => auditActionLabel(code, (c) => t(`audit.actions.${c}`));
+
+  /** Role the actor had when acting (server-recorded); not repeated for system rows, which already say "System". */
+  function roleLabel(r: AuditRow): string | null {
+    const key = r.actor ? auditRoleKey(r.actor_role) : null;
+    return key ? t(`audit.role.${key}`) : null;
+  }
 
   function actorLabel(r: AuditRow) {
     const a = auditActorKind(r.actor, r.action, names);
@@ -140,6 +151,7 @@ export function AuditSection({ family, storyTitles, narratorNames }: { family: F
                   <td className="block break-words md:table-cell md:px-4 md:py-3">
                     <span className="sr-only md:hidden">{t('audit.colActor')}: </span>
                     {actorLabel(r)}
+                    {roleLabel(r) && <span className="font-normal text-ink-soft"> · {roleLabel(r)}</span>}
                   </td>
                   <td className="block font-semibold text-ink md:table-cell md:px-4 md:py-3">
                     <span className="sr-only md:hidden">{t('audit.colAction')}: </span>

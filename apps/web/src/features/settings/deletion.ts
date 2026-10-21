@@ -1,4 +1,4 @@
-// Deletion requests (DỰ ÁN.md B12: tiếp nhận → đang xử lý → hoàn tất). A person on the team processes every request;
+// Deletion requests (DỰ ÁN.md B12: tiếp nhận (open) → đang xử lý (processing) → hoàn tất (done / rejected)). A person on the team processes every request;
 // nothing is deleted automatically. The table has no account scope, so an account request is filed against the
 // current family with a marker at the start of the reason.
 
@@ -44,15 +44,21 @@ export function toDeletionInsert(form: DeletionForm, familyId: string): { family
   };
 }
 
-/** Scope of an existing row, and its reason without the marker. */
-export function describeDeletionRow(row: { story_id: string | null; reason: string | null }): { scope: DeletionScope; reason: string } {
+/**
+ * Scope of an existing row, and its reason without the marker. The server-set `scope` column (fixed at insert,
+ * 20261022000600) wins: once a story is erased its story_id becomes null, and that must not read as a family request.
+ * Rows from before the column are inferred from story_id and the account marker.
+ */
+export function describeDeletionRow(row: { story_id: string | null; reason: string | null; scope?: string | null }): { scope: DeletionScope; reason: string } {
   const raw = row.reason ?? '';
-  if (raw.startsWith(ACCOUNT_MARKER)) return { scope: 'account', reason: raw.slice(ACCOUNT_MARKER.length).trim() };
-  return { scope: row.story_id ? 'story' : 'family', reason: raw };
+  const marked = raw.startsWith(ACCOUNT_MARKER);
+  const reason = marked ? raw.slice(ACCOUNT_MARKER.length).trim() : raw;
+  if (row.scope === 'story' || row.scope === 'family' || row.scope === 'account') return { scope: row.scope, reason };
+  return { scope: marked ? 'account' : row.story_id ? 'story' : 'family', reason };
 }
 
-export type DeletionStatus = 'open' | 'done' | 'rejected' | 'unknown';
+export type DeletionStatus = 'open' | 'processing' | 'done' | 'rejected' | 'unknown';
 
 export function deletionStatus(status: string): DeletionStatus {
-  return status === 'open' || status === 'done' || status === 'rejected' ? status : 'unknown';
+  return status === 'open' || status === 'processing' || status === 'done' || status === 'rejected' ? status : 'unknown';
 }

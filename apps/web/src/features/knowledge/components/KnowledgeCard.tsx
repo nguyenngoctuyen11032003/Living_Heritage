@@ -5,7 +5,8 @@ import { usePick, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { formatDuration } from '@/lib/format';
 import { findTopic, topicStyle, type HubTopic } from '../topics';
-import { bareQuote, type KnowledgeItem } from '../types';
+import { readExperienceFields } from '../experience';
+import { bareQuote, narratorText, type KnowledgeItem } from '../types';
 import { TopicMotif } from './TopicMotif';
 
 export interface KnowledgeCardProps {
@@ -15,16 +16,19 @@ export interface KnowledgeCardProps {
   featured?: boolean;
   /** Heading level for the title (default h3). */
   headingLevel?: 'h2' | 'h3';
+  /** Called when the card's link is followed (B17 'open_result' from the hub's results). */
+  onOpen?: () => void;
 }
 
 /** Magazine card: topic colour band + motif, type label, the title as a serif quote, narrator, region, audio. */
-export function KnowledgeCard({ item, topics, featured, headingLevel = 'h3' }: KnowledgeCardProps) {
+export function KnowledgeCard({ item, topics, featured, headingLevel = 'h3', onOpen }: KnowledgeCardProps) {
   const t = useT('knowledge');
   const pick = usePick();
   const style = topicStyle(item.topicSlug);
   const topic = findTopic(topics, item.topicSlug);
   const Heading = headingLevel;
   const showAudio = item.audioAllowed;
+  const skill = item.kind === 'experience' ? readExperienceFields(item.fields).skill : null;
 
   return (
     <article
@@ -63,20 +67,26 @@ export function KnowledgeCard({ item, topics, featured, headingLevel = 'h3' }: K
         <span aria-hidden="true" className={cn('mt-3 block font-serif leading-none text-terracotta/80', featured ? 'text-[3.6rem]' : 'text-[2.8rem]')}>
           “
         </span>
-        <Heading className={cn('-mt-4 font-serif font-semibold text-heritage-deep', featured ? 'text-[1.5rem] leading-[1.3] md:text-[2rem]' : 'text-[1.18rem] leading-[1.4]')}>
+        <Heading className={cn('-mt-4 break-words font-serif font-semibold text-heritage-deep', featured ? 'text-[1.5rem] leading-[1.3] md:text-[2rem]' : 'text-[1.18rem] leading-[1.4]')}>
           <Link
             to={`/tri-thuc/${item.id}`}
+            onClick={onOpen}
             className="after:absolute after:inset-0 after:rounded-[1.75rem] after:content-[''] focus-visible:outline-none"
           >
             {bareQuote(item.title)}
           </Link>
         </Heading>
-        {featured && item.summary && <p className="mt-4 line-clamp-3 max-w-xl leading-relaxed text-ink-soft">{item.summary}</p>}
+        {skill && (
+          <p className="mt-3 text-[0.9rem] leading-snug text-ink">
+            <span className="font-semibold text-terracotta">{t('detail.skill')}:</span> {skill}
+          </p>
+        )}
+        {item.summary && <p className={cn('mt-3 max-w-xl leading-relaxed text-ink-soft', featured ? 'line-clamp-3' : 'line-clamp-2 text-[0.95rem]')}>{item.summary}</p>}
 
         <div className="mt-auto pt-6">
           <div className="flex flex-col gap-3 border-t border-line/80 pt-4">
             <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.86rem] text-ink-soft">
-              <span className="font-semibold text-ink">{item.narratorLabel}</span>
+              <span className="font-semibold text-ink">{narratorText(item.narratorLabel, t('card.anonymous'))}</span>
               {item.region && (
                 <span className="inline-flex items-center gap-1">
                   <MapPin aria-hidden="true" className="size-3.5" />

@@ -18,6 +18,11 @@ describe('audit action labels', () => {
     }
     expect(auditActionLabel('approve_story', tr('vi'))).toBe('Người kể xác nhận câu chuyện');
     expect(auditActionLabel('revoke_narrator_link', tr('en'))).toBe('Revoked a storytelling link');
+    // Codes written by 20261022000400_access_hardening.
+    expect(isKnownAuditAction('admin_preview')).toBe(true);
+    expect(isKnownAuditAction('deletion_status')).toBe(true);
+    expect(AUDIT_TARGETS).toContain('deletion_request');
+    expect(translate('vi', 'settings', 'audit.target.deletion_request')).toBe('Yêu cầu xoá');
   });
 
   it('shows unknown codes raw and never calls the translator for them', () => {
@@ -101,12 +106,20 @@ describe('deletion request form', () => {
     expect(describeDeletionRow({ story_id: null, reason: `${ACCOUNT_MARKER} bye` })).toEqual({ scope: 'account', reason: 'bye' });
     expect(describeDeletionRow({ story_id: 's1', reason: 'r' })).toEqual({ scope: 'story', reason: 'r' });
     expect(describeDeletionRow({ story_id: null, reason: null })).toEqual({ scope: 'family', reason: '' });
+    // The server-set scope wins: an erased story's request keeps reading as a story request.
+    expect(describeDeletionRow({ story_id: null, reason: 'r', scope: 'story' })).toEqual({ scope: 'story', reason: 'r' });
+    expect(describeDeletionRow({ story_id: null, reason: `${ACCOUNT_MARKER} bye`, scope: 'account' })).toEqual({ scope: 'account', reason: 'bye' });
+    expect(describeDeletionRow({ story_id: null, reason: 'r', scope: 'weird' })).toEqual({ scope: 'family', reason: 'r' });
   });
 
   it('maps statuses', () => {
     expect(deletionStatus('open')).toBe('open');
     expect(deletionStatus('done')).toBe('done');
     expect(deletionStatus('rejected')).toBe('rejected');
+    // B12: tiếp nhận → đang xử lý → hoàn tất (20261022000400_access_hardening).
+    expect(deletionStatus('processing')).toBe('processing');
+    expect(translate('vi', 'settings', 'deletion.status.processing')).toBe('Đang xử lý');
+    expect(translate('en', 'settings', 'deletion.status.processing')).toBe('In progress');
     expect(deletionStatus('weird')).toBe('unknown');
   });
 });

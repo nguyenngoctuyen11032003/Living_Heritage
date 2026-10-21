@@ -44,12 +44,14 @@ export function StoryPhotos({ storyId, familyId, canEdit, className }: StoryPhot
   const tc = useT('common');
   const { toast } = useToast();
   const headingId = useId();
-  const { photos, state, refresh, setPhotos } = useStoryPhotos(storyId);
+  const { photos, state, refresh, setPhotos, onImageError } = useStoryPhotos(storyId);
   const [uploads, setUploads] = useState<UploadItem[]>([]);
   const [open, setOpen] = useState<number | null>(null);
   const [editing, setEditing] = useState<PhotoWithUrl | null>(null);
   const [removing, setRemoving] = useState<PhotoWithUrl | null>(null);
   const [busy, setBusy] = useState(false);
+  // One reorder at a time: a second click before the first is saved would compute from a stale order.
+  const [moving, setMoving] = useState(false);
   const busyUpload = uploads.some((u) => u.stage !== 'done' && u.stage !== 'error');
 
   const patch = (key: string, p: Partial<UploadItem>) => setUploads((list) => list.map((u) => (u.key === key ? { ...u, ...p } : u)));
@@ -87,16 +89,20 @@ export function StoryPhotos({ storyId, familyId, canEdit, className }: StoryPhot
 
   async function move(p: PhotoWithUrl, delta: -1 | 1) {
     const sb = getSupabase();
-    if (!sb) return;
+    if (!sb || moving) return;
     const before = photos;
     const after = movePhoto(photos, p.id, delta);
+    setMoving(true);
     setPhotos(after);
     try {
       await savePositions(sb, before, after);
       toast({ title: t('photos.reordered'), tone: 'success' });
     } catch (e) {
-      setPhotos(before);
+      // Some rows may already have their new position: reload the real order rather than guessing it.
       toast({ title: t(`errors.${e instanceof PhotoError ? e.code : 'save'}`), tone: 'error' });
+      await refresh();
+    } finally {
+      setMoving(false);
     }
   }
 
@@ -163,6 +169,7 @@ export function StoryPhotos({ storyId, familyId, canEdit, className }: StoryPhot
                       src={p.url}
                       alt={p.caption?.trim() || t('photos.altFallback')}
                       loading="lazy"
+                      onError={onImageError}
                       className="size-full object-cover transition-transform duration-300 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                     />
                   ) : (
@@ -178,10 +185,10 @@ export function StoryPhotos({ storyId, familyId, canEdit, className }: StoryPhot
                     <Button variant="ghost" iconOnly aria-label={t('photos.captionFor', { n: i + 1 })} title={t('photos.editCaption')} onClick={() => setEditing(p)}>
                       <Pencil className="size-4" aria-hidden="true" />
                     </Button>
-                    <Button variant="ghost" iconOnly aria-label={t('photos.moveEarlier', { n: i + 1 })} disabled={i === 0} onClick={() => void move(p, -1)}>
+                    <Button variant="ghost" iconOnly aria-label={t('photos.moveEarlier', { n: i + 1 })} disabled={i === 0 || moving} onClick={() => void move(p, -1)}>
                       <ArrowUp className="size-4" aria-hidden="true" />
                     </Button>
-                    <Button variant="ghost" iconOnly aria-label={t('photos.moveLater', { n: i + 1 })} disabled={i === photos.length - 1} onClick={() => void move(p, 1)}>
+                    <Button variant="ghost" iconOnly aria-label={t('photos.moveLater', { n: i + 1 })} disabled={i === photos.length - 1 || moving} onClick={() => void move(p, 1)}>
                       <ArrowDown className="size-4" aria-hidden="true" />
                     </Button>
                     <Button variant="ghost" iconOnly aria-label={t('photos.removeFor', { n: i + 1 })} onClick={() => setRemoving(p)} className="text-terracotta hover:bg-terracotta/10">
@@ -202,7 +209,7 @@ export function StoryPhotos({ storyId, familyId, canEdit, className }: StoryPhot
         </>
       )}
 
-      <Lightbox items={photos} index={open} onIndex={setOpen} onClose={() => setOpen(null)} />
+      <Lightbox items={photos} index={open} onIndex={setOpen} onClose={() => setOpen(null)} onImageError={onImageError} />
       {editing && (
         <CaptionDialog
           photo={editing}

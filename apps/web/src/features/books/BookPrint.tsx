@@ -2,6 +2,7 @@ import { ArrowLeft, Printer } from 'lucide-react';
 import { useCallback } from 'react';
 import { Link } from 'react-router';
 import { Badge, Button, Skeleton } from '@/components/ui';
+import { useCurrentFamily } from '@/features/families/current';
 import { LoadError, NotConfigured, Unavailable } from '@/features/vault/components/States';
 import { useVaultLookups } from '@/features/vault/useLookups';
 import { useT } from '@/i18n';
@@ -9,6 +10,7 @@ import { RequireAuth } from '@/lib/session';
 import { getSupabase } from '@/lib/supabase';
 import { BookPageView } from './components/BookPageView';
 import { COVER_THEMES, asCoverStyle } from './covers';
+import { canEditBook } from './permissions';
 import { useBook, useBookPages, type ChapterEntry } from './useBook';
 import type { BookRow } from './api';
 
@@ -56,6 +58,7 @@ export function BookPrint({ bookId }: { bookId: string }) {
 function BookPrintInner({ bookId }: { bookId: string }) {
   const t = useT('books');
   const { state, reload } = useBook(bookId);
+  const { families, loading: familiesLoading } = useCurrentFamily();
   const back = `/sach/${bookId}`;
   if (!getSupabase())
     return (
@@ -64,14 +67,25 @@ function BookPrintInner({ bookId }: { bookId: string }) {
       </div>
     );
   if (state.kind === 'unavailable')
-    return <Unavailable title={t('builder.notFoundTitle')} body={t('builder.notFoundBody')} backTo="/sach" backLabel={t('builder.back')} />;
+    return (
+      <div className="px-4">
+        <Unavailable title={t('builder.notFoundTitle')} body={t('builder.notFoundBody')} backTo="/sach" backLabel={t('builder.back')} />
+      </div>
+    );
   if (state.kind === 'error')
     return (
       <div className="mx-auto max-w-xl p-6">
         <LoadError onRetry={reload} message={t('state.loadError')} />
       </div>
     );
-  if (state.kind === 'loading')
+  if (state.kind === 'ready' && !familiesLoading && !canEditBook(families, state.book.family_id))
+    // B11: viewers read the book in the app but cannot print or save it. The notice never shows the title.
+    return (
+      <div className="px-4">
+        <Unavailable title={t('print.noPermissionTitle')} body={t('print.noPermissionBody')} backTo={back} backLabel={t('print.backToBook')} />
+      </div>
+    );
+  if (state.kind === 'loading' || familiesLoading)
     return (
       <div className="mx-auto flex max-w-[148mm] flex-col gap-4 p-6" aria-busy="true">
         <p className="sr-only" role="status">
@@ -93,7 +107,7 @@ function PrintSheets({ book, chapters, back }: { book: BookRow; chapters: Chapte
   return (
     <div className="lh-print-root min-h-dvh bg-[#ece6d8] px-4 pb-10">
       <style>{PRINT_CSS}</style>
-      <div className="no-print sticky top-0 z-10 -mx-4 mb-8 border-b border-line bg-cream/95 px-4 py-3 backdrop-blur">
+      <div className="no-print sticky top-0 z-10 -mx-4 mb-8 border-b border-line bg-cream px-4 py-3">
         <div className="mx-auto flex max-w-3xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 flex-col gap-1.5">
             <Link to={back} className="inline-flex min-h-11 w-fit items-center gap-2 text-[0.95rem] font-semibold text-heritage hover:underline">
@@ -105,7 +119,7 @@ function PrintSheets({ book, chapters, back }: { book: BookRow; chapters: Chapte
             </Badge>
             <p className="text-[0.85rem] text-ink-soft">{t('print.hint')}</p>
           </div>
-          <Button leftIcon={<Printer className="size-5" />} onClick={() => window.print()} disabled={inputs.length === 0}>
+          <Button leftIcon={<Printer className="size-5" />} onClick={() => void document.fonts.ready.then(() => window.print())} disabled={inputs.length === 0}>
             {t('print.print')}
           </Button>
         </div>

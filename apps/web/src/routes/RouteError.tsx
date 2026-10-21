@@ -1,21 +1,26 @@
-import { Link, useRouteError } from 'react-router';
+import { Home, RefreshCw } from 'lucide-react';
+import { useRouteError } from 'react-router';
+import { Button, ButtonLink } from '@/components/ui';
 import { useT } from '@/i18n';
 
+/** Root error boundary (B16): generic text only — the error itself is never shown (logged in dev). */
 export function RouteError() {
   const error = useRouteError();
   const t = useT('common');
   if (import.meta.env.DEV) console.error(error);
   return (
-    <section role="alert" className="mx-auto flex min-h-dvh max-w-xl flex-col items-center justify-center gap-4 px-4 text-center">
-      <h1 className="font-serif text-3xl text-heritage">{t('states.error')}</h1>
-      <div className="flex gap-3">
-        <button type="button" onClick={() => window.location.reload()} className="rounded-full bg-heritage px-6 py-3 text-cream">
+    <main id="main" className="mx-auto flex min-h-dvh max-w-xl flex-col items-center justify-center gap-6 px-4 text-center">
+      <h1 role="alert" className="text-balance font-serif text-3xl font-semibold leading-display text-heritage-deep">
+        {t('states.error')}
+      </h1>
+      <div className="flex flex-col gap-3 sm:flex-row">
+        <Button size="lg" onClick={() => window.location.reload()} leftIcon={<RefreshCw className="size-5" aria-hidden="true" />}>
           {t('actions.retry')}
-        </button>
-        <Link to="/" className="rounded-full px-6 py-3 ring-1 ring-line">
+        </Button>
+        <ButtonLink to="/" size="lg" variant="secondary" leftIcon={<Home className="size-5" aria-hidden="true" />}>
           {t('notFound.home')}
-        </Link>
+        </ButtonLink>
       </div>
-    </section>
+    </main>
   );
 }

@@ -18,7 +18,7 @@ export function ExperienceSections({ fields, headingLevel = 'h2' }: { fields: un
       )}
       <ol className="space-y-10">
         {sections.map((s, i) => (
-          <li key={s.key} className="grid gap-3 md:grid-cols-[4.5rem_minmax(0,1fr)]">
+          <li key={s.key} className="grid grid-cols-1 gap-3 md:grid-cols-[4.5rem_minmax(0,1fr)]">
             <span aria-hidden="true" className="font-serif text-[2rem] leading-none text-heritage/30 md:text-[2.4rem]">
               {String(i + 1).padStart(2, '0')}
             </span>

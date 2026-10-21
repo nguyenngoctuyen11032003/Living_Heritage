@@ -18,6 +18,7 @@ export default {
     hours: '{h} giờ {m} phút',
     minutes: '{m} phút',
     short: { approved: 'Đã duyệt', pending: 'Chờ duyệt', audio: 'Ghi âm' },
+    unit: { h: 'giờ', m: 'phút' },
   },
   review: {
     title: 'Cần bạn xem',
@@ -27,7 +28,7 @@ export default {
   },
   search: {
     label: 'Tìm trong kho',
-    placeholder: 'Tiêu đề hoặc nội dung, gõ có dấu hay không dấu đều được',
+    placeholder: 'Tiêu đề, chủ đề hoặc nội dung — có dấu hay không đều được',
     submit: 'Tìm',
     clear: 'Xoá từ khoá',
   },
@@ -58,6 +59,7 @@ export default {
     unknownNarrator: 'Người kể chưa rõ',
     noText: 'Chưa có bản văn.',
     duration: 'Thời lượng {d}',
+    recorded: 'Ngày ghi',
   },
   empty: {
     title: 'Gia đình mình chưa có câu chuyện nào. Hãy bắt đầu từ một kỷ niệm dễ nhớ.',
@@ -178,6 +180,16 @@ export default {
       add: 'Thêm',
       added: 'Đã có',
       none: 'Không có câu chuyện phù hợp.',
+    },
+  },
+  // Extra lines in the sharing dialog preview (features/sharing/ShareDialog.tsx).
+  sharing: {
+    photosUnavailable: 'Trang công khai chưa đăng ảnh, nên ảnh gia đình luôn được giữ riêng. Lựa chọn này sẽ mở khi có tính năng đó.',
+    preview: {
+      topic: 'Chủ đề',
+      photos: 'Ảnh',
+      photosNone: 'Không đăng lên trang công khai',
+      body: 'Toàn văn sẽ công bố',
     },
   },
 } as const;

@@ -98,6 +98,37 @@ export function roundedPolygonPath(points: readonly Pt[], radius: number): strin
   return `${path}Z`;
 }
 
+/**
+ * CSS matrix3d() (transform-origin 0 0) mapping the box [0,w]×[0,h] onto the quad tl, tr, br, bl (projective, Heckbert).
+ * Lets a fixed-size card take any trapezoid shape with a compositor-only transform: no layout, no repaint per frame.
+ */
+export function quadMatrix3d(w: number, h: number, tl: Pt, tr: Pt, br: Pt, bl: Pt): string {
+  const [x0, y0] = tl;
+  const [x1, y1] = tr;
+  const [x2, y2] = br;
+  const [x3, y3] = bl;
+  const dx3 = x0 - x1 + x2 - x3;
+  const dy3 = y0 - y1 + y2 - y3;
+  let g = 0;
+  let k = 0;
+  if (Math.abs(dx3) > 1e-9 || Math.abs(dy3) > 1e-9) {
+    const dx1 = x1 - x2;
+    const dx2 = x3 - x2;
+    const dy1 = y1 - y2;
+    const dy2 = y3 - y2;
+    const det = dx1 * dy2 - dx2 * dy1 || 1e-9;
+    g = (dx3 * dy2 - dx2 * dy3) / det;
+    k = (dx1 * dy3 - dx3 * dy1) / det;
+  }
+  const a = (x1 - x0 + g * x1) / w;
+  const d = (y1 - y0 + g * y1) / w;
+  const b = (x3 - x0 + k * x3) / h;
+  const e = (y3 - y0 + k * y3) / h;
+  // The perspective terms are ~1e-5: keep enough digits that corners land within 0.001 px.
+  const f = (n: number) => +n.toFixed(10);
+  return `matrix3d(${f(a)},${f(d)},0,${f(g / w)},${f(b)},${f(e)},0,${f(k / h)},0,0,1,0,${f(x0)},${f(y0)},0,1)`;
+}
+
 /** Wrap an offset into [−length/2, length/2) for seamless looping. */
 export function wrap(value: number, length: number): number {
   return ((((value + length / 2) % length) + length) % length) - length / 2;

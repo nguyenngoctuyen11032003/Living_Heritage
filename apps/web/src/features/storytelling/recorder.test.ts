@@ -20,6 +20,9 @@ class FakeMediaRecorder extends EventTarget {
   resume() {
     this.state = 'recording';
   }
+  requestData() {
+    queueMicrotask(() => this.ondataavailable?.({ data: new Blob(['ab']) }));
+  }
   stop() {
     this.ondataavailable?.({ data: new Blob(['xyz']) });
     this.state = 'inactive';
@@ -38,12 +41,18 @@ describe('pickMimeType', () => {
 
 describe('AudioRecorder', () => {
   const stopTrack = vi.fn();
+  let track: EventTarget & { stop: typeof stopTrack };
   beforeEach(() => {
     vi.useFakeTimers();
     vi.stubGlobal('MediaRecorder', FakeMediaRecorder);
     Object.defineProperty(navigator, 'mediaDevices', {
       configurable: true,
-      value: { getUserMedia: vi.fn(async () => ({ getTracks: () => [{ stop: stopTrack }] })) },
+      value: {
+        getUserMedia: vi.fn(async () => {
+          track = Object.assign(new EventTarget(), { stop: stopTrack });
+          return { getTracks: () => [track] };
+        }),
+      },
     });
   });
   afterEach(() => {
@@ -72,5 +81,64 @@ describe('AudioRecorder', () => {
     const err = await new AudioRecorder().start().catch((e: unknown) => e);
     expect(err).toBeInstanceOf(RecorderError);
     expect((err as RecorderError).code).toBe('denied');
+  });
+});
+
+describe('AudioRecorder — listen back, then "Kể tiếp"', () => {
+  const stopTrack = vi.fn();
+  let track: EventTarget & { stop: typeof stopTrack };
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.stubGlobal('MediaRecorder', FakeMediaRecorder);
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: {
+        getUserMedia: vi.fn(async () => {
+          track = Object.assign(new EventTarget(), { stop: stopTrack });
+          return { getTracks: () => [track] };
+        }),
+      },
+    });
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+    stopTrack.mockReset();
+  });
+
+  it('preview pauses capture, keeps the microphone, and resume appends to the same take', async () => {
+    const rec = new AudioRecorder();
+    await rec.start();
+    vi.advanceTimersByTime(2000);
+    const preview = await rec.preview();
+    expect(preview.duration).toBe(2);
+    expect(preview.blob.size).toBe(2);
+    expect(stopTrack).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(60_000); // listening back is not counted
+    rec.resume();
+    vi.advanceTimersByTime(3000);
+    const final = await rec.stop();
+    expect(final.duration).toBe(5);
+    expect(final.blob.size).toBe(5); // preview chunk + final chunk, one file
+    expect(stopTrack).toHaveBeenCalled();
+  });
+
+  it('a browser that never flushes does not hang the preview', async () => {
+    const rec = new AudioRecorder();
+    await rec.start();
+    const fake = (rec as unknown as { recorder: FakeMediaRecorder }).recorder;
+    fake.requestData = () => {};
+    const p = rec.preview(500);
+    vi.advanceTimersByTime(500);
+    await expect(p).resolves.toMatchObject({ duration: 0 });
+  });
+
+  it('reports a microphone that disappears mid-take', async () => {
+    const rec = new AudioRecorder();
+    const lost = vi.fn();
+    await rec.start();
+    rec.onInterrupted = lost;
+    track.dispatchEvent(new Event('ended'));
+    expect(lost).toHaveBeenCalledTimes(1);
   });
 });

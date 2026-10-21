@@ -1,5 +1,5 @@
-import { Bot, Flag, Globe2, Handshake, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
-import { useEffect, useState, type ReactNode } from 'react';
+import { BarChart3, Bot, Flag, MessageSquareText, Globe2, Handshake, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router';
 import { Button, ButtonLink, EmptyState, Skeleton, Tab, TabList, TabPanel, Tabs } from '@/components/ui';
 import { PageHeader } from '@/features/families/states';
@@ -10,6 +10,8 @@ import { parseAdminTab, resolveAdminAccess, visibleAdminTabs, type AdminCheck, t
 import { AiJobsTab } from './tabs/AiJobsTab';
 import { ConnectTab } from './tabs/ConnectTab';
 import { DeletionTab } from './tabs/DeletionTab';
+import { MetricsTab } from './tabs/MetricsTab';
+import { QuestionsTab } from './tabs/QuestionsTab';
 import { PublishTab } from './tabs/PublishTab';
 import { ReportsTab } from './tabs/ReportsTab';
 
@@ -19,6 +21,8 @@ const ICONS: Record<AdminTab, ReactNode> = {
   connect: <Handshake />,
   deletion: <Trash2 />,
   aiJobs: <Bot />,
+  questions: <MessageSquareText />,
+  metrics: <BarChart3 />,
 };
 
 const PANELS: Record<AdminTab, () => ReactNode> = {
@@ -27,6 +31,8 @@ const PANELS: Record<AdminTab, () => ReactNode> = {
   connect: () => <ConnectTab />,
   deletion: () => <DeletionTab />,
   aiJobs: () => <AiJobsTab />,
+  questions: () => <QuestionsTab />,
+  metrics: () => <MetricsTab />,
 };
 
 /** /quan-tri — moderation console. Data is only queried after rpc('is_admin') returns true (RLS enforces it too). */
@@ -60,6 +66,13 @@ export default function AdminPage() {
     adminCheck: user && check.uid === user.id ? check.value : 'pending',
   });
   const tabs = visibleAdminTabs(access);
+  const tabsRef = useRef<HTMLDivElement>(null);
+
+  // Narrow screens scroll the tab row: keep the selected tab (e.g. from ?tab=) in view.
+  useEffect(() => {
+    const el = tabsRef.current?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
+    el?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  }, [tab, access]);
 
   let content: ReactNode;
   if (access === 'not-configured') {
@@ -109,13 +122,15 @@ export default function AdminPage() {
           )
         }
       >
-        <TabList label={t('tabs.label')} className="max-w-full">
-          {tabs.map((id) => (
-            <Tab key={id} value={id} icon={ICONS[id]}>
-              {t(`tabs.${id}`)}
-            </Tab>
-          ))}
-        </TabList>
+        <div ref={tabsRef}>
+          <TabList label={t('tabs.label')} className="max-w-full sm:flex-wrap sm:rounded-[1.75rem]">
+            {tabs.map((id) => (
+              <Tab key={id} value={id} icon={ICONS[id]}>
+                {t(`tabs.${id}`)}
+              </Tab>
+            ))}
+          </TabList>
+        </div>
         {tabs.map((id) => (
           <TabPanel key={id} value={id} className="mt-8">
             {PANELS[id]()}

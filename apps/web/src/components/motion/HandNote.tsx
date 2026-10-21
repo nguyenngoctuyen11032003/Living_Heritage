@@ -24,7 +24,7 @@ export function HandNote({ children, rotate = -4, delay = 0, className, style }:
       style={{ ...style, rotate }}
       initial={reduced ? false : { opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: EASE_OUT, delay }}
+      transition={{ duration: 0.35, ease: EASE_OUT, delay }}
     >
       {children}
     </motion.span>

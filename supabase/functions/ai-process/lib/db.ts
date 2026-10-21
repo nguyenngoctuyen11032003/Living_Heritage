@@ -50,6 +50,8 @@ export interface JobRow {
   status: JobStatus;
   error: string | null;
   story_ids: string[];
+  /** ai_jobs.attempts: pipeline runs that consumed quota (capped, so a failing job cannot loop cost). */
+  attempts: number;
   updated_at: string;
 }
 
@@ -104,12 +106,16 @@ export interface AdminDb {
   /** Compare-and-set back to `queued` (only if status / updated_at are still those of `job`). */
   restartJob(job: JobRow, nowIso: string): Promise<boolean>;
   updateJob(id: string, patch: { status: JobStatus; error?: string | null; story_ids?: string[] }, nowIso: string): Promise<void>;
+  /** Sets ai_jobs.attempts (the caller holds the job: it was just created or restarted with compare-and-set). */
+  setAttempts(id: string, attempts: number): Promise<void>;
   quotaConsume(userId: string, limit: number): Promise<boolean>;
   quotaRefund(userId: string): Promise<void>;
   downloadAudio(path: string, maxBytes: number): Promise<{ ok: true; bytes: Uint8Array } | { ok: false; reason: 'missing' | 'too_large' }>;
   latestTranscript(recordingId: string): Promise<TranscriptRow | null>;
   insertTranscript(recordingId: string, text: string, uncertain: string[], userId: string): Promise<TranscriptRow>;
   setTranscriptUncertain(id: string, uncertain: string[]): Promise<void>;
+  /** Ids of AI drafts already saved for the recording (story first), so a retry never duplicates them. */
+  storiesForRecording(recordingId: string): Promise<string[]>;
   /** Inserts drafts (edit_status 'draft', visibility 'private'); ids in the order of `rows`. */
   insertStories(rows: StoryInsert[]): Promise<string[]>;
   logUsage(row: UsageRow): Promise<void>;
@@ -137,7 +143,7 @@ function one(v: unknown): Row | null {
   return ((Array.isArray(v) ? v[0] : v) as Row | null | undefined) ?? null;
 }
 
-const JOB_COLS = 'id, status, error, story_ids, updated_at';
+const JOB_COLS = 'id, status, error, story_ids, attempts, updated_at';
 
 function toJob(r: Row): JobRow {
   return {
@@ -145,6 +151,7 @@ function toJob(r: Row): JobRow {
     status: r.status as JobStatus,
     error: (r.error as string | null) ?? null,
     story_ids: Array.isArray(r.story_ids) ? (r.story_ids as string[]) : [],
+    attempts: typeof r.attempts === 'number' ? r.attempts : 0,
     updated_at: String(r.updated_at ?? ''),
   };
 }
@@ -257,6 +264,11 @@ export function createAdminDb(client: Client): AdminDb {
       check('updateJob', error);
     },
 
+    async setAttempts(id, attempts) {
+      const { error } = await client.from('ai_jobs').update({ attempts }).eq('id', id);
+      check('setAttempts', error);
+    },
+
     async quotaConsume(userId, limit) {
       const { data, error } = await client.rpc('ai_quota_consume', { p_user: userId, p_limit: limit });
       check('quotaConsume', error);
@@ -303,6 +315,13 @@ export function createAdminDb(client: Client): AdminDb {
     async setTranscriptUncertain(id, uncertain) {
       const { error } = await client.from('transcripts').update({ uncertain_spans: uncertain }).eq('id', id);
       check('setTranscriptUncertain', error);
+    },
+
+    async storiesForRecording(recordingId) {
+      const { data, error } = await client.from('stories').select('id, kind').eq('recording_id', recordingId).order('created_at');
+      check('storiesForRecording', error);
+      const rows = (data ?? []) as Row[];
+      return [...rows.filter((r) => r.kind === 'story'), ...rows.filter((r) => r.kind !== 'story')].map((r) => String(r.id));
     },
 
     async insertStories(rows) {

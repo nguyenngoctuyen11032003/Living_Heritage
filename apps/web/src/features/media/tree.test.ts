@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { groupAlbum } from './album';
-import { buildTiers, columnCenters, connectorPaths, countByNarrator, initialOf, packedCenters, vaultByNarratorPath } from './tree';
+import { buildTiers, columnCenters, connectorPaths, countByNarrator, initialOf, packedCenters, readPaged, vaultByNarratorPath } from './tree';
 
 const n = (id: string, generation: number | null, birth_year: number | null, display_name = id) => ({ id, generation, birth_year, display_name });
 
@@ -90,5 +90,19 @@ describe('groupAlbum', () => {
     expect(g).toHaveLength(1);
     expect(g[0]!.photos.map((x) => x.id)).toEqual(['1', '3']);
     expect(groupAlbum(photos, 'narrator', narrators, labels, 'nobody')).toEqual([]);
+  });
+});
+
+describe('readPaged', () => {
+  it('reads every page past the 1000-row cap', async () => {
+    const all = Array.from({ length: 2500 }, (_, i) => ({ narrator_id: `n${i % 3}` }));
+    const res = await readPaged((a, b) => Promise.resolve({ data: all.slice(a, b + 1), error: null }));
+    expect(res.error).toBeNull();
+    expect(res.data).toHaveLength(2500);
+    expect(countByNarrator(res.data).get('n0')).toBe(834);
+  });
+  it('returns the error instead of a silently short list', async () => {
+    const res = await readPaged((a) => Promise.resolve(a === 0 ? { data: [1, 2], error: null } : { data: null, error: { message: 'x' } }), 2);
+    expect(res.error).toEqual({ message: 'x' });
   });
 });

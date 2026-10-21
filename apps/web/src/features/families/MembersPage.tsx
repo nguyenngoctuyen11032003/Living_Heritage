@@ -3,7 +3,7 @@ import type { MemberRole } from '@lh/shared';
 import { Mail, Trash2, UserPlus, Users } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { Badge, Button, Card, Dialog, EmptyState, Field, Input, Select, Skeleton, useToast } from '@/components/ui';
+import { Badge, Button, Card, Dialog, EmptyState, Field, Input, PageHeader, Select, Skeleton, useToast } from '@/components/ui';
 import { useLocale, useT } from '@/i18n';
 import { formatDate } from '@/lib/format';
 import { useSession } from '@/lib/session';
@@ -13,8 +13,11 @@ import { useCurrentFamily } from './current';
 import { FamilyGate } from './FamilyGate';
 import { HeritageAvatar } from './HeritageAvatar';
 import { rpcErrorCode, type FamilyErrorCode } from './rpcError';
-import { CopyField, ErrorNotice, PageHeader, SectionCard } from './states';
+import { CopyField, ErrorNotice, SectionCard } from './states';
 import { inviteUrl } from './urls';
+
+/** Badges truncate by default; status text carrying a date must wrap instead of losing the date on narrow cards. */
+const WRAP_BADGE = 'rounded-2xl [&>span:last-child]:whitespace-normal [&>span:last-child]:[overflow-wrap:anywhere]';
 
 export default function MembersPage() {
   return (
@@ -58,8 +61,13 @@ function Members() {
     void load();
   }, [load]);
 
+  // ?invite=1 (from onboarding) focuses the invite email once, after the first render with data; later reloads
+  // (role change, new invite) must not pull focus away from where the user is working.
+  const invitedFocused = useRef(false);
   useEffect(() => {
-    if (params.get('invite') === '1') inviteRef.current?.querySelector<HTMLInputElement>('input')?.focus();
+    if (invitedFocused.current || members === null || params.get('invite') !== '1') return;
+    invitedFocused.current = true;
+    inviteRef.current?.querySelector<HTMLInputElement>('input')?.focus();
   }, [params, members]);
 
   async function changeRole(m: MemberView, role: MemberRole) {
@@ -108,7 +116,7 @@ function Members() {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <PageHeader title={t('members.title')} description={t('members.subtitle', { name: fam.current!.name })} />
+      <PageHeader title={t('members.title')} lede={t('members.subtitle', { name: fam.current!.name })} />
       {error && <ErrorNotice className="mb-6" message={t(`errors.${error}`)} onRetry={() => void load()} />}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] [&>*]:min-w-0">
         <SectionCard title={t('members.listTitle')}>
@@ -138,7 +146,7 @@ function Members() {
                         <p className="break-words text-[0.9rem] text-ink-soft">{[m.relation, t('members.since', { date: formatDateSafe(m.created_at) })].filter(Boolean).join(' · ')}</p>
                       </div>
                     </div>
-                    <div className="flex min-w-0 items-center gap-2 pl-15 sm:pl-0">
+                    <div className="flex min-w-0 items-center gap-2 min-[420px]:pl-15 sm:pl-0">
                       {editable ? (
                         <div className="min-w-0 flex-1 sm:w-44 sm:flex-none">
                           <Select aria-label={t('members.roleFor', { name })} value={m.role} disabled={busyId === m.user_id} onChange={(e) => void changeRole(m, e.target.value as MemberRole)}>
@@ -197,7 +205,7 @@ function Members() {
                               ) : expired ? (
                                 <Badge size="sm" tone="terracotta">{t('invite.expired')}</Badge>
                               ) : (
-                                <Badge size="sm" tone="warning">{t('invite.pendingUntil', { date: formatDateSafe(inv.expires_at) })}</Badge>
+                                <Badge size="sm" tone="warning" className={WRAP_BADGE}>{t('invite.pendingUntil', { date: formatDateSafe(inv.expires_at) })}</Badge>
                               )}
                             </p>
                           </div>

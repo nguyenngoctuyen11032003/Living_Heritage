@@ -22,7 +22,7 @@ export function resolveAdminAccess(i: AdminAccessInput): AdminAccess {
   return i.adminCheck === 'yes' ? 'ready' : 'forbidden';
 }
 
-export const ADMIN_TABS = ['publish', 'reports', 'connect', 'deletion', 'aiJobs'] as const;
+export const ADMIN_TABS = ['publish', 'reports', 'connect', 'deletion', 'aiJobs', 'questions', 'metrics'] as const;
 export type AdminTab = (typeof ADMIN_TABS)[number];
 
 /** Tabs are rendered (and their data queried) only once the server confirmed is_admin(). */
@@ -38,12 +38,23 @@ export const REPORT_STATUSES = ['open', 'resolved', 'dismissed'] as const;
 export type ReportStatus = (typeof REPORT_STATUSES)[number];
 export const CONNECT_STATUSES = ['new', 'forwarded', 'closed'] as const;
 export type ConnectStatus = (typeof CONNECT_STATUSES)[number];
-export const DELETION_STATUSES = ['open', 'done', 'rejected'] as const;
+/** B12: open = tiếp nhận, processing = đang xử lý, done / rejected = hoàn tất (DB check since 20261022000400). */
+export const DELETION_STATUSES = ['open', 'processing', 'done', 'rejected'] as const;
 export type DeletionStatus = (typeof DELETION_STATUSES)[number];
+/** Deletion statuses that are not finished yet (no resolved_at / resolved_by). */
+export const DELETION_UNRESOLVED: readonly DeletionStatus[] = ['open', 'processing'];
 
 const REPORT_NEXT: Record<ReportStatus, ReportStatus[]> = { open: ['resolved', 'dismissed'], resolved: ['open'], dismissed: ['open'] };
 const CONNECT_NEXT: Record<ConnectStatus, ConnectStatus[]> = { new: ['forwarded', 'closed'], forwarded: ['closed'], closed: ['new'] };
-const DELETION_NEXT: Record<DeletionStatus, DeletionStatus[]> = { open: ['done', 'rejected'], done: ['open'], rejected: ['open'] };
+// B12: story / family requests reach 'done' only through the erase action (admin-erase); an erased request is
+// never reopened (a file retry calls admin-erase again). Account deletion is manual, so it may be marked done.
+const ERASED_NEXT: Record<DeletionStatus, DeletionStatus[]> = { open: ['processing', 'rejected'], processing: ['rejected'], done: [], rejected: ['open'] };
+const MANUAL_NEXT: Record<DeletionStatus, DeletionStatus[]> = {
+  open: ['processing', 'rejected'],
+  processing: ['done', 'rejected'],
+  done: ['processing'],
+  rejected: ['open'],
+};
 
 function next<S extends string>(table: Record<S, S[]>, current: string): S[] {
   return (table as Record<string, S[]>)[current] ?? [];
@@ -51,16 +62,20 @@ function next<S extends string>(table: Record<S, S[]>, current: string): S[] {
 
 export const nextReportStatuses = (s: string) => next(REPORT_NEXT, s);
 export const nextConnectStatuses = (s: string) => next(CONNECT_NEXT, s);
-export const nextDeletionStatuses = (s: string) => next(DELETION_NEXT, s);
+export const nextDeletionStatuses = (s: string, scope: DeletionScope) => next(scope === 'account' ? MANUAL_NEXT : ERASED_NEXT, s);
 
 /** Columns to write when a resolvable row changes status (reopening clears the resolution). */
-export function resolutionPatch<S extends string>(status: S, openStatus: string, userId: string | null, now = new Date()) {
-  const reopened = status === openStatus;
+export function resolutionPatch<S extends string>(status: S, openStatus: string | readonly string[], userId: string | null, now = new Date()) {
+  const reopened = typeof openStatus === 'string' ? status === openStatus : openStatus.includes(status);
   return { status, resolved_at: reopened ? null : now.toISOString(), resolved_by: reopened ? null : userId };
 }
 
 export const AI_ERROR_CODES = ['quota_exceeded', 'ai_unavailable', 'audio_too_large', 'forbidden', 'not_found', 'bad_request', 'internal', 'unauthorized'] as const;
 export type AiJobErrorCode = (typeof AI_ERROR_CODES)[number] | 'unknown';
+
+/** ai-process stops re-running a job after this many quota-consuming attempts (MAX_JOB_ATTEMPTS). */
+export const AI_MAX_ATTEMPTS = 10;
+export const aiRetryCapped = (attempts: number) => attempts >= AI_MAX_ATTEMPTS;
 
 /** ai_jobs.error is "code" or "code: detail". */
 export function parseAiError(error: string | null | undefined): { code: AiJobErrorCode; detail: string | null } {
@@ -77,4 +92,13 @@ export type ReviewErrorCode = (typeof REVIEW_ERROR_CODES)[number] | 'unknown';
 export function reviewErrorCode(message: string | null | undefined): ReviewErrorCode {
   const m = (message ?? '').trim();
   return (REVIEW_ERROR_CODES as readonly string[]).includes(m) ? (m as ReviewErrorCode) : 'unknown';
+}
+
+export type DeletionScope = 'story' | 'family' | 'account';
+
+/** deletion_requests.scope (fixed at insert by the DB); older rows / stale types fall back to the same rule. */
+export function deletionScope(row: { scope?: string | null; story_id: string | null; reason: string | null }): DeletionScope {
+  if (row.scope === 'story' || row.scope === 'family' || row.scope === 'account') return row.scope;
+  if (row.story_id) return 'story';
+  return (row.reason ?? '').startsWith('[account]') ? 'account' : 'family';
 }

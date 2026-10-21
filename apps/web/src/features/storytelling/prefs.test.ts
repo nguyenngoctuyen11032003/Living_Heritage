@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { markHowToSeen, readAutoRead, shouldShowHowTo, writeAutoRead, type KeyValueStore } from './prefs';
+import { hasRecordingConsent, markHowToSeen, markRecordingConsent, readAutoRead, shouldShowHowTo, writeAutoRead, type KeyValueStore } from './prefs';
 import { keptKey } from './summary';
 
 function memory(): KeyValueStore {
@@ -52,5 +52,24 @@ describe('session summary', () => {
     expect(keptKey(0)).toBe('end.keptNone');
     expect(keptKey(1)).toBe('end.keptOne');
     expect(keptKey(4)).toBe('end.keptMany');
+  });
+});
+
+describe('recording consent', () => {
+  it('is asked until accepted once, and never throws on blocked storage', () => {
+    const store = memory();
+    expect(hasRecordingConsent(store)).toBe(false);
+    markRecordingConsent(store);
+    expect(hasRecordingConsent(store)).toBe(true);
+    const broken: KeyValueStore = {
+      getItem: () => {
+        throw new Error('blocked');
+      },
+      setItem: () => {
+        throw new Error('blocked');
+      },
+    };
+    expect(hasRecordingConsent(broken)).toBe(false);
+    expect(() => markRecordingConsent(broken)).not.toThrow();
   });
 });

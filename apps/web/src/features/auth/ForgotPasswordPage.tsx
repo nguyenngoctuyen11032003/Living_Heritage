@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
       title={t('forgot.title')}
       subtitle={t('forgot.subtitle')}
       footer={
-        <Link to="/dang-nhap" className="font-semibold text-heritage underline-offset-4 hover:underline">
+        <Link to="/dang-nhap" className="inline-flex min-h-11 items-center font-semibold text-heritage underline-offset-4 hover:underline">
           {t('forgot.backToLogin')}
         </Link>
       }

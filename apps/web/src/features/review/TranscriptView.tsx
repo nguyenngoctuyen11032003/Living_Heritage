@@ -4,7 +4,8 @@ import { useT } from '@/i18n';
 import { countUncertain, parseTranscript } from './transcript';
 
 /** Original transcript with `[?]` passages shown as labelled "Cần kiểm tra" chips (icon + text, not colour alone). */
-export function TranscriptView({ text }: { text: string }) {
+/** `verbatim` false: a person corrected this version, so it is labelled as corrected rather than machine-verbatim. */
+export function TranscriptView({ text, verbatim = true }: { text: string; verbatim?: boolean }) {
   const t = useT('review');
   const segments = useMemo(() => parseTranscript(text), [text]);
   const n = countUncertain(segments);
@@ -15,7 +16,7 @@ export function TranscriptView({ text }: { text: string }) {
           <strong className="font-semibold">{t('source.uncertainCount', { n })}.</strong> {t('source.uncertainHint')}
         </p>
       )}
-      <blockquote aria-label={t('source.verbatim')} className="whitespace-pre-line border-l-4 border-line pl-4 leading-[1.9] text-ink">
+      <blockquote aria-label={verbatim ? t('source.verbatim') : t('source.correctedLabel')} className="whitespace-pre-line border-l-4 border-line pl-4 leading-[1.9] text-ink">
         {segments.map((s, i) =>
           s.kind === 'text' ? (
             <span key={i}>{s.text}</span>

@@ -39,8 +39,8 @@ function FaqItem({ k, open, onToggle }: { k: FaqKey; open: boolean; onToggle: ()
             aria-labelledby={`${id}-q`}
             initial={reduced ? false : { height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
-            exit={reduced ? { opacity: 0 } : { height: 0, opacity: 0 }}
-            transition={{ duration: 0.35, ease: EASE_OUT }}
+            exit={reduced ? { opacity: 0 } : { height: 0, opacity: 0, transition: { duration: 0.16, ease: EASE_OUT } }}
+            transition={{ duration: 0.22, ease: EASE_OUT }}
             className="overflow-hidden"
           >
             <p className="max-w-3xl pb-6 pr-12 text-[1.02rem] leading-relaxed text-ink-soft">{t(`faq.items.${k}.a`)}</p>

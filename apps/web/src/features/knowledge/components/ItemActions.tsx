@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { Button, useToast } from '@/components/ui';
 import { useT } from '@/i18n';
 import { siteHref } from '@/lib/env';
-import { useIsSaved } from '../saved';
+import { SavedWithdrawnError } from '../saved-account';
+import { useSaved } from '../useSaved';
 import type { KnowledgeItem } from '../types';
 import { ConnectDialog } from './ConnectDialog';
 import { ReportDialog } from './ReportDialog';
@@ -12,12 +13,23 @@ import { ReportDialog } from './ReportDialog';
 export function ItemActions({ item }: { item: KnowledgeItem }) {
   const t = useT('knowledge');
   const { toast } = useToast();
-  const [saved, toggle] = useIsSaved(item.id);
+  const savedList = useSaved();
+  const saved = savedList.isSaved(item.id);
+  const [saving, setSaving] = useState(false);
   const [dialog, setDialog] = useState<'report' | 'connect' | null>(null);
 
-  function onSave() {
-    const now = toggle(item);
-    toast({ title: now ? t('actions.savedToast') : t('actions.removedToast'), tone: 'success' });
+  async function onSave() {
+    if (saving) return;
+    setSaving(true);
+    try {
+      const now = await savedList.toggle(item);
+      const savedMsg = savedList.mode === 'account' && !item.sample ? t('actions.savedToastAccount') : t('actions.savedToast');
+      toast({ title: now ? savedMsg : t('actions.removedToast'), tone: 'success' });
+    } catch (e) {
+      toast({ title: e instanceof SavedWithdrawnError ? t('saved.unavailableTitle') : t('actions.saveError'), tone: 'error' });
+    } finally {
+      setSaving(false);
+    }
   }
 
   async function onShare() {
@@ -45,7 +57,9 @@ export function ItemActions({ item }: { item: KnowledgeItem }) {
         <Button
           variant={saved ? 'primary' : 'secondary'}
           aria-pressed={saved}
-          onClick={onSave}
+          onClick={() => void onSave()}
+          loading={saving}
+          disabled={savedList.status === 'loading'}
           leftIcon={saved ? <BookmarkCheck aria-hidden="true" className="size-4" /> : <Bookmark aria-hidden="true" className="size-4" />}
         >
           {saved ? t('actions.saved') : t('actions.save')}

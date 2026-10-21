@@ -1,12 +1,18 @@
 // Copy used by the specs comes straight from the app dictionaries, so wording changes never break selectors.
 import auth_vi from '../../src/i18n/dict/auth.vi';
 import auth_en from '../../src/i18n/dict/auth.en';
+import books_vi from '../../src/i18n/dict/books.vi';
+import books_en from '../../src/i18n/dict/books.en';
 import common_vi from '../../src/i18n/dict/common.vi';
 import common_en from '../../src/i18n/dict/common.en';
+import demo_vi from '../../src/i18n/dict/demo.vi';
+import demo_en from '../../src/i18n/dict/demo.en';
 import knowledge_vi from '../../src/i18n/dict/knowledge.vi';
 import knowledge_en from '../../src/i18n/dict/knowledge.en';
 import landing_vi from '../../src/i18n/dict/landing.vi';
 import landing_en from '../../src/i18n/dict/landing.en';
+import legal_vi from '../../src/i18n/dict/legal.vi';
+import legal_en from '../../src/i18n/dict/legal.en';
 import narrator_vi from '../../src/i18n/dict/narrator.vi';
 import narrator_en from '../../src/i18n/dict/narrator.en';
 import review_vi from '../../src/i18n/dict/review.vi';
@@ -14,8 +20,8 @@ import review_en from '../../src/i18n/dict/review.en';
 import vault_vi from '../../src/i18n/dict/vault.vi';
 import vault_en from '../../src/i18n/dict/vault.en';
 
-export const vi = { auth: auth_vi, common: common_vi, knowledge: knowledge_vi, landing: landing_vi, narrator: narrator_vi, review: review_vi, vault: vault_vi };
-export const en = { auth: auth_en, common: common_en, knowledge: knowledge_en, landing: landing_en, narrator: narrator_en, review: review_en, vault: vault_en };
+export const vi = { auth: auth_vi, books: books_vi, common: common_vi, demo: demo_vi, knowledge: knowledge_vi, landing: landing_vi, legal: legal_vi, narrator: narrator_vi, review: review_vi, vault: vault_vi };
+export const en = { auth: auth_en, books: books_en, common: common_en, demo: demo_en, knowledge: knowledge_en, landing: landing_en, legal: legal_en, narrator: narrator_en, review: review_en, vault: vault_en };
 
 /** Fill `{name}` placeholders. */
 export function fill(template: string, vars: Record<string, string | number>): string {

@@ -1,5 +1,5 @@
 import { TriangleAlert, BadgeCheck, BookOpenText, FileText, Lock, Sprout } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { StoryScene } from '@/components/illustrations/scenes';
 import { Reveal } from '@/components/motion';
 import { AudioPlayer, Badge, IllustrativeBadge, Tab, TabList, TabPanel, Tabs } from '@/components/ui';
@@ -21,13 +21,32 @@ function highlightUncertain(text: string, label: string) {
   );
 }
 
-/** Block 7 — "Một lời kể, ba đầu ra": one narration → transcript / story / know-how card (tabs). */
+/** Status + visibility chips shown on both output tabs (B6: each output shows its source, permission and an example). */
+function OutputStatus() {
+  const t = useT('landing');
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <Badge tone="mint" icon={<BadgeCheck />}>
+        {t('outputs.status.approved')}
+      </Badge>
+      <Badge tone="outline" icon={<Lock />}>
+        {t('outputs.status.visibility')}
+      </Badge>
+    </div>
+  );
+}
+
+/**
+ * Block "Đầu ra" (B6 #6): one narration → tabs Câu chuyện gia đình / Kinh nghiệm thực tiễn, plus the original
+ * transcript. Both output tabs show the source narration, approval and visibility.
+ */
 export function OneVoiceThreeOutputs() {
   const t = useT('landing');
   const pick = usePick();
-  const [time, setTime] = useState(0);
   const s = OUTPUT_SAMPLE;
-  const active = s.transcript.reduce((acc, line, i) => (time >= line.t ? i : acc), 0);
+  // Highlighted transcript line (-1 before playback starts): re-render on line changes only, not on every clock tick.
+  const [active, setActive] = useState(-1);
+  const onTime = useCallback((sec: number) => setActive(sec > 0 ? s.transcript.reduce((acc, line, i) => (sec >= line.t ? i : acc), 0) : -1), [s.transcript]);
 
   const fields: Array<{ key: 'skill' | 'context' | 'conditions' | 'cautions' | 'limits'; value: string }> = [
     { key: 'skill', value: pick(s.card.skill) },
@@ -54,10 +73,10 @@ export function OneVoiceThreeOutputs() {
             </div>
             <div className="flex flex-1 flex-col gap-4 p-6">
               <div>
-                <p className="text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-mint">{t('outputs.narration')}</p>
+                <p className="text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-mint-fixed">{t('outputs.narration')}</p>
                 <p className="mt-1 font-serif text-[1.2rem] font-semibold">{pick(s.narrator)}</p>
               </div>
-              <AudioPlayer compact tone="dark" duration={s.duration} onTime={setTime} title={pick(s.story.title)} />
+              <AudioPlayer compact tone="dark" duration={s.duration} onTime={onTime} title={pick(s.story.title)} />
               <p className="text-[0.82rem] leading-relaxed text-night-ink/75">{t('ui.player.simulated')}</p>
             </div>
           </div>
@@ -65,17 +84,17 @@ export function OneVoiceThreeOutputs() {
 
         {/* Outputs */}
         <Reveal delay={0.1} className="lg:col-span-8">
-          <Tabs defaultValue="transcript" className="flex h-full flex-col">
+          <Tabs defaultValue="story" className="flex h-full flex-col">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <TabList label={t('outputs.tabsLabel')}>
-                <Tab value="transcript" icon={<FileText />}>
-                  {t('outputs.tabs.transcript')}
-                </Tab>
+              <TabList label={t('outputs.tabsLabel')} className="flex-wrap rounded-[1.75rem]">
                 <Tab value="story" icon={<BookOpenText />}>
                   {t('outputs.tabs.story')}
                 </Tab>
                 <Tab value="card" icon={<Sprout />}>
                   {t('outputs.tabs.card')}
+                </Tab>
+                <Tab value="transcript" icon={<FileText />}>
+                  {t('outputs.tabs.transcript')}
                 </Tab>
               </TabList>
               <Badge tone="outline" size="sm">
@@ -87,7 +106,7 @@ export function OneVoiceThreeOutputs() {
               <TabPanel value="transcript">
                 <ol className="flex flex-col gap-1">
                   {s.transcript.map((line, i) => (
-                    <li key={line.t} className={cn('flex gap-3 rounded-2xl px-2 py-2.5 sm:gap-4 sm:px-3 transition-colors duration-200', i === active && time > 0 && 'bg-mint/60')}>
+                    <li key={line.t} className={cn('flex gap-3 rounded-2xl px-2 py-2.5 sm:gap-4 sm:px-3 transition-colors duration-200', i === active && 'bg-mint/60')}>
                       <span className="mt-0.5 w-10 shrink-0 text-[0.8rem] font-semibold tabular-nums text-ink-soft">{formatDuration(line.t)}</span>
                       <span className="font-serif text-[1.05rem] leading-relaxed text-ink">{highlightUncertain(pick(line.text), t('outputs.uncertain'))}</span>
                     </li>
@@ -101,7 +120,8 @@ export function OneVoiceThreeOutputs() {
 
               <TabPanel value="story">
                 <article>
-                  <h3 className="font-serif text-[1.6rem] font-semibold leading-snug text-heritage-deep md:text-[1.9rem]">{pick(s.story.title)}</h3>
+                  <OutputStatus />
+                  <h3 className="mt-5 font-serif text-[1.6rem] font-semibold leading-snug text-heritage-deep md:text-[1.9rem]">{pick(s.story.title)}</h3>
                   <p className="mt-1 text-[0.9rem] text-ink-soft">{pick(s.narrator)}</p>
                   <div className="mt-5 space-y-4 font-serif text-[1.08rem] leading-[1.75] text-ink">
                     {s.story.paragraphs.map((p, i) => (
@@ -111,19 +131,16 @@ export function OneVoiceThreeOutputs() {
                     ))}
                   </div>
                   <p className="mt-6 text-[0.85rem] text-ink-soft">{t('outputs.storyNote')}</p>
+                  <div className="mt-5 rounded-2xl bg-cream p-4 ring-1 ring-line">
+                    <p className="text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-heritage">{t('outputs.fields.source')}</p>
+                    <p className="mt-1 leading-relaxed text-ink">{pick(s.card.source)}</p>
+                  </div>
                 </article>
               </TabPanel>
 
               <TabPanel value="card">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge tone="mint" icon={<BadgeCheck />}>
-                    {t('outputs.status.approved')}
-                  </Badge>
-                  <Badge tone="outline" icon={<Lock />}>
-                    {t('outputs.status.visibility')}
-                  </Badge>
-                </div>
-                <dl className="mt-6 grid gap-x-8 gap-y-5 md:grid-cols-2">
+                <OutputStatus />
+                <dl className="mt-6 grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-2">
                   {fields.map((f) => (
                     <div key={f.key} className={cn(f.key === 'skill' && 'md:col-span-2')}>
                       <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{t(`outputs.fields.${f.key}`)}</dt>
@@ -136,7 +153,7 @@ export function OneVoiceThreeOutputs() {
                       <ol className="flex flex-col gap-2">
                         {s.card.steps.map((step, i) => (
                           <li key={i} className="flex gap-3 leading-relaxed">
-                            <span aria-hidden="true" className="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-heritage text-[0.8rem] font-bold text-cream">
+                            <span aria-hidden="true" className="inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-heritage text-[0.8rem] font-bold text-cream-fixed">
                               {i + 1}
                             </span>
                             <span className="pt-0.5">{pick(step)}</span>

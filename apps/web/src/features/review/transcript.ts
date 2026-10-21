@@ -40,3 +40,19 @@ export function parseTranscript(text: string): TranscriptSegment[] {
 export function countUncertain(segments: TranscriptSegment[]): number {
   return segments.filter((s) => s.kind === 'uncertain').length;
 }
+
+/** The transcript on screen (the newest version, also after a correction) and the correction being typed (null = not editing). */
+export interface TranscriptState {
+  current: { id: string; version: number; text: string; created_at: string } | null;
+  draft: string | null;
+}
+
+export interface TranscriptControl {
+  state: TranscriptState;
+  onStateChange: (next: TranscriptState) => void;
+}
+
+/** A correction typed but not saved yet (for the page's unsaved-changes guard). */
+export function transcriptDirty(s: TranscriptState): boolean {
+  return s.draft !== null && s.draft !== (s.current?.text ?? '');
+}
