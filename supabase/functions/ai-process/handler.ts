@@ -28,7 +28,7 @@ export const STALE_JOB_MS = 15 * 60_000;
 export const MAX_JOB_ATTEMPTS = 10;
 export const DEFAULT_MODEL = 'gemini-3.8-flash';
 export const DEFAULT_DAILY_LIMIT = 30;
-export const DEFAULT_TIMEOUT_MS = 60_000;
+export const DEFAULT_TIMEOUT_MS = 90_000;
 const BODY_MAX_BYTES = 8 * 1024;
 const TITLE_MAX = 120;
 const SUGGEST_COUNT = 3;
@@ -229,7 +229,7 @@ async function transcribeAndDraft(ctx: Ctx, req: Extract<Req, { action: 'transcr
     await quietly(() => admin.quotaRefund(userId));
     // Keep the upstream reason for the admin 'AI jobs' tab: 'ai_unavailable: gemini bad_request 400 <message>'.
     const detail = e instanceof GeminiError ? `: gemini ${e.kind}${e.status ? ' ' + e.status : ''}${e.detail ? ' ' + e.detail : ''}` : '';
-    if (e instanceof GeminiError && e.kind === 'bad_request') console.error('ai-process gemini bad_request:', e.status, e.detail);
+    if (e instanceof GeminiError && e.detail) console.error(`ai-process gemini ${e.kind}:`, e.status, e.detail);
     await quietly(() => admin.updateJob(job.id, { status: 'error', error: (code + detail).slice(0, 500), story_ids: [] }, nowIso()));
     return fail(code, jobBody(job.id, 'error', [], code));
   }
@@ -378,6 +378,8 @@ export async function handle(req: Request, deps: HandlerDeps): Promise<Response>
     apiKey,
     model: deps.env('GEMINI_MODEL')?.trim() || DEFAULT_MODEL,
     timeoutMs: intEnv(deps, 'GEMINI_TIMEOUT_MS', DEFAULT_TIMEOUT_MS, 1_000, 400_000),
+    ...(deps.env('GEMINI_FALLBACK_MODEL')?.trim() ? { fallbackModel: deps.env('GEMINI_FALLBACK_MODEL')!.trim() } : {}),
+    ...(deps.env('GEMINI_TRANSCRIBE_MODEL')?.trim() ? { transcribeModel: deps.env('GEMINI_TRANSCRIBE_MODEL')!.trim() } : {}),
   });
 
   const ctx: Ctx = { deps, user, userId, model };

@@ -8,6 +8,7 @@ import {
   type GeminiRuntime,
   generate,
   parseJson,
+  tuning,
 } from '../../ai-process/lib/gemini.ts';
 import { ANSWER_SCHEMA, answerSystem, answerUser, type Lang, type PromptSource } from './prompts.ts';
 
@@ -140,7 +141,7 @@ export function createKnowledgeAi(cfg: KnowledgeAiConfig, rt: GeminiRuntime): Kn
         generationConfig: {
           responseMimeType: 'application/json',
           responseSchema: ANSWER_SCHEMA,
-          temperature: 0.2,
+          ...tuning(cfg.model, 0.2),
           maxOutputTokens: 4_096,
         },
       };

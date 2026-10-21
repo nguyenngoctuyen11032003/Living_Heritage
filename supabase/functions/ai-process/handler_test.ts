@@ -278,7 +278,7 @@ Deno.test('success: transcribes, drafts, saves story + experience and returns do
   assert.equal(body.error, null);
   assert.equal(body.story_ids.length, 2);
 
-  assert.deepEqual(log.geminiCfg, { apiKey: 'test-key', model: 'gemini-3.8-flash', timeoutMs: 60_000 });
+  assert.deepEqual(log.geminiCfg, { apiKey: 'test-key', model: 'gemini-3.8-flash', timeoutMs: 90_000 });
   assert.equal(log.quotaLimit, 12);
   assert.equal(log.refunds, 0);
   assert.deepEqual(log.jobUpdates.map((u) => u.status), ['transcribing', 'drafting', 'done']);
@@ -479,6 +479,18 @@ Deno.test('GEMINI_MODEL / GEMINI_TIMEOUT_MS are honoured', async () => {
   const { deps, log } = setup({ env: { GEMINI_API_KEY: 'k', GEMINI_MODEL: 'gemini-x', GEMINI_TIMEOUT_MS: '90000' } });
   await handle(post(TRANSCRIBE), deps);
   assert.deepEqual(log.geminiCfg, { apiKey: 'k', model: 'gemini-x', timeoutMs: 90_000 });
+});
+
+Deno.test('GEMINI_FALLBACK_MODEL is passed to the model config when set', async () => {
+  const { deps, log } = setup({ env: { GEMINI_API_KEY: 'k', GEMINI_FALLBACK_MODEL: ' gemini-lite ' } });
+  await handle(post(TRANSCRIBE), deps);
+  assert.deepEqual(log.geminiCfg, { apiKey: 'k', model: 'gemini-3.8-flash', timeoutMs: 90_000, fallbackModel: 'gemini-lite' });
+});
+
+Deno.test('GEMINI_TRANSCRIBE_MODEL is passed to the model config when set', async () => {
+  const { deps, log } = setup({ env: { GEMINI_API_KEY: 'k', GEMINI_TRANSCRIBE_MODEL: 'gemini-3.5-transcribe' } });
+  await handle(post(TRANSCRIBE), deps);
+  assert.deepEqual(log.geminiCfg, { apiKey: 'k', model: 'gemini-3.8-flash', timeoutMs: 90_000, transcribeModel: 'gemini-3.5-transcribe' });
 });
 
 Deno.test('CORS preflight', async () => {
