@@ -32,6 +32,8 @@ export interface RecordingCtx {
   topic_id: string | null;
   topic: Localized | null;
   question: Localized | null;
+  /** recordings.question_text: the exact question shown (AI follow-ups have no questions row). */
+  question_text: string | null;
   /** narrators.lang of the recording's narrator; null when unreadable (the request lang is then the fallback). */
   narrator_lang: NarratorLang | null;
 }
@@ -158,7 +160,7 @@ export function createUserDb(client: Client, jwt: string): UserDb {
       const { data, error } = await client
         .from('recordings')
         .select(
-          'id, family_id, narrator_id, storage_path, mime, ' +
+          'id, family_id, narrator_id, storage_path, mime, question_text, ' +
             'session:sessions(topic_id, topic:topics(title_vi, title_en), narrator:narrators(lang)), ' +
             'question:questions(prompt_vi, prompt_en)',
         )
@@ -177,6 +179,7 @@ export function createUserDb(client: Client, jwt: string): UserDb {
         topic_id: (session?.topic_id as string | null) ?? null,
         topic: localized(session?.topic, 'title_vi', 'title_en'),
         question: localized(r.question, 'prompt_vi', 'prompt_en'),
+        question_text: (r.question_text as string | null) ?? null,
         narrator_lang: asNarratorLang(one(session?.narrator)?.lang),
       };
     },

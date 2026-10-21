@@ -227,7 +227,7 @@ async function runPipeline(
       lang,
       transcript: transcript.text,
       topic: rec.topic ? rec.topic[lang] : null,
-      question: rec.question ? rec.question[lang] : null,
+      question: rec.question ? rec.question[lang] : rec.question_text,
     }));
   const parsed = AiDraft.safeParse(raw);
   if (!parsed.success) throw new Failure('ai_unavailable', 'draft did not match AiDraft');

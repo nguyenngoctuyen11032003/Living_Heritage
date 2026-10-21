@@ -12,6 +12,8 @@ export interface PendingUpload {
   narratorId: string;
   sessionId: string;
   questionId: string | null;
+  /** Question shown for this take (seeded or AI follow-up); optional for takes saved before it existed. */
+  questionText?: string | null;
   createdAt: number;
   /** The object is in Storage (only the database row may still be missing). */
   uploaded: boolean;

@@ -26,6 +26,7 @@ const RECORDING: RecordingCtx = {
   topic_id: TOPIC_ID,
   topic: { vi: 'Làm vườn', en: 'Gardening' },
   question: { vi: 'Ông bà trồng rau thế nào?', en: 'How did you grow vegetables?' },
+  question_text: null,
   narrator_lang: null,
 };
 

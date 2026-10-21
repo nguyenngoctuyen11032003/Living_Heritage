@@ -295,7 +295,9 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
       familyId: session.family_id,
       narratorId: session.narrator_id,
       sessionId: session.id,
-      questionId: currentId,
+      // An AI follow-up is not a questions row: store its text instead so the draft knows what was asked.
+      questionId: aiQuestion ? null : currentId,
+      questionText: question || aiQuestion ? questionText.slice(0, 500) : null,
       createdAt: Date.now(),
       uploaded: false,
       recordingId: null,

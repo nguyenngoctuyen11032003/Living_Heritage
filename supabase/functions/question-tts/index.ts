@@ -20,12 +20,12 @@ const deps: HandlerDeps = {
     return error || !data.user ? null : data.user.id;
   },
   quotaConsume: async (userId, limit) => {
-    const { data, error } = await adminClient().rpc('ai_quota_consume', { p_user: userId, p_limit: limit });
+    const { data, error } = await adminClient().rpc('ai_quota_consume_kind', { p_user: userId, p_kind: 'tts', p_limit: limit });
     if (error) throw new Error('quotaConsume failed');
     return data === true;
   },
   quotaRefund: async (userId) => {
-    const { error } = await adminClient().rpc('ai_quota_refund', { p_user: userId });
+    const { error } = await adminClient().rpc('ai_quota_refund_kind', { p_user: userId, p_kind: 'tts' });
     if (error) throw new Error('quotaRefund failed');
   },
   logUsage: async (row) => {
