@@ -14,10 +14,10 @@ test('renders the hero in Vietnamese by default and switches to English', async 
   await expect(page.locator('html')).toHaveAttribute('lang', 'vi');
 
   const switcher = page.getByRole('banner').getByRole('group', { name: vi.common.lang.label });
-  await switcher.getByRole('button', { name: 'en' }).click();
+  await switcher.getByRole('button', { name: 'en', exact: true }).click();
   await expect(h1).toContainText(en.landing.hero.line2);
   await expect(page.locator('html')).toHaveAttribute('lang', 'en');
-  await expect(page.getByRole('banner').getByRole('button', { name: 'en' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('banner').getByRole('button', { name: 'en', exact: true })).toHaveAttribute('aria-pressed', 'true');
 
   // The choice survives a reload.
   await page.reload();

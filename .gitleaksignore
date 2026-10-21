@@ -5,5 +5,7 @@
 6bb19cf51bfba03ce50ded9633d7f5ea64a026da:scripts/check-public-env.test.mjs:generic-api-key:6
 # storytelling/prefs.ts: localStorage key name 'lh.narrator.howtoSeen.v1', not a secret.
 e374498c1d78ba62443c59da5c440af1801872af:apps/web/src/features/storytelling/prefs.ts:generic-api-key:4
+# storytelling/prefs.ts: localStorage key name 'lh.narrator.consent.v1', not a secret.
+0d507ed198b02ca2aa7fc230bb159266b3c0776b:apps/web/src/features/storytelling/prefs.ts:generic-api-key:53
 # tests/e2e/fixtures.ts: fake storytelling-link token for the mocked backend.
 27b4ef00dca026c30e615a5e5474b45dba259c8f:apps/web/tests/e2e/fixtures.ts:generic-api-key:53

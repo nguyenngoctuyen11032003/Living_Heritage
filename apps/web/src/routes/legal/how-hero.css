@@ -48,7 +48,7 @@
   color: var(--hh-accent); letter-spacing: 2.252px; text-indent: 2.252px;
 }
 .hh-eyebrow > span { position: relative; display: block; left: -0.9px; }
-.hh-headline { top: 0; font: 700 61.74px/61.74px var(--hh-display); word-spacing: 2.691px; color: var(--hh-strong); }
+.hh-headline { top: 0; height: 330px; font: 700 61.74px/61.74px var(--hh-display); word-spacing: 2.691px; color: var(--hh-strong); }
 .hh-headline span { position: absolute; left: 0; width: 1280px; display: block; white-space: nowrap; }
 .hh-headline .hh-l1 { top: 83.62px; letter-spacing: -0.075px; left: 0.45px; text-indent: -0.075px; }
 .hh-headline .hh-l2 { top: 137.02px; letter-spacing: -0.4px; text-indent: -0.4px; }
@@ -106,7 +106,7 @@
   .hh-eyebrow, .hh-headline, .hh-feature, .hh-feature h2, .hh-feature p, .hh-feature .hh-icon, .hh-headline span { position: static; }
   .hh-eyebrow { grid-area: 1 / 1 / 2 / -1; width: auto; font-size: calc(11 * var(--u)); line-height: 1.2; letter-spacing: 0.304em; text-indent: 0.304em; word-spacing: 0.07em; margin-bottom: calc(20 * var(--u)); }
   .hh-eyebrow > span { left: 0; }
-  .hh-headline { grid-area: 2 / 1 / 3 / -1; width: auto; font-size: calc(84 * var(--u)); line-height: 0.92; word-spacing: 0.0436em; }
+  .hh-headline { grid-area: 2 / 1 / 3 / -1; width: auto; height: auto; font-size: calc(84 * var(--u)); line-height: 0.92; word-spacing: 0.0436em; }
   .hh-headline span, .hh-headline .hh-l1, .hh-headline .hh-l2, .hh-headline .hh-l3, .hh-headline .hh-l4 { width: auto; white-space: normal; letter-spacing: -0.012em; text-indent: 0; left: auto; }
   .hh-mark { position: relative; left: auto; top: auto; grid-area: 4 / 1 / 5 / -1; justify-self: center; width: calc(64 * var(--u)); height: calc(64 * var(--u)); margin-bottom: calc(16 * var(--u)); }
   .hh-left { grid-area: 5 / 1 / 6 / 2; width: auto; height: auto; }
@@ -136,7 +136,7 @@
   .hh-eyebrow, .hh-headline, .hh-feature, .hh-feature h2, .hh-feature p, .hh-feature .hh-icon, .hh-headline span { position: static; }
   .hh-eyebrow { grid-row: 1; width: auto; font-size: clamp(8px, calc(9.5 * var(--u)), 11px); line-height: 1.2; letter-spacing: 0.304em; text-indent: 0.304em; word-spacing: 0.07em; margin-bottom: calc(16 * var(--u)); }
   .hh-eyebrow > span { left: 0; }
-  .hh-headline { grid-row: 2; width: auto; font-size: clamp(26px, min(11.6vw, calc(52 * var(--u))), 64px); line-height: 0.92; }
+  .hh-headline { grid-row: 2; width: auto; height: auto; font-size: clamp(26px, min(11.6vw, calc(52 * var(--u))), 64px); line-height: 0.92; }
   .hh-headline span, .hh-headline .hh-l1, .hh-headline .hh-l2, .hh-headline .hh-l3, .hh-headline .hh-l4 { width: auto; white-space: normal; letter-spacing: -0.012em; text-indent: 0; left: auto; }
   .hh-mark { position: relative; left: auto; top: auto; grid-row: 4; justify-self: center; width: clamp(38px, calc(46 * var(--u)), 54px); height: clamp(38px, calc(46 * var(--u)), 54px); margin-bottom: calc(18 * var(--u)); }
   .hh-left { grid-row: 5; width: auto; height: auto; margin-bottom: calc(26 * var(--u)); }
