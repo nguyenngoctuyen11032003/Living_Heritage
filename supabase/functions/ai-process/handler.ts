@@ -24,7 +24,7 @@ export interface HandlerDeps {
 export const JOB_KIND = 'transcribe_and_draft';
 /** An in-progress job not touched for this long is considered dead (isolate killed) and may be restarted. */
 export const STALE_JOB_MS = 15 * 60_000;
-export const DEFAULT_MODEL = 'gemini-2.5-flash';
+export const DEFAULT_MODEL = 'gemini-3.8-flash';
 export const DEFAULT_DAILY_LIMIT = 30;
 export const DEFAULT_TIMEOUT_MS = 60_000;
 const BODY_MAX_BYTES = 8 * 1024;

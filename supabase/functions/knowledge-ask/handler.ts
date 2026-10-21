@@ -27,7 +27,7 @@ export interface KnowledgeDeps {
   dailyCap: DailyCap;
 }
 
-export const DEFAULT_MODEL = 'gemini-2.5-flash';
+export const DEFAULT_MODEL = 'gemini-3.8-flash';
 export const DEFAULT_EMBED_MODEL = 'gemini-embedding-001';
 export const DEFAULT_TIMEOUT_MS = 25_000;
 export const MATCH_LIMIT = 6;

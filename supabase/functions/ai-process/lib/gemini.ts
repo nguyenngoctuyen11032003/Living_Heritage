@@ -48,7 +48,7 @@ export class GeminiError extends Error {
 export function upstreamDetail(body: string): string | null {
   try {
     const msg = (JSON.parse(body) as { error?: { message?: unknown } }).error?.message;
-    return typeof msg === 'string' && msg.trim() ? msg.replace(/s+/g, ' ').trim().slice(0, 240) : null;
+    return typeof msg === 'string' && msg.trim() ? msg.replace(/\s+/g, ' ').trim().slice(0, 240) : null;
   } catch {
     return null;
   }

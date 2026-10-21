@@ -165,7 +165,7 @@ Deno.test('answer path: embeds the question, matches, answers from numbered sour
   assert.equal(log.answerCalls.length, 1);
   assert.equal(log.answerCalls[0]!.lang, 'vi');
   assert.equal(log.answerCalls[0]!.sources.length, 2);
-  assert.deepEqual(log.aiCfg, { apiKey: 'test-key', model: 'gemini-2.5-flash', embedModel: 'gemini-embedding-001', timeoutMs: 25_000 });
+  assert.deepEqual(log.aiCfg, { apiKey: 'test-key', model: 'gemini-3.8-flash', embedModel: 'gemini-embedding-001', timeoutMs: 25_000 });
 });
 
 Deno.test('no sources above the similarity floor: no Gemini answer call, reason no_sources', async () => {

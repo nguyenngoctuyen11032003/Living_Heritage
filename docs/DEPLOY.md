@@ -49,7 +49,7 @@ push main ─────► Deploy (.github/workflows/deploy.yml)
 | `SUPABASE_ACCESS_TOKEN` | Secret, environment `production` | Có (để deploy function) | supabase.com/dashboard/account/tokens | `functions` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Secret, environment `production` | Không (dự phòng cho script bảo trì) | Project Settings → API Keys (secret key) | chưa workflow nào dùng |
 | `GEMINI_API_KEY` | Secret, environment `production` | Không, nếu đã đặt thẳng trên Supabase | aistudio.google.com/apikey | `functions` → `supabase secrets set` |
-| `GEMINI_MODEL` | Secret, environment `production` | Như trên | model id Flash, vd. `gemini-2.5-flash` | như trên |
+| `GEMINI_MODEL` | Secret, environment `production` | Như trên | model id Flash, vd. `gemini-3.8-flash` (gemini-2.5-flash không còn mở cho tài khoản mới) | như trên |
 | `AI_DAILY_LIMIT` | Secret, environment `production` | Không (mặc định 30) | tự đặt | như trên |
 
 - Job `functions` chỉ đẩy secret **có giá trị** (qua file env 0600, không in ra log); secret GitHub để trống không xoá giá trị đang có trên Supabase. Có thể đặt thẳng: Dashboard → Edge Functions → Secrets, hoặc `pnpm exec supabase secrets set --project-ref dfohmtznhercbhutvyag GEMINI_MODEL=<model-id>`.
