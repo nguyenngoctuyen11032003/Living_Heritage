@@ -4,6 +4,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router';
 import { Button, Dialog, EmptyState, Skeleton, useToast } from '@/components/ui';
 import { useCurrentFamily } from '@/features/families/current';
 import { LoadError } from '@/features/vault/components/States';
+import { VaultPageHeader } from '@/features/vault/components/VaultPageHeader';
 import { FamilyGate } from '@/features/vault/external';
 import { useLocale, useT } from '@/i18n';
 import { formatDate } from '@/lib/format';
@@ -22,6 +23,7 @@ export function BooksList() {
 
 function BooksListInner() {
   const t = useT('books');
+  const tv = useT('vault');
   const { locale } = useLocale();
   const { current, canEdit } = useCurrentFamily();
   const familyId = current!.id;
@@ -49,17 +51,20 @@ function BooksListInner() {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="font-serif text-[2rem] font-semibold leading-tight text-heritage-deep md:text-[2.6rem]">{t('list.title')}</h1>
-          <p className="mt-2 max-w-2xl text-ink-soft">{t('list.intro')}</p>
-        </div>
-        {canEdit && (
-          <Button size="lg" leftIcon={<Plus className="size-5" />} onClick={openCreate}>
-            {t('list.create')}
-          </Button>
-        )}
-      </header>
+      <VaultPageHeader
+        eyebrow={tv('header.eyebrow')}
+        title={t('list.title')}
+        lede={t('list.intro')}
+        actions={
+          canEdit &&
+          books !== null &&
+          books.length > 0 && (
+            <Button size="lg" className="w-full md:w-auto" leftIcon={<Plus className="size-5" />} onClick={openCreate}>
+              {t('list.create')}
+            </Button>
+          )
+        }
+      />
 
       {error ? (
         <LoadError onRetry={() => setTick((x) => x + 1)} message={t('state.loadError')} />

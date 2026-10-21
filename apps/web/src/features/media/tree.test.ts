@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { groupAlbum } from './album';
-import { buildTiers, columnCenters, connectorPaths, countByNarrator, initialOf, vaultByNarratorPath } from './tree';
+import { buildTiers, columnCenters, connectorPaths, countByNarrator, initialOf, packedCenters, vaultByNarratorPath } from './tree';
 
 const n = (id: string, generation: number | null, birth_year: number | null, display_name = id) => ({ id, generation, birth_year, display_name });
 
@@ -30,6 +30,13 @@ describe('connector geometry', () => {
     expect(connectorPaths(1, 2)).toEqual(['M50 0V20', 'M25 20H75', 'M25 20V40', 'M75 20V40']);
     expect(connectorPaths(1, 1)).toEqual(['M50 0V20', 'M50 20V40']);
     expect(connectorPaths(0, 3)).toEqual([]);
+  });
+  it('centres packed fixed-width cards inside the widest row', () => {
+    // widest 2 cards of 100 with a 20 gap → row 220; centres at 50 and 170.
+    expect(packedCenters(2, 2, 100, 20).map((x) => Math.round(x * 100) / 100)).toEqual([22.73, 77.27]);
+    // one card under that row sits in the middle.
+    expect(packedCenters(1, 2, 100, 20)).toEqual([50]);
+    expect(connectorPaths(1, 2, (k) => packedCenters(k, 2, 100, 20))).toEqual(['M50 0V20', 'M22.73 20H77.27', 'M22.73 20V40', 'M77.27 20V40']);
   });
 });
 

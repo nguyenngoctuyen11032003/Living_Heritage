@@ -8,9 +8,11 @@ import { getSupabase } from '@/lib/supabase';
 import { loadMembers, type MemberView } from '@/features/families/api';
 import { FamilyGate } from '@/features/families/FamilyGate';
 import { useCurrentFamily } from '@/features/families/current';
-import { ErrorNotice, NotConfiguredNotice, PageHeader } from '@/features/families/states';
+import { ErrorNotice, NotConfiguredNotice } from '@/features/families/states';
+import { NarratorAvatar } from '@/features/vault/components/NarratorAvatar';
+import { VaultPageHeader } from '@/features/vault/components/VaultPageHeader';
 import { assistedTellPath, useNarrators, type Narrator } from '@/features/narrators';
-import { buildTiers, connectorPaths, countByNarrator, initialOf, vaultByNarratorPath, type Generation } from './tree';
+import { buildTiers, connectorPaths, countByNarrator, packedCenters, vaultByNarratorPath, type Generation } from './tree';
 
 export default function FamilyTreePage() {
   return (
@@ -52,6 +54,7 @@ function useMembers(familyId: string) {
 
 function FamilyTree() {
   const t = useT('media');
+  const tv = useT('vault');
   const fam = useCurrentFamily();
   const familyId = fam.current!.id;
   const { narrators, loading, error, reload } = useNarrators(familyId);
@@ -62,10 +65,11 @@ function FamilyTree() {
   if (!getSupabase()) return <NotConfiguredNotice />;
 
   return (
-    <div className="mx-auto max-w-6xl print:max-w-none">
-      <PageHeader
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 print:max-w-none">
+      <VaultPageHeader
+        eyebrow={tv('header.eyebrow')}
         title={t('tree.title')}
-        description={t('tree.subtitle')}
+        lede={t('tree.subtitle')}
         actions={
           narrators.length > 0 && (
             <Button variant="secondary" className="print:hidden" onClick={() => window.print()} leftIcon={<Printer className="size-4" aria-hidden="true" />}>
@@ -121,8 +125,8 @@ function FamilyTree() {
               </div>
               <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {unplaced.map((n) => (
-                  <li key={n.id}>
-                    <PersonCard narrator={n} count={counts?.get(n.id) ?? 0} countsReady={counts !== null} canEdit={fam.canEdit} />
+                  <li key={n.id} className="flex">
+                    <PersonCard narrator={n} count={counts?.get(n.id) ?? 0} countsReady={counts !== null} canEdit={fam.canEdit} className="w-full" />
                   </li>
                 ))}
               </ul>
@@ -152,25 +156,29 @@ function FamilyTree() {
   );
 }
 
-const CARD_MIN = 210; // px per card column on wide screens (the tree scrolls inside its frame beyond that)
+// Fixed card width + gap: rows are centred flex rows, and the connectors use the same numbers to find card centres.
+const CARD_W = 224;
+const CARD_GAP = 20;
 
 function TreeTiers({ tiers, counts, canEdit }: { tiers: Array<{ generation: Generation; narrators: Narrator[] }>; counts: Map<string, number> | null; canEdit: boolean }) {
   const t = useT('media');
   const widest = Math.max(...tiers.map((x) => x.narrators.length));
+  const width = widest * CARD_W + (widest - 1) * CARD_GAP;
+  const centers = (k: number) => packedCenters(k, widest, CARD_W, CARD_GAP);
   return (
     <div className="rounded-[2rem] bg-cream/60 p-4 ring-1 ring-line md:overflow-x-auto md:p-8 print:overflow-visible print:bg-transparent print:p-0 print:ring-0">
-      <ol className="flex flex-col md:mx-auto" style={{ ['--tree-min' as string]: `${widest * CARD_MIN}px` }}>
+      <ol className="flex flex-col md:mx-auto md:w-[var(--tree-w)]" style={{ ['--tree-w' as string]: `${width}px` }}>
         {tiers.map((tier, i) => {
           const next = tiers[i + 1];
           return (
-            <li key={tier.generation} className="flex flex-col md:min-w-[var(--tree-min)]">
+            <li key={tier.generation} className="flex flex-col">
               <section aria-labelledby={`tier-${tier.generation}`} className="print:break-inside-avoid">
                 <h2 id={`tier-${tier.generation}`} className="mb-3 text-center text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-terracotta">
                   {t(`tree.generation.${tier.generation}` as `tree.generation.${Generation}`)}
                 </h2>
                 <TierRow narrators={tier.narrators} counts={counts} canEdit={canEdit} />
               </section>
-              {next && <Connector upper={tier.narrators.length} lower={next.narrators.length} />}
+              {next && <Connector paths={connectorPaths(tier.narrators.length, next.narrators.length, centers)} />}
             </li>
           );
         })}
@@ -179,26 +187,26 @@ function TreeTiers({ tiers, counts, canEdit }: { tiers: Array<{ generation: Gene
   );
 }
 
-/** Cards of one tier: stacked on phones, n equal columns from md up (column centres match the SVG connectors). */
+/** One generation: a centred, wrapping row of equal-height cards (one per line on phones, two from sm, fixed width from md). */
 function TierRow({ narrators, counts, canEdit }: { narrators: Narrator[]; counts: Map<string, number> | null; canEdit: boolean }) {
   return (
-    <ul className="grid grid-cols-1 gap-4 md:gap-0 md:[grid-template-columns:repeat(var(--cols),minmax(0,1fr))]" style={{ ['--cols' as string]: String(narrators.length) }}>
+    <ul className="flex flex-wrap items-stretch justify-center gap-4 md:flex-nowrap md:gap-5">
       {narrators.map((n) => (
-        <li key={n.id} className="flex justify-center md:px-2.5">
-          <PersonCard narrator={n} count={counts?.get(n.id) ?? 0} countsReady={counts !== null} canEdit={canEdit} className="w-full md:max-w-[15rem]" />
+        <li key={n.id} className="flex w-full sm:w-[calc(50%-0.5rem)] md:w-[224px] md:shrink-0">
+          <PersonCard narrator={n} count={counts?.get(n.id) ?? 0} countsReady={counts !== null} canEdit={canEdit} className="w-full" />
         </li>
       ))}
     </ul>
   );
 }
 
-function Connector({ upper, lower }: { upper: number; lower: number }) {
+function Connector({ paths }: { paths: string[] }) {
   return (
     <>
       {/* phones: a simple vertical stem between stacked tiers */}
       <div aria-hidden="true" className="mx-auto my-2 h-8 w-0.5 rounded-full bg-heritage/35 md:hidden print:hidden" />
       <svg aria-hidden="true" viewBox="0 0 100 40" preserveAspectRatio="none" className="my-1 hidden h-12 w-full text-heritage/45 md:block print:block">
-        {connectorPaths(upper, lower).map((d) => (
+        {paths.map((d) => (
           <path key={d} d={d} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
         ))}
       </svg>
@@ -209,11 +217,9 @@ function Connector({ upper, lower }: { upper: number; lower: number }) {
 function PersonCard({ narrator: n, count, countsReady, canEdit, className }: { narrator: Narrator; count: number; countsReady: boolean; canEdit: boolean; className?: string }) {
   const t = useT('media');
   return (
-    <article className={`flex h-full flex-col gap-3 rounded-[1.5rem] bg-paper p-4 shadow-[0_12px_30px_-24px_rgba(22,58,49,0.5)] ring-1 ring-line/80 print:shadow-none ${className ?? ''}`}>
+    <article className={`flex flex-col gap-3 rounded-[1.5rem] bg-paper p-4 shadow-[0_12px_30px_-24px_rgba(22,58,49,0.5)] ring-1 ring-line/80 print:shadow-none ${className ?? ''}`}>
       <div className="flex items-center gap-3">
-        <span aria-hidden="true" className="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-heritage font-serif text-[1.3rem] font-semibold text-cream print:bg-transparent print:text-heritage print:ring-1 print:ring-heritage">
-          {initialOf(n.display_name)}
-        </span>
+        <NarratorAvatar id={n.id} name={n.display_name} size="lg" className="print:bg-transparent! print:text-heritage print:ring-1 print:ring-heritage" />
         <div className="min-w-0">
           <h3 className="break-words font-serif text-[1.1rem] font-semibold leading-snug text-heritage-deep">{n.display_name}</h3>
           <p className="text-[0.88rem] text-ink-soft">{[n.relation, n.birth_year ? t('tree.born', { year: n.birth_year }) : null].filter(Boolean).join(' · ')}</p>

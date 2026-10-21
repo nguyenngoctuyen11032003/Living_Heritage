@@ -37,6 +37,10 @@ export default {
     deleteBody: 'Cuốn sách “{title}” sẽ bị xoá. Các câu chuyện vẫn còn nguyên trong kho gia đình.',
     deleted: 'Đã xoá cuốn sách.',
     cover: 'Bìa sách',
+    danger: {
+      title: 'Xoá cuốn sách',
+      body: 'Cuốn sách và thứ tự chương sẽ mất hẳn. Các câu chuyện vẫn còn nguyên trong kho gia đình.',
+    },
     picker: {
       title: 'Câu chuyện đã duyệt',
       hint: 'Chỉ câu chuyện người kể đã xác nhận mới đưa vào sách được.',

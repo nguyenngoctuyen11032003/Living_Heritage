@@ -45,7 +45,7 @@ export const SCREENS: ScreenRoute[] = [
   { name: 'members', path: '/gia-dinh/thanh-vien', who: 'owner', area: 'vault' },
   { name: 'books', path: '/sach', who: 'owner', area: 'books' },
   { name: 'book-builder', path: `/sach/${IDS.book}`, who: 'owner', area: 'books' },
-  { name: 'book-print', path: `/sach/${IDS.book}/in`, who: 'owner', area: 'books', knownA11yIssue: 'print view has no h1 (BookPrint.tsx)' },
+  { name: 'book-print', path: `/sach/${IDS.book}/in`, who: 'owner', area: 'books' },
   { name: 'explore', path: '/kham-pha', who: 'anon', area: 'knowledge' },
   { name: 'explore-empty', path: '/kham-pha?q=khong-co-gi-ca', who: 'anon', area: 'knowledge' },
   { name: 'item-experience', path: `/tri-thuc/${IDS.pubTuongBan}`, who: 'anon', area: 'knowledge' },

@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowLeft, Eye, Printer, Trash2 } from 'lucide-react';
+import { AlertTriangle, Eye, Printer, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Button, ButtonLink, Dialog, Skeleton, useToast } from '@/components/ui';
@@ -8,6 +8,7 @@ import { fetchFamilyStories } from '@/features/vault/collectionsApi';
 import { OrderedList } from '@/features/vault/components/OrderedList';
 import { LoadError, Unavailable } from '@/features/vault/components/States';
 import { StoryPicker } from '@/features/vault/components/StoryPicker';
+import { VaultPageHeader } from '@/features/vault/components/VaultPageHeader';
 import { FamilyGate } from '@/features/vault/external';
 import type { VaultStory } from '@/features/vault/types';
 import { useVaultLookups } from '@/features/vault/useLookups';
@@ -151,30 +152,23 @@ function Builder({ book: initialBook, initialChapters }: { book: BookRow; initia
   const untitled = tv('card.untitled');
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
-      <Link to="/sach" className="inline-flex min-h-11 w-fit items-center gap-2 text-[0.95rem] font-semibold text-heritage hover:underline">
-        <ArrowLeft className="size-5" aria-hidden="true" />
-        {t('builder.back')}
-      </Link>
-      <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div className="min-w-0">
-          <h1 className="break-words font-serif text-[2rem] font-semibold leading-tight text-heritage-deep md:text-[2.5rem]">{book.title}</h1>
-          {book.subtitle && <p className="mt-1 font-serif text-[1.1rem] italic text-ink-soft">{book.subtitle}</p>}
-          <p className="mt-2 text-[0.9rem] text-ink-soft">{t('builder.chapters.count', { n: chapters.length })}</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Button leftIcon={<Eye className="size-5" />} onClick={() => setPreview(true)}>
-            {t('builder.preview')}
-          </Button>
-          <ButtonLink to={`/sach/${book.id}/in`} variant="secondary" leftIcon={<Printer className="size-5" />}>
-            {t('builder.print')}
-          </ButtonLink>
-          {canEdit && (
-            <Button variant="ghost" leftIcon={<Trash2 className="size-5" />} onClick={() => setConfirmDelete(true)}>
-              {t('builder.delete')}
+      <VaultPageHeader
+        back={{ to: '/sach', label: t('builder.back') }}
+        eyebrow={t('list.title')}
+        title={book.title}
+        lede={book.subtitle ? <span className="font-serif text-[1.1rem] italic">{book.subtitle}</span> : undefined}
+        meta={t('builder.chapters.count', { n: chapters.length })}
+        actions={
+          <div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap md:justify-end">
+            <Button leftIcon={<Eye className="size-5" />} onClick={() => setPreview(true)}>
+              {t('builder.preview')}
             </Button>
-          )}
-        </div>
-      </header>
+            <ButtonLink to={`/sach/${book.id}/in`} variant="secondary" leftIcon={<Printer className="size-5" />}>
+              {t('builder.print')}
+            </ButtonLink>
+          </div>
+        }
+      />
       {!canEdit && <p className="rounded-2xl bg-mint/50 px-4 py-3 text-ink">{t('builder.readOnly')}</p>}
       <p className="sr-only" role="status" aria-live="polite">
         {announce}
@@ -261,6 +255,20 @@ function Builder({ book: initialBook, initialChapters }: { book: BookRow; initia
           {canEdit && <CoverEditor book={book} onSaved={setBook} />}
         </div>
       </div>
+
+      {canEdit && (
+        <section aria-labelledby="book-danger" className="flex flex-col gap-3 rounded-[1.75rem] border border-terracotta/30 bg-terracotta/5 p-5 sm:flex-row sm:items-center sm:justify-between md:p-6">
+          <div className="min-w-0">
+            <h2 id="book-danger" className="font-serif text-[1.15rem] font-semibold text-terracotta">
+              {t('builder.danger.title')}
+            </h2>
+            <p className="mt-1 max-w-xl text-[0.95rem] text-ink-soft">{t('builder.danger.body')}</p>
+          </div>
+          <Button variant="terracotta" className="shrink-0" leftIcon={<Trash2 className="size-5" />} onClick={() => setConfirmDelete(true)}>
+            {t('builder.delete')}
+          </Button>
+        </section>
+      )}
 
       <BookPreview open={preview} onClose={() => setPreview(false)} book={book} pages={pages} chapters={inputs} />
       <Dialog

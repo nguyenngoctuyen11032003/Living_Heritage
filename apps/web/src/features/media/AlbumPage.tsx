@@ -1,5 +1,5 @@
 // /gia-dinh/album: every story photo the user can read, grouped by storyteller or by story.
-import { ImageOff, Images } from 'lucide-react';
+import { ImageOff, ImagePlus, Images } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { ButtonLink, EmptyState, Field, Select, Skeleton } from '@/components/ui';
@@ -7,11 +7,15 @@ import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { FamilyGate } from '@/features/families/FamilyGate';
 import { useCurrentFamily } from '@/features/families/current';
-import { ErrorNotice, NotConfiguredNotice, PageHeader } from '@/features/families/states';
+import { ErrorNotice, NotConfiguredNotice } from '@/features/families/states';
+import { VaultPageHeader } from '@/features/vault/components/VaultPageHeader';
 import { useNarrators } from '@/features/narrators';
 import { groupAlbum, type AlbumGroupMode } from './album';
 import { ALBUM_LIMIT, useFamilyPhotos, type AlbumPhoto } from './hooks';
 import { Lightbox } from './Lightbox';
+
+/** Below this many photos the album still looks sparse, so it points to where photos are added. */
+const FEW_PHOTOS = 4;
 
 export default function AlbumPage() {
   return (
@@ -23,6 +27,7 @@ export default function AlbumPage() {
 
 function Album() {
   const t = useT('media');
+  const tv = useT('vault');
   const familyId = useCurrentFamily().current!.id;
   const { photos, state, refresh } = useFamilyPhotos(familyId);
   const { narrators } = useNarrators(familyId);
@@ -41,8 +46,8 @@ function Album() {
   const withPhotos = useMemo(() => new Set(photos.map((p) => p.narrator_id)), [photos]);
 
   return (
-    <div className="mx-auto max-w-6xl">
-      <PageHeader title={t('album.title')} description={t('album.subtitle')} />
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
+      <VaultPageHeader eyebrow={tv('header.eyebrow')} title={t('album.title')} lede={t('album.subtitle')} />
 
       {state === 'not_configured' ? (
         <NotConfiguredNotice />
@@ -60,11 +65,14 @@ function Album() {
       ) : photos.length === 0 ? (
         <EmptyState icon={<Images />} title={t('album.emptyTitle')} description={t('album.emptyBody')} action={<ButtonLink to="/gia-dinh">{t('album.emptyCta')}</ButtonLink>} />
       ) : (
-        <>
-          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <fieldset className="flex flex-col gap-1.5">
-              <legend className="mb-1.5 text-[0.9rem] font-semibold text-ink">{t('album.groupBy')}</legend>
-              <div className="inline-flex w-fit rounded-full bg-paper p-1 ring-1 ring-line">
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4 rounded-[1.5rem] bg-paper p-4 ring-1 ring-line/80 sm:flex-row sm:flex-wrap sm:items-end sm:gap-x-6 md:p-5">
+            <div role="radiogroup" aria-labelledby="album-group-label" className="flex flex-col gap-1.5">
+              <span id="album-group-label" className="text-[0.9rem] font-semibold text-ink">
+                {t('album.groupBy')}
+              </span>
+              {/* 48px tall like the Select next to it, so both labels and controls line up. */}
+              <div className="inline-flex min-h-12 w-fit items-center rounded-full bg-cream p-0.5 ring-1 ring-line">
                 {(['narrator', 'story'] as const).map((m) => (
                   <label
                     key={m}
@@ -78,27 +86,24 @@ function Album() {
                   </label>
                 ))}
               </div>
-            </fieldset>
-            <div className="sm:w-72">
-              <Field label={t('album.filterNarrator')}>
-                <Select value={narratorId} onChange={(e) => setNarratorId(e.target.value)}>
-                  <option value="">{t('album.allNarrators')}</option>
-                  {narrators
-                    .filter((n) => withPhotos.has(n.id) || n.id === narratorId)
-                    .map((n) => (
-                      <option key={n.id} value={n.id}>
-                        {n.display_name}
-                      </option>
-                    ))}
-                </Select>
-              </Field>
             </div>
+            <Field label={t('album.filterNarrator')} className="sm:w-72">
+              <Select value={narratorId} onChange={(e) => setNarratorId(e.target.value)}>
+                <option value="">{t('album.allNarrators')}</option>
+                {narrators
+                  .filter((n) => withPhotos.has(n.id) || n.id === narratorId)
+                  .map((n) => (
+                    <option key={n.id} value={n.id}>
+                      {n.display_name}
+                    </option>
+                  ))}
+              </Select>
+            </Field>
+            <p aria-live="polite" className="text-[0.9rem] text-ink-soft sm:ml-auto sm:self-end sm:pb-3">
+              {t('album.shown', { n: flat.length })}
+              {photos.length >= ALBUM_LIMIT && ` · ${t('album.limitNote', { n: ALBUM_LIMIT })}`}
+            </p>
           </div>
-
-          <p aria-live="polite" className="mb-4 text-[0.9rem] text-ink-soft">
-            {t('album.shown', { n: flat.length })}
-            {photos.length >= ALBUM_LIMIT && ` · ${t('album.limitNote', { n: ALBUM_LIMIT })}`}
-          </p>
 
           {flat.length === 0 ? (
             <EmptyState
@@ -133,7 +138,8 @@ function Album() {
               ))}
             </div>
           )}
-        </>
+          {photos.length < FEW_PHOTOS && <AddPhotosHint />}
+        </div>
       )}
 
       <Lightbox items={items} index={open} onIndex={setOpen} onClose={() => setOpen(null)} />
@@ -175,5 +181,26 @@ function AlbumTile({ photo: p, showStory, onOpen }: { photo: AlbumPhoto; showSto
         )}
       </figure>
     </li>
+  );
+}
+
+
+function AddPhotosHint() {
+  const t = useT('media');
+  return (
+    <aside className="flex flex-col items-start gap-3 rounded-[1.5rem] border border-dashed border-line bg-paper/70 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex items-start gap-3">
+        <span aria-hidden="true" className="inline-flex size-11 shrink-0 items-center justify-center rounded-2xl bg-mint text-heritage">
+          <ImagePlus className="size-5" />
+        </span>
+        <div>
+          <p className="font-serif text-[1.1rem] font-semibold text-heritage-deep">{t('album.addHint')}</p>
+          <p className="text-[0.92rem] text-ink-soft">{t('album.addHintBody')}</p>
+        </div>
+      </div>
+      <ButtonLink to="/gia-dinh" variant="secondary" className="shrink-0">
+        {t('album.emptyCta')}
+      </ButtonLink>
+    </aside>
   );
 }

@@ -1,8 +1,6 @@
-import { ArrowLeft, BookPlus, FolderPlus, KeyRound, PenLine } from 'lucide-react';
+import { BookPlus, FolderPlus, KeyRound, PenLine } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
-import { Link } from 'react-router';
 import { AudioPlayer, Button, ButtonLink, Skeleton } from '@/components/ui';
-import { StoryScene } from '@/components/illustrations/scenes';
 import { AddToBookDialog } from '@/features/books/components/AddToBookDialog';
 import { useCurrentFamily } from '@/features/families/current';
 import { useLocale, usePick, useT } from '@/i18n';
@@ -12,7 +10,9 @@ import { canWriteStory, fetchProfileName, fetchRecordings, fetchStory, fetchTopi
 import { AddToCollectionDialog } from './components/AddToCollectionDialog';
 import { LoadError, Unavailable } from './components/States';
 import { FamilyGate, ShareDialog, StoryStatusBadge } from './external';
-import { topicVisual } from './topics';
+import { topicStyle } from '@/features/knowledge/topics';
+import { NarratorAvatar } from './components/NarratorAvatar';
+import { VaultPageHeader } from './components/VaultPageHeader';
 import { readExperienceFields, type RecordingLite, type TopicLite, type VaultStory } from './types';
 import { splitParagraphs } from '@/features/books/pages';
 import { StoryPhotos } from '@/features/media';
@@ -104,34 +104,31 @@ function StoryView({ data, onChanged }: { data: Loaded; onChanged: () => void })
   const { story, topic, recording } = data;
   const role = families.find((f) => f.id === story.family_id)?.role;
   const isEditor = role === 'owner' || role === 'manager' || role === 'editor';
-  const visual = topicVisual(topic?.slug);
+  const style = topicStyle(topic?.slug);
   const [dialog, setDialog] = useState<null | 'share' | 'collection' | 'book'>(null);
   const title = story.title.trim() || t('card.untitled');
   const narrator = data.narratorName ?? t('card.unknownNarrator');
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-      <Link to="/gia-dinh" className="inline-flex min-h-11 w-fit items-center gap-2 rounded-full pr-3 text-[0.95rem] font-semibold text-heritage hover:underline">
-        <ArrowLeft className="size-5" aria-hidden="true" />
-        {t('detail.back')}
-      </Link>
-
       <article className="flex flex-col gap-8">
-        <header className="overflow-hidden rounded-[2rem] ring-1 ring-line/80" style={{ background: visual.band, color: visual.ink }}>
-          <div className="grid items-stretch md:grid-cols-[1fr_220px]">
-            <div className="flex flex-col gap-4 p-6 md:p-10">
-              <p className="text-[0.8rem] font-semibold uppercase tracking-[0.16em] opacity-85">
-                {topic ? pick({ vi: topic.title_vi, en: topic.title_en }) : t(`kind.${story.kind}`)}
-                {topic && ` · ${t(`kind.${story.kind}`)}`}
-              </p>
-              <h1 className="break-words font-serif text-[2rem] font-semibold leading-[1.15] md:text-[2.8rem]">{title}</h1>
-              <p className="font-serif text-[1.1rem] italic opacity-90">{t('detail.narratorLine', { name: narrator })}</p>
-            </div>
-            <div className="hidden h-full min-h-48 md:block" aria-hidden="true">
-              <StoryScene kind={visual.scene} />
-            </div>
-          </div>
-        </header>
+        <VaultPageHeader
+          back={{ to: '/gia-dinh', label: t('detail.back') }}
+          band={{ background: style.band, ink: style.ink, scene: style.scene }}
+          eyebrow={
+            <>
+              {topic ? pick({ vi: topic.title_vi, en: topic.title_en }) : t(`kind.${story.kind}`)}
+              {topic && ` · ${t(`kind.${story.kind}`)}`}
+            </>
+          }
+          title={title}
+          lede={
+            <span className="inline-flex items-center gap-3">
+              <NarratorAvatar id={story.narrator_id} name={narrator} className="not-italic" />
+              <span>{t('detail.narratorLine', { name: narrator })}</span>
+            </span>
+          }
+        />
 
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="flex min-w-0 flex-col gap-8">

@@ -39,6 +39,10 @@ export default {
     deleteBody: 'The book “{title}” will be deleted. Its stories stay in the family vault.',
     deleted: 'Book deleted.',
     cover: 'Cover',
+    danger: {
+      title: 'Delete this book',
+      body: 'The book and its chapter order are removed for good. The stories stay in the family vault.',
+    },
     picker: {
       title: 'Approved stories',
       hint: 'Only stories the storyteller has confirmed can go into a book.',

@@ -16,7 +16,18 @@ export interface BookMeta {
  * One A5 page. All sizes are in `cqw` (percent of the page width), so the on-screen preview and the
  * 148 mm print sheet have identical line breaks. The parent must set `container-type: inline-size`.
  */
-export function BookPageView({ page, book, chapters }: { page: BookPage; book: BookMeta; chapters: ChapterInput[] }) {
+export function BookPageView({
+  page,
+  book,
+  chapters,
+  coverTitleAs: CoverTitle = 'h2',
+}: {
+  page: BookPage;
+  book: BookMeta;
+  chapters: ChapterInput[];
+  /** The print view makes the cover title the page h1; the preview dialog keeps it an h2. */
+  coverTitleAs?: 'h1' | 'h2';
+}) {
   const t = useT('books');
   const base: CSSProperties = { fontSize: '2.65cqw', lineHeight: 1.6 };
 
@@ -31,9 +42,9 @@ export function BookPageView({ page, book, chapters }: { page: BookPage; book: B
             {t('preview.familyBook')}
           </p>
           <span aria-hidden="true" className="my-[5cqw] block h-px w-[18cqw]" style={{ background: theme.accent }} />
-          <h2 className="break-words font-serif font-semibold" style={{ fontSize: '8.5cqw', lineHeight: 1.12 }}>
+          <CoverTitle className="break-words font-serif font-semibold" style={{ fontSize: '8.5cqw', lineHeight: 1.15 }}>
             {book.title}
-          </h2>
+          </CoverTitle>
           {book.subtitle && (
             <p className="mt-[4cqw] font-serif italic" style={{ fontSize: '3.6cqw', opacity: 0.9 }}>
               {book.subtitle}

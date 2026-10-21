@@ -49,13 +49,26 @@ export function columnCenters(n: number): number[] {
 }
 
 /**
+ * Horizontal centres (0..100) of n fixed-width cards centred in a row sized for `widest` cards:
+ * row width = widest·card + (widest−1)·gap, cards packed with `gap` between them (a centred flex row).
+ */
+export function packedCenters(n: number, widest: number, card: number, gap: number): number[] {
+  const cols = Math.max(widest, n, 1);
+  const total = cols * card + (cols - 1) * gap;
+  const used = n * card + Math.max(0, n - 1) * gap;
+  const offset = (total - used) / 2;
+  return Array.from({ length: Math.max(0, n) }, (_, i) => ((offset + card / 2 + i * (card + gap)) / total) * 100);
+}
+
+/**
  * SVG connector between an upper tier (m cards) and a lower tier (n cards), in a 100×40 box:
  * stems down from each upper card, one horizontal bar, drops into each lower card.
+ * `centers` maps a card count to its x positions (equal columns by default).
  */
-export function connectorPaths(m: number, n: number): string[] {
+export function connectorPaths(m: number, n: number, centers: (count: number) => number[] = columnCenters): string[] {
   if (m <= 0 || n <= 0) return [];
-  const up = columnCenters(m);
-  const down = columnCenters(n);
+  const up = centers(m);
+  const down = centers(n);
   const all = [...up, ...down];
   const left = Math.min(...all);
   const right = Math.max(...all);
