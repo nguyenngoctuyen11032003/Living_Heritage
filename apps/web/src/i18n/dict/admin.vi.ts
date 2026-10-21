@@ -63,6 +63,13 @@ export default {
     recent: 'Vừa xử lý trong phiên này',
     audioSync: 'Âm thanh sẽ được đồng bộ',
     audioNone: 'Không có âm thanh công khai',
+    reindex: 'Cập nhật chỉ mục tìm kiếm AI',
+    reindexHint: 'Tạo chỉ mục cho các nội dung công khai mới hoặc vừa sửa để trợ lý hỏi đáp tìm thấy chúng.',
+    reindexDone: 'Đã cập nhật chỉ mục cho {n} nội dung.',
+    reindexUpToDate: 'Chỉ mục đã đầy đủ, không có nội dung nào cần cập nhật.',
+    reindexRemaining: 'Còn {n} nội dung chưa có chỉ mục. Bấm lại để tiếp tục.',
+    reindexFailed: '{n} nội dung chưa tạo được chỉ mục, sẽ được thử lại sau.',
+    reindexError: 'Chưa cập nhật được chỉ mục tìm kiếm AI. Vui lòng thử lại sau.',
     errors: {
       request_not_pending: 'Đề nghị này đã được xử lý trước đó.',
       story_not_approved: 'Câu chuyện đã bị sửa sau khi gửi đề nghị và chưa được người kể duyệt lại.',

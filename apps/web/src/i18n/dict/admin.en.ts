@@ -65,6 +65,13 @@ export default {
     recent: 'Handled in this session',
     audioSync: 'Audio will be synced',
     audioNone: 'No public audio',
+    reindex: 'Update AI search index',
+    reindexHint: 'Indexes new or recently edited public items so the Q&A assistant can find them.',
+    reindexDone: 'Index updated for {n} items.',
+    reindexUpToDate: 'The index is complete; nothing needed updating.',
+    reindexRemaining: '{n} items are still not indexed. Press again to continue.',
+    reindexFailed: '{n} items could not be indexed yet and will be retried later.',
+    reindexError: 'Could not update the AI search index. Please try again later.',
     errors: {
       request_not_pending: 'This request has already been handled.',
       story_not_approved: 'The story was edited after the request and hasn’t been re-approved by the narrator.',

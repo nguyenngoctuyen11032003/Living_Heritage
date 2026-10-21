@@ -6,6 +6,7 @@ import { Button, EmptyState, Field, Select } from '@/components/ui';
 import { usePick, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { REGIONS, STORY_KINDS, type Region, type StoryKind } from '@lh/shared';
+import { AskTheElders } from '../components/AskTheElders';
 import { KnowledgeCard, KnowledgeCardSkeleton } from '../components/KnowledgeCard';
 import { SampleBanner } from '../components/SampleBanner';
 import { TopicMotif } from '../components/TopicMotif';
@@ -57,6 +58,18 @@ export default function ExplorePage() {
     e.preventDefault();
     update({ q: qInput });
     resultsRef.current?.focus({ preventScroll: false });
+  }
+
+  function focusResults() {
+    resultsRef.current?.focus({ preventScroll: true });
+    resultsRef.current?.scrollIntoView?.({ block: 'start' });
+  }
+
+  function searchFor(q: string) {
+    const text = q.trim().slice(0, 120);
+    setQInput(text);
+    update({ q: text });
+    focusResults();
   }
 
   function reset() {
@@ -178,6 +191,9 @@ export default function ExplorePage() {
       </section>
 
       <div className="mx-auto max-w-6xl px-4 py-10 md:px-8 md:py-14">
+        {/* Ask the elders (AI answers only from published items, with citations) */}
+        <AskTheElders hubMode={search.mode} notConfigured={search.notConfigured} onSearch={searchFor} onBrowse={focusResults} className="mb-10" />
+
         {/* Filters */}
         <section aria-labelledby="filters-title" className="rounded-[1.75rem] bg-paper p-5 ring-1 ring-line md:p-6">
           <h2 id="filters-title" className="sr-only">
