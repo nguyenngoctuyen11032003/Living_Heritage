@@ -32,12 +32,25 @@ const UPSTREAM: ReadonlySet<GeminiErrorKind> = new Set<GeminiErrorKind>(['timeou
 export class GeminiError extends Error {
   kind: GeminiErrorKind;
   status: number | null;
+  /** Short upstream error message (Gemini's error.message, never request content), for diagnostics. */
+  detail: string | null;
 
-  constructor(kind: GeminiErrorKind, status: number | null = null) {
+  constructor(kind: GeminiErrorKind, status: number | null = null, detail: string | null = null) {
     super(`gemini ${kind}${status === null ? '' : ` (${status})`}`);
     this.name = 'GeminiError';
     this.kind = kind;
     this.status = status;
+    this.detail = detail;
+  }
+}
+
+/** Gemini error bodies look like {error: {message}}; keep a short single-line message. */
+export function upstreamDetail(body: string): string | null {
+  try {
+    const msg = (JSON.parse(body) as { error?: { message?: unknown } }).error?.message;
+    return typeof msg === 'string' && msg.trim() ? msg.replace(/s+/g, ' ').trim().slice(0, 240) : null;
+  } catch {
+    return null;
   }
 }
 
@@ -124,7 +137,7 @@ function usageOf(res: unknown): Usage {
 
 type Attempt =
   | { ok: true; text: string; usage: Usage }
-  | { ok: false; kind: GeminiErrorKind; status: number | null; retryable: boolean };
+  | { ok: false; kind: GeminiErrorKind; status: number | null; retryable: boolean; detail?: string | null };
 
 async function attempt(cfg: GeminiConfig, rt: GeminiRuntime, body: unknown): Promise<Attempt> {
   const ctrl = new AbortController();
@@ -149,7 +162,7 @@ async function attempt(cfg: GeminiConfig, rt: GeminiRuntime, body: unknown): Pro
       const status = res.status;
       if (status === 429) return { ok: false, kind: 'rate_limited', status, retryable: true };
       if (status >= 500) return { ok: false, kind: 'unavailable', status, retryable: RETRYABLE_STATUS.has(status) };
-      return { ok: false, kind: 'bad_request', status, retryable: false };
+      return { ok: false, kind: 'bad_request', status, retryable: false, detail: upstreamDetail(text) };
     }
     let parsed: unknown;
     try {
@@ -177,7 +190,7 @@ export async function generate(cfg: GeminiConfig, rt: GeminiRuntime, body: unkno
     }
     if (!r.retryable || retry >= MAX_RETRIES) {
       rt.breaker.onFailure(UPSTREAM.has(r.kind));
-      throw new GeminiError(r.kind, r.status);
+      throw new GeminiError(r.kind, r.status, r.detail ?? null);
     }
     await rt.sleep(500 + Math.floor(rt.random() * 1000));
   }
