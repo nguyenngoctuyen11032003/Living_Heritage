@@ -61,6 +61,8 @@ export interface GeminiConfig {
   timeoutMs: number;
   /** Optional second model tried once when the primary stays overloaded (429 / 5xx / network) after all retries. */
   fallbackModel?: string;
+  /** Optional dedicated model for transcription (e.g. a speech model); drafting and suggestions use `model`. */
+  transcribeModel?: string;
 }
 
 export interface GeminiRuntime {
@@ -219,6 +221,8 @@ export function parseJson(text: string): unknown {
  * - Gemini 2.5: no thinking budget for these mechanical tasks, keep our temperature.
  */
 export function tuning(model: string, temperature: number): Record<string, unknown> {
+  // Speech models (transcribe / tts) take no thinking settings.
+  if (/transcribe|tts/.test(model)) return { temperature };
   if (/^gemini-3/.test(model)) return { thinkingConfig: { thinkingLevel: 'low' } };
   if (/^gemini-2.5/.test(model)) return { temperature, thinkingConfig: { thinkingBudget: 0 } };
   return { temperature };
@@ -255,7 +259,8 @@ export function createGemini(cfg: GeminiConfig, rt: GeminiRuntime): AiModel {
         }],
         generationConfig: { ...tuning(model, 0), maxOutputTokens: 32_768 },
       });
-      const r = await generateWithFallback(cfg, rt, build);
+      const primary = cfg.transcribeModel?.trim() || cfg.model;
+      const r = await generateWithFallback({ ...cfg, model: primary }, rt, build);
       return { value: r.text.trim(), usage: r.usage };
     },
 

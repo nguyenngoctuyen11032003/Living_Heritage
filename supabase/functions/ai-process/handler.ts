@@ -340,6 +340,7 @@ export async function handle(req: Request, deps: HandlerDeps): Promise<Response>
     model: deps.env('GEMINI_MODEL')?.trim() || DEFAULT_MODEL,
     timeoutMs: intEnv(deps, 'GEMINI_TIMEOUT_MS', DEFAULT_TIMEOUT_MS, 1_000, 400_000),
     ...(deps.env('GEMINI_FALLBACK_MODEL')?.trim() ? { fallbackModel: deps.env('GEMINI_FALLBACK_MODEL')!.trim() } : {}),
+    ...(deps.env('GEMINI_TRANSCRIBE_MODEL')?.trim() ? { transcribeModel: deps.env('GEMINI_TRANSCRIBE_MODEL')!.trim() } : {}),
   });
 
   const ctx: Ctx = { deps, user, userId, model };

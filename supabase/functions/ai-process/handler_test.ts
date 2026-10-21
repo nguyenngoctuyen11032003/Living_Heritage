@@ -471,6 +471,12 @@ Deno.test('GEMINI_FALLBACK_MODEL is passed to the model config when set', async 
   assert.deepEqual(log.geminiCfg, { apiKey: 'k', model: 'gemini-3.8-flash', timeoutMs: 90_000, fallbackModel: 'gemini-lite' });
 });
 
+Deno.test('GEMINI_TRANSCRIBE_MODEL is passed to the model config when set', async () => {
+  const { deps, log } = setup({ env: { GEMINI_API_KEY: 'k', GEMINI_TRANSCRIBE_MODEL: 'gemini-3.5-transcribe' } });
+  await handle(post(TRANSCRIBE), deps);
+  assert.deepEqual(log.geminiCfg, { apiKey: 'k', model: 'gemini-3.8-flash', timeoutMs: 90_000, transcribeModel: 'gemini-3.5-transcribe' });
+});
+
 Deno.test('CORS preflight', async () => {
   const { deps } = setup();
   const res = await handle(new Request('http://localhost/ai-process', { method: 'OPTIONS' }), deps);

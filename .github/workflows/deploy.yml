@@ -146,6 +146,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ secrets.GEMINI_MODEL }}
           GEMINI_FALLBACK_MODEL: ${{ secrets.GEMINI_FALLBACK_MODEL }}
+          GEMINI_TRANSCRIBE_MODEL: ${{ secrets.GEMINI_TRANSCRIBE_MODEL }}
           GEMINI_EMBED_MODEL: ${{ secrets.GEMINI_EMBED_MODEL }}
           GEMINI_TTS_MODEL: ${{ secrets.GEMINI_TTS_MODEL }}
           GEMINI_TTS_VOICE: ${{ secrets.GEMINI_TTS_VOICE }}
@@ -158,7 +159,7 @@ jobs:
           secrets_file="$(mktemp)"
           trap 'rm -f "$secrets_file"' EXIT
           names=()
-          for v in GEMINI_API_KEY GEMINI_MODEL GEMINI_FALLBACK_MODEL GEMINI_EMBED_MODEL GEMINI_TTS_MODEL GEMINI_TTS_VOICE GEMINI_TIMEOUT_MS AI_DAILY_LIMIT TTS_DAILY_LIMIT; do
+          for v in GEMINI_API_KEY GEMINI_MODEL GEMINI_FALLBACK_MODEL GEMINI_TRANSCRIBE_MODEL GEMINI_EMBED_MODEL GEMINI_TTS_MODEL GEMINI_TTS_VOICE GEMINI_TIMEOUT_MS AI_DAILY_LIMIT TTS_DAILY_LIMIT; do
             if [ -n "${!v}" ]; then
               printf '%s=%s\n' "$v" "${!v}" >> "$secrets_file"
               names+=("$v")

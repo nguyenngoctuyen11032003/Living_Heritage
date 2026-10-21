@@ -157,3 +157,18 @@ Deno.test('no fallback for 400, or when none is configured', async () => {
   await assert.rejects(createGemini(CFG, b.rt).suggest({ lang: 'en', topic: 't', previousTitles: [] }), /unavailable/);
   assert.equal(b.requests.length, 4);
 });
+
+Deno.test('tuning: speech models get no thinking settings', () => {
+  assert.deepEqual(tuning('gemini-3.5-transcribe', 0), { temperature: 0 });
+  assert.deepEqual(tuning('gemini-3.8-flash-tts', 0.5), { temperature: 0.5 });
+});
+
+Deno.test('transcribeModel is used for transcription only; drafting stays on the main model', async () => {
+  const { rt, requests } = runtime([ok('hello'), ok('{"questions":["a"]}')]);
+  const g = createGemini({ ...CFG, model: 'gemini-3.7-flash', transcribeModel: 'gemini-3.5-transcribe' }, rt);
+  await g.transcribe(new Uint8Array([1]), 'audio/webm');
+  await g.suggest({ lang: 'en', topic: 't', previousTitles: [] });
+  assert.match(requests[0]!.url, /gemini-3.5-transcribe:generateContent$/);
+  assert.match(requests[1]!.url, /gemini-3.7-flash:generateContent$/);
+  assert.equal(JSON.parse(requests[0]!.init.body as string).generationConfig.thinkingConfig, undefined);
+});
