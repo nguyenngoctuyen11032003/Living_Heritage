@@ -5,7 +5,7 @@ import { Button, EmptyState, Skeleton } from '@/components/ui';
 import { useLocale, usePick, useT } from '@/i18n';
 import { getSupabase } from '@/lib/supabase';
 import { useAddress } from '@/features/storytelling/address';
-import { AssistedBanner, StorytellerGate, TopicIcon } from '@/features/storytelling/components';
+import { AssistedBanner, ELDER_CONTROLS, StorytellerGate, TopicIcon } from '@/features/storytelling/components';
 import { fetchTopics, useAsync, useStoryteller } from '@/features/storytelling/data';
 
 const EASY_SLUG = 'goi-y';
@@ -30,10 +30,10 @@ export default function StorytellingHome() {
   const { narrator, assisted, query } = ctx;
 
   return (
-    <div className="flex flex-col gap-10">
+    <div className={`flex flex-col gap-10 ${ELDER_CONTROLS}`}>
       {assisted && <AssistedBanner name={narrator.display_name} />}
       <header className="flex flex-col gap-3">
-        {narrator.family_name && <p className="text-[1.05rem] font-medium text-heritage">{t('home.family', { family: narrator.family_name })}</p>}
+        {narrator.family_name && <p className="text-[1.17rem] font-medium text-heritage">{t('home.family', { family: narrator.family_name })}</p>}
         <h1 className="font-serif text-[2.2rem] font-semibold leading-tight text-ink md:text-[2.75rem]">{t('home.greeting', { who: address(narrator.display_name) })}</h1>
         <p className="max-w-2xl text-[1.25rem] leading-relaxed text-ink-soft">{t('home.intro', { pronoun: t('home.pronoun') })}</p>
       </header>
@@ -95,7 +95,7 @@ export default function StorytellingHome() {
                   </span>
                   <span className="flex flex-col">
                     <span className="font-serif text-[1.6rem] font-semibold text-ink">{t('home.unsureTitle')}</span>
-                    <span className="text-[1.1rem] text-ink-soft">{t('home.unsureHint')}</span>
+                    <span className="text-[1.17rem] text-ink-soft">{t('home.unsureHint')}</span>
                   </span>
                 </span>
                 <ArrowRight className="hidden size-6 shrink-0 text-heritage sm:block" aria-hidden="true" />
@@ -112,7 +112,7 @@ export default function StorytellingHome() {
         <BookOpen className="size-7 shrink-0" aria-hidden="true" />
         <span className="flex flex-col">
           <span className="text-[1.3rem] font-semibold">{t('home.myStories')}</span>
-          <span className="text-[1.05rem] text-ink-soft">{t('home.myStoriesHint')}</span>
+          <span className="text-[1.17rem] text-ink-soft">{t('home.myStoriesHint')}</span>
         </span>
       </Link>
     </div>
