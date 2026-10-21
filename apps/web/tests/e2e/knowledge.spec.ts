@@ -29,9 +29,9 @@ test('filters sync to the URL and back', async ({ page }) => {
   await expect(page).toHaveURL(/chu-de=mon-an/);
   await expect.poll(() => mock.rpcCalls('search_public').some((b) => b.p_topic === 'mon-an')).toBe(true);
 
-  await filters.getByRole('group', { name: t.filters.kind }).getByRole('button', { name: t.kinds.experience, exact: true }).click();
+  await filters.getByRole('group', { name: t.filters.kind }).getByRole('button', { name: t.filters.kindShort.experience, exact: true }).click();
   await expect(page).toHaveURL(/loai=kinh-nghiem/);
-  await expect(filters.getByRole('group', { name: t.filters.kind }).getByRole('button', { name: t.kinds.experience, exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(filters.getByRole('group', { name: t.filters.kind }).getByRole('button', { name: t.filters.kindShort.experience, exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('link', { name: 'Cách ủ tương Bần' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Trồng rau muống mùa mưa' })).toHaveCount(0);
 
