@@ -40,7 +40,7 @@ export function Hero() {
 
         <h1
           id="hero-title"
-          className="mx-auto mt-6 max-w-[22ch] text-balance font-sans text-[clamp(2.3rem,9.4vw,3.6rem)] font-bold leading-[1.1] tracking-[-0.035em] text-ink min-[821px]:mt-[calc(var(--u)*26)] min-[821px]:max-w-none min-[821px]:text-[clamp(2.6rem,calc(var(--u)*80),5.6rem)] min-[821px]:leading-[1.08]"
+          className="mx-auto mt-6 max-w-[22ch] text-balance font-sans text-[clamp(2.3rem,9.4vw,3.6rem)] font-bold leading-display tracking-[-0.035em] text-ink min-[821px]:mt-[calc(var(--u)*26)] min-[821px]:max-w-none min-[821px]:text-[clamp(2.6rem,calc(var(--u)*80),5.6rem)]"
         >
           <motion.span {...enter(0.28, { y: 28, filter: 'blur(12px)' })} className="block pt-[0.06em]">
             {t('hero.line1')}

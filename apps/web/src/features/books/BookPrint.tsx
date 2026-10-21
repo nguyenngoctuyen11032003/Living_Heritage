@@ -111,13 +111,16 @@ function PrintSheets({ book, chapters, back }: { book: BookRow; chapters: Chapte
         </div>
       </div>
       {inputs.length === 0 ? (
-        <p className="mx-auto max-w-xl rounded-2xl bg-paper p-6 text-center text-ink-soft">{t('preview.empty')}</p>
+        <main id="main" className="mx-auto max-w-xl">
+          <h1 className="sr-only">{book.title}</h1>
+          <p className="rounded-2xl bg-paper p-6 text-center text-ink-soft">{t('preview.empty')}</p>
+        </main>
       ) : (
         <main id="main" aria-label={book.title}>
           {pages.map((page, i) => (
             <section key={i} className="lh-sheet">
               <div className="relative h-full">
-                <BookPageView page={page} book={book} chapters={inputs} />
+                <BookPageView page={page} book={book} chapters={inputs} coverTitleAs="h1" />
                 {page.kind === 'cover' && (
                   <p className="absolute inset-x-0 bottom-[3cqw] text-center font-sans" style={{ fontSize: '1.8cqw', color: COVER_THEMES[asCoverStyle(book.cover_style)].ink, opacity: 0.75 }}>
                     {t('print.label')}

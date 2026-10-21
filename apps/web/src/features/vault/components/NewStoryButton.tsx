@@ -8,21 +8,21 @@ import type { NarratorLite } from '../types';
 /**
  * "Kể câu chuyện mới": no narrators → go add one; one or more → pick who tells (→ /ke-chuyen?narrator=id).
  */
-export function NewStoryButton({ narrators, label, size = 'lg' }: { narrators: NarratorLite[]; label?: string; size?: ButtonSize }) {
+export function NewStoryButton({ narrators, label, size = 'lg', className }: { narrators: NarratorLite[]; label?: string; size?: ButtonSize; className?: string }) {
   const t = useT('vault');
   const [open, setOpen] = useState(false);
   const text = label ?? t('header.newStory');
 
   if (narrators.length === 0) {
     return (
-      <ButtonLink to="/gia-dinh/nguoi-ke" size={size} leftIcon={<UserPlus className="size-5" />}>
+      <ButtonLink to="/gia-dinh/nguoi-ke" size={size} className={className} leftIcon={<UserPlus className="size-5" />}>
         {text}
       </ButtonLink>
     );
   }
   return (
     <>
-      <Button size={size} leftIcon={<Plus className="size-5" />} onClick={() => setOpen(true)} aria-haspopup="dialog">
+      <Button size={size} className={className} leftIcon={<Plus className="size-5" />} onClick={() => setOpen(true)} aria-haspopup="dialog">
         {text}
       </Button>
       <Dialog open={open} onClose={() => setOpen(false)} title={t('header.pickNarrator')} size="sm">

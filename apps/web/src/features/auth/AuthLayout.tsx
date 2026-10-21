@@ -5,10 +5,10 @@ import { useT } from '@/i18n';
 /** Warm two-column auth layout: form on the left, heritage illustration + proverb on the right (hidden on phones). */
 export function AuthLayout({ title, subtitle, children, footer }: { title: ReactNode; subtitle?: ReactNode; children: ReactNode; footer?: ReactNode }) {
   return (
-    <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-10 md:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12">
-      <Reveal className="flex flex-col justify-center">
+    <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-8 px-4 py-10 md:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12">
+      <Reveal className="flex min-w-0 flex-col justify-center">
         <div className="mx-auto w-full max-w-md">
-          <h1 className="text-balance font-serif text-[clamp(2rem,4.5vw,2.75rem)] font-semibold leading-[1.12] tracking-[-0.015em] text-heritage-deep">{title}</h1>
+          <h1 className="text-balance break-words font-serif text-[clamp(2rem,4.5vw,2.75rem)] font-semibold leading-[1.18] tracking-[-0.015em] text-heritage-deep">{title}</h1>
           {subtitle && <p className="mt-3 text-[1.05rem] leading-relaxed text-ink-soft">{subtitle}</p>}
           <div className="mt-8">{children}</div>
           {footer && <div className="mt-8 border-t border-line pt-6 text-[0.95rem] text-ink-soft">{footer}</div>}

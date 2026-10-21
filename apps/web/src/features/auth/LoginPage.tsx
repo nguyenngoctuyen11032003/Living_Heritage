@@ -77,7 +77,7 @@ export default function LoginPage() {
         <div role="status" className="rounded-[1.5rem] bg-mint/60 p-6 ring-1 ring-heritage/10">
           <Mail aria-hidden="true" className="size-8 text-heritage" />
           <h2 className="mt-3 font-serif text-[1.4rem] font-semibold text-heritage-deep">{t('login.magicSentTitle')}</h2>
-          <p className="mt-2 leading-relaxed text-ink">{t('login.magicSentBody', { email: email.trim() })}</p>
+          <p className="mt-2 leading-relaxed text-ink [overflow-wrap:anywhere]">{t('login.magicSentBody', { email: email.trim() })}</p>
           <Button variant="ghost" className="mt-4" onClick={() => setMagicSent(false)}>
             {t('login.useAnother')}
           </Button>

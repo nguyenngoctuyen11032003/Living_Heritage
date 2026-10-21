@@ -21,6 +21,10 @@ import knowledgeVi from './dict/knowledge.vi';
 import knowledgeEn from './dict/knowledge.en';
 import adminVi from './dict/admin.vi';
 import adminEn from './dict/admin.en';
+import settingsVi from './dict/settings.vi';
+import settingsEn from './dict/settings.en';
+import mediaVi from './dict/media.vi';
+import mediaEn from './dict/media.en';
 
 export const dictionaries = {
   vi: {
@@ -35,6 +39,8 @@ export const dictionaries = {
     books: booksVi,
     knowledge: knowledgeVi,
     admin: adminVi,
+    settings: settingsVi,
+    media: mediaVi,
   },
   en: {
     common: commonEn,
@@ -48,6 +54,8 @@ export const dictionaries = {
     books: booksEn,
     knowledge: knowledgeEn,
     admin: adminEn,
+    settings: settingsEn,
+    media: mediaEn,
   },
 } as const;
 

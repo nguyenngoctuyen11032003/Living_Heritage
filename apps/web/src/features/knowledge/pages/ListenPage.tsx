@@ -1,10 +1,11 @@
 import { Headphones, Home, Lock, LogIn, RotateCcw } from 'lucide-react';
 import { useEffect, useState, type ReactNode } from 'react';
 import { useLocation, useParams } from 'react-router';
-import { AudioPlayer, Button, ButtonLink, EmptyState, Skeleton } from '@/components/ui';
+import { AudioPlayer, Button, ButtonLink, Skeleton } from '@/components/ui';
 import { useT } from '@/i18n';
 import { useSession } from '@/lib/session';
 import { getSupabase } from '@/lib/supabase';
+import { PageState } from '../components/PageState';
 import { loadListen, type ListenResult } from '../listen';
 
 type State = { key: string; result: ListenResult | null; error: boolean };
@@ -35,7 +36,7 @@ export default function ListenPage() {
 
   let body: ReactNode;
   if (!sb) {
-    body = <EmptyState title={tc('states.notConfigured')} action={<ButtonLink to="/">{t('listen.home')}</ButtonLink>} />;
+    body = <PageState title={tc('states.notConfigured')} action={<ButtonLink to="/">{t('listen.home')}</ButtonLink>} />;
   } else if (sessionLoading || (user && state.key !== key)) {
     body = (
       <div aria-busy="true" className="rounded-[1.75rem] bg-paper p-8 ring-1 ring-line">
@@ -50,7 +51,7 @@ export default function ListenPage() {
   } else if (state.error && user) {
     body = (
       <div role="alert">
-        <EmptyState
+        <PageState
           title={t('states.itemError')}
           action={
             <Button onClick={() => setNonce((n) => n + 1)} leftIcon={<RotateCcw aria-hidden="true" className="size-4" />}>
@@ -62,7 +63,7 @@ export default function ListenPage() {
     );
   } else if (!user || !state.result || state.result.status === 'forbidden') {
     body = (
-      <EmptyState
+      <PageState
         icon={<Lock />}
         title={t('listen.forbiddenTitle')}
         description={t('listen.forbiddenBody')}

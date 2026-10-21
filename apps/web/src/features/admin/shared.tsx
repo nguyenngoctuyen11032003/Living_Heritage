@@ -1,7 +1,7 @@
-import { ExternalLink, Inbox, RefreshCw, RotateCcw } from 'lucide-react';
+import { Compass, ExternalLink, Inbox, RefreshCw, RotateCcw } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { Link } from 'react-router';
-import { Button, EmptyState, Skeleton } from '@/components/ui';
+import { Button, ButtonLink, EmptyState, Skeleton } from '@/components/ui';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 
@@ -12,6 +12,7 @@ export function ListState({
   emptyTitle,
   emptyBody,
   onRetry,
+  emptyAction,
   children,
 }: {
   status: 'loading' | 'ready' | 'error';
@@ -19,6 +20,8 @@ export function ListState({
   emptyTitle: string;
   emptyBody: string;
   onRetry: () => void;
+  /** Single next step on the empty state; defaults to "Check again". */
+  emptyAction?: ReactNode;
   children: ReactNode;
 }) {
   const t = useT('admin');
@@ -49,8 +52,33 @@ export function ListState({
       </div>
     );
   }
-  if (empty) return <EmptyState icon={<Inbox />} title={emptyTitle} description={emptyBody} />;
+  if (empty) {
+    return (
+      <EmptyState
+        icon={<Inbox />}
+        title={emptyTitle}
+        description={emptyBody}
+        action={
+          emptyAction ?? (
+            <Button variant="secondary" onClick={onRetry} leftIcon={<RefreshCw aria-hidden="true" className="size-4" />}>
+              {t('common.checkAgain')}
+            </Button>
+          )
+        }
+      />
+    );
+  }
   return <div className={cn(status === 'loading' && 'opacity-60 transition-opacity')}>{children}</div>;
+}
+
+/** Empty-state action: open the public hub in the same tab. */
+export function HubLink() {
+  const t = useT('admin');
+  return (
+    <ButtonLink to="/kham-pha" variant="secondary" leftIcon={<Compass aria-hidden="true" className="size-4" />}>
+      {t('common.openHub')}
+    </ButtonLink>
+  );
 }
 
 export function ListHeader({ count, onRefresh, loading, children }: { count: number | null; onRefresh: () => void; loading: boolean; children?: ReactNode }) {

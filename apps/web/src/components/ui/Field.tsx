@@ -1,6 +1,7 @@
 import { createContext, useContext, useId, type InputHTMLAttributes, type ReactNode, type Ref, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { baseDisplay } from './display';
 
 interface FieldContextValue {
   id: string;
@@ -38,7 +39,7 @@ export function Field({ label, hint, error, required = false, hideLabel, id, cla
   const describedBy = [hintId, errorId].filter(Boolean).join(' ') || undefined;
   return (
     <FieldContext.Provider value={{ id: fieldId, describedBy, invalid: Boolean(error), required }}>
-      <div className={cn('flex flex-col gap-1.5', className)}>
+      <div className={cn(baseDisplay('flex', className), 'flex-col gap-1.5', className)}>
         <label htmlFor={fieldId} className={cn('text-[0.9rem] font-semibold text-ink', hideLabel && 'sr-only')}>
           {label}
           {required && (

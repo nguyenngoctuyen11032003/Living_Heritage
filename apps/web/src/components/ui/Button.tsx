@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode, Ref } from 'react';
 import { Link, type LinkProps } from 'react-router';
 import { cn } from '@/lib/cn';
+import { baseDisplay } from './display';
 import { Spinner } from './Spinner';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'terracotta' | 'dark-cream';
@@ -18,7 +19,7 @@ export interface ButtonStyleOptions {
 }
 
 const base =
-  'group/btn relative inline-flex select-none items-center justify-center gap-2 rounded-full font-semibold leading-tight tracking-[-0.005em] transition-[background-color,color,box-shadow,transform] duration-200 ease-out active:scale-[0.98] disabled:pointer-events-none disabled:opacity-55 aria-disabled:pointer-events-none aria-disabled:opacity-55 focus-visible:outline-offset-4';
+  'group/btn relative select-none items-center justify-center gap-2 rounded-full font-semibold leading-tight tracking-[-0.005em] transition-[background-color,color,box-shadow,transform] duration-200 ease-out active:scale-[0.98] disabled:pointer-events-none disabled:opacity-55 aria-disabled:pointer-events-none aria-disabled:opacity-55 focus-visible:outline-offset-4';
 
 const variants: Record<ButtonVariant, string> = {
   primary: 'bg-heritage text-cream hover:bg-heritage-deep shadow-[0_1px_0_rgba(255,255,255,0.12)_inset]',
@@ -40,9 +41,12 @@ const iconSizes: Record<ButtonSize, string> = {
   xl: 'size-16 min-h-16',
 };
 
-/** Class string for anything that should look like a button (links, labels…). */
+/**
+ * Class string for anything that should look like a button (links, labels…).
+ * A display utility in `className` (e.g. `hidden sm:inline-flex`) replaces the base `inline-flex` — see ./display.ts.
+ */
 export function buttonClasses({ variant = 'primary', size = 'md', fullWidth, iconOnly, className }: ButtonStyleOptions = {}): string {
-  return cn(base, variants[variant], iconOnly ? iconSizes[size] : sizes[size], fullWidth && 'w-full', className);
+  return cn(base, baseDisplay('inline-flex', className), variants[variant], iconOnly ? iconSizes[size] : sizes[size], fullWidth && 'w-full', className);
 }
 
 interface ButtonContentProps {

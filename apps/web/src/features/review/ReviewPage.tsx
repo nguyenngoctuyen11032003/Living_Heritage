@@ -1,19 +1,22 @@
 import type { AiErrorCode, MemberRole } from '@lh/shared';
-import { ArrowLeft, CheckCircle2, FileQuestion, History, Share2, WifiOff } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { ArrowLeft, FileQuestion, History, WifiOff } from 'lucide-react';
+import { useCallback, useEffect, useId, useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { Link, useBlocker, useNavigate, useParams } from 'react-router';
 import { LanguageSwitch } from '@/components/layout/LanguageSwitch';
 import { TextScaleSwitch } from '@/components/layout/TextScaleSwitch';
-import { Badge, Button, ButtonLink, Card, Dialog, EmptyState, Skeleton, Tab, TabList, TabPanel, Tabs, useToast } from '@/components/ui';
+import { StoryScene } from '@/components/illustrations/scenes';
+import { Button, ButtonLink, Dialog, EmptyState, Skeleton, Tab, TabList, TabPanel, Tabs, useToast } from '@/components/ui';
 import { aiErrorKey, transcribeAndDraft } from '@/features/ai/client';
 import { useCurrentFamily } from '@/features/families/current';
 import { ShareDialog, StoryStatusBadge } from '@/features/sharing';
+import { topicStyle } from '@/features/knowledge/topics';
 import { useLocale, usePick, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { formatDate } from '@/lib/format';
 import { RequireAuth, useSession } from '@/lib/session';
 import { getSupabase } from '@/lib/supabase';
 import { ApprovalBar } from './ApprovalBar';
+import { ApprovalSection } from './ApprovalSection';
 import { canEditDraft, decideApproval } from './approval';
 import { approve, isJobActive, loadReview, saveDraft, type AiJobRow, type ReviewBundle, type ReviewLoad } from './data';
 import { DraftEditor } from './DraftEditor';
@@ -222,6 +225,8 @@ function StoryReview({ bundle, role, onReload }: { bundle: ReviewBundle; role: M
   const [historyOpen, setHistoryOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [justApproved, setJustApproved] = useState(false);
+  const [consent, setConsent] = useState(false);
+  const approvalHintId = useId();
   const [tab, setTab] = useState('draft');
   const [job, setJob] = useState<AiJobRow | null>(bundle.job);
 
@@ -300,84 +305,115 @@ function StoryReview({ bundle, role, onReload }: { bundle: ReviewBundle; role: M
   }
 
   const sibling = siblings[0];
-  const source = (
-    <Card padding="md" className="h-fit">
+  const visual = topicStyle(topic?.slug);
+  const topicTitle = topic ? pick({ vi: topic.title_vi, en: topic.title_en }) : null;
+  const approvedAt = story.approved_at && story.edit_status === 'approved' ? formatDate(story.approved_at, locale) : null;
+
+  function backToSource() {
+    if (!isDesktop) setTab('source');
+    requestAnimationFrame(() => {
+      const el = document.getElementById('source-heading');
+      if (!el) return;
+      el.scrollIntoView?.({ block: 'start' });
+      el.focus({ preventScroll: true });
+    });
+  }
+
+  // Desktop: a quieter sticky side rail (player at the top, the transcript scrolls inside it).
+  const source = isDesktop ? (
+    <aside className="sticky top-6 flex max-h-[calc(100dvh-7.5rem)] flex-col rounded-[1.75rem] bg-paper/55 p-5 ring-1 ring-line/80">
+      <SourcePanel recording={recording} transcript={transcript} rail />
+    </aside>
+  ) : (
+    <div className="rounded-[1.75rem] bg-paper/55 p-4 ring-1 ring-line/80">
       <SourcePanel recording={recording} transcript={transcript} />
-    </Card>
+    </div>
   );
+  // The story text is the hero: a wide paper sheet with a comfortable serif editor.
   const draft = (
-    <Card padding="md" className="h-fit">
-      <section aria-labelledby="draft-heading" className="flex flex-col gap-4">
-        <h2 id="draft-heading" className="font-serif text-[1.35rem] font-semibold text-heritage-deep">
-          {t('editor.heading')}
-        </h2>
-        {!canEdit && <p className="rounded-2xl bg-cream p-3 text-[0.92rem] text-ink-soft">{t('page.readOnly')}</p>}
-        <DraftEditor kind={story.kind} form={form} onChange={setForm} readOnly={!canEdit} errors={errors} />
-      </section>
-    </Card>
+    <section aria-labelledby="draft-heading" className="flex flex-col gap-4 rounded-[2rem] bg-paper px-5 py-6 shadow-[0_18px_40px_-32px_rgba(18,27,24,0.45)] ring-1 ring-line/80 md:px-10 md:py-9">
+      <h2 id="draft-heading" className="text-[0.82rem] font-semibold uppercase tracking-[0.14em] text-ink-soft">
+        {t('editor.heading')}
+      </h2>
+      {!canEdit && <p className="rounded-2xl bg-cream p-3 text-[0.92rem] text-ink-soft">{t('page.readOnly')}</p>}
+      <DraftEditor kind={story.kind} form={form} onChange={setForm} readOnly={!canEdit} errors={errors} />
+    </section>
+  );
+  const approvalSection = (
+    <ApprovalSection
+      mode={mode}
+      canEdit={canEdit}
+      dirty={dirty}
+      consent={consent}
+      onConsentChange={setConsent}
+      justApproved={justApproved}
+      approvedAt={approvedAt}
+      onShare={() => setShareOpen(true)}
+      onBackToSource={backToSource}
+      describedById={approvalHintId}
+      narratorMode={isNarratorUser}
+    />
   );
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge tone="outline">{t(`page.kind.${story.kind}`)}</Badge>
-          <StoryStatusBadge editStatus={story.edit_status} visibility={story.visibility} showScope />
-        </div>
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <h1 className="min-w-0 font-serif text-[clamp(1.6rem,4vw,2.3rem)] font-semibold leading-tight text-heritage-deep [overflow-wrap:anywhere]">{story.title || t('page.title')}</h1>
-          <Button variant="secondary" onClick={() => setHistoryOpen(true)} leftIcon={<History className="size-5" aria-hidden="true" />}>
-            {t('history.open')}
-          </Button>
-        </div>
-        <p className="flex flex-wrap gap-x-5 gap-y-1 text-ink-soft">
-          {narrator && <span>{t('page.narratorBy', { name: narrator.display_name })}</span>}
-          {topic && <span>{t('page.topic', { topic: pick({ vi: topic.title_vi, en: topic.title_en }) })}</span>}
-          {story.approved_at && story.edit_status === 'approved' && <span>{t('approval.approvedAt', { date: formatDate(story.approved_at, locale) })}</span>}
-        </p>
-        {sibling && (
-          <p className="flex flex-wrap items-center gap-2 rounded-2xl bg-paper px-4 py-2 text-[0.92rem] ring-1 ring-line">
-            {t(`page.sibling.${sibling.kind}`)}
-            <Link to={`/ban-nhap/${sibling.id}`} className="font-semibold text-heritage underline underline-offset-4">
-              {t('page.sibling.open')}
-            </Link>
-          </p>
-        )}
-      </div>
-
-      {justApproved && mode === 'approved' && (
-        <Card tone="mint" padding="md" role="status" aria-live="polite">
-          <div className="flex flex-col items-start gap-3">
-            <p className="flex items-center gap-2 font-serif text-[1.35rem] font-semibold text-heritage-deep">
-              <CheckCircle2 className="size-6" aria-hidden="true" />
-              {t('approval.successTitle')}
+      <header className="overflow-hidden rounded-[2rem] ring-1 ring-line/80" style={{ background: visual.band, color: visual.ink }}>
+        <div className="grid items-stretch md:grid-cols-[1fr_200px]">
+          <div className="flex min-w-0 flex-col gap-3 p-6 md:p-9">
+            <p className="text-[0.8rem] font-semibold uppercase tracking-[0.16em] opacity-85">
+              {topicTitle ? `${topicTitle} · ${t(`page.kind.${story.kind}`)}` : t(`page.kind.${story.kind}`)}
             </p>
-            <p>{t('approval.successBody')}</p>
-            <Button size="lg" onClick={() => setShareOpen(true)} leftIcon={<Share2 className="size-5" aria-hidden="true" />}>
-              {t('approval.nextStep')}
-            </Button>
+            <h1 className="min-w-0 font-serif text-[clamp(1.7rem,4vw,2.5rem)] font-semibold text-balance leading-[1.18] [overflow-wrap:anywhere]">{story.title || t('page.title')}</h1>
+            {narrator && <p className="font-serif text-[1.05rem] italic opacity-90">{t('page.narratorBy', { name: narrator.display_name })}</p>}
           </div>
-        </Card>
+          <div className="hidden h-full min-h-44 md:block" aria-hidden="true">
+            <StoryScene kind={visual.scene} />
+          </div>
+        </div>
+      </header>
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-[0.92rem] text-ink-soft">
+          <StoryStatusBadge editStatus={story.edit_status} visibility={story.visibility} showScope />
+          {approvedAt && <span>{t('approval.approvedAt', { date: approvedAt })}</span>}
+        </div>
+        <Button variant="secondary" onClick={() => setHistoryOpen(true)} leftIcon={<History className="size-5" aria-hidden="true" />}>
+          {t('history.open')}
+        </Button>
+      </div>
+      {sibling && (
+        <p className="flex flex-wrap items-center gap-2 rounded-2xl bg-paper px-4 py-2 text-[0.92rem] ring-1 ring-line">
+          {t(`page.sibling.${sibling.kind}`)}
+          <Link to={`/ban-nhap/${sibling.id}`} className="font-semibold text-heritage underline underline-offset-4">
+            {t('page.sibling.open')}
+          </Link>
+        </p>
       )}
 
       {isDesktop ? (
-        <div className="grid grid-cols-2 items-start gap-8">
-          {source}
-          {draft}
+        <div className="grid grid-cols-12 items-start gap-8">
+          <div className="col-span-4 self-stretch">{source}</div>
+          <div className="col-span-8 flex min-w-0 flex-col gap-8">
+            {draft}
+            {approvalSection}
+          </div>
         </div>
       ) : (
-        <Tabs value={tab} defaultValue="draft" onValueChange={setTab}>
-          <TabList label={t('tabs.label')} className="mb-4 flex w-full">
-            <Tab value="source" className="flex-1 justify-center">
-              {t('tabs.source')}
-            </Tab>
-            <Tab value="draft" className="flex-1 justify-center">
-              {t('tabs.draft')}
-            </Tab>
-          </TabList>
-          <TabPanel value="source">{source}</TabPanel>
-          <TabPanel value="draft">{draft}</TabPanel>
-        </Tabs>
+        <>
+          <Tabs value={tab} defaultValue="draft" onValueChange={setTab}>
+            <TabList label={t('tabs.label')} className="mb-4 flex w-full">
+              <Tab value="source" className="flex-1 justify-center">
+                {t('tabs.source')}
+              </Tab>
+              <Tab value="draft" className="flex-1 justify-center">
+                {t('tabs.draft')}
+              </Tab>
+            </TabList>
+            <TabPanel value="source">{source}</TabPanel>
+            <TabPanel value="draft">{draft}</TabPanel>
+          </Tabs>
+          {approvalSection}
+        </>
       )}
 
       <ApprovalBar
@@ -386,9 +422,10 @@ function StoryReview({ bundle, role, onReload }: { bundle: ReviewBundle; role: M
         dirty={dirty}
         waiting={story.edit_status === 'pending_review'}
         busy={busy}
+        consent={consent}
         onSave={() => void save()}
         onApprove={(assisted) => void doApprove(assisted)}
-        onShare={() => setShareOpen(true)}
+        describedBy={approvalHintId}
         narratorMode={isNarratorUser}
       />
 

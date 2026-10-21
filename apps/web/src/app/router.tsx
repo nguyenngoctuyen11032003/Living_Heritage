@@ -10,11 +10,13 @@ import { area as landing } from '@/routes/landing';
 import { area as legal } from '@/routes/legal';
 import { area as narrator } from '@/routes/narrator';
 import { area as review } from '@/routes/review';
+import { area as settings } from '@/routes/settings';
+import { area as media } from '@/routes/media';
 import { RouteError } from '@/routes/RouteError';
 import { NotFound } from '@/routes/NotFound';
 import type { AreaRoutes } from '@/routes/types';
 
-const areas: AreaRoutes[] = [landing, legal, auth, narrator, family, review, books, knowledge, admin];
+const areas: AreaRoutes[] = [landing, legal, auth, narrator, family, review, books, knowledge, admin, settings, media];
 const collect = (key: keyof AreaRoutes): RouteObject[] => areas.flatMap((a) => a[key] ?? []);
 
 export const routes: RouteObject[] = [

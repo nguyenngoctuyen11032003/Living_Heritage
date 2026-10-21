@@ -164,9 +164,15 @@ jobs:
           fi
           supabase secrets set --env-file "$secrets_file" --project-ref "$SUPABASE_PROJECT_ID" >/dev/null
           echo "Updated Edge Function secrets: ${names[*]}"
-      - name: Deploy ai-process
+      - name: Deploy Edge Functions
         if: steps.token.outputs.ok == 'true'
-        run: supabase functions deploy ai-process --project-ref "$SUPABASE_PROJECT_ID" && supabase functions deploy public-audio-sync --project-ref "$SUPABASE_PROJECT_ID"
+        run: |
+          for dir in supabase/functions/*/; do
+            name=$(basename "$dir")
+            [ "$name" = "_shared" ] && continue
+            [ -f "$dir/index.ts" ] || continue
+            supabase functions deploy "$name" --project-ref "$SUPABASE_PROJECT_ID"
+          done
 
   build:
     name: Build site

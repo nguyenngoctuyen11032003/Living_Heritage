@@ -30,6 +30,14 @@ export const TRANSCRIBE_SYSTEM = [
 
 export const TRANSCRIBE_USER = 'Transcribe this recording following the rules.';
 
+/** The user turn, with the narrator's language (narrators.lang) as a hint. */
+export function transcribeUser(lang?: Lang): string {
+  if (!lang) return TRANSCRIBE_USER;
+  return `${TRANSCRIBE_USER}\nThe narrator usually speaks ${
+    LANG_NAME[lang]
+  }. If another language is actually spoken, transcribe what is spoken.`;
+}
+
 // ---------------------------------------------------------------------------
 // Step 2: story + experience draft (JSON)
 // ---------------------------------------------------------------------------

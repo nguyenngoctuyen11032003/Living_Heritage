@@ -131,6 +131,10 @@ export default {
     loadError: 'Chưa tải được lịch sử phiên bản.',
   },
   approval: {
+    finalStep: 'Bước cuối',
+    sectionTitle: 'Duyệt nội dung',
+    confirmHint: 'Nếu đúng, bấm “Xác nhận đúng ý tôi”. Nếu chưa, hãy sửa bản nháp hoặc nghe lại nguồn.',
+    backToSource: 'Quay lại nguồn',
     question: 'Nội dung này đã đúng điều bác muốn kể chưa?',
     confirm: 'Xác nhận đúng ý tôi',
     confirming: 'Đang xác nhận…',

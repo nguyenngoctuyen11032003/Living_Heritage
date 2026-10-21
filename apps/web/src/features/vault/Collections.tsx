@@ -1,7 +1,7 @@
-import { ArrowLeft, FolderHeart, Pencil, Plus, Trash2 } from 'lucide-react';
+import { BookOpen, FolderHeart, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router';
-import { Button, Dialog, EmptyState, Field, Input, Skeleton, Textarea, useToast } from '@/components/ui';
+import { Button, ButtonLink, Dialog, EmptyState, Field, Input, Skeleton, Textarea, useToast } from '@/components/ui';
 import { moveItem, positionUpdates, renumber } from '@/features/books/reorder';
 import { useCurrentFamily } from '@/features/families/current';
 import { useT } from '@/i18n';
@@ -23,6 +23,7 @@ import {
 import { OrderedList } from './components/OrderedList';
 import { LoadError, Unavailable } from './components/States';
 import { StoryPicker } from './components/StoryPicker';
+import { VaultPageHeader } from './components/VaultPageHeader';
 import { FamilyGate, StoryStatusBadge } from './external';
 import type { VaultStory } from './types';
 import { useVaultLookups } from './useLookups';
@@ -81,21 +82,20 @@ function CollectionsInner() {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
-      <Link to="/gia-dinh" className="inline-flex min-h-11 w-fit items-center gap-2 text-[0.95rem] font-semibold text-heritage hover:underline">
-        <ArrowLeft className="size-5" aria-hidden="true" />
-        {t('detail.back')}
-      </Link>
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="font-serif text-[2rem] font-semibold leading-tight text-heritage-deep md:text-[2.4rem]">{t('collections.title')}</h1>
-          <p className="mt-2 max-w-xl text-ink-soft">{t('collections.intro')}</p>
-        </div>
-        {canEdit && (
-          <Button size="lg" leftIcon={<Plus className="size-5" />} onClick={() => setEditing('new')}>
-            {t('collections.create')}
-          </Button>
-        )}
-      </header>
+      <VaultPageHeader
+        back={{ to: '/gia-dinh', label: t('detail.back') }}
+        eyebrow={t('header.eyebrow')}
+        title={t('collections.title')}
+        lede={t('collections.intro')}
+        actions={
+          // An empty list shows the single create action in its empty state instead.
+          canEdit && items !== null && items.length > 0 && (
+            <Button size="lg" className="w-full md:w-auto" leftIcon={<Plus className="size-5" />} onClick={() => setEditing('new')}>
+              {t('collections.create')}
+            </Button>
+          )
+        }
+      />
 
       {error ? (
         <LoadError onRetry={() => setTick((x) => x + 1)} />
@@ -114,7 +114,11 @@ function CollectionsInner() {
               <Button leftIcon={<Plus className="size-5" />} onClick={() => setEditing('new')}>
                 {t('collections.create')}
               </Button>
-            ) : undefined
+            ) : (
+              <ButtonLink to="/gia-dinh" variant="secondary" leftIcon={<BookOpen className="size-5" />}>
+                {t('collections.viewerCta')}
+              </ButtonLink>
+            )
           }
         />
       ) : (
@@ -368,27 +372,25 @@ function CollectionInner({ collectionId }: { collectionId: string }) {
   const untitled = t('card.untitled');
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
-      <Link to="/gia-dinh/bo-suu-tap" className="inline-flex min-h-11 w-fit items-center gap-2 text-[0.95rem] font-semibold text-heritage hover:underline">
-        <ArrowLeft className="size-5" aria-hidden="true" />
-        {t('collections.back')}
-      </Link>
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="min-w-0">
-          <h1 className="break-words font-serif text-[2rem] font-semibold leading-tight text-heritage-deep">{meta.title}</h1>
-          {meta.description && <p className="mt-2 max-w-xl text-ink-soft">{meta.description}</p>}
-          <p className="mt-2 text-[0.9rem] text-ink-soft">{t('collections.count', { n: rows.length })}</p>
-        </div>
-        {canEdit && (
-          <div className="flex flex-wrap gap-2">
-            <Button variant="secondary" leftIcon={<Pencil className="size-4" />} onClick={() => setEditing(true)}>
-              {t('collections.rename')}
-            </Button>
-            <Button leftIcon={<Plus className="size-5" />} onClick={() => void openPicker()}>
-              {t('collections.items.add')}
-            </Button>
-          </div>
-        )}
-      </header>
+      <VaultPageHeader
+        back={{ to: '/gia-dinh/bo-suu-tap', label: t('collections.back') }}
+        eyebrow={t('collections.title')}
+        title={meta.title}
+        lede={meta.description || undefined}
+        meta={t('collections.count', { n: rows.length })}
+        actions={
+          canEdit && (
+            <div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap md:justify-end">
+              <Button variant="secondary" leftIcon={<Pencil className="size-4" />} onClick={() => setEditing(true)}>
+                {t('collections.rename')}
+              </Button>
+              <Button leftIcon={<Plus className="size-5" />} onClick={() => void openPicker()}>
+                {t('collections.items.add')}
+              </Button>
+            </div>
+          )
+        }
+      />
 
       {rows.length === 0 ? (
         <EmptyState

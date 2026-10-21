@@ -77,13 +77,13 @@ function Body({ narrator, onClose, onCreated }: { narrator: Narrator; onClose: (
             <p className="leading-relaxed">{t('links.onceWarning')}</p>
           </div>
           <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
-            <div className="rounded-3xl bg-cream p-4 ring-1 ring-line">
+            <div className="shrink-0 rounded-3xl bg-cream p-4 ring-1 ring-line">
               <QrCode value={result.url} label={t('links.qrLabel', { name })} size={240} className="size-[min(240px,70vw)]" />
             </div>
             <div className="flex w-full min-w-0 flex-1 flex-col gap-3">
               <p className="leading-relaxed text-ink">{t('links.howTo')}</p>
               <p className="text-[0.95rem] text-ink-soft">{t('links.expiresOn', { date: formatDate(result.expiresAt, locale) })}</p>
-              <Button variant="primary" size="lg" onClick={share} leftIcon={<Share2 className="size-5" aria-hidden="true" />}>
+              <Button variant="primary" size="lg" className="text-balance text-center" onClick={share} leftIcon={<Share2 className="size-5" aria-hidden="true" />}>
                 {t('links.shareZalo')}
               </Button>
               <p aria-live="polite" className="min-h-5 text-[0.88rem] text-ink-soft">

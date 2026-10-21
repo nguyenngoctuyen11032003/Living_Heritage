@@ -7,12 +7,13 @@ import {
   type DraftInput,
   draftSystem,
   draftUser,
+  type Lang,
   SUGGEST_SCHEMA,
   type SuggestInput,
   suggestSystem,
   suggestUser,
   TRANSCRIBE_SYSTEM,
-  TRANSCRIBE_USER,
+  transcribeUser,
 } from './prompts.ts';
 
 export type GeminiErrorKind =
@@ -67,7 +68,8 @@ export interface GenResult<T> {
 /** What the handler needs from the model. JSON results come back unvalidated (the handler runs zod). */
 export interface AiModel {
   readonly model: string;
-  transcribe(audio: Uint8Array, mime: string | null): Promise<GenResult<string>>;
+  /** `lang` = the narrator's language, sent as a hint (the transcript stays in the language actually spoken). */
+  transcribe(audio: Uint8Array, mime: string | null, lang?: Lang): Promise<GenResult<string>>;
   draft(input: DraftInput): Promise<GenResult<unknown>>;
   suggest(input: SuggestInput): Promise<GenResult<unknown>>;
 }
@@ -195,12 +197,12 @@ export function createGemini(cfg: GeminiConfig, rt: GeminiRuntime): AiModel {
   return {
     model: cfg.model,
 
-    async transcribe(audio, mime) {
+    async transcribe(audio, mime, lang) {
       const body = {
         systemInstruction: { parts: [{ text: TRANSCRIBE_SYSTEM }] },
         contents: [{
           role: 'user',
-          parts: [{ text: TRANSCRIBE_USER }, { inline_data: { mime_type: baseMime(mime), data: toBase64(audio) } }],
+          parts: [{ text: transcribeUser(lang) }, { inline_data: { mime_type: baseMime(mime), data: toBase64(audio) } }],
         }],
         generationConfig: { temperature: 0, maxOutputTokens: 32_768 },
       };

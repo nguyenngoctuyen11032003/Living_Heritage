@@ -9,6 +9,7 @@ import {
   fetchNarratorById,
   fetchQuestions,
   fetchSession,
+  fetchSessionRecordingCount,
   fetchTopics,
   useAsync,
   useIsNarratorOrEditor,
@@ -24,14 +25,15 @@ export default function SessionPage() {
     if (!sb) return null;
     const session = await fetchSession(sb, sessionId);
     if (!session) return null;
-    const [narrator, topics, questions, answered] = await Promise.all([
+    const [narrator, topics, questions, answered, keptBefore] = await Promise.all([
       fetchNarratorById(sb, session.narrator_id),
       fetchTopics(sb),
       session.topic_id ? fetchQuestions(sb, session.topic_id) : Promise.resolve([]),
       fetchAnsweredQuestionIds(sb, session.id),
+      fetchSessionRecordingCount(sb, session.id).catch(() => 0),
     ]);
     if (!narrator) return null;
-    return { session, narrator, topic: topics.find((tp) => tp.id === session.topic_id) ?? null, questions, answered };
+    return { session, narrator, topic: topics.find((tp) => tp.id === session.topic_id) ?? null, questions, answered, keptBefore };
   }, [sb, sessionId]);
 
   const data = loaded.status === 'ready' ? loaded.data : null;

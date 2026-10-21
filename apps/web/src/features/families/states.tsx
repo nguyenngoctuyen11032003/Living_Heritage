@@ -6,15 +6,23 @@ import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { copyText } from './share';
 
+/**
+ * Page header for AppShell pages: optional eyebrow, serif h1, lede, and an actions row.
+ * Actions sit right of the title (bottom-aligned) from md up; below md they stack full-width under the lede.
+ */
 export function PageHeader({ title, description, actions, eyebrow }: { title: ReactNode; description?: ReactNode; actions?: ReactNode; eyebrow?: ReactNode }) {
   return (
-    <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div className="min-w-0">
-        {eyebrow && <p className="mb-1 text-[0.85rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{eyebrow}</p>}
-        <h1 className="text-balance font-serif text-[clamp(1.8rem,4vw,2.5rem)] font-semibold leading-tight text-heritage-deep">{title}</h1>
-        {description && <p className="mt-2 max-w-2xl leading-relaxed text-ink-soft">{description}</p>}
+    <header className="mb-8 flex flex-col gap-5 pt-2 md:mb-10 md:flex-row md:items-end md:justify-between md:gap-8 md:pt-4">
+      <div className="min-w-0 md:flex-1">
+        {eyebrow && <p className="mb-2 text-[0.85rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{eyebrow}</p>}
+        <h1 className="text-balance break-words font-serif text-[clamp(1.8rem,4vw,2.5rem)] font-semibold leading-[1.18] text-heritage-deep">{title}</h1>
+        {description && <p className="mt-3 max-w-2xl text-pretty break-words leading-relaxed text-ink-soft">{description}</p>}
       </div>
-      {actions && <div className="flex shrink-0 flex-wrap gap-3">{actions}</div>}
+      {actions && (
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap md:w-auto md:max-w-[50%] md:shrink-0 md:justify-end [&>*]:w-full [&>*]:whitespace-normal [&>*]:text-balance [&>*]:text-center sm:[&>*]:w-auto">
+          {actions}
+        </div>
+      )}
     </header>
   );
 }

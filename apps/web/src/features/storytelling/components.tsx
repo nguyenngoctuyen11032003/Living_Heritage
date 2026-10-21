@@ -21,6 +21,9 @@ export function TopicIcon({ slug, className }: { slug: string; className?: strin
   return <Icon className={className} aria-hidden="true" />;
 }
 
+/** Elder type size for every button and button-link inside (B3: 20–22 px in narrator mode; Button sizes are smaller). */
+export const ELDER_CONTROLS = '[&_a]:text-[1.17rem] [&_button]:text-[1.17rem]';
+
 /** Big, calm centred status line (loading / progress), announced politely. */
 export function StatusBlock({ children, className }: { children: ReactNode; className?: string }) {
   return (
@@ -35,7 +38,7 @@ export function AssistedBanner({ name }: { name: string }) {
   const t = useT('narrator');
   const address = useAddress();
   return (
-    <div role="note" className="mb-8 flex items-start gap-3 rounded-2xl bg-[#fbecc8] px-5 py-4 text-[1.1rem] leading-relaxed text-[#5a3e0a] ring-1 ring-[#e9cf8f]">
+    <div role="note" className="mb-8 flex items-start gap-3 rounded-2xl bg-[#fbecc8] px-5 py-4 text-[1.17rem] leading-relaxed text-[#5a3e0a] ring-1 ring-[#e9cf8f]">
       <HandHeart className="mt-1 size-6 shrink-0" aria-hidden="true" />
       <p>{t('assisted.banner', { who: address(name) })}</p>
     </div>

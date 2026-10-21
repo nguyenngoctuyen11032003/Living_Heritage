@@ -3,6 +3,7 @@ import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState,
 import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { formatDuration } from '@/lib/format';
+import { baseDisplay } from './display';
 
 /** Imperative controls, e.g. to start a sample from elsewhere on the page or seek from a transcript line. */
 export interface AudioPlayerHandle {
@@ -182,7 +183,7 @@ export function AudioPlayer({ src, duration: durationProp = 0, title, subtitle, 
     <div
       className={cn(
         'w-full',
-        compact ? 'flex items-center gap-3' : 'rounded-[1.5rem] p-4 sm:p-5',
+        compact ? cn(baseDisplay('flex', className), 'items-center gap-3') : 'rounded-[1.5rem] p-4 sm:p-5',
         !compact && (dark ? 'bg-night-card ring-1 ring-white/10' : 'bg-paper ring-1 ring-line'),
         dark ? 'text-night-ink' : 'text-ink',
         className,
