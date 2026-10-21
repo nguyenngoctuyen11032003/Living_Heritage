@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createBreaker } from './breaker.ts';
-import { baseMime, createGemini, GEMINI_BASE_URL, GeminiError, type GeminiRuntime, toBase64, upstreamDetail } from './gemini.ts';
+import { baseMime, createGemini, GEMINI_BASE_URL, GeminiError, type GeminiRuntime, toBase64, tuning, upstreamDetail } from './gemini.ts';
 
 const CFG = { apiKey: 'secret-key', model: 'gemini-2.5-flash', timeoutMs: 5_000 };
 
@@ -112,4 +112,10 @@ Deno.test('upstreamDetail keeps a short single-line Gemini error message', () =>
   assert.equal(upstreamDetail('not json'), null);
   assert.equal(upstreamDetail(JSON.stringify({ error: {} })), null);
   assert.equal(upstreamDetail(JSON.stringify({ error: { message: 'x'.repeat(500) } }))?.length, 240);
+});
+
+Deno.test('tuning: Gemini 3 keeps default temperature with low thinking; 2.5 disables thinking', () => {
+  assert.deepEqual(tuning('gemini-3.8-flash', 0), { thinkingConfig: { thinkingLevel: 'low' } });
+  assert.deepEqual(tuning('gemini-2.5-flash', 0.4), { temperature: 0.4, thinkingConfig: { thinkingBudget: 0 } });
+  assert.deepEqual(tuning('other-model', 0.7), { temperature: 0.7 });
 });
