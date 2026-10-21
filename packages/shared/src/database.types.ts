@@ -619,6 +619,9 @@ isOneToOne: false
 "approve_story":
 { Args: { "p_assisted_consent"?: boolean,"p_story": string }; Returns: number
                            },
+"can_read_media_object":
+{ Args: { "p_name": string }; Returns: boolean
+                           },
 "can_read_recording":
 { Args: { "rid": string }; Returns: boolean
                            },
@@ -689,6 +692,9 @@ isOneToOne: false
 { Args: { "p_embedding": string,"p_limit"?: number,"p_min_similarity"?: number }; Returns: {
               "body": string,"decade": number,"fields": Json,"id": string,"kind": Database["public"]['Enums']["story_kind"],"narrator_label": string,"region": string,"similarity": number,"summary": string,"title": string,"topic_slug": string
             }[]
+                           },
+"media_object_unreferenced":
+{ Args: { "p_name": string }; Returns: boolean
                            },
 "preview_public_item":
 { Args: { "p_story": string }; Returns: Json

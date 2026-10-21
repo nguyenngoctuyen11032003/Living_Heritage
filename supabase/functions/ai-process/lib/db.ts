@@ -10,6 +10,13 @@ export class DbError extends Error {
   }
 }
 
+/** Language a narrator tells stories in (narrators.lang); the AI transcribes and drafts in it. */
+export type NarratorLang = 'vi' | 'en';
+
+export function asNarratorLang(v: unknown): NarratorLang | null {
+  return v === 'vi' || v === 'en' ? v : null;
+}
+
 export interface Localized {
   vi: string;
   en: string;
@@ -25,11 +32,15 @@ export interface RecordingCtx {
   topic_id: string | null;
   topic: Localized | null;
   question: Localized | null;
+  /** narrators.lang of the recording's narrator; null when unreadable (the request lang is then the fallback). */
+  narrator_lang: NarratorLang | null;
 }
 
 export interface NarratorCtx {
   id: string;
   family_id: string;
+  /** narrators.lang; null when unreadable. */
+  lang: NarratorLang | null;
 }
 
 export interface JobRow {
@@ -148,7 +159,8 @@ export function createUserDb(client: Client, jwt: string): UserDb {
         .from('recordings')
         .select(
           'id, family_id, narrator_id, storage_path, mime, ' +
-            'session:sessions(topic_id, topic:topics(title_vi, title_en)), question:questions(prompt_vi, prompt_en)',
+            'session:sessions(topic_id, topic:topics(title_vi, title_en), narrator:narrators(lang)), ' +
+            'question:questions(prompt_vi, prompt_en)',
         )
         .eq('id', id)
         .maybeSingle();
@@ -165,6 +177,7 @@ export function createUserDb(client: Client, jwt: string): UserDb {
         topic_id: (session?.topic_id as string | null) ?? null,
         topic: localized(session?.topic, 'title_vi', 'title_en'),
         question: localized(r.question, 'prompt_vi', 'prompt_en'),
+        narrator_lang: asNarratorLang(one(session?.narrator)?.lang),
       };
     },
 
@@ -179,9 +192,11 @@ export function createUserDb(client: Client, jwt: string): UserDb {
     },
 
     async getNarrator(id) {
-      const { data, error } = await client.from('narrators').select('id, family_id').eq('id', id).maybeSingle();
+      const { data, error } = await client.from('narrators').select('id, family_id, lang').eq('id', id).maybeSingle();
       check('getNarrator', error);
-      return data ? { id: String((data as Row).id), family_id: String((data as Row).family_id) } : null;
+      if (!data) return null;
+      const r = data as Row;
+      return { id: String(r.id), family_id: String(r.family_id), lang: asNarratorLang(r.lang) };
     },
 
     async getTopic(id) {

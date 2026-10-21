@@ -181,7 +181,9 @@ async function transcribeAndDraft(ctx: Ctx, req: Extract<Req, { action: 'transcr
   }
 
   try {
-    const storyIds = await runPipeline(ctx, admin, rec, job.id, req.lang, nowIso);
+    // The narrator's own language (narrators.lang) decides transcription and drafting; the request lang
+    // (the UI language of whoever pressed the button) is only a fallback.
+    const storyIds = await runPipeline(ctx, admin, rec, job.id, rec.narrator_lang ?? req.lang, nowIso);
     return json(200, jobBody(job.id, 'done', storyIds, null));
   } catch (e) {
     const code = codeOf(e);
@@ -212,7 +214,7 @@ async function runPipeline(
       ctx,
       admin,
       { action: 'transcribe', jobId, inputBytes: audio.bytes.byteLength },
-      () => model.transcribe(audio.bytes, rec.mime),
+      () => model.transcribe(audio.bytes, rec.mime, lang),
     );
     // No speech in the recording: nothing to draft from.
     if (text.trim() === '') throw new Failure('bad_request', 'empty transcript');
@@ -279,6 +281,8 @@ async function suggestQuestions(ctx: Ctx, req: Extract<Req, { action: 'suggest_q
   const topic = await user.getTopic(req.topic_id);
   if (!topic) return fail('not_found');
   const titles = await user.recentApprovedTitles(narrator.id, PREVIOUS_TITLES);
+  // The questions are put to the narrator: ask them in the narrator's language (request lang as fallback).
+  const lang = narrator.lang ?? req.lang;
 
   const admin = deps.adminClient();
   const limit = intEnv(deps, 'AI_DAILY_LIMIT', DEFAULT_DAILY_LIMIT, 1, 100_000);
@@ -289,7 +293,7 @@ async function suggestQuestions(ctx: Ctx, req: Extract<Req, { action: 'suggest_q
       ctx,
       admin,
       { action: 'suggest_questions', jobId: null, inputBytes: 0 },
-      () => model.suggest({ lang: req.lang, topic: topic[req.lang], previousTitles: titles.slice(0, PREVIOUS_TITLES) }),
+      () => model.suggest({ lang, topic: topic[lang], previousTitles: titles.slice(0, PREVIOUS_TITLES) }),
     );
     const parsed = SuggestOut.safeParse(raw);
     if (!parsed.success) throw new Failure('ai_unavailable', 'suggest output invalid');
