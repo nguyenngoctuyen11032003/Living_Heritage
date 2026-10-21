@@ -160,9 +160,10 @@ async function attempt(cfg: GeminiConfig, rt: GeminiRuntime, body: unknown): Pro
     }
     if (!res.ok) {
       const status = res.status;
-      if (status === 429) return { ok: false, kind: 'rate_limited', status, retryable: true };
-      if (status >= 500) return { ok: false, kind: 'unavailable', status, retryable: RETRYABLE_STATUS.has(status) };
-      return { ok: false, kind: 'bad_request', status, retryable: false, detail: upstreamDetail(text) };
+      const detail = upstreamDetail(text);
+      if (status === 429) return { ok: false, kind: 'rate_limited', status, retryable: true, detail };
+      if (status >= 500) return { ok: false, kind: 'unavailable', status, retryable: RETRYABLE_STATUS.has(status), detail };
+      return { ok: false, kind: 'bad_request', status, retryable: false, detail };
     }
     let parsed: unknown;
     try {
