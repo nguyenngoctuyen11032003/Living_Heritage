@@ -1,3 +1,6 @@
-import type { AreaRoutes } from '../types';
+import { page, type AreaRoutes } from '../types';
 
-export const narratorsArea: AreaRoutes = {};
+// Workstream E1: narrators and storytelling links.
+export const narratorsArea: AreaRoutes = {
+  app: [page('gia-dinh/nguoi-ke', () => import('@/features/narrators/NarratorsPage'))],
+};
