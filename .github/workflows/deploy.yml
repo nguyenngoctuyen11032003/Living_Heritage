@@ -102,6 +102,15 @@ jobs:
             echo "::error::Thiếu secret SUPABASE_DB_URL trong environment production (xem docs/DEPLOY.md)"
             exit 1
           fi
+      - name: Reconcile the manually applied avatar migration
+        run: |
+          versions="$(supabase migration list --db-url "$SUPABASE_DB_URL")"
+          printf '%s\n' "$versions"
+          if printf '%s\n' "$versions" | awk -F '|' '$1 ~ /20261022000500/ && $2 ~ /20261022000500/ { found=1 } END { exit !found }'; then
+            echo "Avatar migration 20261022000500 is already tracked."
+          else
+            supabase migration repair --db-url "$SUPABASE_DB_URL" --status applied 20261022000500
+          fi
       - name: Preview migrations to apply
         run: supabase db push --db-url "$SUPABASE_DB_URL" --dry-run
       - name: Apply migrations
