@@ -15,6 +15,7 @@ import { FamilyGate, ShareDialog, StoryStatusBadge } from './external';
 import { topicVisual } from './topics';
 import { readExperienceFields, type RecordingLite, type TopicLite, type VaultStory } from './types';
 import { splitParagraphs } from '@/features/books/pages';
+import { StoryPhotos } from '@/features/media';
 
 export function StoryDetail({ storyId }: { storyId: string }) {
   return (
@@ -147,6 +148,9 @@ function StoryView({ data, onChanged }: { data: Loaded; onChanged: () => void })
               </h2>
               {story.kind === 'experience' ? <ExperienceReading story={story} /> : <StoryReading story={story} />}
             </section>
+
+            {/* Uploading needs a story writer who is also a family editor (media bucket policy). */}
+            <StoryPhotos storyId={story.id} familyId={story.family_id} canEdit={data.canWrite && isEditor} />
           </div>
 
           <aside className="flex flex-col gap-6">

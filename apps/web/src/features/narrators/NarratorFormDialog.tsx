@@ -1,12 +1,23 @@
 import { REGIONS, type Region } from '@lh/shared';
 import { useState, type FormEvent } from 'react';
 import { Button, Dialog, Field, Input, Select } from '@/components/ui';
-import { useT } from '@/i18n';
+import { useLocale, useT } from '@/i18n';
 import { getSupabase } from '@/lib/supabase';
 import { rpcErrorCode, type FamilyErrorCode } from '@/features/families/rpcError';
 import { ErrorNotice } from '@/features/families/states';
 import type { Narrator } from './hooks';
-import { toNarratorRow, validateNarrator, type NarratorDraft, type NarratorDraftErrors } from './validation';
+import {
+  GENERATION_LEVELS,
+  MAX_RELATION,
+  NARRATOR_LANGS,
+  RELATION_SUGGESTIONS,
+  isNarratorLang,
+  toNarratorRow,
+  validateNarrator,
+  type NarratorDraft,
+  type NarratorDraftErrors,
+  type NarratorLang,
+} from './validation';
 
 function draftFrom(n: Narrator | null): NarratorDraft {
   return {
@@ -14,6 +25,9 @@ function draftFrom(n: Narrator | null): NarratorDraft {
     pen_name: n?.pen_name ?? '',
     birth_year: n?.birth_year ? String(n.birth_year) : '',
     region: (n?.region as Region | null) ?? '',
+    relation: n?.relation ?? '',
+    lang: isNarratorLang(n?.lang) ? n.lang : 'vi',
+    generation: n?.generation ? String(n.generation) : '',
   };
 }
 
@@ -24,6 +38,7 @@ export function NarratorFormDialog({ open, familyId, narrator, onClose, onSaved 
 function FormBody({ familyId, narrator, onClose, onSaved }: { familyId: string; narrator: Narrator | null; onClose: () => void; onSaved: () => void }) {
   const t = useT('family');
   const tc = useT('common');
+  const { locale } = useLocale();
   const [draft, setDraft] = useState<NarratorDraft>(() => draftFrom(narrator));
   const [errors, setErrors] = useState<NarratorDraftErrors>({});
   const [error, setError] = useState<FamilyErrorCode | null>(null);
@@ -86,6 +101,35 @@ function FormBody({ familyId, narrator, onClose, onSaved }: { familyId: string; 
               {REGIONS.map((r) => (
                 <option key={r} value={r}>
                   {t(`regions.${r}`)}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        </div>
+        <Field label={t('narrators.form.relation')} hint={t('narrators.form.relationHint')} error={msg('relation')}>
+          <Input value={draft.relation} maxLength={MAX_RELATION} list="lh-relation-suggestions" autoComplete="off" onChange={(e) => set('relation', e.target.value)} />
+        </Field>
+        <datalist id="lh-relation-suggestions">
+          {RELATION_SUGGESTIONS[locale].map((r) => (
+            <option key={r} value={r} />
+          ))}
+        </datalist>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label={t('narrators.form.lang')} hint={t('narrators.form.langHint')} error={msg('lang')}>
+            <Select value={draft.lang} onChange={(e) => set('lang', e.target.value as NarratorLang)}>
+              {NARRATOR_LANGS.map((l) => (
+                <option key={l} value={l} lang={l}>
+                  {t(`narrators.form.langOptions.${l}`)}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label={t('narrators.form.generation')} hint={t('narrators.form.generationHint')} error={msg('generation')}>
+            <Select value={draft.generation} onChange={(e) => set('generation', e.target.value)}>
+              <option value="">{t('narrators.form.generationNone')}</option>
+              {GENERATION_LEVELS.map((g) => (
+                <option key={g} value={String(g)}>
+                  {t(`narrators.form.generationOptions.${g}`)}
                 </option>
               ))}
             </Select>

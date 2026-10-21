@@ -1,5 +1,5 @@
 // /gia-dinh/nguoi-ke: narrators of the current family, storytelling links (QR) and revocation.
-import { Link2, Mic, Pencil, Plus, Smartphone, UserRound } from 'lucide-react';
+import { Languages, Link2, Mic, Pencil, Plus, Smartphone, UserRound } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { Badge, Button, Card, Dialog, EmptyState, Skeleton, useToast } from '@/components/ui';
@@ -215,8 +215,13 @@ function NarratorCard({
         <div className="min-w-0 flex-1">
           <h2 className="truncate font-serif text-[1.35rem] font-semibold text-heritage-deep">{n.display_name}</h2>
           {n.pen_name && <p className="text-[0.95rem] text-ink-soft">{t('narrators.penNameShown', { name: n.pen_name })}</p>}
+          {n.relation && <p className="text-[0.95rem] font-semibold text-ink">{n.relation}</p>}
           {meta && <p className="text-[0.95rem] text-ink-soft">{meta}</p>}
-          <p className="mt-2">
+          <p className="mt-2 flex flex-wrap gap-2">
+            <Badge tone="outline" icon={<Languages />}>
+              {t(`narrators.langShown.${n.lang === 'en' ? 'en' : 'vi'}`)}
+            </Badge>
+            {n.generation && <Badge tone="outline">{t('narrators.generationShown', { n: n.generation })}</Badge>}
             {n.user_id ? (
               <Badge tone="heritage" icon={<Smartphone />}>
                 {t('narrators.deviceBound')}

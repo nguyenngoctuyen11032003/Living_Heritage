@@ -1,6 +1,7 @@
 import { CalendarDays, Clock3, Mic } from 'lucide-react';
 import { Link } from 'react-router';
 import { StoryScene } from '@/components/illustrations/scenes';
+import { useStoryCover } from '@/features/media/hooks';
 import { useLocale, usePick, useT } from '@/i18n';
 import { formatDate, formatDuration } from '@/lib/format';
 import { buildExcerpt } from '../excerpt';
@@ -23,12 +24,23 @@ export function StoryCard({ story, narrator, topic, durationS }: StoryCardProps)
   const visual = topicVisual(topic?.slug);
   const excerpt = buildExcerpt(story);
   const title = story.title.trim() || t('card.untitled');
+  // First story photo as cover once the card nears the viewport (batched); the topic illustration otherwise.
+  const cover = useStoryCover<HTMLDivElement>(story.id);
   const topicLabel = topic ? pick({ vi: topic.title_vi, en: topic.title_en }) : t(`kind.${story.kind}`);
 
   return (
     <article className="group relative flex w-full flex-col overflow-hidden rounded-[1.5rem] bg-paper ring-1 ring-line/80 transition-shadow duration-200 focus-within:ring-2 focus-within:ring-heritage hover:shadow-[0_18px_40px_-24px_rgba(22,58,49,0.45)]">
-      <div className="relative h-32 overflow-hidden" style={{ background: visual.band }}>
-        <StoryScene kind={visual.scene} className="opacity-90 transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100" />
+      <div ref={cover.ref} className="relative h-32 overflow-hidden" style={{ background: visual.band }}>
+        {cover.url ? (
+          <img
+            src={cover.url}
+            alt=""
+            loading="lazy"
+            className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+          />
+        ) : (
+          <StoryScene kind={visual.scene} className="opacity-90 transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100" />
+        )}
         <span className="absolute left-4 top-4 rounded-full bg-paper/95 px-3 py-1 text-[0.75rem] font-semibold uppercase tracking-[0.08em] text-heritage-deep shadow-sm">
           {topicLabel}
         </span>
