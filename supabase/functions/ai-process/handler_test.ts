@@ -342,7 +342,7 @@ Deno.test('Gemini failure: quota refunded, job error ai_unavailable, recording u
   assert.equal(body.status, 'error');
   assert.equal(body.error, 'ai_unavailable');
   assert.equal(log.refunds, 1);
-  assert.deepEqual(log.jobUpdates.at(-1), { status: 'error', error: 'ai_unavailable', story_ids: [] });
+  assert.deepEqual(log.jobUpdates.at(-1), { status: 'error', error: 'ai_unavailable: gemini unavailable 500', story_ids: [] });
   assert.equal(log.stories.length, 0);
   assert.deepEqual(log.usage.map((u) => [u.action, u.status]), [['transcribe', 'unavailable']]);
 });
