@@ -121,6 +121,26 @@ type GenerateResponse = {
   usageMetadata?: { promptTokenCount?: unknown; candidatesTokenCount?: unknown; thoughtsTokenCount?: unknown };
 };
 
+/** Structure of a response that carried no usable text (block reason, finish reason, part kinds). Never includes content. */
+export function describeEmpty(res: unknown): string {
+  const r = res as GenerateResponse | null;
+  const bits: string[] = [];
+  const reason = r?.promptFeedback?.blockReason;
+  if (typeof reason === 'string') bits.push(`blockReason=${reason.slice(0, 40)}`);
+  const cands = Array.isArray(r?.candidates) ? r!.candidates! : [];
+  bits.push(`candidates=${cands.length}`);
+  const first = cands[0];
+  if (typeof first?.finishReason === 'string') bits.push(`finish=${first.finishReason.slice(0, 40)}`);
+  const parts = first?.content?.parts;
+  if (Array.isArray(parts)) {
+    const kinds = parts.map((p) => (p && typeof p === 'object' ? Object.keys(p).sort().join('+') : typeof p));
+    bits.push(`parts=[${kinds.slice(0, 6).join(',')}]`);
+  } else {
+    bits.push('parts=none');
+  }
+  return bits.join(' ');
+}
+
 /** Text of the first candidate (thought parts skipped), or null when blocked / empty. */
 export function responseText(res: unknown): string | null {
   const r = res as GenerateResponse | null;
@@ -181,7 +201,7 @@ async function attempt(cfg: GeminiConfig, rt: GeminiRuntime, body: unknown): Pro
     }
     const out = responseText(parsed);
     return out === null
-      ? { ok: false, kind: 'blocked', status: res.status, retryable: false }
+      ? { ok: false, kind: 'blocked', status: res.status, retryable: false, detail: describeEmpty(parsed) }
       : { ok: true, text: out, usage: usageOf(parsed) };
   } finally {
     clearTimeout(timer);
