@@ -17,7 +17,12 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
-    "db:lint": "supabase db lint --fail-on error"
+    "db:lint": "supabase db lint --fail-on error",
+    "check-env": "node scripts/check-public-env.mjs",
+    "check:bundle": "node scripts/check-bundle-secrets.mjs",
+    "check:migrations": "node scripts/check-migrations-immutable.mjs",
+    "test:scripts": "node --test scripts/*.test.mjs",
+    "db:types": "supabase gen types typescript --local --schema public > packages/shared/src/database.types.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

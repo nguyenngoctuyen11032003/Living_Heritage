@@ -25,7 +25,7 @@ export function LanguageSwitch({ tone = 'light', className }: { tone?: 'light' |
           title={t(`lang.${l}`)}
           onClick={() => setLocale(l)}
           className={cn(
-            'min-h-8 min-w-10 rounded-full px-2.5 uppercase tracking-wide transition-colors',
+            'min-h-10 min-w-11 rounded-full px-2.5 uppercase tracking-wide transition-colors',
             locale === l
               ? tone === 'light'
                 ? 'bg-heritage text-cream'

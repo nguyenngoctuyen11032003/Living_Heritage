@@ -1,0 +1,26 @@
+// Design-system primitives (Workstream C). Import from '@/components/ui'.
+export { Button, ButtonLink, buttonClasses } from './Button';
+export type { ButtonProps, ButtonLinkProps, ButtonVariant, ButtonSize, ButtonStyleOptions } from './Button';
+export { Badge } from './Badge';
+export type { BadgeProps, BadgeTone } from './Badge';
+export { Card } from './Card';
+export type { CardProps } from './Card';
+export { Field, Input, Textarea, Select } from './Field';
+export type { FieldProps, InputProps, TextareaProps, SelectProps } from './Field';
+export { Dialog } from './Dialog';
+export type { DialogProps } from './Dialog';
+export { Tabs, TabList, Tab, TabPanel } from './Tabs';
+export type { TabsProps, TabListProps, TabProps, TabPanelProps } from './Tabs';
+export { ToastProvider, useToast } from './Toast';
+export type { ToastOptions, ToastApi, ToastTone } from './Toast';
+export { Skeleton } from './Skeleton';
+export type { SkeletonProps } from './Skeleton';
+export { EmptyState } from './EmptyState';
+export type { EmptyStateProps } from './EmptyState';
+export { Spinner } from './Spinner';
+export type { SpinnerProps } from './Spinner';
+export { AudioPlayer } from './AudioPlayer';
+export type { AudioPlayerProps, AudioPlayerHandle } from './AudioPlayer';
+export { QrCode } from './QrCode';
+export type { QrCodeProps } from './QrCode';
+export { IllustrativeBadge } from './IllustrativeBadge';

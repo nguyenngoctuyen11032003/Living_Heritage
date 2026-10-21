@@ -1,4 +1,6 @@
-import type { AreaRoutes } from '../types';
+import { page, type AreaRoutes } from '../types';
 
-// Area 'admin' - see docs/superpowers/plans/2026-10-21-living-heritage-mvp.md for the owning workstream.
-export const area: AreaRoutes = {};
+// Area 'admin' (Workstream G): moderation console, signed-in app layout; the page itself checks rpc('is_admin').
+export const area: AreaRoutes = {
+  app: [page('quan-tri', () => import('@/features/admin/AdminPage'))],
+};

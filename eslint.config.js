@@ -30,7 +30,7 @@ export default tseslint.config(
         'warn',
         {
           allowConstantExport: true,
-          allowExportNames: ['detectLocale', 'useT', 'useLocale', 'useSession', 'useToast', 'LocaleContext', 'buttonClasses'],
+          allowExportNames: ['detectLocale', 'useCurrentFamily', 'useT', 'useLocale', 'useSession', 'useToast', 'LocaleContext', 'buttonClasses'],
         },
       ],
     },

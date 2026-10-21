@@ -1,0 +1,3 @@
+-- Local-only seed (runs on `supabase db reset`, never on the hosted DB).
+-- Topics and questions are seeded by migration 20261021000500_seed_topics.sql so they exist everywhere.
+-- Nothing else is seeded: tests build their own fixtures inside a rolled-back transaction.
