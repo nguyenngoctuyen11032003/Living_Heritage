@@ -220,9 +220,12 @@ export function parseJson(text: string): unknown {
  * - Gemini 3: keep the default temperature (lower values can make it loop) and use a low thinking level.
  * - Gemini 2.5: no thinking budget for these mechanical tasks, keep our temperature.
  */
+/** Speech models (transcribe / tts) accept neither thinking settings nor a system instruction. */
+export const isSpeechModel = (model: string): boolean => /transcribe|tts/.test(model);
+
 export function tuning(model: string, temperature: number): Record<string, unknown> {
   // Speech models (transcribe / tts) take no thinking settings.
-  if (/transcribe|tts/.test(model)) return { temperature };
+  if (isSpeechModel(model)) return { temperature };
   if (/^gemini-3/.test(model)) return { thinkingConfig: { thinkingLevel: 'low' } };
   if (/^gemini-2.5/.test(model)) return { temperature, thinkingConfig: { thinkingBudget: 0 } };
   return { temperature };
@@ -251,14 +254,22 @@ export function createGemini(cfg: GeminiConfig, rt: GeminiRuntime): AiModel {
     model: cfg.model,
 
     async transcribe(audio, mime, lang) {
-      const build = (model: string) => ({
-        systemInstruction: { parts: [{ text: TRANSCRIBE_SYSTEM }] },
-        contents: [{
-          role: 'user',
-          parts: [{ text: transcribeUser(lang) }, { inline_data: { mime_type: baseMime(mime), data: toBase64(audio) } }],
-        }],
-        generationConfig: { ...tuning(model, 0), maxOutputTokens: 32_768 },
-      });
+      const data = toBase64(audio);
+      const build = (model: string) => {
+        // Speech models reject systemInstruction ("Developer instruction is not enabled for this model"):
+        // fold the instructions into the user turn for them.
+        const folded = isSpeechModel(model);
+        const text = folded
+          ? `${TRANSCRIBE_SYSTEM}
+
+${transcribeUser(lang)}`
+          : transcribeUser(lang);
+        return {
+          ...(folded ? {} : { systemInstruction: { parts: [{ text: TRANSCRIBE_SYSTEM }] } }),
+          contents: [{ role: 'user', parts: [{ text }, { inline_data: { mime_type: baseMime(mime), data } }] }],
+          generationConfig: { ...tuning(model, 0), maxOutputTokens: 32_768 },
+        };
+      };
       const primary = cfg.transcribeModel?.trim() || cfg.model;
       const r = await generateWithFallback({ ...cfg, model: primary }, rt, build);
       return { value: r.text.trim(), usage: r.usage };
