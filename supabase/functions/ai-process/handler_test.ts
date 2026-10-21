@@ -262,7 +262,7 @@ Deno.test('success: transcribes, drafts, saves story + experience and returns do
   assert.equal(body.error, null);
   assert.equal(body.story_ids.length, 2);
 
-  assert.deepEqual(log.geminiCfg, { apiKey: 'test-key', model: 'gemini-3.8-flash', timeoutMs: 60_000 });
+  assert.deepEqual(log.geminiCfg, { apiKey: 'test-key', model: 'gemini-3.8-flash', timeoutMs: 90_000 });
   assert.equal(log.quotaLimit, 12);
   assert.equal(log.refunds, 0);
   assert.deepEqual(log.jobUpdates.map((u) => u.status), ['transcribing', 'drafting', 'done']);

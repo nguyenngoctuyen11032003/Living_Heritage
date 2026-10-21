@@ -206,6 +206,17 @@ export function parseJson(text: string): unknown {
   }
 }
 
+/**
+ * Model-family tuning (latency + stability):
+ * - Gemini 3: keep the default temperature (lower values can make it loop) and use a low thinking level.
+ * - Gemini 2.5: no thinking budget for these mechanical tasks, keep our temperature.
+ */
+export function tuning(model: string, temperature: number): Record<string, unknown> {
+  if (/^gemini-3/.test(model)) return { thinkingConfig: { thinkingLevel: 'low' } };
+  if (/^gemini-2.5/.test(model)) return { temperature, thinkingConfig: { thinkingBudget: 0 } };
+  return { temperature };
+}
+
 export function createGemini(cfg: GeminiConfig, rt: GeminiRuntime): AiModel {
   return {
     model: cfg.model,
@@ -217,7 +228,7 @@ export function createGemini(cfg: GeminiConfig, rt: GeminiRuntime): AiModel {
           role: 'user',
           parts: [{ text: transcribeUser(lang) }, { inline_data: { mime_type: baseMime(mime), data: toBase64(audio) } }],
         }],
-        generationConfig: { temperature: 0, maxOutputTokens: 32_768 },
+        generationConfig: { ...tuning(cfg.model, 0), maxOutputTokens: 32_768 },
       };
       const r = await generate(cfg, rt, body);
       return { value: r.text.trim(), usage: r.usage };
@@ -230,7 +241,7 @@ export function createGemini(cfg: GeminiConfig, rt: GeminiRuntime): AiModel {
         generationConfig: {
           responseMimeType: 'application/json',
           responseSchema: DRAFT_SCHEMA,
-          temperature: 0.4,
+          ...tuning(cfg.model, 0.4),
           maxOutputTokens: 16_384,
         },
       };
@@ -245,7 +256,7 @@ export function createGemini(cfg: GeminiConfig, rt: GeminiRuntime): AiModel {
         generationConfig: {
           responseMimeType: 'application/json',
           responseSchema: SUGGEST_SCHEMA,
-          temperature: 0.7,
+          ...tuning(cfg.model, 0.7),
           maxOutputTokens: 2_048,
         },
       };
