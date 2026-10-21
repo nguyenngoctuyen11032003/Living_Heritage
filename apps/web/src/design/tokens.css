@@ -1,0 +1,15 @@
+/* Brand tokens - "Album ký ức Việt Nam đương đại" (spec 1 §5). Use through Tailwind: bg-cream, text-heritage, ... */
+:root {
+  --cream: #faf7f0;
+  --paper: #ffffff;
+  --ink: #1f2933;
+  --ink-soft: #52606d;
+  --heritage: #214e43;
+  --heritage-deep: #163a31;
+  --terracotta: #a84832;
+  --mint: #dce8d5;
+  --line: #e6e0d2;
+  --night: #121b18;
+  --night-card: #1b2622;
+  --night-ink: #e9e4d4;
+}
