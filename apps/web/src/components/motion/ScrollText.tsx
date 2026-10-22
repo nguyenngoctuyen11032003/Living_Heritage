@@ -22,7 +22,7 @@ export function ScrollText({ text, as: Tag = 'p', className, dim = 0.2 }: Scroll
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotionSafe();
 
-  const words = useMemo(() => text.normalize('NFC').split(/s+/).filter(Boolean).map((w) => Array.from(w)), [text]);
+  const words = useMemo(() => text.normalize('NFC').split(/\s+/).filter(Boolean).map((w) => Array.from(w)), [text]);
 
   useEffect(() => {
     const root = ref.current;
