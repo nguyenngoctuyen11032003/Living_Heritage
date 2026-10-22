@@ -48,10 +48,13 @@ export default function AdminPage() {
     if (!sb || !user || isAnonymous) return;
     let alive = true;
     setCheck({ uid: user.id, value: 'pending' });
-    void sb.rpc('is_admin').then(({ data, error }) => {
-      if (!alive) return;
-      setCheck({ uid: user.id, value: error ? 'error' : data === true ? 'yes' : 'no' });
-    });
+    void sb
+      .rpc('is_admin')
+      .then(({ data, error }) => {
+        if (!alive) return;
+        setCheck({ uid: user.id, value: error ? 'error' : data === true ? 'yes' : 'no' });
+      })
+      .then(undefined, () => alive && setCheck({ uid: user.id, value: 'error' }));
     return () => {
       alive = false;
     };

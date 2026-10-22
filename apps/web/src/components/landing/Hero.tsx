@@ -19,7 +19,7 @@ export function Hero() {
   const t = useT('landing');
   const reduced = useReducedMotionSafe();
   const enter = (delay: number, from: Record<string, number | string>) =>
-    reduced ? { initial: false as const } : { initial: { opacity: 0, ...from }, animate: { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }, transition: { duration: 0.85, ease: EASE_OUT, delay } };
+    reduced ? { initial: false as const } : { initial: { opacity: 0, ...from }, animate: { opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }, transition: { duration: 0.5, ease: EASE_OUT, delay } };
 
   return (
     <section
@@ -42,10 +42,10 @@ export function Hero() {
           id="hero-title"
           className="mx-auto mt-6 max-w-[22ch] text-balance font-sans text-[clamp(2.3rem,9.4vw,3.6rem)] font-bold leading-display tracking-[-0.035em] text-ink min-[821px]:mt-[calc(var(--u)*26)] min-[821px]:max-w-none min-[821px]:text-[clamp(2.6rem,calc(var(--u)*80),5.6rem)]"
         >
-          <motion.span {...enter(0.28, { y: 28, filter: 'blur(12px)' })} className="block pt-[0.06em]">
+          <motion.span {...enter(0.28, { y: 20, filter: 'blur(8px)' })} className="block pt-[0.06em]">
             {t('hero.line1')}
           </motion.span>
-          <motion.span {...enter(0.42, { y: 28, filter: 'blur(12px)' })} className="block pb-[0.08em] text-heritage">
+          <motion.span {...enter(0.42, { y: 20, filter: 'blur(8px)' })} className="block pb-[0.08em] text-heritage">
             {t('hero.line2')}
           </motion.span>
         </h1>
@@ -94,7 +94,7 @@ export function Hero() {
 
       {/* Curved carousel */}
       <motion.div
-        {...(reduced ? { initial: false as const } : { initial: { opacity: 0, y: 70 }, animate: { opacity: 1, y: 0 }, transition: { duration: 1.1, ease: EASE_OUT, delay: 0.78 } })}
+        {...(reduced ? { initial: false as const } : { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5, ease: EASE_OUT, delay: 0.5 } })}
         className="mt-6 min-[821px]:-mt-[calc(var(--u)*8)]"
       >
         <CurvedCarousel stories={CAROUSEL_STORIES} onPlay={() => requestSamplePlay()} />
@@ -102,7 +102,7 @@ export function Hero() {
 
       {/* CTAs */}
       <motion.div
-        {...(reduced ? { initial: false as const } : { initial: { opacity: 0, scale: 0.9 }, animate: { opacity: 1, scale: 1 }, transition: { duration: 0.6, ease: EASE_OUT, delay: 1.0 } })}
+        {...(reduced ? { initial: false as const } : { initial: { opacity: 0, scale: 0.9 }, animate: { opacity: 1, scale: 1 }, transition: { duration: 0.35, ease: EASE_OUT, delay: 0.6 } })}
         className="relative mt-6 flex flex-col items-center justify-center gap-3 px-4 sm:flex-row min-[821px]:mt-[calc(var(--u)*6)]"
       >
         <span className="relative">

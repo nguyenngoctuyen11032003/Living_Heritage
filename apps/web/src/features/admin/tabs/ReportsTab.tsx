@@ -24,7 +24,12 @@ function loader(filter: string) {
     if (filter !== 'all') query = query.eq('status', filter);
     const rows: ReportRow[] = must(await query);
     const titles = await publicTitles(sb, rows.map((r) => r.public_item_id));
-    return { rows, titles };
+    const ids = [...new Set(rows.map((r) => r.public_item_id).filter((x): x is string => Boolean(x)))];
+    const stories: Record<string, string> = {};
+    if (ids.length > 0) {
+      for (const r of must(await sb.from('public_items').select('id, story_id').in('id', ids))) stories[r.id] = r.story_id;
+    }
+    return { rows, titles, stories };
   };
 }
 
@@ -54,6 +59,24 @@ export function ReportsTab() {
       ...prev,
       rows: filter === 'all' ? prev.rows.map((r) => (r.id === row.id ? { ...r, status } : r)) : prev.rows.filter((r) => r.id !== row.id),
     }));
+  }
+
+  async function withdraw(row: ReportRow) {
+    const sb = getSupabase();
+    const story = row.public_item_id ? q.data?.stories[row.public_item_id] : undefined;
+    if (!sb || !story) return;
+    if (!window.confirm(t('reports.withdrawConfirm'))) return;
+    setBusy(row.id);
+    const { error } = await sb.rpc('admin_withdraw_public', { p_story: story, p_reason: row.reason });
+    if (error) {
+      setBusy(null);
+      toast({ title: t('common.updateError'), tone: 'error' });
+      return;
+    }
+    const { error: resolveError } = await sb.from('reports').update(resolutionPatch('resolved', 'open', user?.id ?? null)).eq('id', row.id);
+    setBusy(null);
+    toast({ title: resolveError ? t('common.updateError') : t('reports.withdrawn'), tone: resolveError ? 'error' : 'success' });
+    q.reload();
   }
 
   const reasonLabel = (r: string) => ((REPORT_REASONS as readonly string[]).includes(r) ? tk(`report.reasons.${r as (typeof REPORT_REASONS)[number]}`) : r);
@@ -95,6 +118,11 @@ export function ReportsTab() {
                     {t(`reports.actions.${s}`)}
                   </Button>
                 ))}
+                {row.status === 'open' && row.public_item_id && q.data?.stories[row.public_item_id] ? (
+                  <Button variant="secondary" loading={busy === row.id} disabled={busy !== null} onClick={() => void withdraw(row)}>
+                    {t('reports.actions.withdraw')}
+                  </Button>
+                ) : null}
               </div>
             </li>
           ))}

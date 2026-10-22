@@ -86,7 +86,7 @@ export default {
     chapter: 'Chương {n}',
     narratedBy: 'Lời kể của {name}',
     qrCaption: 'Quét để nghe giọng kể gốc · {d}',
-    qrNote: 'Người quét cần có quyền xem.',
+    qrNote: 'Cần đăng nhập và có quyền xem. Liên kết có thể ngừng mở được nếu gia đình đổi quyền hoặc xoá câu chuyện.',
     qrLabel: 'Mã QR mở giọng kể gốc của “{title}”',
     familyBook: 'Sách ký ức gia đình',
   },
@@ -94,6 +94,7 @@ export default {
     label: 'Bản in thử — chưa phải dịch vụ in sách',
     print: 'In / Lưu PDF',
     back: 'Về trình tạo sách',
+    excluded: '{n} chương chưa được duyệt nên không có trong bản in.',
     hint: 'Trong hộp thoại in, chọn khổ giấy A5. Để lưu PDF, chọn “Lưu dưới dạng PDF”.',
   },
   state: {

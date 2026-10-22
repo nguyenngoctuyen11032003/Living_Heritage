@@ -1,5 +1,21 @@
 import { describe, expect, it } from 'vitest';
-import { formFromStory, formsEqual, normalizeExperienceFields, parseDecade, toSaveArgs } from './fields';
+import { formFromStory, formsEqual, normalizeExperienceFields, parseDecade, toSaveArgs, topicChange } from './fields';
+
+describe('topicChange', () => {
+  it('is undefined when unchanged, null when cleared, the id when changed', () => {
+    expect(topicChange({ topicId: 'a' }, { topicId: 'a' })).toBeUndefined();
+    expect(topicChange({ topicId: '' }, { topicId: 'a' })).toBeNull();
+    expect(topicChange({ topicId: 'b' }, { topicId: 'a' })).toBe('b');
+    expect(topicChange({ topicId: 'b' }, { topicId: '' })).toBe('b');
+  });
+  it('formFromStory reads topic_id and marks the form dirty when it changes', () => {
+    const s = { kind: 'story' as const, title: 'A', summary: null, body: 'B', fields: {}, topic_id: 't1' };
+    const base = formFromStory(s);
+    expect(base.topicId).toBe('t1');
+    expect(formsEqual(base, { ...base, topicId: 't2' })).toBe(false);
+    expect(formFromStory({ ...s, topic_id: null }).topicId).toBe('');
+  });
+});
 
 describe('normalizeExperienceFields', () => {
   it('fills defaults for missing or wrong-typed fields', () => {

@@ -137,7 +137,7 @@ export function NarratorShell() {
       <div className="narrator-mode flex min-h-dvh flex-col bg-cream">
         {/* At 360px in English the wordmark + both switches don't fit: show only the mark below sm; controls never shrink. */}
         <header className="flex min-h-16 min-w-0 items-center justify-between gap-3 border-b border-line px-4 py-2 md:px-8">
-          <Logo wordmark="sm" className="min-w-0" />
+          <Logo wordmark="sm" className="min-h-12 min-w-12" />
           <div className="flex shrink-0 items-center gap-2">
             <TextScaleSwitch />
             <LanguageSwitch size="lg" />

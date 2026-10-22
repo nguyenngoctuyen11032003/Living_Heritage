@@ -80,7 +80,8 @@ function DeletionCard({ row, onChanged }: { row: DeletionRow; onChanged: (r: Del
     const sb = getSupabase();
     if (!sb) return;
     setBusy(true);
-    const patch = { ...resolutionPatch(status, 'open', user?.id ?? null), admin_note: note.trim() || null };
+    const unresolved = status === 'open' || status === 'in_progress';
+    const patch = { ...resolutionPatch(unresolved ? 'open' : status, 'open', user?.id ?? null), status, admin_note: note.trim() || null };
     const { error } = await sb.from('deletion_requests').update(patch).eq('id', row.id);
     setBusy(false);
     if (error) {

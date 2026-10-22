@@ -12,12 +12,18 @@ export function useLocale(): LocaleContextValue {
   return ctx;
 }
 
-/** Pure lookup, usable outside React. Missing keys return the key itself. */
-export function translate(locale: Locale, ns: Namespace, key: string, vars?: TVars): string {
+function lookup(locale: Locale, ns: Namespace, key: string): unknown {
   let node: unknown = dictionaries[locale][ns];
   for (const part of key.split('.')) {
     node = node && typeof node === 'object' ? (node as Record<string, unknown>)[part] : undefined;
   }
+  return node;
+}
+
+/** Pure lookup, usable outside React. A key missing in `en` falls back to `vi`; missing everywhere returns the key itself. */
+export function translate(locale: Locale, ns: Namespace, key: string, vars?: TVars): string {
+  let node = lookup(locale, ns, key);
+  if (typeof node !== 'string' && locale !== 'vi') node = lookup('vi', ns, key);
   if (typeof node !== 'string') return key;
   if (!vars) return node;
   return node.replace(/\{(\w+)\}/g, (m, name: string) => (name in vars ? String(vars[name]) : m));

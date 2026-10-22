@@ -1,5 +1,5 @@
 import type { Database } from '@lh/shared';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSession } from '@/lib/session';
 import { getSupabase } from '@/lib/supabase';
 import { NARRATOR_ID_KEY } from './urls';
@@ -24,8 +24,10 @@ export function useNarrators(familyId: string | null | undefined): NarratorsStat
   const [narrators, setNarrators] = useState<Narrator[]>([]);
   const [loading, setLoading] = useState<boolean>(Boolean(familyId));
   const [error, setError] = useState<string | null>(null);
+  const seq = useRef(0);
 
   const reload = useCallback(async () => {
+    const my = ++seq.current;
     const sb = getSupabase();
     if (!sb || !familyId) {
       setNarrators([]);
@@ -34,6 +36,7 @@ export function useNarrators(familyId: string | null | undefined): NarratorsStat
     }
     setLoading(true);
     const { data, error: err } = await sb.from('narrators').select('*').eq('family_id', familyId).order('created_at', { ascending: true });
+    if (my !== seq.current) return; // superseded by a newer reload or another family
     setError(err ? err.message : null);
     setNarrators(err ? [] : (data ?? []));
     setLoading(false);

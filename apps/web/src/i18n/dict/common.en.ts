@@ -34,6 +34,12 @@ export default {
   },
   lang: { label: 'Language', vi: 'Tiếng Việt', en: 'English' },
   textScale: { label: 'Text size', normal: 'Standard', large: 'Large', xlarge: 'Extra large' },
+  motion: {
+    label: 'Reduce motion',
+    auto: 'Follow my device',
+    reduce: 'Always reduce',
+    full: 'Always show animation',
+  },
   actions: {
     save: 'Save',
     cancel: 'Cancel',

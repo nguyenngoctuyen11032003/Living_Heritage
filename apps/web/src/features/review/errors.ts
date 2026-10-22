@@ -9,6 +9,7 @@ export const REVIEW_ERROR_CODES = [
   'story_not_approved',
   'invalid_fields',
   'anonymous_not_allowed',
+  'topic_failed',
 ] as const;
 
 export type ReviewErrorKey = (typeof REVIEW_ERROR_CODES)[number] | 'generic';

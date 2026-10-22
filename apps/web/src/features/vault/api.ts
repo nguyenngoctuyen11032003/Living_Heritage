@@ -50,7 +50,7 @@ export async function fetchStoriesPage(sb: Supabase, familyId: string, f: VaultF
  * Text search: a server ilike (exact accents) merged with a client-side, diacritic-insensitive pass over
  * the most recent SEARCH_SCAN_LIMIT stories, so "banh chung" also finds "Bánh chưng".
  */
-export async function searchStories(sb: Supabase, familyId: string, f: VaultFilters): Promise<VaultStory[]> {
+export async function searchStories(sb: Supabase, familyId: string, f: VaultFilters, topics: readonly TopicLite[] = []): Promise<VaultStory[]> {
   const or = ilikeOrFilter(f.q);
   const scan = applyServerFilters(sb.from('stories').select(STORY_COLUMNS), familyId, f)
     .order('created_at', { ascending: false })
@@ -59,7 +59,8 @@ export async function searchStories(sb: Supabase, familyId: string, f: VaultFilt
     ? applyServerFilters(sb.from('stories').select(STORY_COLUMNS), familyId, f).or(or).order('created_at', { ascending: false }).limit(200)
     : null;
   const [scanned, matched] = await Promise.all([scan, server ?? Promise.resolve({ data: [], error: null })]);
-  const local = filterStories(check(scanned) as VaultStory[], f);
+  const topicText = new Map(topics.map((tp) => [tp.id, `${tp.title_vi} ${tp.title_en}`]));
+  const local = filterStories(check(scanned) as VaultStory[], f, (id) => topicText.get(id) ?? '');
   return mergeById(check(matched) as VaultStory[], local);
 }
 

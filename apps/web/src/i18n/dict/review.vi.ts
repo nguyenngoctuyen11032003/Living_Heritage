@@ -75,6 +75,14 @@ export default {
     uncertainHint: 'Những chỗ gắn nhãn “Cần kiểm tra” là đoạn máy nghe chưa chắc. Hãy nghe lại bản ghi và sửa trong bản nháp nếu cần.',
     uncertainCount: '{n} chỗ cần kiểm tra',
     verbatim: 'Lời nguyên văn (chép từ bản ghi)',
+    edit: {
+      open: 'Sửa bản chép lời',
+      label: 'Sửa bản chép lời',
+      hint: 'Bản sửa được lưu thành phiên bản mới; bản cũ vẫn được giữ trong lịch sử. Giữ nhãn [?] ở chỗ chưa chắc.',
+      save: 'Lưu bản chép đã sửa',
+      cancel: 'Hủy',
+      saved: 'Đã lưu bản chép lời mới',
+    },
   },
   editor: {
     heading: 'Bản nháp',
@@ -94,6 +102,9 @@ export default {
     decade: 'Thập niên (tuỳ chọn)',
     decadeHint: 'Ví dụ 1970. Chỉ điền nếu lời kể nhắc tới thời gian.',
     decadeInvalid: 'Nhập năm có bốn chữ số, từ 1900 đến 2090.',
+    topic: 'Chủ đề',
+    topicHint: 'Chọn chủ đề phù hợp nhất với lời kể.',
+    topicNone: 'Chưa chọn chủ đề',
     titleRequired: 'Hãy đặt một tiêu đề ngắn.',
     list: {
       add: 'Thêm dòng',
@@ -174,6 +185,7 @@ export default {
     story_not_approved: 'Nội dung cần được người kể xác nhận trước khi đề nghị công bố.',
     invalid_fields: 'Một số trường chưa hợp lệ. Vui lòng kiểm tra lại.',
     anonymous_not_allowed: 'Việc này cần tài khoản gia đình.',
+    topic_failed: 'Nội dung đã được lưu nhưng chưa đổi được chủ đề. Vui lòng chọn lại chủ đề và lưu lần nữa.',
     generic: 'Đã có lỗi xảy ra. Thay đổi chưa được lưu; vui lòng thử lại.',
   },
   share: {

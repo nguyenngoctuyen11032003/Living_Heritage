@@ -1,6 +1,6 @@
 // /gia-dinh/cay-gia-dinh: storytellers in generation tiers (oldest on top), with approved story counts.
 import { BookOpen, Mic, Printer, TreeDeciduous, UsersRound } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import { Badge, Button, ButtonLink, EmptyState, Skeleton } from '@/components/ui';
 import { useT } from '@/i18n';
@@ -24,15 +24,24 @@ export default function FamilyTreePage() {
 
 function useApprovedCounts(familyId: string) {
   const [counts, setCounts] = useState<Map<string, number> | null>(null);
-  const load = useCallback(async () => {
+  useEffect(() => {
     const sb = getSupabase();
     if (!sb) return;
-    const res = await sb.from('stories').select('narrator_id').eq('family_id', familyId).eq('edit_status', 'approved').limit(5000);
-    setCounts(res.error ? new Map() : countByNarrator(res.data ?? []));
+    let alive = true;
+    setCounts(null);
+    void sb
+      .from('stories')
+      .select('narrator_id')
+      .eq('family_id', familyId)
+      .eq('edit_status', 'approved')
+      .limit(5000)
+      .then((res) => {
+        if (alive) setCounts(res.error ? new Map() : countByNarrator(res.data ?? []));
+      });
+    return () => {
+      alive = false;
+    };
   }, [familyId]);
-  useEffect(() => {
-    void load();
-  }, [load]);
   return counts;
 }
 

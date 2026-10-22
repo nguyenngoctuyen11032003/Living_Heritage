@@ -38,12 +38,12 @@ export const REPORT_STATUSES = ['open', 'resolved', 'dismissed'] as const;
 export type ReportStatus = (typeof REPORT_STATUSES)[number];
 export const CONNECT_STATUSES = ['new', 'forwarded', 'closed'] as const;
 export type ConnectStatus = (typeof CONNECT_STATUSES)[number];
-export const DELETION_STATUSES = ['open', 'done', 'rejected'] as const;
+export const DELETION_STATUSES = ['open', 'in_progress', 'done', 'rejected'] as const;
 export type DeletionStatus = (typeof DELETION_STATUSES)[number];
 
 const REPORT_NEXT: Record<ReportStatus, ReportStatus[]> = { open: ['resolved', 'dismissed'], resolved: ['open'], dismissed: ['open'] };
 const CONNECT_NEXT: Record<ConnectStatus, ConnectStatus[]> = { new: ['forwarded', 'closed'], forwarded: ['closed'], closed: ['new'] };
-const DELETION_NEXT: Record<DeletionStatus, DeletionStatus[]> = { open: ['done', 'rejected'], done: ['open'], rejected: ['open'] };
+const DELETION_NEXT: Record<DeletionStatus, DeletionStatus[]> = { open: ['in_progress', 'rejected'], in_progress: ['done', 'rejected', 'open'], done: ['open'], rejected: ['open'] };
 
 function next<S extends string>(table: Record<S, S[]>, current: string): S[] {
   return (table as Record<string, S[]>)[current] ?? [];

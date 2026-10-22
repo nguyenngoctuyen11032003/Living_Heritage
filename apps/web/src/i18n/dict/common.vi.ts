@@ -33,6 +33,12 @@ export default {
   },
   lang: { label: 'Ngôn ngữ', vi: 'Tiếng Việt', en: 'English' },
   textScale: { label: 'Cỡ chữ', normal: 'Chuẩn', large: 'Lớn', xlarge: 'Rất lớn' },
+  motion: {
+    label: 'Giảm chuyển động',
+    auto: 'Tự động theo thiết bị',
+    reduce: 'Luôn giảm',
+    full: 'Luôn bật hiệu ứng',
+  },
   actions: {
     save: 'Lưu',
     cancel: 'Huỷ',

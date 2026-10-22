@@ -2,7 +2,7 @@ import { BadgeCheck, FileText, Mic, Share2, type LucideIcon } from 'lucide-react
 import { Reveal } from '@/components/motion';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
-import { ArrowLink, Section, SectionHeading } from './shared';
+import { ArrowLink, PrimaryCta, Section, SectionHeading } from './shared';
 
 const STEPS: Array<{ key: 's1' | 's2' | 's3' | 's4'; icon: LucideIcon; who: 'person' | 'ai' }> = [
   { key: 's1', icon: Mic, who: 'person' },
@@ -46,6 +46,11 @@ export function HowItWorks({ showLink = true, headingLevel = 2 }: { showLink?: b
           </Reveal>
         ))}
       </ol>
+      {showLink && (
+        <div className="mt-12 flex justify-center">
+          <PrimaryCta size="lg" />
+        </div>
+      )}
     </Section>
   );
 }

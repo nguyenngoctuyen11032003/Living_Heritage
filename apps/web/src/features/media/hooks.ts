@@ -54,6 +54,9 @@ export function useStoryPhotos(storyId: string | null | undefined): StoryPhotosS
   }, [storyId]);
 
   useEffect(() => {
+    // New story: never show the previous story's photos while loading.
+    setPhotos([]);
+    setState('loading');
     void refresh();
   }, [refresh]);
 

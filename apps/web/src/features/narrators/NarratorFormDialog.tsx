@@ -8,6 +8,9 @@ import { ErrorNotice } from '@/features/families/states';
 import type { Narrator } from './hooks';
 import {
   GENERATION_LEVELS,
+  MAX_ASSISTED_BY,
+  MAX_CONSENT_METHOD,
+  helperColumns,
   MAX_RELATION,
   NARRATOR_LANGS,
   RELATION_SUGGESTIONS,
@@ -28,6 +31,8 @@ function draftFrom(n: Narrator | null): NarratorDraft {
     relation: n?.relation ?? '',
     lang: isNarratorLang(n?.lang) ? n.lang : 'vi',
     generation: n?.generation ? String(n.generation) : '',
+    assisted_by: n?.assisted_by ?? '',
+    consent_method: n?.consent_method ?? '',
   };
 }
 
@@ -57,7 +62,7 @@ function FormBody({ familyId, narrator, onClose, onSaved }: { familyId: string; 
     if (Object.keys(v).length > 0) return;
     setBusy(true);
     setError(null);
-    const row = toNarratorRow(draft);
+    const row = { ...toNarratorRow(draft), ...helperColumns(draft, narrator) };
     const { error: err } = narrator ? await sb.from('narrators').update(row).eq('id', narrator.id) : await sb.from('narrators').insert({ ...row, family_id: familyId });
     setBusy(false);
     if (err) {
@@ -135,6 +140,12 @@ function FormBody({ familyId, narrator, onClose, onSaved }: { familyId: string; 
             </Select>
           </Field>
         </div>
+        <Field label={t('narrators.form.assistedBy')} hint={t('narrators.form.assistedByHint')} error={msg('assisted_by')}>
+          <Input value={draft.assisted_by} maxLength={MAX_ASSISTED_BY} onChange={(e) => set('assisted_by', e.target.value)} />
+        </Field>
+        <Field label={t('narrators.form.consentMethod')} hint={t('narrators.form.consentMethodHint')} error={msg('consent_method')}>
+          <Input value={draft.consent_method} maxLength={MAX_CONSENT_METHOD} onChange={(e) => set('consent_method', e.target.value)} />
+        </Field>
         <div aria-live="assertive">{error && <ErrorNotice message={t(`errors.${error}`)} />}</div>
       </form>
     </Dialog>

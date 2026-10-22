@@ -83,8 +83,13 @@ export function answerSystem(lang: Lang): string {
   ].join('\n');
 }
 
+/** Question / source text is data: defuse our delimiter tags and fake citation markers inside it. */
+export function neutralize(text: string): string {
+  return text.replace(/<(\/?)\s*(question|sources)\b/gi, '‹$1$2').replace(/\[(\d{1,3})\]/g, '($1)');
+}
+
 export function answerUser(lang: Lang, question: string, sources: PromptSource[]): string {
-  const lines = ['<question>', question, '</question>', '<sources>'];
+  const lines = ['<question>', neutralize(question), '</question>', '<sources>'];
   sources.forEach((s, i) => {
     const meta = [
       `type: ${s.kind === 'experience' ? 'experience card (practical know-how)' : 'story'}`,
@@ -97,7 +102,7 @@ export function answerUser(lang: Lang, question: string, sources: PromptSource[]
       .filter((x, j, all) => x !== '' && all.indexOf(x) === j)
       .join('\n')
       .slice(0, SOURCE_MAX_CHARS);
-    lines.push(`[${i + 1}] ${s.title}`, `(${meta})`, text, '');
+    lines.push(`[${i + 1}] ${neutralize(s.title)}`, `(${meta.replace(/[\r\n]+/g, ' ')})`, neutralize(text), '');
   });
   lines.push('</sources>');
   return lines.join('\n');

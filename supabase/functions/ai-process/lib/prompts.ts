@@ -83,8 +83,12 @@ export function draftSystem(lang: Lang): string {
   ].join('\n');
 }
 
+/** Neutralises our own delimiter tags inside untrusted text so it cannot close the data block. */
+export const defang = (s: string): string => s.replace(/<(\/?)(transcript|previous_story_titles)>/gi, '[$1$2]');
+
 export function draftUser(input: DraftInput): string {
-  const transcript = input.transcript.length > TRANSCRIPT_MAX_CHARS ? input.transcript.slice(0, TRANSCRIPT_MAX_CHARS) : input.transcript;
+  const sliced = input.transcript.length > TRANSCRIPT_MAX_CHARS ? input.transcript.slice(0, TRANSCRIPT_MAX_CHARS) : input.transcript;
+  const transcript = defang(sliced);
   return [
     input.topic ? `Topic: ${input.topic}` : null,
     input.question ? `Question the narrator answered: ${input.question}` : null,
@@ -163,7 +167,7 @@ export function suggestSystem(lang: Lang): string {
 }
 
 export function suggestUser(input: SuggestInput): string {
-  const titles = input.previousTitles.slice(0, 5).map((t) => `- ${t}`).join('\n');
+  const titles = input.previousTitles.slice(0, 5).map((t) => `- ${defang(t).replace(/\s+/g, ' ')}`).join('\n');
   return [`Topic: ${input.topic}`, '<previous_story_titles>', titles || '(none yet)', '</previous_story_titles>'].join('\n');
 }
 

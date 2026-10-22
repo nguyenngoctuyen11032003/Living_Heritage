@@ -15,6 +15,8 @@ export interface DraftForm {
   limits: string;
   /** Free text input; validated with parseDecade. */
   decade: string;
+  /** Selected topic id; '' = no topic. Saved separately from save_story_draft (stories.topic_id). */
+  topicId: string;
 }
 
 export type JsonObject = { [key: string]: Json | undefined };
@@ -80,11 +82,18 @@ export interface StorySource {
   summary: string | null;
   body: string;
   fields: unknown;
+  topic_id?: string | null;
 }
 
 export function formFromStory(s: StorySource): DraftForm {
   const x = normalizeExperienceFields(s.fields);
-  return { title: s.title, summary: s.summary ?? '', body: s.body, ...x };
+  return { title: s.title, summary: s.summary ?? '', body: s.body, ...x, topicId: s.topic_id ?? '' };
+}
+
+/** The topic_id to write, or undefined when the topic did not change ('' clears it to null). */
+export function topicChange(form: Pick<DraftForm, 'topicId'>, baseline: Pick<DraftForm, 'topicId'>): string | null | undefined {
+  if (form.topicId === baseline.topicId) return undefined;
+  return form.topicId === '' ? null : form.topicId;
 }
 
 export function formsEqual(a: DraftForm, b: DraftForm): boolean {

@@ -54,7 +54,7 @@ export default function SignupPage() {
 
   async function onSubmit(ev: FormEvent) {
     ev.preventDefault();
-    if (!sb || !validate()) return;
+    if (!sb || busy || !validate()) return;
     setBusy(true);
     setError(null);
     const { data, error: err } = await sb.auth.signUp({

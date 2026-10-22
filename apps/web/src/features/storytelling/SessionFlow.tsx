@@ -27,7 +27,7 @@ import { createAudioCache } from './tts';
 import { supabaseUploadBackend, uploadPending, UploadError, type UploadErrorCode } from './upload';
 
 /** Dialogs render in a portal, outside narrator mode: give their text and buttons the same size. */
-const DIALOG_ELDER = `${ELDER_CONTROLS} [&_p]:text-[1.17rem]`;
+const DIALOG_ELDER = `${ELDER_CONTROLS} [&_p]:text-[1.25rem]`;
 
 type Take = RecordingResult & { fileName?: string };
 
@@ -88,7 +88,7 @@ export interface SessionFlowProps {
 /** "Gợi ý từ AI": an honest label on AI-suggested questions (text, not colour alone). */
 function AiPill({ label, className }: { label: string; className?: string }) {
   return (
-    <span className={cn('inline-flex items-center gap-2 rounded-full bg-[#fbecc8] px-4 py-1.5 text-[1.17rem] font-semibold text-[#5a3e0a] ring-1 ring-[#e9cf8f]', className)}>
+    <span className={cn('inline-flex items-center gap-2 rounded-full bg-[#fbecc8] px-4 py-1.5 text-[1.25rem] font-semibold text-[#5a3e0a] ring-1 ring-[#e9cf8f]', className)}>
       <Sparkles className="size-5" aria-hidden="true" />
       {label}
     </span>
@@ -131,6 +131,8 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
   const [autoRead, setAutoRead] = useState(readAutoRead);
   const [audioCache] = useState(() => createAudioCache());
   const autoReadId = useId();
+  /** Blocks a second "Giữ bản ghi" / "Thử lại" tap while an upload is already starting. */
+  const submittingRef = useRef(false);
 
   const question = questions.find((q) => q.id === currentId) ?? null;
   const questionText = aiQuestion ?? (question ? promptIn(question, lang) : t('session.freePrompt'));
@@ -250,7 +252,9 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     const nextUsed = new Set(used);
     if (currentId) nextUsed.add(currentId);
     setUsed(nextUsed);
-    goToQuestion(nextQuestion(questions, currentId, nextUsed), t('session.changed'));
+    const next = nextQuestion(questions, currentId, nextUsed);
+    // Nothing else to ask: fall back to the open prompt instead of repeating this question.
+    goToQuestion(next && !nextUsed.has(next.id) ? next : null, t('session.changed'));
   }
 
   const runAi = useCallback(
@@ -285,7 +289,8 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
   }
 
   async function keep() {
-    if (!take) return;
+    if (!take || submittingRef.current) return;
+    submittingRef.current = true;
     const pending: PendingUpload = {
       key,
       attemptId: newAttemptId(),
@@ -308,10 +313,24 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     } catch {
       /* memory copy in pendingRef is still there */
     }
-    await runUpload(pending);
+    try {
+      await runUpload(pending);
+    } finally {
+      submittingRef.current = false;
+    }
   }
 
   async function retryUpload() {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    try {
+      await retryUploadNow();
+    } finally {
+      submittingRef.current = false;
+    }
+  }
+
+  async function retryUploadNow() {
     const latest = (await store.get(key).catch(() => null)) ?? pendingRef.current;
     if (!latest) {
       setPhase({ kind: 'record' });
@@ -386,16 +405,16 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
 
   const filePicker = (
     <div className="flex flex-col gap-2">
-      <label htmlFor={fileInputId} className="inline-flex min-h-14 cursor-pointer items-center justify-center gap-2 rounded-full bg-paper px-7 text-[1.17rem] font-semibold text-ink ring-1 ring-line hover:text-heritage hover:ring-heritage/60 focus-within:outline-3 focus-within:outline-offset-4 focus-within:outline-terracotta">
+      <label htmlFor={fileInputId} className="inline-flex min-h-14 cursor-pointer items-center justify-center gap-2 rounded-full bg-paper px-7 text-[1.25rem] font-semibold text-ink ring-1 ring-line hover:text-heritage hover:ring-heritage/60 focus-within:outline-3 focus-within:outline-offset-4 focus-within:outline-terracotta">
         <FileAudio className="size-6" aria-hidden="true" />
         {t('errors.fileLabel')}
         <input id={fileInputId} type="file" accept="audio/*" className="sr-only" onChange={(e) => void onFile(e)} aria-describedby={`${fileInputId}-hint`} />
       </label>
-      <p id={`${fileInputId}-hint`} className="text-center text-[1.17rem] text-ink-soft">
+      <p id={`${fileInputId}-hint`} className="text-center text-[1.25rem] text-ink-soft">
         {t('errors.fileHint')}
       </p>
       {fileError && (
-        <p role="alert" className="flex items-center justify-center gap-2 text-[1.17rem] font-medium text-terracotta">
+        <p role="alert" className="flex items-center justify-center gap-2 text-[1.25rem] font-medium text-terracotta">
           <CircleAlert className="size-5 shrink-0" aria-hidden="true" />
           {fileError}
         </p>
@@ -408,7 +427,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
       return (
         <Card padding="lg" className="flex flex-col gap-5 text-center">
           <h2 className="font-serif text-[1.5rem] font-semibold text-heritage-deep">{t('errors.unsupportedTitle')}</h2>
-          <p className="text-[1.2rem] leading-relaxed text-ink">{t('errors.unsupportedDesc')}</p>
+          <p className="text-[1.25rem] leading-relaxed text-ink">{t('errors.unsupportedDesc')}</p>
           {filePicker}
         </Card>
       );
@@ -417,13 +436,13 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
       return (
         <Card padding="lg" className="flex flex-col gap-5">
           <h2 className="font-serif text-[1.5rem] font-semibold text-heritage-deep">{t('errors.deniedTitle')}</h2>
-          <p className="text-[1.2rem] leading-relaxed">{t('errors.deniedDesc')}</p>
-          <ol className="list-decimal space-y-2 pl-7 text-[1.2rem] leading-relaxed">
+          <p className="text-[1.25rem] leading-relaxed">{t('errors.deniedDesc')}</p>
+          <ol className="list-decimal space-y-2 pl-7 text-[1.25rem] leading-relaxed">
             <li>{t('errors.deniedStep1')}</li>
             <li>{t('errors.deniedStep2')}</li>
             <li>{t('errors.deniedStep3')}</li>
           </ol>
-          <p className="text-[1.17rem] text-ink-soft">{t('errors.deniedIos')}</p>
+          <p className="text-[1.25rem] text-ink-soft">{t('errors.deniedIos')}</p>
           <Button size="lg" onClick={() => void recorder.start()} leftIcon={<RefreshCw className="size-5" aria-hidden="true" />}>
             {t('errors.retryMic')}
           </Button>
@@ -446,7 +465,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
         </p>
 
         {status === 'error' && (
-          <p role="alert" className="flex items-center gap-2 text-[1.17rem] font-medium text-terracotta">
+          <p role="alert" className="flex items-center gap-2 text-[1.25rem] font-medium text-terracotta">
             <CircleAlert className="size-5 shrink-0" aria-hidden="true" />
             {recorder.state.error === 'no_device' ? t('errors.noDevice') : t('errors.micFailed')}
           </p>
@@ -466,7 +485,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
               </span>
               <span className="text-[1.35rem] font-semibold text-heritage-deep">{t('rec.start')}</span>
             </button>
-            <p id="rec-start-hint" className="max-w-md text-[1.17rem] text-ink-soft">
+            <p id="rec-start-hint" className="max-w-md text-[1.25rem] text-ink-soft">
               {t('rec.startHint')} {t('rec.limit')}
             </p>
           </>
@@ -477,7 +496,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
               <p className="font-serif text-[3.25rem] font-semibold tabular-nums leading-none text-ink" aria-hidden="true">
                 {formatClock(recorder.elapsed)}
               </p>
-              <p className="mt-2 text-[1.17rem] text-ink-soft">{t('rec.elapsedValue', { time: formatClock(recorder.elapsed) })}</p>
+              <p className="mt-2 text-[1.25rem] text-ink-soft">{t('rec.elapsedValue', { time: formatClock(recorder.elapsed) })}</p>
             </div>
 
             <div className="w-full max-w-sm">
@@ -491,11 +510,11 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
               >
                 <div className="h-full rounded-full bg-heritage transition-[width] duration-100" style={{ width: `${Math.max(recording ? 3 : 0, levelPct)}%` }} />
               </div>
-              <p className="mt-2 text-[1.17rem] text-ink-soft">{!recording ? t('rec.levelPaused') : quiet ? t('rec.levelQuiet') : t('rec.levelGood')}</p>
+              <p className="mt-2 text-[1.25rem] text-ink-soft">{!recording ? t('rec.levelPaused') : quiet ? t('rec.levelQuiet') : t('rec.levelGood')}</p>
             </div>
 
             {warn && (
-              <p role="alert" className="rounded-2xl bg-[#fbecc8] px-5 py-3 text-[1.17rem] font-medium text-[#5a3e0a]">
+              <p role="alert" className="rounded-2xl bg-[#fbecc8] px-5 py-3 text-[1.25rem] font-medium text-[#5a3e0a]">
                 {t('rec.warn')}
               </p>
             )}
@@ -529,15 +548,15 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
       <Card padding="lg" className="flex flex-col gap-5">
         <div>
           <h2 className="font-serif text-[1.5rem] font-semibold text-heritage-deep">{t('rec.reviewTitle')}</h2>
-          <p className="mt-2 text-[1.17rem] leading-relaxed text-ink-soft">{t('rec.reviewDesc')}</p>
+          <p className="mt-2 text-[1.25rem] leading-relaxed text-ink-soft">{t('rec.reviewDesc')}</p>
         </div>
         {recorder.state.autoStopped && !fileTake && (
-          <p role="status" className="rounded-2xl bg-mint/70 px-5 py-3 text-[1.17rem] text-heritage-deep">
+          <p role="status" className="rounded-2xl bg-mint/70 px-5 py-3 text-[1.25rem] text-heritage-deep">
             {t('rec.autoStopped')}
           </p>
         )}
         {empty ? (
-          <p role="alert" className="text-[1.17rem] font-medium text-terracotta">
+          <p role="alert" className="text-[1.25rem] font-medium text-terracotta">
             {t('errors.emptyTake')}
           </p>
         ) : (
@@ -570,7 +589,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     if (followUps.status === 'idle') return null;
     if (followUps.status === 'loading') {
       return (
-        <p role="status" className="flex items-center justify-center gap-3 text-[1.17rem] text-ink-soft">
+        <p role="status" className="flex items-center justify-center gap-3 text-[1.25rem] text-ink-soft">
           <Spinner size="sm" decorative />
           {t('followUps.loading')}
         </p>
@@ -586,7 +605,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
           </h3>
           {ai && <AiPill label={t('followUps.aiBadge')} />}
         </div>
-        {ai && <p className="text-[1.17rem] text-ink-soft">{t('followUps.aiNote')}</p>}
+        {ai && <p className="text-[1.25rem] text-ink-soft">{t('followUps.aiNote')}</p>}
         <ul className="flex flex-col gap-3">
           {followUps.items.map((item) => (
             <li key={item.questionId ?? item.text}>
@@ -612,7 +631,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
           <div role="status" aria-live="polite" className="flex flex-col items-center gap-4 py-10 text-center">
             <Spinner size="lg" decorative />
             <p className="text-[1.35rem] font-semibold">{t('rec.uploading')}</p>
-            <p className="text-[1.17rem] text-ink-soft">{t('rec.uploadingHint')}</p>
+            <p className="text-[1.25rem] text-ink-soft">{t('rec.uploadingHint')}</p>
           </div>
         );
       case 'upload-failed': {
@@ -626,8 +645,8 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
               <WifiOff className="size-7 shrink-0 text-terracotta" aria-hidden="true" />
               {phase.restored ? t('errors.restoredTitle') : network ? t('errors.networkTitle') : t('errors.uploadFailedTitle')}
             </h2>
-            <p className="text-[1.2rem] leading-relaxed">{desc}</p>
-            {phase.uploaded && <p className="text-[1.17rem] text-ink-soft">{t('errors.uploadedPart')}</p>}
+            <p className="text-[1.25rem] leading-relaxed">{desc}</p>
+            {phase.uploaded && <p className="text-[1.25rem] text-ink-soft">{t('errors.uploadedPart')}</p>}
             <div className="flex flex-col gap-3 sm:flex-row-reverse">
               {canRetry && (
                 <Button size="xl" fullWidth onClick={() => void retryUpload()} leftIcon={<RefreshCw className="size-5" aria-hidden="true" />}>
@@ -647,15 +666,15 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
             {thanks}
             <Spinner size="lg" decorative />
             <p className="text-[1.45rem] font-semibold">{phase.step === 'transcribing' ? t('rec.transcribing') : t('rec.drafting')}</p>
-            <p className="max-w-md text-[1.17rem] text-ink-soft">{t('rec.processingHint')}</p>
+            <p className="max-w-md text-[1.25rem] text-ink-soft">{t('rec.processingHint')}</p>
           </div>
         );
       case 'ai-failed':
         return (
           <Card padding="lg" className="flex flex-col gap-4" role="alert">
             <h2 className="font-serif text-[1.5rem] font-semibold text-heritage-deep">{t('errors.aiTitle')}</h2>
-            <p className="rounded-2xl bg-mint/70 px-5 py-3 text-[1.2rem] font-medium text-heritage-deep">{t('errors.aiSafe')}</p>
-            <p className="text-[1.2rem] leading-relaxed">{t(`errors.ai.${phase.code}` as 'errors.ai.internal')}</p>
+            <p className="rounded-2xl bg-mint/70 px-5 py-3 text-[1.25rem] font-medium text-heritage-deep">{t('errors.aiSafe')}</p>
+            <p className="text-[1.25rem] leading-relaxed">{t(`errors.ai.${phase.code}` as 'errors.ai.internal')}</p>
             <div className="flex flex-col gap-3 sm:flex-row-reverse">
               <Button size="xl" fullWidth onClick={() => void runAi(phase.recordingId)} leftIcon={<RefreshCw className="size-5" aria-hidden="true" />}>
                 {t('errors.aiRetry')}
@@ -672,7 +691,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
           <Card padding="lg" tone="mint" className="flex flex-col gap-5 text-center" role="status" aria-live="polite">
             {thanks}
             <h2 className="font-serif text-[1.7rem] font-semibold text-heritage-deep">{t('rec.doneTitle')}</h2>
-            <p className="text-[1.2rem] leading-relaxed">{first ? (assisted ? t('rec.doneDescAssisted') : t('rec.doneDesc')) : t('rec.doneNoDraft')}</p>
+            <p className="text-[1.25rem] leading-relaxed">{first ? (assisted ? t('rec.doneDescAssisted') : t('rec.doneDesc')) : t('rec.doneNoDraft')}</p>
             {first ? (
               <ButtonLink to={`/ban-nhap/${first}`} size="xl" fullWidth>
                 {t('rec.view')}
@@ -703,7 +722,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
       </p>
 
       <section aria-labelledby="question-heading" className="flex flex-col gap-5">
-        <p className="text-[1.17rem] font-medium text-ink-soft">{topic ? t('session.topic', { topic: pick({ vi: topic.title_vi, en: topic.title_en }) }) : t('session.freeTopic')}</p>
+        <p className="text-[1.25rem] font-medium text-ink-soft">{topic ? t('session.topic', { topic: pick({ vi: topic.title_vi, en: topic.title_en }) }) : t('session.freeTopic')}</p>
         <h1 id="question-heading" ref={headingRef} tabIndex={-1} lang={question || aiQuestion ? lang : undefined} className="font-serif text-[2rem] font-semibold leading-snug text-ink md:text-[2.4rem]">
           <span className="sr-only">{t('session.question')}: </span>
           {questionText}
@@ -717,7 +736,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
                 {t('session.change')}
               </Button>
             )}
-            {questions.length > 1 && (
+            {(question || aiQuestion) && (
               <Button size="lg" variant="ghost" onClick={skipQuestion} leftIcon={<SkipForward className="size-5" aria-hidden="true" />}>
                 {t('session.skip')}
               </Button>
@@ -726,7 +745,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
         )}
         {showQuestionTools && (question || aiQuestion) && (
           <div className="flex flex-col gap-1">
-            <label htmlFor={autoReadId} className="inline-flex min-h-14 cursor-pointer items-center gap-4 self-start rounded-2xl px-1 text-[1.17rem] font-medium text-ink">
+            <label htmlFor={autoReadId} className="inline-flex min-h-14 cursor-pointer items-center gap-4 self-start rounded-2xl px-1 text-[1.25rem] font-medium text-ink">
               <input
                 id={autoReadId}
                 type="checkbox"
@@ -737,7 +756,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
               />
               {t('session.autoRead')}
             </label>
-            <p id={`${autoReadId}-hint`} className="pl-12 text-[1.17rem] text-ink-soft">
+            <p id={`${autoReadId}-hint`} className="pl-12 text-[1.25rem] text-ink-soft">
               {t('session.autoReadHint')}
             </p>
           </div>

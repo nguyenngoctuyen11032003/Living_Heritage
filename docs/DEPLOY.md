@@ -5,8 +5,9 @@ Không có server riêng. Web tĩnh trên GitHub Pages (`https://nguyenngoctuyen
 ```text
 Pull Request ──► CI (.github/workflows/ci.yml)
                   ├─ web:       check-public-env → check-migrations-immutable → test scripts → lint → typecheck → test → build → check-bundle-secrets
+                  ├─ e2e:       build --mode e2e → Playwright (Chromium, Supabase giả bằng page.route, không cần secret)
                   ├─ secrets:   gitleaks (bản ghim + sha256) quét toàn bộ lịch sử Git với .gitleaks.toml
-                  ├─ functions: deno check ai-process/index.ts → deno lint → deno test --allow-env
+                  ├─ functions: deno check */index.ts → deno lint → deno test --allow-env
                   └─ database:  supabase start (Docker, gọn) → áp mọi migration + seed → db lint → pgTAP
 
 push main ─────► Deploy (.github/workflows/deploy.yml)

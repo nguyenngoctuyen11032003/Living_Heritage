@@ -3,7 +3,7 @@ import { cn } from '@/lib/cn';
 
 /**
  * VI | EN segmented switch. `tone="dark"` for night sections; `size="lg"` for narrator mode (48px, 56px from sm).
- * Each option is at least a 44px touch target.
+ * Each option is at least a 48px touch target.
  *
  * Layout note: `className` is for spacing/alignment only. Do not pass display utilities (`hidden sm:inline-flex`) —
  * `cn()` does not merge classes, so they would fight the switch's own `inline-flex` (QA 2026-10-22 P0 #1).
@@ -35,7 +35,7 @@ export function LanguageSwitch({ tone = 'light', size = 'md', className }: { ton
           onClick={() => setLocale(l)}
           className={cn(
             'rounded-full px-2.5 uppercase tracking-wide transition-colors',
-            size === 'lg' ? 'min-h-12 min-w-12 sm:min-h-14 sm:min-w-14' : 'min-h-11 min-w-11',
+            size === 'lg' ? 'min-h-12 min-w-12 sm:min-h-14 sm:min-w-14' : 'min-h-12 min-w-12',
             locale === l
               ? tone === 'light'
                 ? 'bg-heritage text-cream'

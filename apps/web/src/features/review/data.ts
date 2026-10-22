@@ -41,6 +41,14 @@ export function isJobActive(job: Pick<AiJobRow, 'status'> | null): boolean {
   return !!job && (ACTIVE_JOB_STATUSES as readonly string[]).includes(job.status);
 }
 
+/** A job that has not moved for this long is treated as stuck: the user can retry instead of waiting forever. */
+export const JOB_STALE_MS = 5 * 60 * 1000;
+export function isJobStale(job: Pick<AiJobRow, 'status' | 'updated_at'> | null, now: number = Date.now()): boolean {
+  if (!job || !isJobActive(job)) return false;
+  const t = Date.parse(job.updated_at);
+  return Number.isFinite(t) && now - t > JOB_STALE_MS;
+}
+
 export async function latestJob(sb: Supabase, recordingId: string): Promise<AiJobRow | null> {
   const { data, error } = await sb.from('ai_jobs').select(JOB_COLS).eq('recording_id', recordingId).order('created_at', { ascending: false }).limit(1);
   check(error);
@@ -134,10 +142,39 @@ export async function saveDraft(sb: Supabase, storyId: string, args: SaveArgs, w
   return data;
 }
 
+export async function loadTopics(sb: Supabase): Promise<TopicRow[]> {
+  const { data, error } = await sb.from('topics').select('id, slug, title_vi, title_en').order('sort');
+  check(error);
+  return data ?? [];
+}
+
+/**
+ * save_story_draft, then (only if the topic changed) stories.topic_id. The topic is not an argument of the RPC;
+ * the table grants update (topic_id). If the topic write fails the draft is already saved: throws ReviewError('topic_failed').
+ */
+export async function saveDraftWithTopic(sb: Supabase, storyId: string, args: SaveArgs, wasPublic: boolean, topicId: string | null | undefined): Promise<number> {
+  const v = await saveDraft(sb, storyId, args, wasPublic);
+  if (topicId === undefined) return v;
+  const { data, error } = await sb.from('stories').update({ topic_id: topicId }).eq('id', storyId).select('id');
+  if (error || !data || data.length === 0) throw new ReviewError('topic_failed');
+  return v;
+}
+
 /** approve_story → approved version number. `assisted` records an owner/manager approval with the narrator's consent. */
 export async function approve(sb: Supabase, storyId: string, assisted: boolean): Promise<number> {
   const { data, error } = await sb.rpc('approve_story', { p_story: storyId, p_assisted_consent: assisted });
   check(error);
   if (typeof data !== 'number') throw new ReviewError('generic');
+  return data;
+}
+
+/** Corrections to the transcript are stored as a new version (earlier text stays in history). Returns the saved row. */
+export async function saveTranscript(sb: Supabase, recordingId: string, text: string): Promise<TranscriptRow> {
+  const { data: latest, error: lErr } = await sb.from('transcripts').select('version').eq('recording_id', recordingId).order('version', { ascending: false }).limit(1);
+  check(lErr);
+  const version = (latest?.[0]?.version ?? 0) + 1;
+  const { data, error } = await sb.from('transcripts').insert({ recording_id: recordingId, version, text }).select('id, version, text, created_at').single();
+  check(error);
+  if (!data) throw new ReviewError('generic');
   return data;
 }

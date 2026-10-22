@@ -56,7 +56,8 @@ describe('status transitions', () => {
     expect(nextReportStatuses('resolved')).toEqual(['open']);
     expect(nextConnectStatuses('new')).toEqual(['forwarded', 'closed']);
     expect(nextConnectStatuses('forwarded')).toEqual(['closed']);
-    expect(nextDeletionStatuses('open')).toEqual(['done', 'rejected']);
+    expect(nextDeletionStatuses('open')).toEqual(['in_progress', 'rejected']);
+    expect(nextDeletionStatuses('in_progress')).toEqual(['done', 'rejected', 'open']);
     expect(nextDeletionStatuses('done')).toEqual(['open']);
     expect(nextDeletionStatuses('weird')).toEqual([]);
   });

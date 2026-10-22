@@ -20,9 +20,11 @@ import { inviteUrl } from './urls';
 export default function MembersPage() {
   const t = useT('family');
   usePageTitle(t('titles.members'));
+  const fam = useCurrentFamily();
   return (
     <FamilyGate>
-      <Members />
+      {/* Remount per family so the previous family's members/invites never flash after switching. */}
+      <Members key={fam.current?.id} />
     </FamilyGate>
   );
 }

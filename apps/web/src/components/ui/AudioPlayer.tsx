@@ -76,6 +76,14 @@ export function AudioPlayer({ src, duration: durationProp = 0, title, subtitle, 
     onPlayingRef.current?.(next);
   }, []);
 
+  // A new source starts from scratch.
+  useEffect(() => {
+    setFailed(false);
+    setLoadedDuration(null);
+    timeRef.current = 0;
+    setTime(0);
+  }, [src]);
+
   // Simulated clock.
   useEffect(() => {
     if (!simulated || !playing) return;
@@ -104,6 +112,7 @@ export function AudioPlayer({ src, duration: durationProp = 0, title, subtitle, 
     }
     const el = audioRef.current;
     if (!el) return;
+    setFailed(false);
     void el.play().catch(() => setFailed(true));
   }, [simulated, duration, report, setPlayingState]);
 
@@ -207,6 +216,11 @@ export function AudioPlayer({ src, duration: durationProp = 0, title, subtitle, 
           {playButton}
           {track}
           <span className={cn('shrink-0 text-[0.8rem] font-medium tabular-nums', dark ? 'text-night-ink/80' : 'text-ink-soft')}>{timeText}</span>
+          {failed && (
+            <span role="alert" className="sr-only">
+              {t('ui.player.error')}
+            </span>
+          )}
         </>
       ) : (
         <>

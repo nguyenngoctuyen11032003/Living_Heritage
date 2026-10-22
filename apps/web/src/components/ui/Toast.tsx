@@ -70,7 +70,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     (opts: ToastOptions) => {
       const id = nextId.current++;
       const tone = opts.tone ?? 'info';
-      setItems((list) => [...list.slice(-3), { ...opts, tone, id }]);
+      setItems((list) => {
+        const next = [...list, { ...opts, tone, id }];
+        // Cap at 4: drop the oldest non-error first so unresolved errors stay visible.
+        while (next.length > 4) {
+          const drop = next.findIndex((i) => i.tone !== 'error');
+          const [gone] = next.splice(drop < 0 ? 0 : drop, 1);
+          const timer = gone && timers.current.get(gone.id);
+          if (timer) window.clearTimeout(timer);
+        }
+        return next;
+      });
       const duration = opts.duration === undefined ? (tone === 'error' ? null : 6000) : opts.duration;
       if (duration !== null) timers.current.set(id, window.setTimeout(() => dismiss(id), duration));
       return id;

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { translate } from '@/i18n';
 import { AUDIT_ACTIONS, AUDIT_TARGETS, auditActionLabel, auditActorKind, isKnownAuditAction, pageCount, pageRange } from './audit';
-import { ACCOUNT_MARKER, deletionStatus, describeDeletionRow, hasErrors, REASON_MAX, toDeletionInsert, validateDeletionForm, type DeletionForm } from './deletion';
+import { ACCOUNT_MARKER, deletionStatus, describeDeletionRow, hasErrors, hasOpenDuplicate, REASON_MAX, toDeletionInsert, validateDeletionForm, type DeletionForm } from './deletion';
 import { activeLinks } from './links';
 import { dataCenterAccess, familySettingsPermissions, validateName, validateNewPassword } from './permissions';
 
@@ -56,6 +56,22 @@ describe('audit action labels', () => {
     expect(pageCount(0)).toBe(1);
     expect(pageCount(20)).toBe(1);
     expect(pageCount(21)).toBe(2);
+  });
+});
+
+describe('hasOpenDuplicate', () => {
+  const ins = { family_id: 'f1', story_id: 's1', reason: 'x' };
+  it('detects an open request for the same story only', () => {
+    expect(hasOpenDuplicate([{ story_id: 's1', reason: 'a', status: 'open', family_id: 'f1' }], ins)).toBe(true);
+    expect(hasOpenDuplicate([{ story_id: 's2', reason: 'a', status: 'open', family_id: 'f1' }], ins)).toBe(false);
+    expect(hasOpenDuplicate([{ story_id: 's1', reason: 'a', status: 'done', family_id: 'f1' }], ins)).toBe(false);
+  });
+  it('treats family and account scopes separately', () => {
+    const fam = { family_id: 'f1', story_id: null, reason: 'x' };
+    const acc = { family_id: 'f1', story_id: null, reason: '[account] x' };
+    const rows = [{ story_id: null, reason: '[account] y', status: 'open', family_id: 'f1' }];
+    expect(hasOpenDuplicate(rows, acc)).toBe(true);
+    expect(hasOpenDuplicate(rows, fam)).toBe(false);
   });
 });
 

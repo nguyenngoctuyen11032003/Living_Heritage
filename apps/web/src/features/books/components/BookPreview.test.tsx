@@ -30,7 +30,7 @@ describe('BookPreview', () => {
     fireEvent.keyDown(window, { key: 'ArrowRight' });
     expect(screen.getByText('Trang 3 / 3')).toBeInTheDocument();
     expect(screen.getByText('Quét để nghe giọng kể gốc · 1:12')).toBeInTheDocument();
-    expect(screen.getByText('Người quét cần có quyền xem.')).toBeInTheDocument();
+    expect(screen.getByText(/Cần đăng nhập và có quyền xem/)).toBeInTheDocument();
     expect(screen.getByRole('img', { name: /Mùa gặt/ })).toBeInTheDocument();
     fireEvent.keyDown(window, { key: 'ArrowRight' });
     expect(screen.getByText('Trang 3 / 3')).toBeInTheDocument();

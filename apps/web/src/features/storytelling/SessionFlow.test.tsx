@@ -46,6 +46,16 @@ describe('SessionFlow', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Câu hỏi hai?');
   });
 
+  it('"Bỏ qua câu này" moves on, and falls back to the open prompt once every question is skipped', async () => {
+    renderFlow();
+    const skip = () => userEvent.click(screen.getByRole('button', { name: 'Bỏ qua câu này' }));
+    await skip();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Câu hỏi hai?');
+    await skip();
+    expect(screen.getByRole('heading', { level: 1 })).not.toHaveTextContent(/Câu hỏi (một|hai)/);
+    expect(screen.getByRole('button', { name: 'Kết thúc buổi kể' })).toBeInTheDocument();
+  });
+
   it('explains an unsupported browser in words and offers a file upload', () => {
     renderFlow(); // happy-dom has no MediaRecorder
     expect(screen.getByText('Trình duyệt này chưa ghi âm được')).toBeInTheDocument();

@@ -22,7 +22,7 @@ export default function ForgotPasswordPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!sb) return;
+    if (!sb || busy) return;
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
       setEmailError(t('fields.emailInvalid'));
       return;

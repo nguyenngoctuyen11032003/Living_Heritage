@@ -23,7 +23,7 @@ export default function ResetPasswordPage() {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!sb) return;
+    if (!sb || busy) return;
     const fe: { password?: string; confirm?: string } = {};
     if (password.length < MIN_PASSWORD) fe.password = t('fields.passwordTooShort', { n: MIN_PASSWORD });
     if (confirm !== password) fe.confirm = t('reset.mismatch');

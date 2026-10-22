@@ -5,7 +5,8 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { DurationClock } from './clock';
 import { initialRecorderState, recorderReducer, type RecorderErrorCode } from './recorderReducer';
 
-export const MIME_PREFERENCE = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'] as const;
+// Chrome/Firefox/Android: webm; Safari/iOS: mp4 (AAC). Last entries cover older Safari builds.
+export const MIME_PREFERENCE = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4;codecs=mp4a.40.2', 'audio/mp4', 'audio/aac'] as const;
 export const WARN_AT_SECONDS = 540;
 
 export interface RecordingResult {
@@ -16,7 +17,7 @@ export interface RecordingResult {
 }
 
 export class RecorderError extends Error {
-  constructor(public code: 'denied' | RecorderErrorCode) {
+  constructor(public code: 'denied' | 'cancelled' | RecorderErrorCode) {
     super(code);
   }
 }
@@ -44,6 +45,10 @@ export class AudioRecorder {
   private analyser: AnalyserNode | null = null;
   private buffer: Uint8Array<ArrayBuffer> | null = null;
   private mime: string | undefined;
+  /** Bumped by dispose(): a start() still waiting for the permission prompt must not keep the microphone. */
+  private epoch = 0;
+  /** Called when the microphone is taken away mid-take (device unplugged, phone call, iOS interruption). */
+  onInterrupted: (() => void) | null = null;
   readonly clock: DurationClock;
 
   constructor(now?: () => number) {
@@ -53,14 +58,22 @@ export class AudioRecorder {
   /** Asks for the microphone and starts recording. Throws RecorderError('denied' | 'no_device' | 'failed'). */
   async start(): Promise<void> {
     this.dispose();
+    const epoch = this.epoch;
+    let stream: MediaStream;
     try {
-      this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
+      stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
     } catch (e) {
       const name = (e as { name?: string })?.name;
       if (name === 'NotAllowedError' || name === 'SecurityError' || name === 'PermissionDeniedError') throw new RecorderError('denied');
       if (name === 'NotFoundError' || name === 'OverconstrainedError' || name === 'NotReadableError') throw new RecorderError('no_device');
       throw new RecorderError('failed');
     }
+    if (epoch !== this.epoch) {
+      // Disposed (unmounted / reset) while the permission prompt was open: release at once.
+      stream.getTracks().forEach((track) => track.stop());
+      throw new RecorderError('cancelled');
+    }
+    this.stream = stream;
     try {
       this.mime = pickMimeType();
       this.recorder = new MediaRecorder(this.stream, this.mime ? { mimeType: this.mime } : undefined);
@@ -69,6 +82,7 @@ export class AudioRecorder {
         if (ev.data && ev.data.size > 0) this.chunks.push(ev.data);
       };
       this.recorder.start(1000);
+      stream.getTracks().forEach((track) => track.addEventListener?.('ended', () => this.onInterrupted?.(), { once: true }));
       this.clock.start();
       this.setupMeter(this.stream);
     } catch {
@@ -148,6 +162,8 @@ export class AudioRecorder {
 
   /** Releases the microphone tracks and the audio graph. Safe to call more than once. */
   dispose(): void {
+    this.epoch++;
+    this.onInterrupted = null;
     if (this.recorder && this.recorder.state !== 'inactive') {
       try {
         this.recorder.ondataavailable = null;
@@ -178,20 +194,27 @@ export function useRecorder({ maxSeconds = MAX_RECORDING_SECONDS }: UseRecorderO
   const [result, setResult] = useState<RecordingResult | null>(null);
   const recRef = useRef<AudioRecorder | null>(null);
   const stoppingRef = useRef(false);
+  const startingRef = useRef(false);
+  /** Bumped by reset/unmount: a take finishing after that must not resurface. */
+  const epochRef = useRef(0);
 
   const stop = useCallback(async (auto = false) => {
     const rec = recRef.current;
     if (!rec || stoppingRef.current) return;
     stoppingRef.current = true;
+    const epoch = epochRef.current;
     try {
       const r = await rec.stop();
+      if (epoch !== epochRef.current) return;
       setElapsed(r.duration);
       setLevel(0);
       setResult(r);
       dispatch({ type: 'STOP', auto });
     } finally {
-      recRef.current = null;
-      stoppingRef.current = false;
+      if (epoch === epochRef.current) {
+        recRef.current = null;
+        stoppingRef.current = false;
+      }
     }
   }, []);
 
@@ -200,20 +223,31 @@ export function useRecorder({ maxSeconds = MAX_RECORDING_SECONDS }: UseRecorderO
       dispatch({ type: 'UNSUPPORTED' });
       return;
     }
+    if (startingRef.current || recRef.current) return; // a second tap while the prompt is open or a take is live
+    startingRef.current = true;
+    const epoch = epochRef.current;
     dispatch({ type: 'REQUEST' });
     setResult(null);
     setElapsed(0);
     const rec = new AudioRecorder();
     try {
       await rec.start();
+      if (epoch !== epochRef.current) {
+        rec.dispose();
+        return;
+      }
+      rec.onInterrupted = () => void stop(false);
       recRef.current = rec;
       dispatch({ type: 'GRANTED' });
     } catch (e) {
       rec.dispose();
-      const code = e instanceof RecorderError ? e.code : 'failed';
+      if (epoch !== epochRef.current || (e instanceof RecorderError && e.code === 'cancelled')) return;
+      const code = e instanceof RecorderError && e.code !== 'cancelled' ? e.code : 'failed';
       dispatch(code === 'denied' ? { type: 'DENIED' } : { type: 'FAIL', error: code });
+    } finally {
+      if (epoch === epochRef.current) startingRef.current = false;
     }
-  }, []);
+  }, [stop]);
 
   const pause = useCallback(() => {
     recRef.current?.pause();
@@ -226,6 +260,9 @@ export function useRecorder({ maxSeconds = MAX_RECORDING_SECONDS }: UseRecorderO
   }, []);
 
   const reset = useCallback(() => {
+    epochRef.current++;
+    stoppingRef.current = false;
+    startingRef.current = false;
     recRef.current?.dispose();
     recRef.current = null;
     setResult(null);
@@ -249,7 +286,14 @@ export function useRecorder({ maxSeconds = MAX_RECORDING_SECONDS }: UseRecorderO
   }, [state.status, maxSeconds, stop]);
 
   // Always release the microphone when the component goes away.
-  useEffect(() => () => recRef.current?.dispose(), []);
+  useEffect(
+    () => () => {
+      epochRef.current++;
+      recRef.current?.dispose();
+      recRef.current = null;
+    },
+    [],
+  );
 
   return { state, elapsed, level, result, start, pause, resume, stop: () => stop(false), reset };
 }

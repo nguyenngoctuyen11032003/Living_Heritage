@@ -58,7 +58,7 @@ export default {
     open: 'Open the draft',
     openApproved: 'Read again',
     kind: { story: 'Story', experience: 'Know-how' },
-    status: { pending: 'Waiting for approval', approved: 'Approved' },
+    status: { draft: 'Draft', pending: 'Waiting for approval', approved: 'Approved' },
   },
   start: {
     preparing: 'Opening your session…',

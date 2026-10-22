@@ -35,7 +35,7 @@ export default function LoginPage() {
 
   async function onPassword(e: FormEvent) {
     e.preventDefault();
-    if (!sb || !validEmail()) return;
+    if (!sb || busy || !validEmail()) return;
     if (!password) {
       setError('invalidCredentials');
       return;
@@ -49,7 +49,7 @@ export default function LoginPage() {
   }
 
   async function onMagic() {
-    if (!sb || !validEmail()) return;
+    if (!sb || busy || !validEmail()) return;
     setBusy('magic');
     setError(null);
     const { error: err } = await sb.auth.signInWithOtp({ email: email.trim(), options: { shouldCreateUser: false, emailRedirectTo: callbackUrl(next) } });

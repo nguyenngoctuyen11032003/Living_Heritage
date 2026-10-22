@@ -15,6 +15,7 @@ export const AUDIT_ACTIONS = [
   'approve_publish',
   'reject_publish',
   'withdraw_public',
+  'admin_withdraw',
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 

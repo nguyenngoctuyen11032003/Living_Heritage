@@ -16,6 +16,12 @@ function readScale(): Scale {
   return '100';
 }
 
+// Apply the saved size as soon as the app loads, whichever page is first shown.
+if (typeof document !== 'undefined') {
+  const saved = readScale();
+  if (saved !== '100') document.documentElement.dataset.textScale = saved;
+}
+
 /**
  * A / A+ / A++ — sets html[data-text-scale] (see design/global.css) and remembers it. Each option is a 48px touch target (56px from sm), as narrator mode needs.
  * `className` is for spacing only: never pass display utilities (cn() does not merge them); wrap the switch instead.

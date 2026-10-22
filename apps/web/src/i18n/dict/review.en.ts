@@ -76,6 +76,14 @@ export default {
     uncertainHint: 'Passages labelled “Needs checking” are where the machine was not sure what it heard. Listen again and correct the draft if needed.',
     uncertainCount: 'Passages to check: {n}',
     verbatim: 'Verbatim words (transcribed from the recording)',
+    edit: {
+      open: 'Edit transcript',
+      label: 'Edit transcript',
+      hint: 'Your correction is saved as a new version; the earlier text stays in history. Keep [?] where you are unsure.',
+      save: 'Save corrected transcript',
+      cancel: 'Cancel',
+      saved: 'New transcript version saved',
+    },
   },
   editor: {
     heading: 'Draft',
@@ -95,6 +103,9 @@ export default {
     decade: 'Decade (optional)',
     decadeHint: 'For example 1970. Fill in only if the narrator mentioned a time.',
     decadeInvalid: 'Enter a four-digit year between 1900 and 2090.',
+    topic: 'Topic',
+    topicHint: 'Pick the topic that best fits the story.',
+    topicNone: 'No topic selected',
     titleRequired: 'Please give it a short title.',
     list: {
       add: 'Add a line',
@@ -175,6 +186,7 @@ export default {
     story_not_approved: 'The narrator needs to confirm the content before it can be proposed for publication.',
     invalid_fields: 'Some fields are not valid. Please check them.',
     anonymous_not_allowed: 'This needs a family account.',
+    topic_failed: 'The text was saved but the topic could not be changed. Please choose the topic again and save once more.',
     generic: 'Something went wrong. Your changes were not saved; please try again.',
   },
   share: {

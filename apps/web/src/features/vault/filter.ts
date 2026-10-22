@@ -28,26 +28,26 @@ export function normalizeForSearch(text: string): string {
   return stripDiacritics(text).toLowerCase().replace(/\s+/g, ' ').trim();
 }
 
-/** Every word of the query must appear in title, summary or body (diacritic-insensitive). */
-export function matchesQuery(story: Pick<SearchableStory, 'title' | 'summary' | 'body'>, q: string): boolean {
+/** Every word of the query must appear in title, topic name (`topicText`), summary or body (diacritic-insensitive). */
+export function matchesQuery(story: Pick<SearchableStory, 'title' | 'summary' | 'body'>, q: string, topicText = ''): boolean {
   const tokens = normalizeForSearch(q).split(' ').filter(Boolean);
   if (tokens.length === 0) return true;
-  const hay = normalizeForSearch(`${story.title} ${story.summary ?? ''} ${story.body}`);
+  const hay = normalizeForSearch(`${story.title} ${topicText} ${story.summary ?? ''} ${story.body}`);
   return tokens.every((tok) => hay.includes(tok));
 }
 
-export function matchesFilters(story: SearchableStory, f: VaultFilters): boolean {
+export function matchesFilters(story: SearchableStory, f: VaultFilters, topicText = ''): boolean {
   if (f.narratorId && story.narrator_id !== f.narratorId) return false;
   if (f.topicId === 'none') {
     if (story.topic_id !== null) return false;
   } else if (f.topicId && story.topic_id !== f.topicId) return false;
   if (f.status && story.edit_status !== f.status) return false;
   if (f.kind && story.kind !== f.kind) return false;
-  return matchesQuery(story, f.q);
+  return matchesQuery(story, f.q, topicText);
 }
 
-export function filterStories<T extends SearchableStory>(stories: readonly T[], f: VaultFilters): T[] {
-  return stories.filter((s) => matchesFilters(s, f));
+export function filterStories<T extends SearchableStory>(stories: readonly T[], f: VaultFilters, topicTextOf?: (topicId: string) => string): T[] {
+  return stories.filter((s) => matchesFilters(s, f, s.topic_id && topicTextOf ? topicTextOf(s.topic_id) : ''));
 }
 
 export function hasActiveFilters(f: VaultFilters): boolean {

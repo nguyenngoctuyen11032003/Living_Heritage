@@ -57,7 +57,7 @@ export default {
     open: 'Xem bản nháp',
     openApproved: 'Xem lại',
     kind: { story: 'Câu chuyện', experience: 'Kinh nghiệm' },
-    status: { pending: 'Chờ duyệt', approved: 'Đã duyệt' },
+    status: { draft: 'Bản nháp', pending: 'Chờ duyệt', approved: 'Đã duyệt' },
   },
   start: {
     preparing: 'Đang mở buổi kể…',

@@ -5,7 +5,7 @@ import { SectionCard } from '@/features/families/states';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { getSupabase } from '@/lib/supabase';
-import { hasErrors, REASON_MAX, REASON_MIN, toDeletionInsert, validateDeletionForm, type DeletionFormErrors } from './deletion';
+import { hasErrors, hasOpenDuplicate, REASON_MAX, REASON_MIN, toDeletionInsert, validateDeletionForm, type DeletionFormErrors } from './deletion';
 import { ConfirmCheckbox, DeletionRequestList } from './DeletionRequestList';
 import { useDeletionErrorText, useMyDeletionRequests } from './useDeletionRequests';
 
@@ -30,13 +30,18 @@ export function DeletionSection({ family, stories, storiesError }: { family: Fam
   async function submit(e: FormEvent) {
     e.preventDefault();
     const sb = getSupabase();
-    if (!sb) return;
+    if (!sb || busy) return;
     const form = { scope, storyId, reason, confirmed };
     const errs = validateDeletionForm(form, family.id);
     setErrors(errs);
     if (hasErrors(errs)) return;
+    const row = toDeletionInsert(form, family.id);
+    if (hasOpenDuplicate(requests.rows, row)) {
+      toast({ title: t('deletion.errors.duplicate'), tone: 'error' });
+      return;
+    }
     setBusy(true);
-    const { error } = await sb.from('deletion_requests').insert(toDeletionInsert(form, family.id));
+    const { error } = await sb.from('deletion_requests').insert(row);
     setBusy(false);
     if (error) toast({ title: t('states.saveError'), tone: 'error' });
     else {

@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, ImageOff } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { Button, Dialog } from '@/components/ui';
 import { useT } from '@/i18n';
@@ -39,6 +39,8 @@ export function Lightbox({ items, index, onIndex, onClose }: { items: readonly L
     return () => window.removeEventListener('keydown', onKey);
   }, [open, total, onIndex]);
 
+  // Signed URLs expire (1 h): a broken image falls back to the "cannot open" note instead of an empty box.
+  const [broken, setBroken] = useState<ReadonlySet<string>>(new Set());
   const alt = item?.caption?.trim() || t('photos.altFallback');
 
   return (
@@ -76,8 +78,8 @@ export function Lightbox({ items, index, onIndex, onClose }: { items: readonly L
       {item && (
         <figure className="flex flex-col gap-3 pb-2">
           <div className="flex min-h-48 items-center justify-center overflow-hidden rounded-2xl bg-night/90">
-            {item.url ? (
-              <img src={item.url} alt={alt} className="max-h-[62dvh] w-auto max-w-full object-contain" />
+            {item.url && !broken.has(item.id) ? (
+              <img src={item.url} alt={alt} onError={() => setBroken((s) => new Set(s).add(item.id))} className="max-h-[62dvh] w-auto max-w-full object-contain" />
             ) : (
               <p className="flex items-center gap-2 p-8 text-cream">
                 <ImageOff className="size-5" aria-hidden="true" />

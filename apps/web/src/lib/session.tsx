@@ -26,12 +26,21 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       return;
     }
     let alive = true;
-    void sb.auth.getSession().then(({ data }) => {
-      if (!alive) return;
-      setSession(data.session);
+    sb.auth
+      .getSession()
+      .then(({ data }) => {
+        if (alive) setSession(data.session);
+      })
+      .catch(() => {
+        /* treat as signed out */
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+    const { data } = sb.auth.onAuthStateChange((_event, next) => {
+      setSession(next);
       setLoading(false);
     });
-    const { data } = sb.auth.onAuthStateChange((_event, next) => setSession(next));
     return () => {
       alive = false;
       data.subscription.unsubscribe();

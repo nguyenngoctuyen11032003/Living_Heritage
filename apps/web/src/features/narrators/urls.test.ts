@@ -43,7 +43,7 @@ describe('linkStatus', () => {
 });
 
 describe('validateNarrator', () => {
-  const base: NarratorDraft = { display_name: 'Bà nội Lan', pen_name: '', birth_year: '', region: '', relation: '', lang: 'vi', generation: '' };
+  const base: NarratorDraft = { display_name: 'Bà nội Lan', pen_name: '', birth_year: '', region: '', relation: '', lang: 'vi', generation: '', assisted_by: '', consent_method: '' };
   it('accepts a minimal narrator', () => {
     expect(validateNarrator(base, 2026)).toEqual({});
   });

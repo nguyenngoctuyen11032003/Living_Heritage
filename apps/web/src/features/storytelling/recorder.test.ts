@@ -74,3 +74,23 @@ describe('AudioRecorder', () => {
     expect((err as RecorderError).code).toBe('denied');
   });
 });
+
+describe('AudioRecorder race conditions', () => {
+  it('releases a microphone granted after dispose() (permission prompt still open)', async () => {
+    vi.stubGlobal('MediaRecorder', FakeMediaRecorder);
+    const stopTrack = vi.fn();
+    let grant!: (s: unknown) => void;
+    Object.defineProperty(navigator, 'mediaDevices', {
+      configurable: true,
+      value: { getUserMedia: vi.fn(() => new Promise((r) => (grant = r))) },
+    });
+    const rec = new AudioRecorder();
+    const started = rec.start().catch((e: unknown) => e);
+    rec.dispose();
+    grant({ getTracks: () => [{ stop: stopTrack }] });
+    const err = await started;
+    expect((err as RecorderError).code).toBe('cancelled');
+    expect(stopTrack).toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+});

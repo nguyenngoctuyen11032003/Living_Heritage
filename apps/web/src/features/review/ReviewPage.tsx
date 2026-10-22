@@ -18,10 +18,10 @@ import { getSupabase } from '@/lib/supabase';
 import { ApprovalBar } from './ApprovalBar';
 import { ApprovalSection } from './ApprovalSection';
 import { canEditDraft, decideApproval } from './approval';
-import { approve, isJobActive, loadReview, saveDraft, type AiJobRow, type ReviewBundle, type ReviewLoad } from './data';
+import { approve, isJobActive, isJobStale, loadReview, loadTopics, saveDraftWithTopic, type TopicRow, type AiJobRow, type ReviewBundle, type ReviewLoad } from './data';
 import { DraftEditor } from './DraftEditor';
 import { jobErrorCode, reviewErrorKey } from './errors';
-import { formFromStory, formsEqual, parseDecade, toSaveArgs, type DraftForm } from './fields';
+import { formFromStory, formsEqual, parseDecade, toSaveArgs, topicChange, type DraftForm } from './fields';
 import { ProcessingPanel } from './ProcessingPanel';
 import { SourcePanel } from './SourcePanel';
 import { useJobPolling } from './useJobPolling';
@@ -188,7 +188,8 @@ function RecordingProcessing({ recordingId, initialJob, locale }: { recordingId:
     },
     [openFirst],
   );
-  useJobPolling(recordingId, retrying || isJobActive(job), onJob);
+  const stale = isJobStale(job);
+  useJobPolling(recordingId, retrying || (isJobActive(job) && !stale), onJob);
 
   async function retry() {
     setRetrying(true);
@@ -208,7 +209,7 @@ function RecordingProcessing({ recordingId, initialJob, locale }: { recordingId:
   }
 
   const status = job?.status ?? null;
-  const errorCode = aiError ?? (status === 'error' ? jobErrorCode(job?.error ?? null) : null);
+  const errorCode = aiError ?? (status === 'error' ? jobErrorCode(job?.error ?? null) : stale ? 'ai_unavailable' : null);
   return <ProcessingPanel status={status} errorCode={retrying ? null : errorCode} retrying={retrying} onRetry={() => void retry()} />;
 }
 
@@ -225,6 +226,20 @@ function StoryReview({ bundle, role, onReload }: { bundle: ReviewBundle; role: M
   const [form, setForm] = useState<DraftForm>(baseline);
   useEffect(() => setForm(baseline), [baseline]);
   const dirty = !formsEqual(form, baseline);
+  const [topics, setTopics] = useState<TopicRow[] | undefined>(undefined);
+  useEffect(() => {
+    if (!sb) return;
+    let alive = true;
+    loadTopics(sb).then(
+      (rows) => alive && setTopics(rows),
+      () => {
+        /* topic select stays hidden; the draft remains editable */
+      },
+    );
+    return () => {
+      alive = false;
+    };
+  }, [sb]);
 
   const [busy, setBusy] = useState<null | 'save' | 'approve'>(null);
   const [errors, setErrors] = useState<{ title?: string; decade?: string }>({});
@@ -248,7 +263,8 @@ function StoryReview({ bundle, role, onReload }: { bundle: ReviewBundle; role: M
     },
     [onReload],
   );
-  useJobPolling(recording?.id ?? null, isJobActive(job), onJob);
+  const jobActive = isJobActive(job) && !isJobStale(job);
+  useJobPolling(recording?.id ?? null, jobActive, onJob);
 
   // Unsaved-changes guard: in-app navigation and tab close / reload.
   const blocker = useBlocker(({ currentLocation, nextLocation }) => dirty && currentLocation.pathname !== nextLocation.pathname);
@@ -283,11 +299,14 @@ function StoryReview({ bundle, role, onReload }: { bundle: ReviewBundle; role: M
     setPublicWarn(false);
     setBusy('save');
     try {
-      const v = await saveDraft(sb, story.id, toSaveArgs(story.kind, form, story.fields), story.visibility === 'public');
+      const v = await saveDraftWithTopic(sb, story.id, toSaveArgs(story.kind, form, story.fields), story.visibility === 'public', topicChange(form, baseline));
       toast({ title: mode === 'send_to_narrator' ? t('approval.sent') : t('editor.saved', { v }), tone: 'success' });
       await onReload();
     } catch (e) {
-      toast({ title: t(`errors.${reviewErrorKey(e)}`), tone: 'error' });
+      const key = reviewErrorKey(e);
+      toast({ title: t(`errors.${key}`), tone: 'error' });
+      // The draft itself was saved before the topic failed: reload so the editor shows the new version.
+      if (key === 'topic_failed') await onReload();
     } finally {
       setBusy(null);
     }
@@ -307,7 +326,7 @@ function StoryReview({ bundle, role, onReload }: { bundle: ReviewBundle; role: M
     }
   }
 
-  if (isJobActive(job)) {
+  if (jobActive) {
     return <ProcessingPanel status={job!.status} errorCode={null} retrying={false} onRetry={() => {}} />;
   }
 
@@ -329,11 +348,11 @@ function StoryReview({ bundle, role, onReload }: { bundle: ReviewBundle; role: M
   // Desktop: a quieter sticky side rail (player at the top, the transcript scrolls inside it).
   const source = isDesktop ? (
     <aside className="sticky top-6 flex max-h-[calc(100dvh-7.5rem)] flex-col rounded-[1.75rem] bg-paper/55 p-5 ring-1 ring-line/80">
-      <SourcePanel recording={recording} transcript={transcript} rail />
+      <SourcePanel recording={recording} transcript={transcript} canEdit={canEdit} onTranscriptSaved={() => void onReload()} rail />
     </aside>
   ) : (
     <div className="rounded-[1.75rem] bg-paper/55 p-4 ring-1 ring-line/80">
-      <SourcePanel recording={recording} transcript={transcript} />
+      <SourcePanel recording={recording} transcript={transcript} canEdit={canEdit} onTranscriptSaved={() => void onReload()} />
     </div>
   );
   // The story text is the hero: a wide paper sheet with a comfortable serif editor.
@@ -343,7 +362,7 @@ function StoryReview({ bundle, role, onReload }: { bundle: ReviewBundle; role: M
         {t('editor.heading')}
       </h2>
       {!canEdit && <p className="rounded-2xl bg-cream p-3 text-[0.95rem] leading-relaxed text-ink-soft">{t('page.readOnly')}</p>}
-      <DraftEditor kind={story.kind} form={form} onChange={setForm} readOnly={!canEdit} errors={errors} narratorMode={isNarratorUser} />
+      <DraftEditor kind={story.kind} form={form} onChange={setForm} readOnly={!canEdit} errors={errors} narratorMode={isNarratorUser} topics={topics} />
     </section>
   );
   const approvalSection = (

@@ -191,8 +191,8 @@ export default {
       f: 'QR codes to the original voice',
     },
     interestTitle: 'Thank you for your interest',
-    interestBody: 'We don’t charge anything yet and we don’t take payments. Create a free account to try it out; when official plans launch you’ll hear from us first, and the choice to join is entirely yours.',
-    interestCta: 'Create a free account',
+    interestBody: 'We don’t charge anything yet and we don’t take payments. Registering interest only lets the coordination team note your need; when official plans launch you’ll hear from us first, and the choice to join is entirely yours.',
+    interestCta: 'Send my interest',
     interestLater: 'Maybe later',
     orgs: {
       eyebrow: 'For organizations',

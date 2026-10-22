@@ -38,6 +38,7 @@ describe('i18n', () => {
   it('interpolates {vars} and falls back to the key', () => {
     expect(translate('vi', 'common', 'brand.name')).toBe('Di Sản Sống');
     expect(translate('en', 'common', 'missing.key')).toBe('missing.key');
+    expect(translate('en', 'common', 'brand.name')).toBeTruthy();
   });
 
   it('every namespace has identical vi/en key sets', () => {

@@ -1,6 +1,6 @@
 import { Clock3, Headphones, MapPin } from 'lucide-react';
 import { Link } from 'react-router';
-import { Skeleton } from '@/components/ui';
+import { IllustrativeBadge, Skeleton } from '@/components/ui';
 import { usePick, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { formatDuration } from '@/lib/format';
@@ -71,7 +71,9 @@ export function KnowledgeCard({ item, topics, featured, headingLevel = 'h3' }: K
             {bareQuote(item.title)}
           </Link>
         </Heading>
-        {featured && item.summary && <p className="mt-4 line-clamp-3 max-w-xl text-[1.02rem] leading-relaxed text-ink-soft">{item.summary}</p>}
+        {item.summary && (
+          <p className={cn('mt-4 line-clamp-3 max-w-xl leading-relaxed text-ink-soft', featured ? 'text-[1.02rem]' : 'text-[0.95rem]')}>{item.summary}</p>
+        )}
 
         <div className="mt-auto pt-6">
           <div className="flex flex-col gap-3 border-t border-line/80 pt-4">
@@ -84,6 +86,7 @@ export function KnowledgeCard({ item, topics, featured, headingLevel = 'h3' }: K
                 </span>
               )}
               {item.decade && <span>{t('card.decade', { decade: item.decade })}</span>}
+              {item.sample && <IllustrativeBadge />}
             </p>
             <p className="flex flex-wrap items-center gap-2 text-[0.875rem]">
               {showAudio ? (

@@ -33,6 +33,9 @@ export interface SyncResult {
   failed: string[];
 }
 
+/** Only flat object names under items/ are ever copied into the public bucket. */
+const SAFE_AUDIO_PATH = /^items\/[A-Za-z0-9._-]{1,120}$/;
+
 export async function reconcile(store: SyncStore): Promise<SyncResult> {
   const [items, files] = await Promise.all([store.listPublishedAudio(), store.listPublicFiles()]);
   const present = new Set(files);
@@ -40,6 +43,10 @@ export async function reconcile(store: SyncStore): Promise<SyncResult> {
   const result: SyncResult = { copied: [], removed: [], failed: [] };
 
   for (const item of items) {
+    if (!SAFE_AUDIO_PATH.test(item.audio_path)) {
+      result.failed.push(item.id);
+      continue;
+    }
     if (present.has(item.audio_path)) continue;
     if (!item.source_path) {
       result.failed.push(item.id);

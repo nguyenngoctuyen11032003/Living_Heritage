@@ -29,7 +29,7 @@ export default function StorytellingHome() {
     <div className={`flex flex-col gap-10 ${ELDER_CONTROLS}`}>
       {assisted && <AssistedBanner name={narrator.display_name} />}
       <header className="flex flex-col gap-3">
-        <p className="text-[1.17rem] font-medium text-heritage">
+        <p className="text-[1.25rem] font-medium text-heritage">
           {narrator.family_name ? t('home.family', { family: narrator.family_name }) : t('home.eyebrow')}
         </p>
         <h1 className="break-words font-serif text-[2.2rem] font-semibold leading-tight text-ink md:text-[2.75rem]">{t('home.greeting', { who: address(narrator.display_name) })}</h1>
@@ -74,7 +74,7 @@ export default function StorytellingHome() {
         )}
         {topics.status === 'ready' && topics.data.length > 0 && (
           <ul className="grid gap-4 sm:grid-cols-2">
-            {topics.data.slice(0, 6).map((topic) => (
+            {topics.data.filter((tp) => tp.slug !== EASY_SLUG).slice(0, 6).map((topic) => (
               <li key={topic.id}>
                 <Link to={`/ke-chuyen/chu-de/${topic.slug}${query}`} className={cardClass}>
                   <span className="flex size-16 items-center justify-center rounded-2xl bg-mint text-heritage">
@@ -97,7 +97,7 @@ export default function StorytellingHome() {
                   </span>
                   <span className="flex flex-col gap-1">
                     <span className="font-serif text-[1.6rem] font-semibold leading-snug text-ink">{t('home.unsureTitle')}</span>
-                    <span className="text-[1.17rem] leading-snug text-ink-soft">{t('home.unsureHint')}</span>
+                    <span className="text-[1.25rem] leading-snug text-ink-soft">{t('home.unsureHint')}</span>
                   </span>
                 </span>
                 <span aria-hidden="true" className="hidden size-12 shrink-0 items-center justify-center rounded-full bg-paper text-heritage ring-1 ring-line sm:flex">
@@ -118,7 +118,7 @@ export default function StorytellingHome() {
         </span>
         <span className="flex min-w-0 flex-1 flex-col">
           <span className="text-[1.35rem] font-semibold leading-snug">{t('home.myStories')}</span>
-          <span className="text-[1.2rem] leading-snug text-ink-soft">{t('home.myStoriesHint')}</span>
+          <span className="text-[1.25rem] leading-snug text-ink-soft">{t('home.myStoriesHint')}</span>
         </span>
         <ArrowRight className="size-6 shrink-0 text-heritage" aria-hidden="true" />
       </Link>

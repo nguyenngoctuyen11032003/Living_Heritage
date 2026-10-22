@@ -89,3 +89,12 @@ describe('mergeById / splitHours', () => {
     expect(splitHours(3600 + 125)).toEqual({ hours: 1, minutes: 2 });
   });
 });
+
+describe('search by topic name', () => {
+  it('matches the topic title when given', () => {
+    const topic = (id: string) => (id === 't2' ? 'Nghề nông Farming' : '');
+    expect(filterStories(stories, { ...EMPTY_FILTERS, q: 'nghe nong' }, topic).map((x) => x.id)).toEqual(['b']);
+    expect(filterStories(stories, { ...EMPTY_FILTERS, q: 'nghe nong' }).length).toBe(0);
+    expect(matchesQuery(stories[0]!, 'gia dinh', 'Gia đình')).toBe(true);
+  });
+});

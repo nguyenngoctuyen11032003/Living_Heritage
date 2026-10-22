@@ -9,6 +9,11 @@ export function NotFound() {
   const t = useT('common');
   useEffect(() => {
     document.title = `${t('notFound.title')} — ${t('brand.name')}`;
+    const robots = document.createElement('meta');
+    robots.name = 'robots';
+    robots.content = 'noindex';
+    document.head.appendChild(robots);
+    return () => robots.remove();
   }, [t]);
   return (
     <section className="relative isolate overflow-hidden px-4 py-20 sm:px-6 md:py-28">

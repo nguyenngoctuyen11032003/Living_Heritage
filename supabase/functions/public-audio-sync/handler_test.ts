@@ -55,3 +55,16 @@ Deno.test('rejects unauthenticated calls and answers preflight', async () => {
   const ok = await handle(new Request('http://x', { method: 'POST', headers: { authorization: 'Bearer good' } }), deps);
   assert.deepEqual(ok.status, 200);
 });
+
+Deno.test('never copies an audio_path outside items/ (no traversal into the public bucket)', async () => {
+  const { store, calls } = fakeStore(
+    [
+      { id: 'a', audio_path: '../secret.webm', source_path: 'f/n/1.webm' },
+      { id: 'b', audio_path: 'other/b.webm', source_path: 'f/n/2.webm' },
+    ],
+    [],
+  );
+  const res = await reconcile(store);
+  assert.deepEqual(res.failed, ['a', 'b']);
+  assert.deepEqual(calls.copied, []);
+});

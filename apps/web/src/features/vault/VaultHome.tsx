@@ -68,6 +68,7 @@ function VaultHomeInner() {
   const [error, setError] = useState(false);
   const [listTick, setListTick] = useState(0);
   const searching = filters.q.trim().length > 0;
+  const topics = lookups.topics;
 
   useEffect(() => {
     const sb = getSupabase();
@@ -77,7 +78,7 @@ function VaultHomeInner() {
     setError(false);
     setVisible(PAGE_SIZE);
     const f = filtersFromParams(new URLSearchParams(filterKey));
-    const run = f.q.trim() ? searchStories(sb, familyId, f) : fetchStoriesPage(sb, familyId, f, 0);
+    const run = f.q.trim() ? searchStories(sb, familyId, f, topics) : fetchStoriesPage(sb, familyId, f, 0);
     run
       .then((rows) => {
         if (!alive) return;
@@ -89,7 +90,7 @@ function VaultHomeInner() {
     return () => {
       alive = false;
     };
-  }, [familyId, filterKey, listTick]);
+  }, [familyId, filterKey, listTick, topics]);
 
   const shown = searching ? items.slice(0, visible) : items;
 

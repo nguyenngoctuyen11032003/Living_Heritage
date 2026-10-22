@@ -1,8 +1,8 @@
 import type { StoryKind } from '@lh/shared';
 import { ArrowDown, ArrowUp, Plus, Sparkles, Trash2 } from 'lucide-react';
 import { useLayoutEffect, useRef, type ChangeEvent } from 'react';
-import { Button, Field, Input, Textarea } from '@/components/ui';
-import { useT } from '@/i18n';
+import { Button, Field, Input, Select, Textarea } from '@/components/ui';
+import { usePick, useT } from '@/i18n';
 import type { DraftForm } from './fields';
 
 export interface DraftEditorProps {
@@ -13,6 +13,8 @@ export interface DraftEditorProps {
   errors?: { title?: string; decade?: string };
   /** Elder narrator view: larger touch targets (56px). */
   narratorMode?: boolean;
+  /** Available topics; the topic select is shown only when provided. */
+  topics?: { id: string; title_vi: string; title_en: string }[];
 }
 
 /** Textarea that grows with its content (keeps the native resize handle as a fallback). */
@@ -91,8 +93,9 @@ function ListEditor({ label, items, onChange, readOnly, ordered, narratorMode }:
 }
 
 /** Story: title + body. Experience: title, summary, skill, context, conditions[], steps[], cautions[], limits. Both: optional decade. */
-export function DraftEditor({ kind, form, onChange, readOnly, errors, narratorMode }: DraftEditorProps) {
+export function DraftEditor({ kind, form, onChange, readOnly, errors, narratorMode, topics }: DraftEditorProps) {
   const t = useT('review');
+  const pick = usePick();
   const empty = t('editor.empty');
   const set = <K extends keyof DraftForm>(key: K, value: DraftForm[K]) => onChange({ ...form, [key]: value });
   const text = (key: 'title' | 'summary' | 'body' | 'skill' | 'context' | 'limits') => ({
@@ -140,6 +143,19 @@ export function DraftEditor({ kind, form, onChange, readOnly, errors, narratorMo
             <AutoTextarea {...text('limits')} rows={2} />
           </Field>
         </>
+      )}
+
+      {topics && (
+        <Field label={t('editor.topic')} hint={t('editor.topicHint')} className="max-w-md">
+          <Select value={form.topicId} disabled={readOnly} onChange={(e) => set('topicId', e.target.value)}>
+            <option value="">{t('editor.topicNone')}</option>
+            {topics.map((tp) => (
+              <option key={tp.id} value={tp.id}>
+                {pick({ vi: tp.title_vi, en: tp.title_en })}
+              </option>
+            ))}
+          </Select>
+        </Field>
       )}
 
       <Field label={t('editor.decade')} hint={t('editor.decadeHint')} error={errors?.decade} className="max-w-xs">

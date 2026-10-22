@@ -4,6 +4,8 @@ export type NarratorLang = 'vi' | 'en';
 export const NARRATOR_LANGS: readonly NarratorLang[] = ['vi', 'en'];
 export const GENERATION_LEVELS = [1, 2, 3, 4, 5, 6] as const;
 export const MAX_RELATION = 60;
+export const MAX_ASSISTED_BY = 120;
+export const MAX_CONSENT_METHOD = 200;
 
 /** Suggestions for the relation field (free text is allowed). */
 export const RELATION_SUGGESTIONS = {
@@ -20,10 +22,12 @@ export interface NarratorDraft {
   lang: NarratorLang;
   /** '' (not placed in the tree) or '1'..'6' */
   generation: string;
+  assisted_by: string;
+  consent_method: string;
 }
 
 export type NarratorDraftErrors = Partial<
-  Record<'display_name' | 'pen_name' | 'birth_year' | 'relation' | 'lang' | 'generation', 'required' | 'tooLong' | 'invalidYear' | 'relationTooLong' | 'invalidLang' | 'invalidGeneration'>
+  Record<'display_name' | 'pen_name' | 'birth_year' | 'relation' | 'lang' | 'generation' | 'assisted_by' | 'consent_method', 'required' | 'tooLong' | 'invalidYear' | 'relationTooLong' | 'invalidLang' | 'invalidGeneration' | 'helperTooLong'>
 >;
 
 export function isNarratorLang(v: unknown): v is NarratorLang {
@@ -41,6 +45,8 @@ export function validateNarrator(d: NarratorDraft, currentYear = new Date().getF
     if (!Number.isInteger(y) || y < 1900 || y > currentYear) e.birth_year = 'invalidYear';
   }
   if (d.relation.trim().length > MAX_RELATION) e.relation = 'relationTooLong';
+  if (d.assisted_by.trim().length > MAX_ASSISTED_BY) e.assisted_by = 'helperTooLong';
+  if (d.consent_method.trim().length > MAX_CONSENT_METHOD) e.consent_method = 'helperTooLong';
   if (!isNarratorLang(d.lang)) e.lang = 'invalidLang';
   if (d.generation !== '') {
     const g = Number(d.generation);
@@ -59,4 +65,17 @@ export function toNarratorRow(d: NarratorDraft) {
     lang: d.lang,
     generation: d.generation ? Number(d.generation) : null,
   };
+}
+
+/**
+ * Helper fields are only sent when filled in (or when clearing a stored value), so a database that has not
+ * received the assisted_by / consent_method columns yet keeps working for every narrator that does not use them.
+ */
+export function helperColumns(d: Pick<NarratorDraft, 'assisted_by' | 'consent_method'>, previous?: { assisted_by?: string | null; consent_method?: string | null } | null) {
+  const out: { assisted_by?: string | null; consent_method?: string | null } = {};
+  const helper = d.assisted_by.trim();
+  const method = d.consent_method.trim();
+  if (helper || previous?.assisted_by) out.assisted_by = helper || null;
+  if (method || previous?.consent_method) out.consent_method = method || null;
+  return out;
 }

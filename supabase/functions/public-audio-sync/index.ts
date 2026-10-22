@@ -13,6 +13,7 @@ function createStore(admin: SupabaseClient): SyncStore {
       const { data, error } = await admin
         .from('public_items')
         .select('id, audio_path, stories(recordings(storage_path))')
+        .eq('audio_allowed', true)
         .not('audio_path', 'is', null);
       if (error) throw error;
       return (data ?? []).map((row) => {

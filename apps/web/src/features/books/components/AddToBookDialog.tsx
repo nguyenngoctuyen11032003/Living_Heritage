@@ -24,7 +24,10 @@ export function AddToBookDialog({ open, onClose, storyId, familyId }: AddToBookD
   useEffect(() => {
     if (!open) return;
     const sb = getSupabase();
-    if (!sb) return;
+    if (!sb) {
+      setError(t('state.loadError'));
+      return;
+    }
     let alive = true;
     setBooks(null);
     setError(null);

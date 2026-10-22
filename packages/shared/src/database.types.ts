@@ -271,6 +271,18 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"interest_requests": {
+                  Row: {
+                    "consent": boolean,"contact": string,"created_at": string,"format": string | null,"id": string,"message": string | null,"name": string,"plan": string | null,"resolved_at": string | null,"resolved_by": string | null,"status": string,"topic": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "consent": boolean,"contact": string,"created_at"?: string,"format"?: string | null,"id"?: string,"message"?: string | null,"name": string,"plan"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"topic"?: string | null
+                  }
+                  Update: {
+                    "consent"?: boolean,"contact"?: string,"created_at"?: string,"format"?: string | null,"id"?: string,"message"?: string | null,"name"?: string,"plan"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"topic"?: string | null
+                  }
+                  Relationships: []
                 },"narrator_links": {
                   Row: {
                     "claimed_at": string | null,"claimed_by": string | null,"created_at": string,"created_by": string | null,"expires_at": string,"id": string,"narrator_id": string,"revoked_at": string | null,"token_hash": string
@@ -293,14 +305,14 @@ isOneToOne: false
                   ]
                 },"narrators": {
                   Row: {
-                    "avatar_path": string | null,"birth_year": number | null,"created_at": string,"created_by": string | null,"display_name": string,"family_id": string,"generation": number | null,"id": string,"lang": string,"pen_name": string | null,"region": string | null,"relation": string | null,"updated_at": string,"user_id": string | null
+                    "assisted_by": string | null,"avatar_path": string | null,"birth_year": number | null,"consent_method": string | null,"created_at": string,"created_by": string | null,"display_name": string,"family_id": string,"generation": number | null,"id": string,"lang": string,"pen_name": string | null,"region": string | null,"relation": string | null,"updated_at": string,"user_id": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_path"?: string | null,"birth_year"?: number | null,"created_at"?: string,"created_by"?: string | null,"display_name": string,"family_id": string,"generation"?: number | null,"id"?: string,"lang"?: string,"pen_name"?: string | null,"region"?: string | null,"relation"?: string | null,"updated_at"?: string,"user_id"?: string | null
+                    "assisted_by"?: string | null,"avatar_path"?: string | null,"birth_year"?: number | null,"consent_method"?: string | null,"created_at"?: string,"created_by"?: string | null,"display_name": string,"family_id": string,"generation"?: number | null,"id"?: string,"lang"?: string,"pen_name"?: string | null,"region"?: string | null,"relation"?: string | null,"updated_at"?: string,"user_id"?: string | null
                   }
                   Update: {
-                    "avatar_path"?: string | null,"birth_year"?: number | null,"created_at"?: string,"created_by"?: string | null,"display_name"?: string,"family_id"?: string,"generation"?: number | null,"id"?: string,"lang"?: string,"pen_name"?: string | null,"region"?: string | null,"relation"?: string | null,"updated_at"?: string,"user_id"?: string | null
+                    "assisted_by"?: string | null,"avatar_path"?: string | null,"birth_year"?: number | null,"consent_method"?: string | null,"created_at"?: string,"created_by"?: string | null,"display_name"?: string,"family_id"?: string,"generation"?: number | null,"id"?: string,"lang"?: string,"pen_name"?: string | null,"region"?: string | null,"relation"?: string | null,"updated_at"?: string,"user_id"?: string | null
                   }
                   Relationships: [
                     {
@@ -609,6 +621,9 @@ isOneToOne: false
           Functions: {
             "accept_invite":
 { Args: { "p_token": string }; Returns: string
+                           },
+"admin_withdraw_public":
+{ Args: { "p_reason"?: string,"p_story": string }; Returns: string
                            },
 "ai_quota_consume":
 { Args: { "p_limit": number,"p_user": string }; Returns: boolean

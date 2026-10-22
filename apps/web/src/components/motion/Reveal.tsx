@@ -16,7 +16,7 @@ export interface RevealProps {
 }
 
 /** Fade-up once when scrolled into view. Content is in the DOM (and clickable) from the start; reduced motion renders it static. */
-export function Reveal({ children, delay = 0, y = 16, scale, duration = 0.5, className, as = 'div' }: RevealProps) {
+export function Reveal({ children, delay = 0, y = 16, scale, duration = 0.35, className, as = 'div' }: RevealProps) {
   const reduced = useReducedMotionSafe();
   const Comp = motion[as];
   return (

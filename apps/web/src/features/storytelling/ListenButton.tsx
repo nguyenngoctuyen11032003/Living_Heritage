@@ -106,7 +106,7 @@ export function ListenButton({ text, lang, cache: sharedCache, autoPlay = false 
     [text, speechLang],
   );
 
-  const play = useCallback(async () => {
+  const play = useCallback(async (auto = false) => {
     stopAll();
     const run = ++runRef.current;
     setNotice(null);
@@ -129,6 +129,7 @@ export function ListenButton({ text, lang, cache: sharedCache, autoPlay = false 
     try {
       url = await cache.load(voiceKey(lang, text), () => withTimeout((signal) => fetchQuestionAudio(text, lang, transport, signal)));
     } catch (e) {
+      if (runRef.current !== run) return; // stopped / unmounted: not a server failure
       cache.recordFailure(errorCode(e));
       return fallback();
     }
@@ -144,16 +145,18 @@ export function ListenButton({ text, lang, cache: sharedCache, autoPlay = false 
       await audio.play();
       if (runRef.current === run) setState('playing');
     } catch {
-      // Autoplay blocked (no tap yet) or the file could not play: stay quiet on auto-read, fall back on a tap.
+      // Autoplay blocked (no tap yet) or the file could not play: stay quiet on auto-read, fall back on a tap
+      // (iOS Safari rejects play() after the fetch has outlived the tap).
       if (runRef.current !== run) return;
       audioRef.current = null;
-      setState('idle');
+      if (auto) setState('idle');
+      else fallback();
     }
   }, [cache, lang, serverPossible, speakBrowser, speech, stopAll, text, transport]);
 
   // Stop reading when the question changes or the page goes away; read the new one when auto-read is on.
   useEffect(() => {
-    if (autoPlay && available) void play();
+    if (autoPlay && available) void play(true);
     return stopAll;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text, lang, autoPlay]);
@@ -177,7 +180,7 @@ export function ListenButton({ text, lang, cache: sharedCache, autoPlay = false 
       <Button
         size="lg"
         variant="secondary"
-        onClick={() => (state === 'idle' ? void play() : stopAll())}
+        onClick={() => (state === 'idle' ? void play(false) : stopAll())}
         aria-pressed={active}
         aria-busy={state === 'loading'}
         className="text-[1.17rem]!"

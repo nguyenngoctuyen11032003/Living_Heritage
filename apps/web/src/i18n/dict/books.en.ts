@@ -88,7 +88,7 @@ export default {
     chapter: 'Chapter {n}',
     narratedBy: 'As told by {name}',
     qrCaption: 'Scan to hear the original voice · {d}',
-    qrNote: 'The person scanning needs permission to view it.',
+    qrNote: 'Requires signing in and permission to view. The link may stop working if the family changes access or deletes the story.',
     qrLabel: 'QR code for the original voice of “{title}”',
     familyBook: 'A family memory book',
   },
@@ -96,6 +96,7 @@ export default {
     label: 'Proof print — not a book-printing service',
     print: 'Print / Save as PDF',
     back: 'Back to the book builder',
+    excluded: '{n} chapter(s) are not approved and are left out of the print.',
     hint: 'In the print dialog, choose A5 paper. To save a PDF, choose “Save as PDF”.',
   },
   state: {

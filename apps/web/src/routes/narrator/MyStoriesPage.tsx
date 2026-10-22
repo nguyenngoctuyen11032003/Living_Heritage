@@ -15,7 +15,7 @@ export default function MyStoriesPage() {
   return (
     <div className={`flex flex-col gap-8 ${ELDER_CONTROLS}`}>
       {ctx.assisted && <AssistedBanner name={ctx.narrator.display_name} />}
-      <ButtonLink to={`/ke-chuyen${ctx.query}`} variant="ghost" size="lg" className="-ml-3 self-start px-3! text-[1.17rem]" leftIcon={<ArrowLeft className="size-5" aria-hidden="true" />}>
+      <ButtonLink to={`/ke-chuyen${ctx.query}`} variant="ghost" size="lg" className="-ml-3 self-start px-3! text-[1.25rem]" leftIcon={<ArrowLeft className="size-5" aria-hidden="true" />}>
         {t('mine.back')}
       </ButtonLink>
       <header>
@@ -76,19 +76,20 @@ function StoryList({ narratorId, query }: { narratorId: string; query: string })
     <ul className="flex flex-col gap-4">
       {stories.data.map((s: MyStory) => {
         const approved = s.edit_status === 'approved';
+        const statusKey = s.edit_status === 'draft' ? 'draft' : approved ? 'approved' : 'pending';
         return (
           <li key={s.id} className="flex flex-col gap-5 rounded-[1.75rem] bg-paper p-6 ring-1 ring-line sm:flex-row sm:items-center sm:justify-between md:p-7">
             <div className="flex min-w-0 flex-col gap-3">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge className="text-[1.17rem]!" tone={approved ? 'mint' : 'warning'} icon={approved ? <CircleCheck className="size-4" aria-hidden="true" /> : <Clock className="size-4" aria-hidden="true" />}>
-                  {approved ? t('mine.status.approved') : t('mine.status.pending')}
+                <Badge className="text-[1.25rem]!" tone={approved ? 'mint' : 'warning'} icon={approved ? <CircleCheck className="size-4" aria-hidden="true" /> : <Clock className="size-4" aria-hidden="true" />}>
+                  {t(`mine.status.${statusKey}`)}
                 </Badge>
-                <Badge className="text-[1.17rem]!" tone="outline">{t(`mine.kind.${s.kind}`)}</Badge>
+                <Badge className="text-[1.25rem]!" tone="outline">{t(`mine.kind.${s.kind}`)}</Badge>
               </div>
               <h2 className="break-words font-serif text-[1.45rem] font-semibold leading-snug text-ink">{s.title.trim() || t('mine.untitled')}</h2>
-              <p className="text-[1.17rem] text-ink-soft">{t('mine.recordedOn', { date: formatDate(s.created_at, locale) })}</p>
+              <p className="text-[1.25rem] text-ink-soft">{t('mine.recordedOn', { date: formatDate(s.created_at, locale) })}</p>
             </div>
-            <ButtonLink to={`/ban-nhap/${s.id}`} size="lg" variant={approved ? 'secondary' : 'primary'} className="shrink-0 text-[1.17rem]">
+            <ButtonLink to={`/ban-nhap/${s.id}`} size="lg" variant={approved ? 'secondary' : 'primary'} className="shrink-0 text-[1.25rem]">
               {approved ? t('mine.openApproved') : t('mine.open')}
             </ButtonLink>
           </li>
