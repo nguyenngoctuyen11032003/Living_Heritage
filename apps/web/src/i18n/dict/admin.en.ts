@@ -116,6 +116,7 @@ export default {
     from: 'From: {name}',
     contact: 'Contact: {contact}',
     privacy: 'Contact details are used only for coordination and are never shared with third parties.',
+    interest: { title: 'Interest registrations from visitors ({n})', plan: 'Plan: {plan}', topic: 'Topic: {topic}' },
   },
   deletion: {
     emptyTitle: 'No deletion requests',

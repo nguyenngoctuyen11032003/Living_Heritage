@@ -195,8 +195,8 @@ export default {
       f: 'Mã QR nghe lại giọng gốc',
     },
     interestTitle: 'Cảm ơn bạn đã quan tâm',
-    interestBody: 'Chúng tôi chưa thu phí và chưa nhận thanh toán. Hãy tạo tài khoản miễn phí để dùng thử; khi có gói chính thức, bạn sẽ được thông báo trước và tự quyết định có tham gia hay không.',
-    interestCta: 'Bắt đầu dùng thử',
+    interestBody: 'Chúng tôi chưa thu phí và chưa nhận thanh toán. Việc gửi quan tâm chỉ giúp nhóm điều phối ghi nhận nhu cầu của bạn; khi có gói chính thức, bạn sẽ được thông báo trước và tự quyết định có tham gia hay không.',
+    interestCta: 'Gửi quan tâm',
     interestLater: 'Để sau',
     orgs: {
       eyebrow: 'Dành cho tổ chức',

@@ -116,3 +116,26 @@ export async function removeSavedItem(sb: Supabase, id: string): Promise<void> {
   const { error } = await sb.from('saved_items').delete().eq('public_item_id', id);
   if (error) throw new HubError(error.message);
 }
+
+export interface InterestInput {
+  plan: string | null;
+  topic: string;
+  format: string;
+  name: string;
+  contact: string;
+  message: string;
+}
+
+/** Guest-friendly interest form: anon + authenticated may insert (consent is enforced by a table check). */
+export async function submitInterest(sb: Supabase, input: InterestInput): Promise<void> {
+  const { error } = await sb.from('interest_requests').insert({
+    plan: input.plan,
+    topic: input.topic.trim().slice(0, 120) || null,
+    format: input.format.slice(0, 40) || null,
+    name: input.name.trim().slice(0, 120),
+    contact: input.contact.trim().slice(0, 200),
+    message: input.message.trim().slice(0, 1000) || null,
+    consent: true,
+  });
+  if (error) throw new HubError(error.message);
+}

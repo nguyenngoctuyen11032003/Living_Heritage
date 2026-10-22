@@ -18,7 +18,8 @@ Giới hạn và phần mô phỏng: `docs/LIMITATIONS.md`. Mẫu ghi nghiệm t
 | `/cach-hoat-dong`, `/goi-dich-vu`, `/to-chuc`, `/sach-ky-uc` | Trang tĩnh song ngữ | `routes/legal` | `components/landing/*` | MVP; giá là "Giá dự kiến"; `/to-chuc` chưa có kênh liên hệ tư vấn |
 | `/quyen-rieng-tu`, `/dieu-khoan` | Chính sách, điều khoản | `routes/legal` | — | MVP |
 | `/dang-nhap`, `/dang-ky`, `/auth/callback`, `/quen-mat-khau`, `/dat-lai-mat-khau` | Email + mật khẩu, magic link | `routes/auth` | `features/auth` | MVP |
-| `/bat-dau` (B5: chọn vai và mục đích) | — | — | — | **Chưa có** (hiện "Bắt đầu lưu giữ" → `/dang-ky` → `/gia-dinh/bat-dau`) |
+| `/bat-dau` | Chọn vai và mục đích (kể chuyện / lưu giữ / tìm hiểu), mỗi thẻ dẫn thẳng vào luồng tương ứng | `routes/legal` | `routes/legal/StartPage.tsx` | MVP (có e2e ở `landing.spec.ts`) |
+| `/trai-nghiem` | Đường demo kể chuyện 3 phút, không cần tài khoản và không gọi API | `routes/demo` | `features/demo` | **Minh họa** (dữ liệu dựng sẵn trong bộ nhớ; có test `DemoPage.test.tsx`, e2e ở `landing.spec.ts`) |
 | `/gia-dinh/bat-dau` | Tạo gia đình + 3 bước hướng dẫn | `routes/family/members.ts` | `features/families` | MVP |
 | `/moi/:token` | Nhận lời mời thành viên | `routes/family/members.ts` | `features/families` | MVP |
 | `/k/:token` | Đăng nhập ẩn danh + nhận người kể | `routes/auth` (bare) | `features/narrators` | MVP |
@@ -36,7 +37,7 @@ Giới hạn và phần mô phỏng: `docs/LIMITATIONS.md`. Mẫu ghi nghiệm t
 | `/kham-pha` | Kho tri thức: `search_public`, lọc, hỏi đáp có nguồn | `routes/knowledge` | `features/knowledge` | MVP; khi kho trống hiện thẻ **Minh họa** |
 | `/tri-thuc/:id` | Chi tiết tri thức, Lưu / Báo cáo / Đề nghị trao đổi | `routes/knowledge` | `features/knowledge` | MVP; `/tri-thuc/mau-*` là **Minh họa** (âm thanh mô phỏng) |
 | `/da-luu` | Danh sách lưu để xem sau | `routes/knowledge` | `features/knowledge` | MVP (lưu trên thiết bị, chưa theo tài khoản) |
-| `/ket-noi` (B5) | Gửi quan tâm / đề nghị trao đổi | — | `ConnectDialog` trong `/tri-thuc/:id` | Chức năng có (hộp thoại); **chưa có** trang riêng |
+| `/ket-noi` | Gửi quan tâm gói / đề nghị trao đổi | `routes/knowledge` | `features/knowledge/pages/ConnectPage.tsx` | MVP (có test đơn vị `ConnectPage.test.tsx`; quét a11y trong `routes.ts`); hộp thoại `ConnectDialog` trong `/tri-thuc/:id` vẫn giữ |
 | `/nghe/:storyId` | Đích của QR: phát audio nếu có quyền | `routes/knowledge` | `features/knowledge` | MVP |
 | `/cai-dat`, `/gia-dinh/du-lieu` | Cài đặt, trung tâm dữ liệu (xuất, nhật ký, yêu cầu xoá) | `routes/settings` | `features/settings` | MVP (yêu cầu xoá được xử lý thủ công) |
 | `/quan-tri` | Duyệt công bố, báo cáo, yêu cầu xoá, AI lỗi, đề nghị trao đổi, số liệu | `routes/admin` | `features/admin` | MVP (chưa gỡ được nội dung công khai từ báo cáo; không có lối vào mobile) |
@@ -46,7 +47,7 @@ Giới hạn và phần mô phỏng: `docs/LIMITATIONS.md`. Mẫu ghi nghiệm t
 
 | Nhóm P0 | Thật (MVP) | Minh họa / mô phỏng có nhãn | Chưa có |
 |---|---|---|---|
-| Bắt đầu và câu hỏi | Chủ đề, câu hỏi tiếng Việt, phiên kể | — | Quản lý bộ câu hỏi trên giao diện; trang `/bat-dau` |
+| Bắt đầu và câu hỏi | Chủ đề, câu hỏi tiếng Việt, phiên kể | — | Quản lý bộ câu hỏi trên giao diện |
 | Ghi âm | Ghi / tạm dừng / nghe lại / ghi lại, tải tệp, giữ bản ghi khi mất mạng | — | Tệp mẫu dự phòng cho demo |
 | ASR và bản nháp | Gemini qua Edge Function, thử lại, hạn mức | "Mô phỏng kết quả AI" trên trang chủ | — |
 | Duyệt và lưu | Phiên bản, duyệt bởi người kể, sửa phải duyệt lại | — | — |
@@ -54,7 +55,7 @@ Giới hạn và phần mô phỏng: `docs/LIMITATIONS.md`. Mẫu ghi nghiệm t
 | Tri thức | `search_public`, chỉ bản được duyệt | Thẻ `mau-*` khi kho trống, âm thanh mô phỏng | Tệp âm thanh mẫu có quyền dùng |
 | Chia sẻ | 3 lựa chọn, bật/tắt âm thanh-tên-vùng-ảnh, xem trước, rút, nhật ký | — | Thời hạn chia sẻ; xoá cache âm thanh công khai phía máy chủ |
 | Sách và liên hệ | Bản đọc theo chương, in / lưu PDF, QR, đề nghị trao đổi | Sách mẫu trên trang chủ | PDF mẫu; kênh liên hệ tổ chức |
-| Demo | — | — | Nút "Khôi phục dữ liệu mẫu", đường demo không cần API |
+| Demo | — | `/trai-nghiem`: đường demo không cần API, dữ liệu dựng sẵn trong bộ nhớ | Nút "Khôi phục dữ liệu mẫu" trên database (demo chỉ có nút đặt lại tiến trình) |
 | Đo lường (B17) | Số liệu AI tổng hợp ở `/quan-tri` | — | Sự kiện sản phẩm, mã người tham gia, đếm nội dung đã duyệt theo nguồn |
 
 ## Phần dùng chung

@@ -31,9 +31,11 @@ describe('i18n', () => {
     expect(document.documentElement.lang).toBe('vi');
     act(() => screen.getByText('en').click());
     // The new language's dictionaries load before the switch (no raw keys on screen).
-    await waitFor(() => expect(screen.getByTestId('out')).toHaveTextContent('Log in'));
-    expect(document.documentElement.lang).toBe('en');
-    expect(localStorage.getItem(LOCALE_STORAGE_KEY)).toBe('en');
+    await waitFor(() => {
+      expect(screen.getByTestId('out')).toHaveTextContent('Log in');
+      expect(document.documentElement.lang).toBe('en');
+      expect(localStorage.getItem(LOCALE_STORAGE_KEY)).toBe('en');
+    });
   });
 
   it('interpolates {vars} and falls back to the key', () => {

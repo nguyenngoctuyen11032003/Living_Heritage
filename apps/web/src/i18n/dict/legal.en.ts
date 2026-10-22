@@ -153,11 +153,15 @@ export default {
       },
       access: {
         title: 'Who can see it',
-        body: 'By default, content is visible only to invited family members, according to their role. Access is checked on the server for every request; audio lives in private storage and opens only through time-limited links.',
+        body: 'By default, content is visible only to invited family members, according to their role. Access is checked on the server for every request; audio lives in private storage and opens only through time-limited links. If technical support is needed, operator access is limited and logged.',
       },
       public: {
         title: 'Public sharing',
         body: 'Content enters the public knowledge hub only when the storyteller agrees, the family submits a request and it passes review. You choose whether to include the voice, real name or hometown, and you can withdraw it at any time. If the content is edited, the public version is taken down automatically until it is approved again.',
+      },
+      revoke: {
+        title: 'Withdrawing shared content',
+        body: 'When you withdraw an item from the public hub or revoke viewing access, we block the text, audio files and PDFs stored on our systems, remove the item from search results and clear related caches, rather than just hiding a card in the interface. Revoked QR codes and storytelling links stop playing content. Please note: copies that a viewer has already downloaded or copied outside the system may not be recoverable, so think before you publish.',
       },
       rights: {
         title: 'Your rights',
@@ -166,6 +170,10 @@ export default {
         b: 'Download your family’s data.',
         c: 'Withdraw content from the public hub.',
         d: 'Request deletion of individual items or the whole account, audio included.',
+      },
+      deletion: {
+        title: 'Deletion requests',
+        body: 'A deletion request is tracked through three statuses: received, in progress, completed. Deletion covers the derived versions of the deleted source. The processing time, the scope of backups and any cases we must retain data by legal obligation will be set out clearly before official launch. You can download your family’s data before deleting.',
       },
       elders: {
         title: 'Elders and consent',

@@ -32,6 +32,12 @@ export default {
   },
   lang: { label: 'Language', vi: 'Tiếng Việt', en: 'English' },
   textScale: { label: 'Text size', normal: 'Standard', large: 'Large', xlarge: 'Extra large', decrease: 'Smaller text', increase: 'Larger text' },
+  motion: {
+    label: 'Reduce motion',
+    auto: 'Follow my device',
+    reduce: 'Always reduce',
+    full: 'Always show animation',
+  },
   display: { label: 'Display', theme: 'Theme' },
   theme: { toDark: 'Switch to dark theme', toLight: 'Switch to light theme' },
   account: { addName: 'Add your full name', menu: 'Account', settings: 'Profile & settings', darkMode: 'Dark mode' },

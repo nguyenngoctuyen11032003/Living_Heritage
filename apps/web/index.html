@@ -8,17 +8,21 @@
       name="description"
       content="Di Sản Sống giúp ông bà kể chuyện bằng giọng nói tiếng Việt, AI hỗ trợ chép lời và biên tập, gia đình lưu giữ và người trẻ học hỏi từ kinh nghiệm được chia sẻ."
     />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Di Sản Sống" />
+    <meta property="og:title" content="Di Sản Sống — Trợ lý số lưu giữ tri thức người cao tuổi" />
+    <meta property="og:description" content="Ông bà kể chuyện bằng giọng nói tiếng Việt, AI hỗ trợ bản nháp, gia đình lưu giữ và người trẻ học hỏi." />
     <meta name="theme-color" content="#FAF7F0" />
     <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
     <script>
       (function () {
-        // Theme before first paint (same rule as lib/theme.ts: stored choice, else the system preference): no light flash.
+        // Theme before first paint (same rule as lib/theme.ts: stored choice, else dark by default): no light flash.
         var d = document.documentElement;
         var th;
         try {
           th = localStorage.getItem('lh.theme');
         } catch (e) {}
-        if (th !== 'light' && th !== 'dark') th = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (th !== 'light' && th !== 'dark') th = 'dark';
         d.dataset.theme = th;
         if (th === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#111A17');
         try {

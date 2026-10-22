@@ -16,10 +16,10 @@ export function HowToGuide({ open, onClose }: { open: boolean; onClose: () => vo
       open={open}
       onClose={onClose}
       title={<span className="font-serif text-[1.6rem]">{t('howto.title')}</span>}
-      description={<span className="text-[1.17rem]">{t('howto.intro')}</span>}
+      description={<span className="text-[1.25rem]">{t('howto.intro')}</span>}
       size="md"
       footer={
-        <Button size="xl" fullWidth onClick={onClose} className="text-[1.2rem]!">
+        <Button size="xl" fullWidth onClick={onClose} className="text-[1.25rem]!">
           {t('howto.dismiss')}
         </Button>
       }
@@ -31,9 +31,9 @@ export function HowToGuide({ open, onClose }: { open: boolean; onClose: () => vo
               <step.icon className="size-7" />
             </span>
             <span className="flex flex-col gap-1">
-              <span className="text-[1.17rem] font-medium text-heritage">{t('howto.step', { n: i + 1 })}</span>
+              <span className="text-[1.25rem] font-medium text-heritage">{t('howto.step', { n: i + 1 })}</span>
               <span className="font-serif text-[1.4rem] font-semibold leading-snug text-ink">{t(step.title)}</span>
-              <span className="text-[1.17rem] leading-relaxed text-ink-soft">{t(step.desc)}</span>
+              <span className="text-[1.25rem] leading-relaxed text-ink-soft">{t(step.desc)}</span>
             </span>
           </li>
         ))}

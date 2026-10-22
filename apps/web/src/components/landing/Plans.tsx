@@ -16,7 +16,7 @@ const PLANS = [
 /** Block 12 — planned pricing (clearly not charged) + organisations block. */
 export function Plans({ showOrgs = true }: { showOrgs?: boolean }) {
   const t = useT('landing');
-  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<(typeof PLANS)[number]['key'] | null>(null);
   return (
     <Section id="goi-dich-vu" labelledBy="plans-title" className="bg-paper/60">
       <SectionHeading id="plans-title" eyebrow={t('plans.eyebrow')} title={t('plans.title')} lead={t('plans.lead')} align="center" />
@@ -58,7 +58,7 @@ export function Plans({ showOrgs = true }: { showOrgs?: boolean }) {
                     </li>
                   ))}
                 </ul>
-                <Button variant={featured ? 'dark-cream' : 'secondary'} size="lg" fullWidth className="mt-8" onClick={() => setOpen(true)}>
+                <Button variant={featured ? 'dark-cream' : 'secondary'} size="lg" fullWidth className="mt-8" onClick={() => setSelected(plan.key)}>
                   {t('cta.interest')}
                 </Button>
               </div>
@@ -91,16 +91,16 @@ export function Plans({ showOrgs = true }: { showOrgs?: boolean }) {
       )}
 
       <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
+        open={selected !== null}
+        onClose={() => setSelected(null)}
         title={t('plans.interestTitle')}
         description={t('plans.interestBody')}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setOpen(false)}>
+            <Button variant="ghost" onClick={() => setSelected(null)}>
               {t('plans.interestLater')}
             </Button>
-            <ButtonLink to="/bat-dau">{t('plans.interestCta')}</ButtonLink>
+            <ButtonLink to={`/ket-noi?plan=${selected ?? 'year'}`}>{t('plans.interestCta')}</ButtonLink>
           </>
         }
       />

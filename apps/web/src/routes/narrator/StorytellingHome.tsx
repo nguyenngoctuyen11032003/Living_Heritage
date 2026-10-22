@@ -35,7 +35,7 @@ export default function StorytellingHome() {
       <NarratorHelp />
       {assisted && <AssistedBanner name={narrator.display_name} />}
       <header className="flex flex-col gap-3">
-        {narrator.family_name && <p className="text-[1.17rem] font-medium text-heritage">{t('home.family', { family: narrator.family_name })}</p>}
+        {narrator.family_name && <p className="text-[1.25rem] font-medium text-heritage">{t('home.family', { family: narrator.family_name })}</p>}
         <h1 className="font-serif text-[2.2rem] font-semibold leading-tight text-ink md:text-[2.75rem]">{t('home.greeting', { who: address(narrator.display_name) })}</h1>
         <p className="max-w-2xl text-[1.25rem] leading-relaxed text-ink-soft">{t('home.intro', { pronoun: t('home.pronoun') })}</p>
       </header>
@@ -76,7 +76,7 @@ export default function StorytellingHome() {
         )}
         {topics.status === 'ready' && topics.data.length > 0 && (
           <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {topics.data.slice(0, 6).map((topic) => (
+            {topics.data.filter((tp) => tp.slug !== EASY_SLUG).slice(0, 6).map((topic) => (
               <li key={topic.id} className="min-w-0">
                 <Link to={`/ke-chuyen/chu-de/${topic.slug}${query}`} className={cardClass}>
                   <span className="flex size-14 items-center justify-center rounded-2xl bg-mint text-heritage">
@@ -97,7 +97,7 @@ export default function StorytellingHome() {
                   </span>
                   <span className="flex min-w-0 flex-col">
                     <span className="font-serif text-[1.6rem] font-semibold leading-snug text-ink [overflow-wrap:break-word] hyphens-auto">{t('home.unsureTitle')}</span>
-                    <span className="text-[1.17rem] text-ink-soft [overflow-wrap:break-word] hyphens-auto">{t('home.unsureHint')}</span>
+                    <span className="text-[1.25rem] text-ink-soft [overflow-wrap:break-word] hyphens-auto">{t('home.unsureHint')}</span>
                   </span>
                 </span>
                 <ArrowRight className="hidden size-6 shrink-0 text-heritage sm:block" aria-hidden="true" />
@@ -114,7 +114,7 @@ export default function StorytellingHome() {
         <BookOpen className="size-7 shrink-0" aria-hidden="true" />
         <span className="flex min-w-0 flex-col">
           <span className="text-[1.3rem] font-semibold">{t('home.myStories')}</span>
-          <span className="text-[1.17rem] text-ink-soft">{t('home.myStoriesHint')}</span>
+          <span className="text-[1.25rem] text-ink-soft">{t('home.myStoriesHint')}</span>
         </span>
       </Link>
     </div>

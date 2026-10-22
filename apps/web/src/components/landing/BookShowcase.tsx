@@ -24,7 +24,7 @@ export function Book3D({ className }: { className?: string }) {
     >
       <div
         className={cn(
-          'relative h-[22rem] w-[17rem] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] [transform-style:preserve-3d] sm:h-[26rem] sm:w-[20rem]',
+          'relative h-[22rem] w-[17rem] motion-reduce:transition-none transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] [transform-style:preserve-3d] sm:h-[26rem] sm:w-[20rem]',
           '[transform:rotateX(8deg)_rotateY(-22deg)] group-hover/book:[transform:rotateX(4deg)_rotateY(-8deg)]',
           open && '[transform:rotateX(4deg)_rotateY(-8deg)]',
         )}
@@ -48,7 +48,7 @@ export function Book3D({ className }: { className?: string }) {
         {/* cover */}
         <div
           className={cn(
-            'absolute inset-0 origin-left rounded-r-md rounded-l-sm transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] [backface-visibility:hidden] [transform-style:preserve-3d]',
+            'absolute inset-0 origin-left rounded-r-md rounded-l-sm motion-reduce:transition-none transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] [backface-visibility:hidden] [transform-style:preserve-3d]',
             'group-hover/book:[transform:rotateY(-158deg)] group-focus-visible/book:[transform:rotateY(-158deg)]',
             open && '[transform:rotateY(-158deg)]',
           )}

@@ -47,7 +47,7 @@ function ProfileForm() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     const sb = getSupabase();
-    if (!sb || !user) return;
+    if (!sb || !user || saving) return;
     const v = validateName(name, DISPLAY_NAME_MAX);
     if (v) {
       setError(v === 'required' ? t('profile.nameRequired') : t('profile.nameTooLong'));
@@ -107,7 +107,7 @@ function PasswordForm() {
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     const sb = getSupabase();
-    if (!sb) return;
+    if (!sb || saving) return;
     const v = validateNewPassword(password, confirm, MIN_PASSWORD);
     if (v === 'tooShort') return setError({ field: 'password', message: t('password.tooShort', { n: MIN_PASSWORD }) });
     if (v === 'mismatch') return setError({ field: 'confirm', message: t('password.mismatch') });

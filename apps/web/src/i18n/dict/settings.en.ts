@@ -202,6 +202,7 @@ export default {
       reasonTooLong: 'The reason can be at most {max} characters.',
       confirmRequired: 'Please tick the confirmation.',
       familyRequired: 'We could not tell which family this is for.',
+      duplicate: 'A deletion request for the same scope is already open.',
     },
     status: {
       open: 'Received',

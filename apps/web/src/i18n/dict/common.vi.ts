@@ -31,6 +31,12 @@ export default {
   },
   lang: { label: 'Ngôn ngữ', vi: 'Tiếng Việt', en: 'English' },
   textScale: { label: 'Cỡ chữ', normal: 'Chuẩn', large: 'Lớn', xlarge: 'Rất lớn', decrease: 'Giảm cỡ chữ', increase: 'Tăng cỡ chữ' },
+  motion: {
+    label: 'Giảm chuyển động',
+    auto: 'Tự động theo thiết bị',
+    reduce: 'Luôn giảm',
+    full: 'Luôn bật hiệu ứng',
+  },
   display: { label: 'Hiển thị', theme: 'Giao diện' },
   theme: { toDark: 'Chuyển sang giao diện tối', toLight: 'Chuyển sang giao diện sáng' },
   account: { addName: 'Thêm họ tên của bạn', menu: 'Tài khoản', settings: 'Hồ sơ & cài đặt', darkMode: 'Giao diện tối' },

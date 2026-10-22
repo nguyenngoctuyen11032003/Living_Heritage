@@ -3,7 +3,7 @@ import { baseDisplay } from '@/components/ui/display';
 import { cn } from '@/lib/cn';
 
 /**
- * VI | EN segmented switch. `tone="dark"` for night sections. Each option is a 44px touch target.
+ * VI | EN segmented switch. `tone="dark"` for night sections. Each option is a 48px touch target.
  *
  * Layout note: a display utility in `className` (`hidden sm:inline-flex`) replaces the base `inline-flex` (cn() and
  * baseDisplay() both resolve it since QA 2026-10-22 P0 #1). Wrapping (`<div className="hidden sm:block">`) also works.
@@ -32,7 +32,7 @@ export function LanguageSwitch({ tone = 'light', className }: { tone?: 'light' |
           title={t(`lang.${l}`)}
           onClick={() => setLocale(l)}
           className={cn(
-            'min-h-[44px] min-w-[44px] rounded-full px-2.5 uppercase tracking-wide transition-colors',            locale === l
+            'min-h-12 min-w-12 rounded-full px-2.5 uppercase tracking-wide transition-colors',            locale === l
               ? tone === 'light'
                 ? 'bg-heritage text-cream'
                 : 'bg-night-ink text-night'

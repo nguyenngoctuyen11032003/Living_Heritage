@@ -30,6 +30,13 @@ describe('KnowledgeCard', () => {
     expect(screen.getByText('3:34 nghe')).toBeInTheDocument();
   });
 
+  it('shows the summary on regular cards and labels samples as illustrative', () => {
+    const s = getSampleItem('mau-tuot-la-mai')!;
+    renderCard(<KnowledgeCard item={sampleToItem(s, 'vi')} topics={STATIC_TOPICS} />);
+    expect(screen.getByText(s.summary.vi)).toBeInTheDocument();
+    expect(screen.getByText(/Dữ liệu minh họa/)).toBeInTheDocument();
+  });
+
   it('labels text-only items and strips typed quotes from the title', () => {
     const item = fromPublicRow({ id: 'x1', kind: 'story', title: '“Mẹ dặn”', narrator_label: 'Người kể ẩn danh', audio_allowed: false, fields: {} });
     renderCard(<KnowledgeCard item={item} topics={STATIC_TOPICS} />, 'en');

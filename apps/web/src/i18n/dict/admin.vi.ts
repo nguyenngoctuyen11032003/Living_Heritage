@@ -114,6 +114,7 @@ export default {
     from: 'Từ: {name}',
     contact: 'Liên hệ: {contact}',
     privacy: 'Thông tin liên hệ chỉ dùng để điều phối, không chuyển cho bên thứ ba.',
+    interest: { title: 'Đăng ký quan tâm từ khách ({n})', plan: 'Gói: {plan}', topic: 'Chủ đề: {topic}' },
   },
   deletion: {
     emptyTitle: 'Không có yêu cầu xoá nào',

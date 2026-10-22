@@ -38,7 +38,7 @@ export function Logo({ tone = 'light', wordmark = 'always', to = '/', wrap = fal
       aria-label={wordmark === 'always' ? undefined : t('brand.name')}
       className={cn(
         baseDisplay('inline-flex', className),
-        'min-h-[44px] min-w-[44px] items-center gap-2 font-serif text-[1.15rem] font-semibold tracking-tight',
+        'min-h-12 min-w-12 items-center gap-2 font-serif text-[1.15rem] font-semibold tracking-tight',
         wrap ? 'max-w-full break-words' : 'whitespace-nowrap',
         tone === 'light' ? 'text-heritage' : 'text-night-ink',
         className,

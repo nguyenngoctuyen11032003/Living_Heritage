@@ -285,6 +285,18 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"interest_requests": {
+                  Row: {
+                    "consent": boolean,"contact": string,"created_at": string,"format": string | null,"id": string,"message": string | null,"name": string,"plan": string | null,"resolved_at": string | null,"resolved_by": string | null,"status": string,"topic": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "consent": boolean,"contact": string,"created_at"?: string,"format"?: string | null,"id"?: string,"message"?: string | null,"name": string,"plan"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"topic"?: string | null
+                  }
+                  Update: {
+                    "consent"?: boolean,"contact"?: string,"created_at"?: string,"format"?: string | null,"id"?: string,"message"?: string | null,"name"?: string,"plan"?: string | null,"resolved_at"?: string | null,"resolved_by"?: string | null,"status"?: string,"topic"?: string | null
+                  }
+                  Relationships: []
                 },"narrator_links": {
                   Row: {
                     "claimed_at": string | null,"claimed_by": string | null,"created_at": string,"created_by": string | null,"expires_at": string,"id": string,"narrator_id": string,"revoked_at": string | null,"token_hash": string

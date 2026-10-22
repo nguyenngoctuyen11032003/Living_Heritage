@@ -6,7 +6,7 @@ import { useCurrentFamily } from '@/features/families/current';
 import { SectionCard } from '@/features/families/states';
 import { useT } from '@/i18n';
 import { getSupabase } from '@/lib/supabase';
-import { hasErrors, REASON_MAX, REASON_MIN, toDeletionInsert, validateDeletionForm, type DeletionFormErrors } from './deletion';
+import { hasErrors, hasOpenDuplicate, REASON_MAX, REASON_MIN, toDeletionInsert, validateDeletionForm, type DeletionFormErrors } from './deletion';
 import { ConfirmCheckbox, DeletionRequestList } from './DeletionRequestList';
 import { useDeletionErrorText, useMyDeletionRequests } from './useDeletionRequests';
 
@@ -28,7 +28,7 @@ function SignOutEverywhere() {
 
   async function signOut() {
     const sb = getSupabase();
-    if (!sb) return;
+    if (!sb || busy) return;
     setBusy(true);
     const { error } = await sb.auth.signOut({ scope: 'global' });
     setBusy(false);
@@ -78,13 +78,18 @@ function AccountDeletion() {
   async function submit(e: FormEvent) {
     e.preventDefault();
     const sb = getSupabase();
-    if (!sb) return;
+    if (!sb || busy) return;
     const form = { scope: 'account' as const, storyId: '', reason, confirmed };
     const errs = validateDeletionForm(form, familyId);
     setErrors(errs);
     if (hasErrors(errs) || !familyId) return;
+    const row = toDeletionInsert(form, familyId);
+    if (hasOpenDuplicate(requests.rows, row)) {
+      toast({ title: t('deletion.errors.duplicate'), tone: 'error' });
+      return;
+    }
     setBusy(true);
-    const { error } = await sb.from('deletion_requests').insert(toDeletionInsert(form, familyId));
+    const { error } = await sb.from('deletion_requests').insert(row);
     setBusy(false);
     if (error) toast({ title: t('states.saveError'), tone: 'error' });
     else {

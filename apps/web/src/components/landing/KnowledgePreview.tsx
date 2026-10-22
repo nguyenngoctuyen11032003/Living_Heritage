@@ -18,7 +18,7 @@ function KnowledgeCard({ item, featured }: { item: SampleItem; featured?: boolea
   const pick = usePick();
   const topic = findTopic(STATIC_TOPICS, item.topicSlug);
   return (
-    <article className={cn('group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-paper ring-1 ring-line transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_24px_50px_-30px_rgba(22,58,49,0.5)] focus-within:-translate-y-1 motion-reduce:hover:translate-y-0', featured && 'md:flex-row')}>
+    <article className={cn('group relative flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-paper ring-1 ring-line transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-[0_24px_50px_-30px_rgba(22,58,49,0.5)] focus-within:-translate-y-1 active:scale-[0.99] motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100', featured && 'md:flex-row')}>
       <div className={cn('relative overflow-hidden', featured ? 'aspect-[4/3] md:aspect-auto md:min-h-[24rem] md:w-1/2' : 'aspect-[16/10]')}>
         <StoryScene kind={topicStyle(item.topicSlug).scene} className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.04] motion-reduce:group-hover:scale-100" />
         <div className="absolute left-4 top-4 flex flex-wrap gap-2">
