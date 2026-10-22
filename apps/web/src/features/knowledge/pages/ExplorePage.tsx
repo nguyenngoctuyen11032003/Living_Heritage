@@ -3,6 +3,8 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState, type FormEven
 import { Link, useSearchParams } from 'react-router';
 import { Reveal } from '@/components/motion';
 import { Button, EmptyState, Field, Select } from '@/components/ui';
+import { useReducedMotionSafe } from '@/design/motion';
+import { useDisplayFont } from '@/design/useDisplayFont';
 import { usePick, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { track } from '@/lib/events';
@@ -10,16 +12,20 @@ import { REGIONS, STORY_KINDS, type Region, type StoryKind } from '@lh/shared';
 import { AskTheElders } from '../components/AskTheElders';
 import { KnowledgeCard, KnowledgeCardSkeleton } from '../components/KnowledgeCard';
 import { SampleBanner } from '../components/SampleBanner';
-import { TopicMotif } from '../components/TopicMotif';
 import { activeFilterCount, DECADES, EMPTY_FILTERS, filtersFromParams, filtersToParams, type KnowledgeFilters } from '../filters';
 import { useSaved } from '../useSaved';
 import { findTopic, topicStyle, useTopics } from '../topics';
 import { useKnowledgeSearch } from '../useKnowledgeSearch';
+import '@/design/landing-body.css';
+import './hub-hero.css';
 
 const DEBOUNCE_MS = 300;
 
+const HERO_VIDEO = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4';
 export default function ExplorePage() {
   const t = useT('knowledge');
+  const reduced = useReducedMotionSafe();
+  useDisplayFont();
   const pick = usePick();
   const topics = useTopics();
   const saved = useSaved().list;
@@ -100,36 +106,34 @@ export default function ExplorePage() {
     update(key === 'q' ? { q: '' } : { [key]: null });
   }
 
-  const showFeatured = !narrowing && search.items.length > 3;
+  // The last words of the headline are set in a muted tone (cinematic two-tone title).
+  const titleWords = t('hero.title').split(' ');
+  const titleCut = Math.max(1, titleWords.length - 4);
+  const titleHead = titleWords.slice(0, titleCut).join(' ');
+  const titleTail = titleWords.slice(titleCut).join(' ');
+
+  const showFeatured =!narrowing && search.items.length > 3;
   const countText = search.hasMore ? t('results.countMore', { n: search.items.length }) : t('results.count', { n: search.items.length });
 
   return (
     <div className="bg-cream">
-      {/* Editorial hero */}
-      <section aria-labelledby="hub-title" className="relative overflow-hidden border-b border-line/80">
-        <div aria-hidden="true" className="pointer-events-none absolute -right-24 -top-10 hidden h-[420px] w-[620px] text-heritage/10 lg:block">
-          <TopicMotif slug="que-huong" className="h-full w-full" />
-        </div>
-        <div className="relative mx-auto max-w-6xl px-4 pb-12 pt-12 md:px-8 md:pb-16 md:pt-20">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-[0.78rem] font-bold uppercase tracking-[0.2em] text-terracotta">{t('hero.kicker')}</p>
-            {/* Phones: the pill moves under the lede so it never sits between the eyebrow and the h1. */}
-            <SavedPill n={saved.length} className="hidden sm:inline-flex" />
-          </div>
-          <Reveal>
-            <h1 id="hub-title" className="mt-5 max-w-4xl font-serif text-[2.3rem] font-semibold leading-display tracking-[-0.01em] text-heritage-deep sm:text-[3rem] md:text-[4rem]">
-              {t('hero.title')}
-            </h1>
-          </Reveal>
-          <p className="mt-5 max-w-2xl text-[1.08rem] leading-relaxed text-ink-soft">{t('hero.lede')}</p>
-          <SavedPill n={saved.length} className="mt-5 sm:hidden" />
+      {/* Cinematic hero: looping footage, centred serif headline, liquid-glass search and topic chips. */}
+      <section aria-labelledby="hub-title" className="kh">
+        <video className="kh__video" src={HERO_VIDEO} autoPlay={!reduced} loop muted playsInline preload={reduced ? 'metadata' : 'auto'} disablePictureInPicture aria-hidden="true" tabIndex={-1} />
+        <div aria-hidden="true" className="kh__wash" />
+        <div className="kh__inner">
+          <p className="kh__kicker">{t('hero.kicker')}</p>
+          <h1 id="hub-title" className="kh__title">
+            {titleHead} <em>{titleTail}</em>
+          </h1>
+          <p className="kh__lede">{t('hero.lede')}</p>
 
-          <form role="search" onSubmit={onSubmit} className="mt-8 max-w-3xl">
+          <form role="search" onSubmit={onSubmit} className="kh__search">
             <label htmlFor={searchId} className="sr-only">
               {t('hero.searchLabel')}
             </label>
-            <div className="relative flex items-center rounded-full bg-paper shadow-[0_18px_40px_-28px_rgba(22,58,49,0.5)] ring-1 ring-line focus-within:ring-2 focus-within:ring-heritage">
-              <Search aria-hidden="true" className="pointer-events-none absolute left-5 hidden size-6 text-ink-soft sm:block" />
+            <div className="kh-glass kh__field">
+              <Search aria-hidden="true" className="kh__icon" />
               <input
                 id={searchId}
                 type="search"
@@ -139,7 +143,6 @@ export default function ExplorePage() {
                 autoComplete="off"
                 enterKeyHint="search"
                 maxLength={120}
-                className="min-h-16 w-full min-w-0 flex-1 rounded-full bg-transparent pl-5 pr-2 text-[1.08rem] sm:pl-14 sm:pr-3 text-ink placeholder:text-ink-soft/75 focus:outline-none [&::-webkit-search-cancel-button]:hidden"
               />
               {qInput && (
                 <button
@@ -149,40 +152,30 @@ export default function ExplorePage() {
                     update({ q: '' }, true);
                   }}
                   aria-label={t('hero.clear')}
-                  className="mr-1 inline-flex size-12 shrink-0 items-center justify-center rounded-full text-ink-soft hover:bg-mint/60 hover:text-heritage"
+                  className="kh__clear"
                 >
                   <X aria-hidden="true" className="size-5" />
                 </button>
               )}
-              <Button type="submit" size="lg" className="mr-1.5 hidden shrink-0 sm:inline-flex">
-                {t('hero.searchCta')}
-              </Button>
-              <Button type="submit" iconOnly aria-label={t('hero.searchCta')} className="mr-1.5 shrink-0 sm:hidden">
-                <Search aria-hidden="true" className="size-5" />
-              </Button>
+              <button type="submit" className="kh__go">
+                <Search aria-hidden="true" className="size-5 sm:hidden" />
+                <span>{t('hero.searchCta')}</span>
+              </button>
             </div>
           </form>
 
-          <div className="mt-7">
-            <p id="popular-topics" className="text-[0.85rem] font-semibold text-ink-soft">
+          <div className="kh__topics">
+            <p id="popular-topics" className="kh__topics-label">
               {t('hero.popular')}
             </p>
-            <ul aria-labelledby="popular-topics" className="mt-3 flex flex-wrap gap-2.5">
+            <ul aria-labelledby="popular-topics" className="kh__chips">
               {topics.map((topic) => {
                 const on = filters.topic === topic.slug;
                 const style = topicStyle(topic.slug);
                 return (
                   <li key={topic.slug}>
-                    <button
-                      type="button"
-                      aria-pressed={on}
-                      onClick={() => update({ topic: on ? null : topic.slug })}
-                      className={cn(
-                        'inline-flex min-h-12 items-center gap-2 rounded-full px-4 text-[0.92rem] font-semibold transition-[background-color,box-shadow] duration-150',
-                        on ? 'bg-heritage text-cream' : 'bg-paper text-ink ring-1 ring-line hover:ring-heritage/50',
-                      )}
-                    >
-                      <span aria-hidden="true" className="size-2.5 rounded-full" style={{ backgroundColor: on ? '#faf7f0' : style.ink }} />
+                    <button type="button" aria-pressed={on} onClick={() => update({ topic: on ? null : topic.slug })} className="kh-glass kh__chip">
+                      <span aria-hidden="true" className="size-2.5 rounded-full" style={{ backgroundColor: on ? 'currentColor' : style.ink }} />
                       {pick(topic.title)}
                     </button>
                   </li>
@@ -190,13 +183,17 @@ export default function ExplorePage() {
               })}
             </ul>
           </div>
-          <p className="mt-6 text-[0.85rem] text-ink-soft">{t('hero.promise')}</p>
+          <div className="kh__foot">
+            <p className="kh__promise">{t('hero.promise')}</p>
+            <SavedPill n={saved.length} />
+          </div>
         </div>
       </section>
 
-      <div className="mx-auto max-w-6xl px-4 py-10 md:px-8 md:py-14">
+      <div className="lp-body">
+      <div className="mx-auto max-w-6xl px-4 py-12 md:px-8 md:py-20">
         {/* Ask the elders (AI answers only from published items, with citations) */}
-        <AskTheElders hubMode={search.mode} notConfigured={search.notConfigured} onSearch={searchFor} onBrowse={focusResults} className="mb-10" />
+        <AskTheElders hubMode={search.mode} notConfigured={search.notConfigured} onSearch={searchFor} onBrowse={focusResults} className="mb-14" />
 
         {/* Filters */}
         <section aria-labelledby="filters-title" className="rounded-[1.75rem] bg-paper p-5 ring-1 ring-line md:p-6">
@@ -344,20 +341,15 @@ export default function ExplorePage() {
           )}
         </section>
       </div>
+      </div>
     </div>
   );
 }
 
-function SavedPill({ n, className }: { n: number; className?: string }) {
+function SavedPill({ n }: { n: number }) {
   const t = useT('knowledge');
   return (
-    <Link
-      to="/da-luu"
-      className={cn(
-        'inline-flex min-h-12 items-center gap-2 rounded-full px-4 text-[0.9rem] font-semibold text-heritage ring-1 ring-line transition-colors hover:bg-mint/60',
-        className,
-      )}
-    >
+    <Link to="/da-luu" className="kh-glass kh__saved">
       <Bookmark aria-hidden="true" className="size-4" />
       {t('hero.savedLink', { n })}
     </Link>

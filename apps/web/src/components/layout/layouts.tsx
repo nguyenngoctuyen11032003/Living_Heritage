@@ -10,13 +10,15 @@ import { RequireAuth, useSession } from '@/lib/session';
 import { useApplyTheme, useTheme } from '@/lib/theme';
 import { getSupabase } from '@/lib/supabase';
 import { cn } from '@/lib/cn';
+import { useDisplayFont } from '@/design/useDisplayFont';
 import { DisplayMenu } from './DisplayMenu';
 import { LanguageSwitch } from './LanguageSwitch';
 import { Logo, LogoMark } from './Logo';
 import { NarratorHelpSlotContext } from './narratorHelpContext';
+import { BackToTop, RouteProgress, RouteScroll } from './RouteChrome';
+import { useRouteFade } from './routeScroll';
 import { SiteFooter } from './SiteFooter';
 import { SiteHeader } from './SiteHeader';
-import { TextScaleSwitch } from './TextScaleSwitch';
 import { ThemeToggle } from './ThemeToggle';
 
 /** First focusable element of the AppShell and NarratorShell (SiteHeader renders its own). */
@@ -32,8 +34,11 @@ function SkipLink() {
   );
 }
 
-/** Public pages with a dark full-bleed hero get the dark header. Opt in with a route `handle: { headerTone: 'dark' }` or here. */
-const DARK_HEADER_PATHS = new Set(['/sach-ky-uc', '/cach-hoat-dong']);
+/**
+ * The homepage and the four cinematic marketing pages share the /sach-ky-uc dark treatment (black page, cream/white header and controls).
+ * Opt in with a route `handle: { headerTone: 'dark' }` or here.
+ */
+const DARK_HEADER_PATHS = new Set(['/', '/sach-ky-uc', '/cach-hoat-dong', '/kham-pha', '/to-chuc']);
 
 function useHeaderTone(): 'light' | 'dark' {
   const { pathname } = useLocation();
@@ -46,6 +51,9 @@ function useHeaderTone(): 'light' | 'dark' {
 
 export function SiteLayout() {
   const tone = useHeaderTone();
+  const mainRef = useRef<HTMLElement>(null);
+  useDisplayFont();
+  useRouteFade(mainRef);
   useEffect(() => {
     if (tone !== 'dark') return;
     document.documentElement.dataset.pageTone = 'dark';
@@ -55,11 +63,14 @@ export function SiteLayout() {
   }, [tone]);
   return (
     <div className="flex min-h-dvh flex-col">
+      <RouteScroll />
+      <RouteProgress />
       <SiteHeader tone={tone} />
-      <main id="main" className="flex-1">
+      <main ref={mainRef} id="main" tabIndex={-1} className="flex-1 outline-none">
         <Outlet />
       </main>
       <SiteFooter />
+      <BackToTop tone={tone} />
     </div>
   );
 }
@@ -173,13 +184,6 @@ function SidebarAccount({ onLogout, collapsed }: { onLogout: () => void; collaps
               ))}
             </div>
           </div>
-          <div className="flex min-h-11 items-center gap-3 px-3 text-[0.78rem] text-ink">
-            <span aria-hidden="true" className="inline-flex w-[18px] shrink-0 justify-center font-serif text-[15px] font-semibold text-ink-soft">
-              A
-            </span>
-            <span className="flex-1">{t('textScale.label')}</span>
-            <TextScaleSwitch variant="stepper" />
-          </div>
           <button type="button" role="switch" aria-checked={dark} onClick={() => setTheme(dark ? 'light' : 'dark')} className={menuRow}>
             {dark ? <Moon className="size-[18px] shrink-0 text-ink-soft" aria-hidden="true" /> : <Sun className="size-[18px] shrink-0 text-ink-soft" aria-hidden="true" />}
             <span className="flex-1 text-left">{t('account.darkMode')}</span>
@@ -239,6 +243,7 @@ export function AppShell() {
   const navigate = useNavigate();
   const isAdmin = useIsAdmin();
   useApplyTheme();
+  useDisplayFont();
   const allItems = [
     { to: '/gia-dinh', label: t('nav.family'), icon: Home, end: true },
     { to: '/gia-dinh/nguoi-ke', label: t('nav.narrators'), icon: Mic },
@@ -262,6 +267,8 @@ export function AppShell() {
   }
   return (
     <RequireAuth>
+      <RouteScroll />
+      <RouteProgress />
       <SkipLink />
       <div className="flex min-h-dvh bg-cream">
         <aside className={cn('sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-line bg-paper/60 py-5 lg:flex', collapsed ? 'w-[76px] px-3' : 'w-64 px-4')}>
@@ -305,13 +312,12 @@ export function AppShell() {
           </div>
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
-          {/* Below sm: mark-only logo + one labelled "Hiển thị" button (text size, language, theme), so it stays one row at every text size. */}
+          {/* Below sm: mark-only logo + one labelled "Hiển thị" button (language, theme), so it stays one row at every text size. */}
           <header className="flex min-h-14 min-w-0 flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-1.5 lg:hidden">
             <Logo wordmark="sm" className="min-w-0" />
             <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-2">
               <DisplayMenu className="sm:hidden" />
               <div className="hidden items-center gap-2 sm:flex">
-                <TextScaleSwitch variant="stepper" />
                 <LanguageSwitch />
                 <ThemeToggle />
               </div>
@@ -389,9 +395,12 @@ export function AppShell() {
  */
 export function NarratorShell() {
   useApplyTheme();
+  useDisplayFont();
   const [helpSlot, setHelpSlot] = useState<HTMLElement | null>(null);
   return (
     <RequireAuth allowAnonymous>
+      <RouteScroll />
+      <RouteProgress />
       <SkipLink />
       <div className="narrator-mode flex min-h-dvh flex-col bg-cream">
         {/*
@@ -406,7 +415,6 @@ export function NarratorShell() {
             <span ref={setHelpSlot} className="flex items-center empty:hidden max-sm:[&_button]:min-h-[48px] max-sm:[&_button]:gap-[6px] max-sm:[&_button]:px-[12px] max-sm:[&_button]:text-[17px] max-sm:[&_svg]:size-[20px]" />
             <DisplayMenu className="sm:hidden" />
             <div className="hidden items-center gap-2 sm:flex">
-              <TextScaleSwitch variant="stepper" />
               <LanguageSwitch />
               <ThemeToggle />
             </div>

@@ -24,12 +24,11 @@
         } catch (e) {}
         if (th !== 'light' && th !== 'dark') th = 'dark';
         d.dataset.theme = th;
-        if (th === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#111A17');
+        if (th === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000000');
         try {
           var l = localStorage.getItem('lh.locale');
           if (l === 'en' || l === 'vi') document.documentElement.lang = l;
-          var s = localStorage.getItem('lh.textScale');
-          if (s === '115' || s === '130') document.documentElement.dataset.textScale = s;
+          localStorage.removeItem('lh.textScale');
         } catch (e) {}
       })();
     </script>

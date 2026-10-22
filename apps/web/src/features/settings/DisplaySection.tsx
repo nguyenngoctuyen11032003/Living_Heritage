@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useToast } from '@/components/ui';
-import { TextScaleSwitch } from '@/components/layout/TextScaleSwitch';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { useReducedMotionSafe } from '@/design/motion';
 import { MOTION_PREFS, readMotionPref, setMotionPref, type MotionPref } from '@/design/motionPref';
@@ -60,10 +59,6 @@ export function DisplaySection() {
         <p aria-live="polite" className="mt-3 min-h-6 text-[0.9rem] text-ink-soft">
           {status ? t('display.languageSaved') : ''}
         </p>
-      </SectionCard>
-
-      <SectionCard title={tc('textScale.label')}>
-        <TextScaleSwitch />
       </SectionCard>
 
       <SectionCard title={t('display.themeTitle')} description={t('display.themeDescription')}>

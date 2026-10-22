@@ -64,7 +64,7 @@ export function OneVoiceThreeOutputs() {
       <div className="mt-12 grid grid-cols-1 gap-6 lg:mt-16 lg:grid-cols-12 lg:gap-8">
         {/* Source narration */}
         <Reveal className="lg:col-span-4">
-          <div className="flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-heritage-deep text-night-ink">
+          <div className="lp-dark-card flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-heritage-deep text-night-ink">
             <div className="relative h-56 overflow-hidden bg-[#F5EDDA]">
               <StoryScene kind="garden" className="absolute inset-0" />
               <div className="absolute left-4 top-4">

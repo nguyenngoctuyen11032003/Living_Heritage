@@ -24,13 +24,13 @@ export function Book3D({ className }: { className?: string }) {
     >
       <div
         className={cn(
-          'relative h-[22rem] w-[17rem] motion-reduce:transition-none transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] [transform-style:preserve-3d] sm:h-[26rem] sm:w-[20rem]',
+          'relative h-[22rem] w-[17rem] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] [transform-style:preserve-3d] sm:h-[26rem] sm:w-[20rem]',
           '[transform:rotateX(8deg)_rotateY(-22deg)] group-hover/book:[transform:rotateX(4deg)_rotateY(-8deg)]',
           open && '[transform:rotateX(4deg)_rotateY(-8deg)]',
         )}
       >
         {/* page block */}
-        <div className="absolute inset-y-1.5 left-1 right-0 rounded-r-md bg-[repeating-linear-gradient(90deg,#f3eee2_0px,#f3eee2_2px,#e7e0cf_3px)] shadow-[0_20px_28px_-20px_rgba(18,27,24,0.5)] [transform:translateZ(-18px)]" />
+        <div className="absolute inset-y-1.5 left-1 right-0 rounded-r-md bg-[repeating-linear-gradient(90deg,#f3eee2_0px,#f3eee2_2px,#e7e0cf_3px)] shadow-[0_40px_60px_-30px_rgba(18,27,24,0.55)] [transform:translateZ(-18px)]" />
         {/* inner page */}
         <div className="absolute inset-y-1 left-0 right-1 flex flex-col rounded-r-md bg-paper p-6 text-left ring-1 ring-line [transform:translateZ(-2px)] sm:p-7">
           <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-terracotta">{t('book.pageChapter')}</p>
@@ -48,12 +48,12 @@ export function Book3D({ className }: { className?: string }) {
         {/* cover */}
         <div
           className={cn(
-            'absolute inset-0 origin-left rounded-r-md rounded-l-sm motion-reduce:transition-none transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] [backface-visibility:hidden] [transform-style:preserve-3d]',
+            'absolute inset-0 origin-left rounded-r-md rounded-l-sm transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] [backface-visibility:hidden] [transform-style:preserve-3d]',
             'group-hover/book:[transform:rotateY(-158deg)] group-focus-visible/book:[transform:rotateY(-158deg)]',
             open && '[transform:rotateY(-158deg)]',
           )}
         >
-          <div className="absolute inset-0 flex flex-col overflow-hidden rounded-r-md rounded-l-sm bg-heritage-deep p-7 text-left text-night-ink shadow-[inset_8px_0_14px_-8px_rgba(0,0,0,0.5)]">
+          <div className="absolute inset-0 flex flex-col overflow-hidden rounded-r-md rounded-l-sm bg-[#163a31] p-7 text-left text-[#e9e4d4] shadow-[inset_8px_0_14px_-8px_rgba(0,0,0,0.5)] [:root[data-theme='dark']_&]:ring-1 [:root[data-theme='dark']_&]:ring-[#d8b46a]/25">
             <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 opacity-[0.05]" />
             <div className="absolute inset-3 rounded-sm border border-[#d8b46a]/40" aria-hidden="true" />
             <p className="relative text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-[#d8b46a]">{t('manifesto.wordmark')}</p>
@@ -61,7 +61,7 @@ export function Book3D({ className }: { className?: string }) {
               <StoryScene kind="garden" />
             </div>
             <p className="relative mt-6 text-center font-serif text-[1.55rem] font-semibold leading-tight text-[#f1dca8] sm:text-[1.75rem]">{t('book.coverTitle')}</p>
-            <p className="relative mt-auto text-center font-serif text-[0.9rem] italic text-night-ink/80">{t('book.coverAuthor')}</p>
+            <p className="relative mt-auto text-center font-serif text-[0.9rem] italic text-[#e9e4d4]/80">{t('book.coverAuthor')}</p>
           </div>
         </div>
       </div>
@@ -73,7 +73,7 @@ export function Book3D({ className }: { className?: string }) {
 export function BookShowcase({ showLink = true }: { showLink?: boolean }) {
   const t = useT('landing');
   return (
-    <Section id="sach-ky-uc" labelledBy="book-title" className="cv-section">
+    <Section id="sach-ky-uc" labelledBy="book-title">
       <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-12 lg:gap-10">
         <Reveal className="relative order-2 lg:order-1 lg:col-span-6">
           <div className="relative mx-auto flex max-w-xl flex-col items-center justify-center gap-8 overflow-hidden rounded-[2rem] bg-mint/70 px-6 py-12 sm:min-h-[34rem] sm:py-14">
@@ -84,7 +84,7 @@ export function BookShowcase({ showLink = true }: { showLink?: boolean }) {
             </Badge>
             <Book3D className="relative sm:-translate-x-16" />
             {/* QR card */}
-            <div className="relative w-[11rem] rotate-[4deg] rounded-[1.25rem] bg-paper p-3 shadow-[0_12px_24px_-16px_rgba(18,27,24,0.45)] ring-1 ring-line sm:absolute sm:bottom-8 sm:right-5 sm:w-[10.5rem]">
+            <div className="relative w-[11rem] rotate-[4deg] rounded-[1.25rem] bg-paper p-3 shadow-[0_24px_50px_-24px_rgba(18,27,24,0.45)] ring-1 ring-line sm:absolute sm:bottom-8 sm:right-5 sm:w-[10.5rem]">
               <div className="rounded-xl bg-cream p-2">
                 <QrCode value={siteHref('/kham-pha')} label={t('book.qrLabel')} size={176} className="h-auto w-full" />
               </div>

@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 @import './fonts.css';
 @import './tokens.css';
+@import './cards.css';
+@import './typography.css';
 
 @theme inline {
   --color-cream: var(--cream);
@@ -19,8 +21,8 @@
   --color-night-ink: var(--night-ink);
   /* Never flip with the theme: text on night sections and photo overlays that stay dark in both themes. */
   --color-cream-fixed: #faf7f0;
-  --color-mint-fixed: #dce8d5;
-  --color-heritage-deep-fixed: #163a31;
+  --color-mint-fixed: var(--mint-fixed, #dce8d5);
+  --color-heritage-deep-fixed: var(--heritage-deep-fixed, #163a31);
   --font-sans: 'Be Vietnam Pro', 'Be Vietnam Pro Fallback', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Noto Serif', Georgia, serif;
   --font-hand: 'Caveat', 'Segoe Print', cursive;
@@ -59,9 +61,6 @@ html {
 }
 /* Dark public pages (SiteLayout sets it with the dark header): the root background also fills the scrollbar gutter, so no cream strip. */
 html[data-page-tone='dark'], html[data-page-tone='dark'] body { background: #000; }
-/* In-app text size (lib/textScale.ts, B3): 115% / 130% of the 18px base. */
-html[data-text-scale='115'] { font-size: 129.375%; }
-html[data-text-scale='130'] { font-size: 146.25%; }
 
 /* Set for one frame while the theme flips (lib/theme.ts): every colour changes at once instead of dozens of
    transition-colors elements animating (and repainting) together. */
@@ -98,6 +97,23 @@ body {
 }
 
 ::selection { background: var(--mint); color: var(--heritage-deep); }
+
+/* Route progress line (components/layout/RouteChrome.tsx): eases toward 85% while the page loads, then fills and fades. */
+.route-progress {
+  background: linear-gradient(90deg, #d8b46a, #2f7a5f);
+  box-shadow: 0 0 10px rgb(216 180 106 / 0.6);
+  animation: route-progress 6s cubic-bezier(0.1, 0.7, 0.2, 1) both;
+}
+.route-progress--done {
+  animation: none;
+  transform: scaleX(1);
+  opacity: 0;
+  transition: transform 0.2s ease-out, opacity 0.3s ease 0.15s;
+}
+@keyframes route-progress {
+  from { transform: scaleX(0.04); }
+  to { transform: scaleX(0.85); }
+}
 
 /* SVG fractal-noise textures for the dark cinematic sections. */
 .bg-noise {

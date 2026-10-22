@@ -27,7 +27,7 @@ describe('AskTheElders', () => {
   it('answers an example question with numbered citation links and the disclaimer', async () => {
     const ask = vi.fn(async (): Promise<AskResult> => ({ answer: 'Theo ông Tư, tuốt lá vào rằm tháng Chạp [1].', cited: [1], sources: SOURCES, reason: null }));
     renderAsk(ask);
-    expect(screen.getByRole('heading', { name: 'Hỏi kinh nghiệm của người đi trước' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Hỏi điều người đi trước đã kể' })).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Ông bà xưa chăm cây mai thế nào?' }));
     expect(ask).toHaveBeenCalledWith('Ông bà xưa chăm cây mai thế nào?', 'vi', expect.anything());
     const chip = await screen.findByRole('link', { name: 'Mở nguồn 1: Tuốt lá mai trước Tết' });
@@ -64,7 +64,7 @@ describe('AskTheElders', () => {
   it('is disabled with an explanation while the hub only has illustrative samples', () => {
     const ask = vi.fn();
     renderAsk(ask, { hubMode: 'sample' });
-    expect(screen.getByText('Trợ lý hỏi đáp sẽ mở khi kho có lời kể thật')).toBeInTheDocument();
+    expect(screen.getByText('Sẽ mở khi kho có lời kể thật')).toBeInTheDocument();
     expect(screen.getByLabelText('Câu hỏi của bạn')).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Hỏi' })).toBeDisabled();
   });

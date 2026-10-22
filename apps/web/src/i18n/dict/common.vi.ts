@@ -22,9 +22,11 @@ export default {
     menu: 'Mở menu',
     closeMenu: 'Đóng menu',
     skipToContent: 'Bỏ qua đến nội dung chính',
+    backToTop: 'Lên đầu trang',
+    pageLoading: 'Đang mở trang…',
     appNav: 'Điều hướng chính',
     /** Mobile tab bar labels (≤ 9 characters, never truncated). */
-    short: { family: 'Gia đình', narrators: 'Người kể', books: 'Sách', explore: 'Khám phá', settings: 'Cài đặt', more: 'Thêm' },
+    short: { vault: 'Kho', family: 'Gia đình', narrators: 'Người kể', books: 'Sách', explore: 'Khám phá', settings: 'Cài đặt', more: 'Thêm' },
     moreTitle: 'Tất cả mục',
     collapse: 'Thu gọn',
     expand: 'Mở rộng thanh bên',

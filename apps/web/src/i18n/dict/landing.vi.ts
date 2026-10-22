@@ -220,6 +220,50 @@ export default {
     title: 'Câu chuyện nào cũng bắt đầu bằng một câu hỏi',
     body: '“Hồi nhỏ, ông bà thích món gì nhất?” — chỉ cần vậy là đủ để bắt đầu.',
   },
+  home: {
+    hero: {
+      video: 'Video nền là cảnh minh họa từ kho video, không phải gia đình dùng Di Sản Sống.',
+      shortcuts: 'Lối tắt',
+    },
+    about: {
+      label: 'Di Sản Sống là gì',
+      titleA: 'Giữ lại giọng nói, ký ức',
+      titleB: 'và cả cách làm của những người đi trước.',
+    },
+    featured: {
+      label: 'Cách hoạt động',
+      cta: 'Xem cách hoạt động',
+    },
+    philosophy: {
+      titleA: 'Con người',
+      titleB: 'AI',
+    },
+    services: {
+      title: 'Một lời kể, nhiều nơi để sống tiếp',
+      label: 'Khám phá thêm',
+      explore: { tag: 'Khám phá tri thức', title: 'Kho tri thức từ những người đi trước', link: 'Mở kho tri thức' },
+      book: { tag: 'Sách ký ức', title: 'Một cuốn sách biết nói', link: 'Xem trang sách ký ức' },
+      org: { tag: 'Dành cho tổ chức', title: 'Cùng ghi lại ký ức của cộng đồng', link: 'Xem chương trình cho tổ chức' },
+    },
+    marquee: {
+      label: 'Những chủ đề được kể nhiều nhất',
+      rowA: 'Món ăn|Làm vườn|Nghề thủ công|Ngày Tết|Chợ quê|Tuổi thơ',
+      rowB: 'Quê hương|Nếp nhà|Nghề nghiệp|Mùa gặt|Gia đình|Đèn ông sao',
+    },
+    sphere: {
+      label: 'Quả cầu ký ức',
+      title: 'Mỗi người già là một cuốn sách',
+      hint: 'Kéo để xoay · chọn một ký ức để đọc',
+      hintTouch: 'Vuốt ngang để xoay · chạm để đọc',
+      open: 'Mở ký ức: {title}',
+      read: 'Đọc trọn câu chuyện',
+      listen: 'Nghe chuyện mẫu',
+      age: '{age} tuổi',
+    },
+    steps: {
+      label: 'Bốn bước',
+    },
+  },
   footer: {
     tagline: 'Giữ lại giọng kể, trao truyền kinh nghiệm.',
     cols: { product: 'Sản phẩm', explore: 'Khám phá', about: 'Về dự án', legal: 'Pháp lý' },

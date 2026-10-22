@@ -36,24 +36,21 @@ describe('LandingPage', () => {
     expect(screen.getByText('Đang thử nghiệm · 2026')).toBeInTheDocument();
     expect(screen.getAllByRole('link', { name: /Kể câu chuyện đầu tiên/ }).length).toBeGreaterThanOrEqual(2);
     expect(screen.getByRole('button', { name: /Nghe chuyện mẫu/ })).toBeInTheDocument();
-    // tabs: one narration, three outputs
-    const tablist = screen.getByRole('tablist', { name: 'Các đầu ra từ một lời kể' });
-    const tabs = within(tablist).getAllByRole('tab');
-    expect(tabs.map((t) => t.textContent)).toEqual(['Câu chuyện gia đình', 'Kinh nghiệm thực tiễn', 'Bản chép lời gốc']);
-    expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+    // how it works: four steps and the people × AI split
+    const steps = within(screen.getByRole('region', { name: 'Bốn bước, từ lời kể đến di sản' })).getAllByRole('listitem');
+    expect(steps).toHaveLength(4);
+    expect(screen.getByRole('heading', { level: 3, name: 'Con người quyết định' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3, name: 'AI làm phần nặng nhọc' })).toBeInTheDocument();
     // honesty labels
     expect(screen.getAllByText('Dữ liệu minh họa').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Giá dự kiến, chưa thu phí').length).toBeGreaterThan(0);
-    expect(screen.getByText('149.000đ')).toBeInTheDocument();
-    // QR is a real, labelled SVG
-    expect(screen.getAllByRole('img', { name: 'Mã QR mở trang nghe bản gốc' }).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Video nền là cảnh minh họa/)).toBeInTheDocument();
     // FAQ
     expect(screen.getByRole('button', { name: 'Dự án đã thu tiền chưa?' })).toHaveAttribute('aria-expanded', 'false');
     // footer status line
     expect(screen.getByText('Dự án đang trong giai đoạn thử nghiệm')).toBeInTheDocument();
   }, 30_000);
 
-  it('every sample card and "Xem câu chuyện" opens a real detail screen; value cards and trust lead to their pages', () => {
+  it('every sample card and "Xem câu chuyện" opens a real detail screen; each block leads to its page', () => {
     renderLanding('vi');
     expect(screen.getByRole('link', { name: 'Xem câu chuyện' })).toHaveAttribute('href', '/tri-thuc/mau-tet-ao-moi');
     const knowledge = screen.getByRole('region', { name: 'Học từ những người đã làm cả đời' });
@@ -64,17 +61,22 @@ describe('LandingPage', () => {
     expect(detailLinks).toHaveLength(6);
     for (const href of detailLinks) expect(href).toMatch(/^\/tri-thuc\/mau-[a-z-]+$/);
     expect(within(knowledge).getByRole('link', { name: /Xem toàn bộ kho tri thức/ })).toHaveAttribute('href', '/kham-pha');
-    expect(screen.getByRole('link', { name: /Thử chế độ kể chuyện/ })).toHaveAttribute('href', '/ke-chuyen');
-    expect(screen.getByRole('link', { name: /Xem kho gia đình/ })).toHaveAttribute('href', '/gia-dinh');
-    for (const a of screen.getAllByRole('link', { name: /Khám phá tri thức/ })) expect(a).toHaveAttribute('href', '/kham-pha');
-    expect(screen.getByRole('link', { name: /Đọc chính sách quyền riêng tư/ })).toHaveAttribute('href', '/quyen-rieng-tu');
-    // hero: one primary CTA to topic selection + the small listen card for the 58 s sample
-    const hero = screen.getByRole('region', { name: /Giữ lại giọng kể/ });
-    expect(within(hero).getByRole('link', { name: /Kể câu chuyện đầu tiên/ })).toHaveAttribute('href', '/ke-chuyen');
-    expect(within(hero).getByRole('button', { name: /Nghe thử.*Bộ áo mới sáng mùng Một.*0:58/ })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Trải nghiệm thử (dữ liệu mẫu)' })).toHaveAttribute('href', '/trai-nghiem');
+    // hero: one primary CTA, the knowledge search, the 58 s sample, the demo and the page-wide video pause
+    const hero = within(screen.getByRole('region', { name: /Giữ lại giọng kể/ }));
+    expect(hero.getByRole('link', { name: /Kể câu chuyện đầu tiên/ })).toHaveAttribute('href', '/ke-chuyen');
+    expect(hero.getByRole('searchbox', { name: 'Tìm trong kho tri thức' })).toBeInTheDocument();
+    expect(hero.getByRole('button', { name: 'Nghe chuyện mẫu' })).toBeInTheDocument();
+    expect(hero.getByRole('link', { name: 'Trải nghiệm thử (dữ liệu mẫu)' })).toHaveAttribute('href', '/trai-nghiem');
+    expect(hero.getByRole('button', { name: /video nền/ })).toBeInTheDocument();
+    // how it works → its page and the demo
+    expect(screen.getByRole('link', { name: /Xem cách hoạt động/ })).toHaveAttribute('href', '/cach-hoat-dong');
     expect(screen.getByRole('link', { name: /Dùng thử với dữ liệu mẫu/ })).toHaveAttribute('href', '/trai-nghiem');
-    expect(screen.getByText('Dữ liệu minh họa — không tạo từ dữ liệu người dùng')).toBeInTheDocument();
+    // one card per marketing page
+    const services = within(screen.getByRole('region', { name: 'Một lời kể, nhiều nơi để sống tiếp' }));
+    expect(services.getByRole('link', { name: 'Mở kho tri thức' })).toHaveAttribute('href', '/kham-pha');
+    expect(services.getByRole('link', { name: 'Xem trang sách ký ức' })).toHaveAttribute('href', '/sach-ky-uc');
+    expect(services.getByRole('link', { name: 'Xem chương trình cho tổ chức' })).toHaveAttribute('href', '/to-chuc');
+    expect(screen.getByRole('link', { name: /Đọc chính sách quyền riêng tư/ })).toHaveAttribute('href', '/quyen-rieng-tu');
     // no fake achievement numbers (NT03)
     expect(document.body.textContent).not.toMatch(/(^|\D)(20 người|50 nội dung|80 ?%)/);
   }, 30_000);
@@ -83,7 +85,7 @@ describe('LandingPage', () => {
     renderLanding('en');
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Keep their voices,');
     expect(screen.getAllByRole('link', { name: /Tell your first story/ }).length).toBeGreaterThanOrEqual(2);
-    expect(screen.getByRole('tablist', { name: 'Outputs from one narration' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'One story, many places to live on' })).toBeInTheDocument();
     expect(screen.getAllByText('Illustrative data').length).toBeGreaterThan(0);
     expect(screen.getByText('This project is in its pilot phase')).toBeInTheDocument();
     expect(screen.queryByText('Kể câu chuyện đầu tiên')).not.toBeInTheDocument();

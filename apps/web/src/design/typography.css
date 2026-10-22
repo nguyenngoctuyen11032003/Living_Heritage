@@ -1,0 +1,23 @@
+/*
+ * Site-wide type, taken from /sach-ky-uc (the reference page):
+ * - Serif headings use its display face: Instrument Serif 400 in English (loaded by useDisplayFont in the layouts), the
+ *   bundled Noto Serif 400 in Vietnamese (Instrument Serif has no Vietnamese glyphs). Body text stays Be Vietnam Pro.
+ * - Eyebrows read like its Label: small caps, wide tracking, ink at 60% (not terracotta with a leading rule).
+ * Unlayered so it wins over Tailwind's font-semibold / text-terracotta utilities.
+ */
+:is(h1, h2, h3, h4).font-serif {
+  font-family: 'Instrument Serif', var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+:is(h1, h2, h3, h4).font-serif:lang(vi) {
+  font-family: var(--font-serif);
+  letter-spacing: -0.025em;
+}
+
+p.uppercase.text-terracotta {
+  color: color-mix(in srgb, var(--ink) 60%, transparent);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+}
+p.uppercase.text-terracotta > span[aria-hidden='true'].h-px { display: none; }

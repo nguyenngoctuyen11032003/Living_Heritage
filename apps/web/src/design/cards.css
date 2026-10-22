@@ -1,0 +1,72 @@
+/*
+ * Shared card surface for every page, modelled on the /sach-ky-uc step cards ("Năm bước"): a near-transparent glass
+ * fill, a soft inner top highlight and a gradient hairline border (brighter at the top and bottom edges) instead of a
+ * flat 1px ring. Applied to the cards the codebase already writes as `rounded-* bg-paper ring-1` (large radii only), so
+ * pills, inputs and buttons keep their own styles. Unlayered on purpose: it must win over Tailwind's utility layer.
+ */
+:is(div, li, article, section, aside, form, dl, figure, details, fieldset):is(
+    [class~='rounded-2xl'],
+    [class~='rounded-3xl'],
+    [class*='rounded-[1.'],
+    [class*='rounded-[2']
+  ).bg-paper.ring-1:not(.absolute, .fixed, .sticky, [class*='before:']) {
+  position: relative;
+  background: linear-gradient(180deg, #fff, color-mix(in srgb, #fff 92%, var(--cream)));
+  box-shadow:
+    inset 0 1px 1px rgb(255 255 255 / 0.9),
+    0 14px 34px -26px rgb(22 58 49 / 0.35);
+}
+:is(div, li, article, section, aside, form, dl, figure, details, fieldset):is(
+    [class~='rounded-2xl'],
+    [class~='rounded-3xl'],
+    [class*='rounded-[1.'],
+    [class*='rounded-[2']
+  ).bg-paper.ring-1:not(.absolute, .fixed, .sticky, [class*='before:'])::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.2px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgb(22 58 49 / 0.22) 0%, rgb(22 58 49 / 0.08) 25%, rgb(22 58 49 / 0.06) 50%, rgb(22 58 49 / 0.08) 75%, rgb(22 58 49 / 0.22) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* Dark: the /sach-ky-uc .liquid-glass — almost clear, white hairline fading to nothing mid-height. */
+:root[data-theme='dark']
+  :is(div, li, article, section, aside, form, dl, figure, details, fieldset):is(
+    [class~='rounded-2xl'],
+    [class~='rounded-3xl'],
+    [class*='rounded-[1.'],
+    [class*='rounded-[2']
+  ).bg-paper.ring-1:not(.absolute, .fixed, .sticky, [class*='before:']) {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.045), rgb(255 255 255 / 0.015));
+  box-shadow: inset 0 1px 1px rgb(255 255 255 / 0.1);
+}
+:root[data-theme='dark']
+  :is(div, li, article, section, aside, form, dl, figure, details, fieldset):is(
+    [class~='rounded-2xl'],
+    [class~='rounded-3xl'],
+    [class*='rounded-[1.'],
+    [class*='rounded-[2']
+  ).bg-paper.ring-1:not(.absolute, .fixed, .sticky, [class*='before:'])::before {
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.45) 0%, rgb(255 255 255 / 0.15) 20%, rgb(255 255 255 / 0.04) 40%, rgb(255 255 255 / 0.04) 60%, rgb(255 255 255 / 0.15) 80%, rgb(255 255 255 / 0.45) 100%);
+}
+
+/* The surface rule owns box-shadow, so cards that showed focus with a ring (focus-within:ring-*) get an outline instead. */
+[class*='focus-within:ring'].bg-paper.ring-1:focus-within {
+  outline: 2px solid var(--heritage);
+  outline-offset: 2px;
+}
+
+/*
+ * Dark slabs written as `bg-heritage-deep` (featured plan, "one voice" panel, sign-in side panel): heritage-deep turns
+ * white in the dark theme, so the slab becomes a raised black glass panel with a hairline, as on /sach-ky-uc.
+ */
+:root[data-theme='dark'] .bg-heritage-deep {
+  background-color: #111;
+  background-image: linear-gradient(180deg, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.015));
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
+}

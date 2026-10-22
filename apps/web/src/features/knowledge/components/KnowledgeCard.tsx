@@ -39,7 +39,7 @@ export function KnowledgeCard({ item, topics, featured, headingLevel = 'h3', onO
       )}
     >
       <div
-        className={cn('relative shrink-0 overflow-hidden', featured ? 'h-36 md:h-auto md:w-[38%]' : 'h-28')}
+        className={cn('lp-band relative shrink-0 overflow-hidden', featured ? 'h-36 md:h-auto md:w-[38%]' : 'h-28')}
         style={{ backgroundColor: style.band, color: style.ink }}
       >
         <TopicMotif

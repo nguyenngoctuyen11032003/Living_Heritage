@@ -22,15 +22,15 @@ export function AuthLayout({ title, subtitle, children, footer }: { title: React
 function HeritagePanel() {
   const t = useT('auth');
   return (
-    <aside aria-label={t('layout.panelLabel')} className="relative hidden min-h-[560px] overflow-hidden rounded-[2rem] bg-heritage-deep text-cream lg:flex lg:flex-col lg:justify-end">
+    <aside aria-label={t('layout.panelLabel')} className="relative hidden min-h-[560px] overflow-hidden rounded-[2rem] bg-heritage-deep text-cream-fixed lg:flex lg:flex-col lg:justify-end">
       <HomeIllustration />
       <div className="relative p-10">
         <p className="font-hand text-[1.5rem] text-[#f2d9a6]">{t('layout.eyebrow')}</p>
         <blockquote className="mt-2">
           <p className="font-serif text-[2rem] font-semibold leading-snug">“{t('layout.quote')}”</p>
-          <footer className="mt-3 text-[0.95rem] text-cream/75">{t('layout.quoteSource')}</footer>
+          <footer className="mt-3 text-[0.95rem] text-cream-fixed/75">{t('layout.quoteSource')}</footer>
         </blockquote>
-        <p className="mt-6 max-w-sm leading-relaxed text-cream/85">{t('layout.body')}</p>
+        <p className="mt-6 max-w-sm leading-relaxed text-cream-fixed/85">{t('layout.body')}</p>
       </div>
     </aside>
   );

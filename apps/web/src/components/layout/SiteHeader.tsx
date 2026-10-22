@@ -7,7 +7,7 @@ import { cn } from '@/lib/cn';
 import { useSession } from '@/lib/session';
 import { LanguageSwitch } from './LanguageSwitch';
 import { Logo } from './Logo';
-import { TextScaleSwitch } from './TextScaleSwitch';
+import { SAME_PAGE_NAV_EVENT } from './routeScroll';
 import { ThemeToggle } from './ThemeToggle';
 
 // No display class in `pill`: each use adds its own (`inline-flex`, or `hidden md:inline-flex`).
@@ -54,6 +54,13 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
       window.removeEventListener('scroll', onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
+  }, []);
+
+  // A link to the page already on screen scrolls instead of navigating (RouteChrome): close the sheet then too.
+  useEffect(() => {
+    const onSame = () => setOpen(false);
+    window.addEventListener(SAME_PAGE_NAV_EVENT, onSame);
+    return () => window.removeEventListener(SAME_PAGE_NAV_EVENT, onSame);
   }, []);
 
   useEffect(() => {
@@ -135,8 +142,18 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
               <ThemeToggle />
             </span>
             {signedIn ? (
-              <Link to="/gia-dinh" className={cn(pill, 'inline-flex', dark ? 'bg-night-ink text-night hover:bg-white' : 'bg-heritage text-cream hover:bg-heritage-deep')}>
-                {t('nav.family')}
+              // Below sm the pill folds into a 48px circle reading "Kho"; the full name stays as the accessible name.
+              <Link
+                to="/gia-dinh"
+                aria-label={t('nav.family')}
+                className={cn(
+                  pill,
+                  'inline-flex size-12 px-0 text-[0.82rem] @min-[36em]:w-auto @min-[36em]:px-5 @min-[36em]:text-[0.88rem]',
+                  dark ? 'bg-night-ink text-night hover:bg-white' : 'bg-heritage text-cream hover:bg-heritage-deep',
+                )}
+              >
+                <span className="@min-[36em]:hidden" aria-hidden="true">{t('nav.short.vault')}</span>
+                <span className="hidden @min-[36em]:inline" aria-hidden="true">{t('nav.family')}</span>
               </Link>
             ) : (
               <>
@@ -175,7 +192,12 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
             <nav
               id="mobile-menu"
               aria-label={t('nav.menu')}
-              className="absolute inset-x-0 top-full animate-drop-in border-t border-line bg-cream px-4 pb-6 pt-3 shadow-[0_24px_40px_-24px_rgba(18,27,24,0.35)] @min-[71em]:hidden"
+              className={cn(
+                'absolute inset-x-0 top-full animate-drop-in border-t px-4 pb-6 pt-3 @min-[71em]:hidden',
+                dark
+                  ? 'border-white/10 bg-[#050505] text-night-ink shadow-[0_24px_40px_-24px_rgba(0,0,0,0.8)]'
+                  : 'border-line bg-cream shadow-[0_24px_40px_-24px_rgba(18,27,24,0.35)]',
+              )}
             >
               <ul className="flex flex-col">
                 {links.map((l) => (
@@ -183,7 +205,10 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
                     <NavLink
                       to={l.to}
                       className={({ isActive }) =>
-                        cn('flex min-h-14 items-center rounded-2xl px-4 text-[1.1rem] font-medium', isActive ? 'bg-mint text-heritage-deep' : 'text-ink hover:bg-mint/60')
+                        cn(
+                          'flex min-h-14 items-center rounded-2xl px-4 text-[1.1rem] font-medium',
+                          dark ? (isActive ? 'bg-white/12 text-white' : 'text-night-ink/85 hover:bg-white/8') : isActive ? 'bg-mint text-heritage-deep' : 'text-ink hover:bg-mint/60',
+                        )
                       }
                     >
                       {l.label}
@@ -191,24 +216,20 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
                   </li>
                 ))}
               </ul>
-              <div className="mt-4 flex flex-col gap-3 border-t border-line pt-4">
+              <div className={cn('mt-4 flex flex-col gap-3 border-t pt-4', dark ? 'border-white/10' : 'border-line')}>
                 {!signedIn && (
                   <div className="grid grid-cols-2 gap-3">
-                    <Link to="/dang-nhap" className={cn(pill, 'inline-flex bg-paper text-ink ring-1 ring-line')}>
+                    <Link to="/dang-nhap" className={cn(pill, 'inline-flex ring-1', dark ? 'bg-white/10 text-night-ink ring-white/20' : 'bg-paper text-ink ring-line')}>
                       {t('nav.login')}
                     </Link>
-                    <Link to="/bat-dau" className={cn(pill, 'inline-flex bg-heritage text-cream')}>
+                    <Link to="/bat-dau" className={cn(pill, 'inline-flex', dark ? 'bg-night-ink text-night' : 'bg-heritage text-cream')}>
                       {t('nav.start')}
                     </Link>
                   </div>
                 )}
                 <div className="flex items-center justify-between">
-                  <span className="text-[0.85rem] text-ink-soft">{t('lang.label')}</span>
-                  <LanguageSwitch />
-                </div>
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-[0.85rem] text-ink-soft">{t('textScale.label')}</span>
-                  <TextScaleSwitch />
+                  <span className={cn('text-[0.85rem]', dark ? 'text-night-ink/70' : 'text-ink-soft')}>{t('lang.label')}</span>
+                  <LanguageSwitch tone={tone} />
                 </div>
               </div>
             </nav>

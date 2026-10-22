@@ -12,7 +12,7 @@ export function PageHero({ eyebrow, heading, lead, meta, children }: { eyebrow: 
   const rise = (delay: number) => (reduced ? { initial: false as const } : { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.35, ease: EASE_OUT, delay } });
   return (
     <section className="relative isolate -mt-[4.5rem] overflow-hidden hyphens-auto wrap-anywhere pb-14 pt-[calc(4.5rem+3.5rem)] md:pb-20 md:pt-[calc(4.5rem+5.5rem)]">
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(55%_60%_at_50%_0%,rgba(220,232,213,0.9),rgba(250,247,240,0)_75%)]" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(55%_60%_at_50%_0%,rgba(220,232,213,0.9),rgba(250,247,240,0)_75%)] [:root[data-theme='dark']_&]:hidden" />
       <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
         <m.p {...rise(0.05)} className="inline-flex items-center gap-2 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-terracotta">
           <span aria-hidden="true" className="h-px w-6 bg-terracotta/60" />

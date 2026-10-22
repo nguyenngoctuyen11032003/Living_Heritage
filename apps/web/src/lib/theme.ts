@@ -73,7 +73,7 @@ export function useApplyTheme(): void {
     // Flip every colour in one frame: otherwise each transition-colors element animates (and repaints) separately.
     if (flip) root.classList.add('theme-switching');
     root.dataset.theme = theme;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#111A17' : '#FAF7F0');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#000000' : '#FAF7F0');
     if (!flip) return;
     const raf = requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('theme-switching')));
     return () => {

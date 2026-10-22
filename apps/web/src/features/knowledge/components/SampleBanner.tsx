@@ -8,7 +8,7 @@ export function SampleBanner({ notConfigured, compact, className }: { notConfigu
   return (
     <aside
       aria-label={t('sample.bannerTitle')}
-      className={cn('rounded-[1.5rem] border border-[#e9d6a6] bg-[#fdf6e3] px-5 py-4 text-[#5b430f] md:px-6', className)}
+      className={cn('lp-note rounded-[1.5rem] border border-[#e9d6a6] bg-[#fdf6e3] px-5 py-4 text-[#5b430f] md:px-6', className)}
     >
       <div className="flex flex-wrap items-center gap-3">
         <IllustrativeBadge />
