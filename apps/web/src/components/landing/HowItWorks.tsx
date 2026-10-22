@@ -16,7 +16,7 @@ export function HowItWorks({ showLink = true, headingLevel = 2 }: { showLink?: b
   const t = useT('landing');
   const H = headingLevel === 2 ? 'h3' : 'h4';
   return (
-    <Section id="cach-hoat-dong" labelledBy="how-title" className="bg-paper/60">
+    <Section id="cach-hoat-dong" labelledBy="how-title" className="cv-section bg-paper/60">
       <SectionHeading id="how-title" eyebrow={t('how.eyebrow')} title={t('how.title')} lead={t('how.lead')} aside={
           showLink ? (
             <div className="flex flex-wrap gap-x-6">

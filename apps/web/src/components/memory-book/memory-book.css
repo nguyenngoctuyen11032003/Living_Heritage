@@ -66,12 +66,16 @@
     background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.15) 80%, rgba(255,255,255,0.45) 100%);
   }
 
+  /* Below-the-fold sections skip rendering until near the viewport. */
+  .mb-cv {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 700px;
+  }
+
   /* Glass surface: near-transparent fill, light inner top edge and a gradient hairline border (mask trick). */
   .liquid-glass {
-    background: rgba(255, 255, 255, 0.01);
+    background: rgba(255, 255, 255, 0.06);
     background-blend-mode: luminosity;
-    -webkit-backdrop-filter: blur(4px);
-    backdrop-filter: blur(4px);
     border: none;
     box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
     position: relative;

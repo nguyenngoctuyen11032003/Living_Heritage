@@ -80,7 +80,7 @@ export function MbHero() {
 export function MbAbout() {
   const t = useT('legal');
   return (
-    <section aria-labelledby="mb-about-title" className="bg-mb-bg py-24 md:py-36">
+    <section aria-labelledby="mb-about-title" className="mb-cv bg-mb-bg py-24 md:py-36">
       <Wrap>
         <Reveal y={20}>
           <Label>{t('book.about.label')}</Label>
@@ -111,7 +111,7 @@ function VideoFrame({ src, className, toggleClass = 'right-4 top-4', children, z
 export function MbFeatured() {
   const t = useT('legal');
   return (
-    <section aria-labelledby="mb-featured-title" className="bg-mb-bg pb-24 md:pb-36">
+    <section aria-labelledby="mb-featured-title" className="mb-cv bg-mb-bg pb-24 md:pb-36">
       <Wrap>
         <Reveal y={20} className="relative">
           <VideoFrame src={VIDEOS.featured} className="aspect-video rounded-3xl">
@@ -141,7 +141,7 @@ const STEPS = ['s1', 's2', 's3', 's4', 's5'] as const;
 export function MbSteps() {
   const t = useT('legal');
   return (
-    <section id="lam-sach" aria-labelledby="mb-steps-title" className="scroll-mt-24 bg-mb-bg py-24 md:py-36">
+    <section id="lam-sach" aria-labelledby="mb-steps-title" className="mb-cv scroll-mt-24 bg-mb-bg py-24 md:py-36">
       <Wrap>
         <Reveal y={20}>
           <Label>{t('book.stepsLabel')}</Label>
@@ -174,7 +174,7 @@ const QR_POINTS = ['a', 'b', 'c'] as const;
 export function MbPhilosophy() {
   const t = useT('legal');
   return (
-    <section aria-labelledby="mb-philo-title" className="bg-mb-bg py-24 md:py-36">
+    <section aria-labelledby="mb-philo-title" className="mb-cv bg-mb-bg py-24 md:py-36">
       <Wrap>
         <Reveal y={20}>
           <h2 id="mb-philo-title" className="mb-display text-balance text-[clamp(2.8rem,8vw,7rem)] text-mb">
@@ -221,7 +221,7 @@ const FORMATS = [
 export function MbFormats() {
   const t = useT('legal');
   return (
-    <section aria-labelledby="mb-formats-title" className="bg-mb-bg py-24 md:py-36">
+    <section aria-labelledby="mb-formats-title" className="mb-cv bg-mb-bg py-24 md:py-36">
       <Wrap>
         <Reveal y={20} className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <h2 id="mb-formats-title" className="mb-display max-w-3xl text-balance text-[clamp(2.3rem,5.6vw,5rem)] text-mb">
@@ -266,7 +266,7 @@ export function MbFormats() {
 export function MbCta() {
   const t = useT('legal');
   return (
-    <section aria-labelledby="mb-cta-title" className="bg-mb-bg px-4 py-16 sm:px-6 md:py-28">
+    <section aria-labelledby="mb-cta-title" className="mb-cv bg-mb-bg px-4 py-16 sm:px-6 md:py-28">
       <Reveal y={20} className="liquid-glass mx-auto max-w-5xl rounded-[2.5rem] bg-[radial-gradient(60%_80%_at_50%_0%,rgba(216,180,106,0.16),transparent_70%)] px-6 py-16 text-center wrap-anywhere md:px-16 md:py-24">
         <h2 id="mb-cta-title" className="mb-display text-balance text-[clamp(2.4rem,6vw,5rem)] text-mb">
           {t('book.ctaTitle')}

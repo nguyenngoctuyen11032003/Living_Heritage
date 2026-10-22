@@ -147,3 +147,92 @@ body {
   font-size-adjust: 0.42;
   letter-spacing: -0.005em;
 }
+
+/* perf: reveal primitives
+ * CSS-only entrance effects (components/motion/*) switched on by one shared IntersectionObserver (inView.ts).
+ * Only opacity + transform transition; will-change exists only until the transition has ended.
+ * The hidden start state is NEVER applied under reduced motion (OS setting or html[data-motion="reduce"]); the
+ * components also render static markup in that case, so this is a second guard. html[data-motion="full"] re-enables it. */
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, var(--rv-y, 16px), 0) scale(var(--rv-s, 1));
+  transition: opacity var(--rv-d, 0.35s) cubic-bezier(0.22, 1, 0.36, 1) var(--rv-delay, 0s), transform var(--rv-d, 0.35s) cubic-bezier(0.22, 1, 0.36, 1) var(--rv-delay, 0s);
+  will-change: opacity, transform;
+}
+[data-reveal][data-reveal-in] {
+  opacity: 1;
+  transform: none;
+}
+[data-reveal][data-reveal-done] {
+  will-change: auto;
+}
+
+[data-pull] .lh-pull-w {
+  opacity: 0;
+  transform: translate3d(0, var(--pu-y, 20px), 0);
+  transition: opacity 0.35s cubic-bezier(0.22, 1, 0.36, 1) var(--pu-d, 0s), transform 0.35s cubic-bezier(0.22, 1, 0.36, 1) var(--pu-d, 0s);
+}
+[data-pull][data-pull-in] .lh-pull-w {
+  opacity: 1;
+  transform: none;
+}
+
+.lh-draw .lh-draw-shaft,
+.lh-draw .lh-draw-head {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+}
+.lh-draw .lh-draw-shaft {
+  transition: stroke-dashoffset var(--da-t, 1.1s) cubic-bezier(0.16, 1, 0.3, 1) var(--da-d, 0s), opacity 0.01s linear var(--da-d, 0s);
+}
+.lh-draw .lh-draw-head {
+  transition: stroke-dashoffset 0.35s cubic-bezier(0.16, 1, 0.3, 1) var(--da-hd, 0s), opacity 0.01s linear var(--da-hd, 0s);
+}
+.lh-draw[data-draw-in] .lh-draw-shaft,
+.lh-draw[data-draw-in] .lh-draw-head {
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+
+@keyframes lh-note-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) rotate(var(--hn-r, 0deg));
+  }
+  to {
+    opacity: 1;
+    transform: rotate(var(--hn-r, 0deg));
+  }
+}
+.lh-note {
+  animation: lh-note-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) var(--hn-delay, 0s) both;
+}
+.lh-note-static {
+  transform: rotate(var(--hn-r, 0deg));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) [data-reveal],
+  :root:not([data-motion="full"]) [data-pull] .lh-pull-w {
+    opacity: 1 !important;
+    transform: none !important;
+    will-change: auto;
+  }
+  :root:not([data-motion="full"]) .lh-draw .lh-draw-shaft,
+  :root:not([data-motion="full"]) .lh-draw .lh-draw-head {
+    stroke-dashoffset: 0 !important;
+    opacity: 1 !important;
+  }
+}
+:root[data-motion="reduce"] [data-reveal],
+:root[data-motion="reduce"] [data-pull] .lh-pull-w {
+  opacity: 1 !important;
+  transform: none !important;
+  will-change: auto;
+}
+:root[data-motion="reduce"] .lh-draw .lh-draw-shaft,
+:root[data-motion="reduce"] .lh-draw .lh-draw-head {
+  stroke-dashoffset: 0 !important;
+  opacity: 1 !important;
+}

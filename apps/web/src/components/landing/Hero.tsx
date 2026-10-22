@@ -1,25 +1,29 @@
+import type { CSSProperties } from 'react';
 import { Compass, Headphones, Play } from 'lucide-react';
-import { motion } from 'motion/react';
 import { Link } from 'react-router';
 import { StoryScene } from '@/components/illustrations/scenes';
 import { HandNote } from '@/components/motion';
 import { buttonClasses, IllustrativeBadge } from '@/components/ui';
-import { EASE_OUT, useReducedMotionSafe } from '@/design/motion';
+import { useReducedMotionSafe } from '@/design/motion';
 import { usePick, useT } from '@/i18n';
+import { cn } from '@/lib/cn';
 import { formatDuration } from '@/lib/format';
 import { CurvedCarousel } from './CurvedCarousel';
 import { requestSamplePlay } from './events';
 import { CAROUSEL_STORIES, SAMPLE_STORY } from './sample-data';
 import { PrimaryCta } from './shared';
+import './landing.css';
 
 /**
- * B15 entrance: fade + rise ≤20 px in 350 ms, once; nothing under reduced motion (content is in the DOM from the start).
+ * B15 entrance: fade + rise ≤20 px in 350 ms, once, as a CSS animation (compositor only); nothing under reduced motion.
  * fade=false rises without fading: the h1 is the LCP element, and the browser does not count invisible text as painted.
  */
 function useEnter() {
   const reduced = useReducedMotionSafe();
-  return (delay: number, y = 16, fade = true) =>
-    reduced ? { initial: false as const } : { initial: fade ? { opacity: 0, y } : { y }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.35, ease: EASE_OUT, delay } };
+  return (delay: number, y = 16, fade = true, className?: string) => ({
+    className: cn(!reduced && 'landing-enter', className),
+    style: reduced ? undefined : ({ '--enter-d': `${delay}s`, '--enter-y': `${y}px`, '--enter-o': fade ? 0 : 1 } as CSSProperties),
+  });
 }
 
 /** Small "nghe thử" card: plays the 58 s sample in the sample-story block (same handler as the secondary CTA). */
@@ -30,7 +34,7 @@ function ListenCard() {
     <button
       type="button"
       onClick={requestSamplePlay}
-      className="group flex w-full max-w-[25rem] items-center gap-4 rounded-[1.5rem] bg-paper p-3 pr-5 text-left shadow-[0_24px_50px_-28px_rgba(18,27,24,0.55)] ring-1 ring-line transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0"
+      className="group flex w-full max-w-[25rem] items-center gap-4 rounded-[1.5rem] bg-paper p-3 pr-5 text-left shadow-[0_10px_22px_-14px_rgba(18,27,24,0.5)] ring-1 ring-line transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 motion-reduce:hover:translate-y-0"
     >
       <span aria-hidden="true" className="inline-flex size-14 shrink-0 items-center justify-center rounded-full bg-heritage text-cream transition-transform duration-200 group-hover:scale-105 motion-reduce:group-hover:scale-100">
         <Play className="ml-0.5 size-5 fill-current" />
@@ -63,53 +67,53 @@ export function Hero() {
       <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-4 pt-8 sm:px-6 lg:grid-cols-12 lg:gap-12 lg:px-8 lg:pt-14">
         {/* Introduction */}
         <div className="text-center lg:col-span-6 lg:text-left xl:col-span-7">
-          <motion.p {...enter(0.05, 6)} className="inline-flex items-center gap-2 rounded-full bg-mint px-4 py-1.5 text-[0.82rem] font-semibold text-heritage-deep ring-1 ring-heritage/10">
+          <p {...enter(0.05, 6, true, 'inline-flex items-center gap-2 rounded-full bg-mint px-4 py-1.5 text-[0.82rem] font-semibold text-heritage-deep ring-1 ring-heritage/10')}>
             <span aria-hidden="true" className="relative inline-flex size-2">
               <span className="absolute inset-0 animate-ping rounded-full bg-heritage/40 motion-reduce:hidden" />
               <span className="relative size-2 rounded-full bg-heritage" />
             </span>
             {t('hero.badge')}
-          </motion.p>
+          </p>
 
           <h1
             id="hero-title"
             className="mx-auto mt-6 max-w-[22ch] text-balance font-sans text-[clamp(2.3rem,9.4vw,3.6rem)] font-bold leading-display tracking-[-0.035em] text-ink lg:mx-0 lg:max-w-none lg:text-[clamp(3.2rem,4.6vw,4.6rem)]"
           >
-            <motion.span {...enter(0.05, 12, false)} className="block pt-[0.06em]">
+            <span {...enter(0.05, 12, false, 'block pt-[0.06em]')}>
               {t('hero.line1')}
-            </motion.span>
-            <motion.span {...enter(0.1, 12, false)} className="block pb-[0.08em] text-heritage">
+            </span>
+            <span {...enter(0.1, 12, false, 'block pb-[0.08em] text-heritage')}>
               {t('hero.line2')}
-            </motion.span>
+            </span>
           </h1>
 
-          <motion.p {...enter(0.22, 14)} className="mx-auto mt-5 max-w-[40rem] text-pretty text-[1.05rem] leading-relaxed text-ink-soft lg:mx-0 lg:text-[1.2rem]">
+          <p {...enter(0.22, 14, true, 'mx-auto mt-5 max-w-[40rem] text-pretty text-[1.05rem] leading-relaxed text-ink-soft lg:mx-0 lg:text-[1.2rem]')}>
             {t('hero.sub')}
-          </motion.p>
+          </p>
 
           <HandNote rotate={-3} delay={reduced ? 0 : 0.5} className="mt-5 text-[1.6rem] lg:text-[1.8rem]">
             {t('hero.noteSpeak')}
           </HandNote>
 
-          <motion.div {...enter(0.25, 12)} className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start">
+          <div {...enter(0.25, 12, true, 'mt-6 flex flex-col items-center gap-3 sm:flex-row sm:flex-wrap sm:justify-center lg:justify-start')}>
             <PrimaryCta />
             <button type="button" onClick={requestSamplePlay} className={buttonClasses({ variant: 'secondary', size: 'lg', className: 'gap-2.5 whitespace-nowrap' })}>
               <Headphones aria-hidden="true" className="size-5" />
               {t('cta.listen')}
             </button>
-          </motion.div>
+          </div>
 
           {/* Tertiary: the in-memory demo (no account). A plain text link so the start button stays the one primary action. */}
-          <motion.p {...enter(0.3, 8)} className="mt-3">
+          <p {...enter(0.3, 8, true, 'mt-3')}>
             <Link to="/trai-nghiem" className="inline-flex min-h-12 items-center gap-2 px-2 text-[0.95rem] font-semibold text-heritage underline underline-offset-[6px] hover:text-heritage-deep lg:px-0">
               <Compass aria-hidden="true" className="size-4" />
               {t('cta.demo')}
             </Link>
-          </motion.p>
+          </p>
         </div>
 
         {/* Narrator illustration + listen card */}
-        <motion.div {...enter(0.2, 20)} className="relative mx-auto w-full max-w-md lg:col-span-6 lg:max-w-none xl:col-span-5">
+        <div {...enter(0.2, 20, true, 'relative mx-auto w-full max-w-md lg:col-span-6 lg:max-w-none xl:col-span-5')}>
           <figure className="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-mint ring-1 ring-line sm:aspect-[5/4] xl:aspect-[4/5]">
             <StoryScene kind="porch" className="absolute inset-0" />
             <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(to_top,rgba(18,27,24,0.35),rgba(18,27,24,0)_45%)]" />
@@ -120,7 +124,7 @@ export function Hero() {
           <div className="relative mt-4 flex justify-center lg:justify-start xl:absolute xl:-bottom-8 xl:-left-10 xl:mt-0 xl:block">
             <ListenCard />
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

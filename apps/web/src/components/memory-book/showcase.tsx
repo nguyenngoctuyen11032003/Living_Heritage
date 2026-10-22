@@ -16,7 +16,7 @@ const SPECS = ['format', 'pages', 'qr', 'pdf'] as const;
 export function MbShowcase() {
   const t = useT('landing');
   return (
-    <section aria-labelledby="mb-book-title" className="bg-mb-bg py-24 md:py-36">
+    <section aria-labelledby="mb-book-title" className="mb-cv bg-mb-bg py-24 md:py-36">
       <Wrap>
         <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-12 lg:gap-10">
           <Reveal y={20} className="relative order-2 lg:order-1 lg:col-span-6">
@@ -27,7 +27,7 @@ export function MbShowcase() {
                 {t('book.sampleLabel')}
               </Badge>
               <Book3D className="relative sm:-translate-x-16" />
-              <div className="relative w-[11rem] rotate-[4deg] rounded-[1.25rem] bg-paper p-3 shadow-[0_30px_60px_-24px_rgba(0,0,0,0.9)] ring-1 ring-mb/20 sm:absolute sm:bottom-8 sm:right-5 sm:w-[10.5rem]">
+              <div className="relative w-[11rem] rotate-[4deg] rounded-[1.25rem] bg-paper p-3 shadow-[0_18px_32px_-20px_rgba(0,0,0,0.8)] ring-1 ring-mb/20 sm:absolute sm:bottom-8 sm:right-5 sm:w-[10.5rem]">
                 <div className="rounded-xl bg-cream p-2">
                   <QrCode value={siteHref('/kham-pha')} label={t('book.qrLabel')} size={176} className="h-auto w-full" />
                 </div>

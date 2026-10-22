@@ -1,7 +1,9 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import '@/design/global.css';
+import { startPrefetch } from '@/lib/prefetch';
 import { App } from './App';
+import { routes } from './router';
 
 // After a deploy, old lazy chunks 404: reload once to pick up the new build (guarded against reload loops).
 window.addEventListener('vite:preloadError', (event) => {
@@ -21,3 +23,5 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 );
+
+startPrefetch(routes, import.meta.env.BASE_URL.replace(/\/$/, '') || '/');

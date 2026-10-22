@@ -1,5 +1,5 @@
 import { ArrowUpRight, Plus } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useId, useState } from 'react';
 import { Link } from 'react-router';
 import type { FaqKey } from '@/components/landing';
@@ -38,7 +38,7 @@ function FaqItem({ k, open, onToggle }: { k: FaqKey; open: boolean; onToggle: ()
       </h3>
       <AnimatePresence initial={false}>
         {open && (
-          <motion.div
+          <m.div
             id={`${id}-a`}
             role="region"
             aria-labelledby={`${id}-q`}
@@ -49,7 +49,7 @@ function FaqItem({ k, open, onToggle }: { k: FaqKey; open: boolean; onToggle: ()
             className="overflow-hidden"
           >
             <p className="max-w-3xl pb-6 pr-12 text-[1.02rem] leading-relaxed text-mb/75">{t(`faq.items.${k}.a`)}</p>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </li>
@@ -64,7 +64,7 @@ export function MbFaq({ keys }: { keys: FaqKey[] }) {
   const tl = useT('legal');
   const [open, setOpen] = useState<FaqKey | null>(keys[0] ?? null);
   return (
-    <section id="cau-hoi" aria-labelledby="mb-faq-title" className="scroll-mt-24 bg-mb-bg pb-24 pt-12 md:pb-36 md:pt-20">
+    <section id="cau-hoi" aria-labelledby="mb-faq-title" className="mb-cv scroll-mt-24 bg-mb-bg pb-24 pt-12 md:pb-36 md:pt-20">
       <Wrap className="grid grid-cols-1 gap-10 lg:grid-cols-12">
         <Reveal y={20} className="lg:col-span-4">
           <Label>{t('faq.eyebrow')}</Label>
