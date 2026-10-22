@@ -1,6 +1,7 @@
 // Public site footer ("meadow"): brand block + link columns on paper, a looping meadow video fading into it, and a
 // giant frosted wordmark sinking into fog. Layout and values live in site-footer.css.
 import { ArrowUp, Mic } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { useT } from '@/i18n';
 import { useReducedMotionSafe } from '@/design/motion';
@@ -48,18 +49,7 @@ export function SiteFooter() {
   return (
     <footer className="sf">
       <div className="sf__stage" aria-hidden="true">
-        <video
-          className="sf__video"
-          src={MEADOW_VIDEO}
-          poster={MEADOW_POSTER}
-          autoPlay={!reduced}
-          muted
-          loop
-          playsInline
-          preload={reduced ? 'metadata' : 'auto'}
-          disablePictureInPicture
-          tabIndex={-1}
-        />
+        <FooterVideo reduced={reduced} />
       </div>
       <p className="sf__wordmark" aria-hidden="true" style={{ ["--chars" as string]: tc("brand.name").length }}>
         {tc('brand.name')}
@@ -110,5 +100,48 @@ export function SiteFooter() {
         {t('footer.backToTop')}
       </a>
     </footer>
+  );
+}
+
+/** The meadow clip is decoration far below the fold: it downloads and plays only once the footer is near the viewport. */
+function FooterVideo({ reduced }: { reduced: boolean }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  const [near, setNear] = useState(false);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setNear(true);
+      setVisible(true);
+      return;
+    }
+    const preload = new IntersectionObserver(([e]) => e?.isIntersecting && setNear(true), { rootMargin: '600px 0px' });
+    const playing = new IntersectionObserver(([e]) => setVisible(Boolean(e?.isIntersecting)));
+    preload.observe(el);
+    playing.observe(el);
+    return () => {
+      preload.disconnect();
+      playing.disconnect();
+    };
+  }, []);
+  useEffect(() => {
+    const v = ref.current;
+    if (!v || !near) return;
+    if (visible && !reduced) void v.play().catch(() => {});
+    else v.pause();
+  }, [near, visible, reduced]);
+  return (
+    <video
+      ref={ref}
+      className="sf__video"
+      src={near ? MEADOW_VIDEO : undefined}
+      poster={MEADOW_POSTER}
+      muted
+      loop
+      playsInline
+      preload="none"
+      disablePictureInPicture
+      tabIndex={-1}
+    />
   );
 }

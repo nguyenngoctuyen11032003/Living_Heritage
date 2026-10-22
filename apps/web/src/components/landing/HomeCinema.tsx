@@ -1,10 +1,8 @@
 import { ArrowRight, ArrowUpRight, BadgeCheck, Compass, FileText, Headphones, Mic, Share2, type LucideIcon } from 'lucide-react';
-import { motion, useScroll, useTransform, type MotionValue } from 'motion/react';
-import { useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { HeroVideo, Label, LazyVideo, PrimaryPill, VideoToggle, Wrap } from '@/components/memory-book';
 import { BlurWords, Magnet, Reveal, ScrollText } from '@/components/motion';
-import { useReducedMotionSafe } from '@/design/motion';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { requestSamplePlay } from './events';
@@ -184,15 +182,7 @@ export function HomeFeatured() {
 
 /** Scales a block from 0.9 to 1 as it rises to the middle of the screen (static under reduced motion). */
 function GrowOnScroll({ children }: { children: ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const reduced = useReducedMotionSafe();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'center center'] });
-  const scale = useTransform(scrollYProgress, [0, 1], [0.9, 1]);
-  return (
-    <motion.div ref={ref} style={reduced ? undefined : { scale }} className="origin-center">
-      {children}
-    </motion.div>
-  );
+  return <div className="grow-on-scroll origin-center">{children}</div>;
 }
 
 const STEPS: Array<{ k: 's1' | 's2' | 's3' | 's4'; icon: LucideIcon }> = [
@@ -203,16 +193,15 @@ const STEPS: Array<{ k: 's1' | 's2' | 's3' | 's4'; icon: LucideIcon }> = [
 ];
 
 /** One sticky card of the stack: it pins below the header and shrinks a little as the cards after it slide over. */
-function StepCard({ i, progress, reduced }: { i: number; progress: MotionValue<number>; reduced: boolean }) {
+function StepCard({ i }: { i: number }) {
   const t = useT('landing');
   const { k, icon: Icon } = STEPS[i]!;
   const target = 1 - (STEPS.length - 1 - i) * 0.04;
-  const scale = useTransform(progress, [i / STEPS.length, 1], [1, target]);
   return (
     // Every <li> is sticky inside the one <ol>, each pinning 28px lower, so the cards pile up instead of scrolling away.
     <li className="sticky mb-[22vh] last:mb-0" style={{ top: `calc(6.5rem + ${i * 28}px)` }}>
-      <motion.div
-        style={reduced ? undefined : { scale }}
+      <div
+        style={{ '--i': i / STEPS.length, '--target': target } as CSSProperties}
         className="home-step-card flex min-h-[19rem] origin-top flex-col justify-between gap-10 rounded-[2rem] p-6 sm:p-8 md:min-h-[22rem] md:rounded-[2.5rem] md:p-10"
       >
         <div className="flex items-start justify-between gap-6">
@@ -230,7 +219,7 @@ function StepCard({ i, progress, reduced }: { i: number; progress: MotionValue<n
           </h3>
           <p className="mt-3 text-pretty text-[1.02rem] leading-relaxed text-mb/70 md:text-[1.1rem]">{t(`how.steps.${k}.body`)}</p>
         </div>
-      </motion.div>
+      </div>
     </li>
   );
 }
@@ -241,9 +230,6 @@ function StepCard({ i, progress, reduced }: { i: number; progress: MotionValue<n
  */
 export function HomeSteps() {
   const t = useT('landing');
-  const listRef = useRef<HTMLOListElement>(null);
-  const reduced = useReducedMotionSafe();
-  const { scrollYProgress } = useScroll({ target: listRef, offset: ['start start', 'end end'] });
   return (
     <section id="cach-hoat-dong" aria-labelledby="home-steps-title" className="scroll-mt-24 bg-mb-bg pb-24 md:pb-36">
       <Wrap className="grid max-w-6xl grid-cols-1 gap-10 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:gap-14">
@@ -266,9 +252,9 @@ export function HomeSteps() {
             </div>
           </Reveal>
         </div>
-        <ol ref={listRef} className="relative">
+        <ol className="home-steps-list relative">
           {STEPS.map(({ k }, i) => (
-            <StepCard key={k} i={i} progress={scrollYProgress} reduced={reduced} />
+            <StepCard key={k} i={i} />
           ))}
         </ol>
       </Wrap>

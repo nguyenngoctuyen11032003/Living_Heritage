@@ -27,7 +27,7 @@ const KEY = 'lh.currentFamily';
 const Ctx = createContext<CurrentFamilyState | null>(null);
 
 export function CurrentFamilyProvider({ children }: { children: ReactNode }) {
-  const { user, isAnonymous } = useSession();
+  const { user, isAnonymous, loading: sessionLoading } = useSession();
   const [families, setFamilies] = useState<FamilySummary[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(() => {
     try {
@@ -43,6 +43,9 @@ export function CurrentFamilyProvider({ children }: { children: ReactNode }) {
   const loadedFor = useRef<string | null>(null);
 
   const reload = useCallback(async () => {
+    // Until the first getSession() resolves there is no user yet: stay in `loading` so <FamilyGate> does not
+    // mistake "session not ready" for "no family" and redirect a signed-in user to onboarding.
+    if (sessionLoading) return;
     const sb = getSupabase();
     if (!sb || !userId) {
       loadedFor.current = null;
@@ -65,7 +68,7 @@ export function CurrentFamilyProvider({ children }: { children: ReactNode }) {
       setFamilies(rows.filter((r) => r.families).map((r) => ({ id: r.families!.id, name: r.families!.name, role: r.role })));
     }
     setLoading(false);
-  }, [userId]);
+  }, [userId, sessionLoading]);
 
   useEffect(() => {
     void reload();
