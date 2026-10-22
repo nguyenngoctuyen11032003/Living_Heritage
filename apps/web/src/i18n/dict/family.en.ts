@@ -229,6 +229,8 @@ export default {
     invalid_email: "That email isn't valid.",
     invalid_role: "That role isn't valid.",
     invalid_ttl: "That time limit isn't valid.",
+    invalid_argument: 'Some details are not valid. Please check and try again.',
+    invalid_fields: 'Some details are not valid. Please check and try again.',
     invite_not_found: "We couldn't find this invite. The link may be incomplete or the invite was cancelled.",
     invite_used: 'This invite has already been used by another account.',
     invite_expired: 'This invite has expired. Ask the sender for a new one.',

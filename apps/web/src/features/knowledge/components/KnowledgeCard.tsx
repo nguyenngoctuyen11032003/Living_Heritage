@@ -1,6 +1,6 @@
 import { Clock3, Headphones, MapPin } from 'lucide-react';
 import { Link } from 'react-router';
-import { Skeleton } from '@/components/ui';
+import { IllustrativeBadge, Skeleton } from '@/components/ui';
 import { usePick, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { formatDuration } from '@/lib/format';
@@ -94,6 +94,7 @@ export function KnowledgeCard({ item, topics, featured, headingLevel = 'h3', onO
                 </span>
               )}
               {item.decade && <span>{t('card.decade', { decade: item.decade })}</span>}
+              {item.sample && <IllustrativeBadge />}
             </p>
             <p className="flex flex-wrap items-center gap-2 text-[0.78rem]">
               {showAudio ? (

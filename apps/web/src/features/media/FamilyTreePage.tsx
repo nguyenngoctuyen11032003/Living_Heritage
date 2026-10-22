@@ -27,7 +27,7 @@ type Counts = Map<string, number> | null | 'failed';
 
 function useApprovedCounts(familyId: string) {
   const [counts, setCounts] = useState<Counts>(null);
-  const load = useCallback(async () => {
+  const load = useCallback(async (alive: () => boolean = () => true) => {
     const sb = getSupabase();
     if (!sb) return;
     // Paged: one response is capped at max_rows (1000), and a silently truncated list would under-count.
@@ -35,10 +35,16 @@ function useApprovedCounts(familyId: string) {
       sb.from('stories').select('narrator_id').eq('family_id', familyId).eq('edit_status', 'approved').order('id').range(a, b),
     );
     // A failed count is not "no approved stories": the cards then show no count at all rather than a wrong one.
+    if (!alive()) return;
     setCounts(res.error ? 'failed' : countByNarrator(res.data ?? []));
   }, [familyId]);
   useEffect(() => {
-    void load();
+    let alive = true;
+    setCounts(null);
+    void load(() => alive);
+    return () => {
+      alive = false;
+    };
   }, [load]);
   return counts;
 }

@@ -172,7 +172,7 @@ export function suggestSystem(lang: Lang): string {
 }
 
 export function suggestUser(input: SuggestInput): string {
-  const titles = input.previousTitles.slice(0, 5).map((t) => `- ${asData(t)}`).join('\n');
+  const titles = input.previousTitles.slice(0, 5).map((t) => `- ${asData(t).replace(/\s+/g, ' ').trim()}`).join('\n');
   return [`Topic: ${asData(input.topic)}`, '<previous_story_titles>', titles || '(none yet)', '</previous_story_titles>'].join('\n');
 }
 

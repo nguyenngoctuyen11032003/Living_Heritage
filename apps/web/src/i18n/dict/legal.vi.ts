@@ -152,11 +152,15 @@ export default {
       },
       access: {
         title: 'Ai được xem',
-        body: 'Mặc định, nội dung chỉ hiển thị với thành viên gia đình được mời, theo vai trò. Quyền được kiểm tra ở máy chủ cho từng yêu cầu; tệp âm thanh nằm trong kho lưu trữ riêng tư và chỉ mở qua liên kết có thời hạn.',
+        body: 'Mặc định, nội dung chỉ hiển thị với thành viên gia đình được mời, theo vai trò. Quyền được kiểm tra ở máy chủ cho từng yêu cầu; tệp âm thanh nằm trong kho lưu trữ riêng tư và chỉ mở qua liên kết có thời hạn. Nếu cần hỗ trợ kỹ thuật, quyền truy cập của người vận hành có giới hạn và được ghi nhật ký.',
       },
       public: {
         title: 'Chia sẻ công khai',
         body: 'Một nội dung chỉ vào kho tri thức công khai khi người kể đồng ý, gia đình gửi đề nghị và nội dung được kiểm duyệt. Bạn chọn có kèm giọng nói, tên thật, quê quán hay không, và có thể rút lại bất cứ lúc nào. Khi nội dung được sửa, bản công khai tự động được gỡ cho tới khi duyệt lại.',
+      },
+      revoke: {
+        title: 'Thu hồi chia sẻ',
+        body: 'Khi bạn rút một nội dung khỏi kho công khai hoặc thu hồi quyền xem, chúng tôi chặn bản văn, tệp âm thanh và PDF lưu trên hệ thống, loại nội dung khỏi kết quả tìm kiếm và xoá bộ nhớ đệm liên quan, không chỉ ẩn thẻ trên giao diện. Mã QR và liên kết kể chuyện đã thu hồi sẽ không còn phát nội dung. Lưu ý: bản mà người xem đã tải về hoặc sao chép ra ngoài hệ thống có thể không thu hồi được, vì vậy hãy cân nhắc trước khi công bố.',
       },
       rights: {
         title: 'Quyền của bạn',
@@ -165,6 +169,10 @@ export default {
         b: 'Tải về dữ liệu của gia đình.',
         c: 'Rút nội dung khỏi kho công khai.',
         d: 'Yêu cầu xoá từng nội dung hoặc toàn bộ tài khoản, bao gồm tệp âm thanh.',
+      },
+      deletion: {
+        title: 'Yêu cầu xoá dữ liệu',
+        body: 'Yêu cầu xoá được ghi nhận với ba trạng thái: đã tiếp nhận, đang xử lý, hoàn tất. Việc xoá bao gồm các bản dẫn xuất của nguồn bị xoá. Thời hạn xử lý, phạm vi bản sao lưu và các trường hợp phải lưu theo nghĩa vụ pháp lý sẽ được xác định rõ trước khi vận hành chính thức. Bạn có thể tải về dữ liệu của gia đình trước khi xoá.',
       },
       elders: {
         title: 'Người cao tuổi và sự đồng ý',

@@ -9,6 +9,8 @@ export const FAMILY_ERROR_CODES = [
   'invalid_email',
   'invalid_role',
   'invalid_ttl',
+  'invalid_argument',
+  'invalid_fields',
   'invite_not_found',
   'invite_used',
   'invite_expired',

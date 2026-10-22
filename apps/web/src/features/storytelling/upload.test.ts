@@ -167,3 +167,21 @@ describe('createMemoryPendingStore.list', () => {
     expect((await store.list('sess/')).map((p) => p.key)).toEqual(['sess/q1', 'sess/ai-x']);
   });
 });
+
+describe('mime handling (Safari/iOS records mp4)', () => {
+  it('uses an .m4a object path for audio/mp4 and the bare type as content type', async () => {
+    const { backend, objects } = fakeBackend();
+    const store = createMemoryPendingStore();
+    const p = { ...pending(), mime: 'audio/mp4;codecs=mp4a.40.2' };
+    await uploadPending(p, backend, store);
+    expect([...objects]).toEqual([`${FAMILY}/${NARRATOR}/${ATTEMPT}.m4a`]);
+    expect(backend.uploadObject).toHaveBeenCalledWith(`${FAMILY}/${NARRATOR}/${ATTEMPT}.m4a`, expect.anything(), 'audio/mp4');
+    expect(buildRecordingPath('f', 'n', 'u', 'audio/webm;codecs=opus')).toBe('f/n/u.webm');
+  });
+
+  it('refuses an empty take', async () => {
+    const { backend } = fakeBackend();
+    const p = { ...pending(), blob: new Blob([], { type: 'audio/webm' }) };
+    await expect(uploadPending(p, backend, createMemoryPendingStore())).rejects.toMatchObject({ code: 'failed' });
+  });
+});

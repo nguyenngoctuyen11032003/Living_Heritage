@@ -250,6 +250,7 @@ function StoryAudio({ recording, title, narrator }: { recording: RecordingLite |
 
   useEffect(() => {
     const sb = getSupabase();
+    setUrl(null);
     if (!sb || !path) return;
     let alive = true;
     setFailed(false);
@@ -261,7 +262,7 @@ function StoryAudio({ recording, title, narrator }: { recording: RecordingLite |
     };
   }, [path]);
 
-  if (!recording) return <p className="rounded-2xl bg-paper px-5 py-4 text-ink-soft ring-1 ring-line">{t('detail.noAudio')}</p>;
+  if (!recording || !path) return <p className="rounded-2xl bg-paper px-5 py-4 text-ink-soft ring-1 ring-line">{t('detail.noAudio')}</p>;
   if (failed)
     return (
       <p role="alert" className="rounded-2xl bg-terracotta/5 px-5 py-4 text-ink ring-1 ring-terracotta/30">

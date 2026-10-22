@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /gia-dinh
+Disallow: /cau-chuyen/
+Disallow: /ban-nhap/
+Disallow: /ke-chuyen
+Disallow: /k/
+Disallow: /quan-tri
+Disallow: /cai-dat
+Disallow: /sach
+Disallow: /nghe/

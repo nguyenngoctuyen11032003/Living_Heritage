@@ -3,6 +3,7 @@ import { useToast } from '@/components/ui';
 import { TextScaleSwitch } from '@/components/layout/TextScaleSwitch';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { useReducedMotionSafe } from '@/design/motion';
+import { MOTION_PREFS, readMotionPref, setMotionPref, type MotionPref } from '@/design/motionPref';
 import { SectionCard } from '@/features/families/states';
 import { loadNamespace, translate, useLocale, useT, type Locale } from '@/i18n';
 import { cn } from '@/lib/cn';
@@ -19,6 +20,7 @@ export function DisplaySection() {
   const { toast } = useToast();
   const reduced = useReducedMotionSafe();
   const [status, setStatus] = useState('');
+  const [motion, setMotion] = useState<MotionPref>(readMotionPref);
 
   async function choose(next: Locale) {
     if (next === locale) return;
@@ -69,7 +71,34 @@ export function DisplaySection() {
       </SectionCard>
 
       <SectionCard title={t('display.motionTitle')}>
-        <p className="leading-relaxed text-ink">{reduced ? t('display.motionOn') : t('display.motionOff')}</p>
+        <fieldset>
+          <legend className="sr-only">{tc('motion.label')}</legend>
+          <div className="flex flex-wrap gap-3">
+            {MOTION_PREFS.map((m) => (
+              <label
+                key={m}
+                className={cn(
+                  'flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl px-5 ring-1 transition-colors focus-within:ring-2 focus-within:ring-heritage',
+                  motion === m ? 'bg-mint text-heritage-deep ring-heritage/40' : 'bg-paper text-ink ring-line hover:ring-heritage/40',
+                )}
+              >
+                <input
+                  type="radio"
+                  name="lh-motion"
+                  value={m}
+                  checked={motion === m}
+                  onChange={() => {
+                    setMotion(m);
+                    setMotionPref(m);
+                  }}
+                  className="size-5 accent-heritage"
+                />
+                <span className="font-semibold">{tc(`motion.${m}`)}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+        <p aria-live="polite" className="mt-3 leading-relaxed text-ink">{reduced ? t('display.motionOn') : t('display.motionOff')}</p>
       </SectionCard>
     </div>
   );

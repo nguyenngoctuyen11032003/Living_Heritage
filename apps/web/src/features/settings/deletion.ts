@@ -57,6 +57,21 @@ export function describeDeletionRow(row: { story_id: string | null; reason: stri
   return { scope: marked ? 'account' : row.story_id ? 'story' : 'family', reason };
 }
 
+/** True when the same scope already has an open (unfinished) request, so a double submit is not filed twice. */
+export function hasOpenDuplicate(
+  rows: ReadonlyArray<{ story_id: string | null; reason: string | null; status: string; scope?: string | null; family_id?: string | null }>,
+  insert: { family_id: string; story_id: string | null; reason: string },
+): boolean {
+  const wanted = describeDeletionRow(insert).scope;
+  return rows.some((r) => {
+    if (r.status !== 'open' && r.status !== 'processing') return false;
+    if (r.family_id && r.family_id !== insert.family_id) return false;
+    const { scope } = describeDeletionRow(r);
+    if (scope !== wanted) return false;
+    return scope === 'story' ? r.story_id === insert.story_id : true;
+  });
+}
+
 export type DeletionStatus = 'open' | 'processing' | 'done' | 'rejected' | 'unknown';
 
 export function deletionStatus(status: string): DeletionStatus {

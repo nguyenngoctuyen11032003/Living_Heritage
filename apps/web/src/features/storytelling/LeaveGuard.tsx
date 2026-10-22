@@ -18,7 +18,12 @@ export function LeaveGuard({ when }: { when: boolean }) {
     return () => window.removeEventListener('beforeunload', onBeforeUnload);
   }, [when]);
 
-  const open = blocker.state === 'blocked';
+  // Nothing left to protect (e.g. the take finished saving) while a prompt is open: let the navigation through.
+  useEffect(() => {
+    if (!when && blocker.state === 'blocked') blocker.proceed?.();
+  }, [when, blocker]);
+
+  const open = when && blocker.state === 'blocked';
   return (
     <Dialog
       open={open}

@@ -1,6 +1,6 @@
 // /gia-dinh/nguoi-ke: narrators of the current family, storytelling links (QR) and revocation.
 import { HeartHandshake, Languages, Link2, Mic, Network, Pencil, Plus, Smartphone } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { Badge, Button, Card, Dialog, EmptyState, PageHeader, Skeleton, useToast } from '@/components/ui';
 import { useLocale, useT } from '@/i18n';
@@ -44,7 +44,9 @@ function Narrators() {
   const [revokeBusy, setRevokeBusy] = useState(false);
 
   const ids = useMemo(() => narrators.map((n) => n.id).join(','), [narrators]);
+  const linksSeq = useRef(0);
   const loadLinks = useCallback(async () => {
+    const my = ++linksSeq.current;
     const sb = getSupabase();
     if (!sb || !fam.canManage || !ids) {
       setLinks([]);
@@ -55,6 +57,7 @@ function Narrators() {
       .select('id, narrator_id, created_at, expires_at, claimed_at, revoked_at')
       .in('narrator_id', ids.split(','))
       .order('created_at', { ascending: false });
+    if (my !== linksSeq.current) return;
     setLinksError(Boolean(err));
     setLinks(data ?? []);
   }, [ids, fam.canManage]);

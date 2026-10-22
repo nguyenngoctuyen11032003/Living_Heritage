@@ -94,6 +94,7 @@ export default {
     label: 'Bản in thử — chưa phải dịch vụ in sách',
     print: 'In / Lưu PDF',
     back: 'Về trình tạo sách',
+    excluded: '{n} chương chưa được duyệt nên không có trong bản in.',
     hint: 'Trong hộp thoại in, chọn khổ giấy A5. Để lưu PDF, chọn “Lưu dưới dạng PDF”.',
     noPermissionTitle: 'Chỉ người biên tập mới in được sách',
     noPermissionBody: 'Bạn vẫn đọc được cuốn sách trong ứng dụng. Nếu cần bản in, hãy nhờ người quản lý gia đình.',

@@ -5,6 +5,7 @@ export const area: AreaRoutes = {
   site: [
     page('kham-pha', () => import('@/features/knowledge/pages/ExplorePage')),
     page('tri-thuc/:id', () => import('@/features/knowledge/pages/ItemPage')),
+    page('ket-noi', () => import('@/features/knowledge/pages/ConnectPage')),
     page('da-luu', () => import('@/features/knowledge/pages/SavedPage')),
     page('nghe/:storyId', () => import('@/features/knowledge/pages/ListenPage')),
   ],

@@ -6,7 +6,8 @@ Không có server riêng. Web tĩnh trên GitHub Pages (`https://nguyenngoctuyen
 Pull Request ──► CI (.github/workflows/ci.yml)
                   ├─ web:       check-public-env → check-migrations-immutable → test scripts → lint → typecheck → test → build → check-bundle-secrets
                   ├─ secrets:   gitleaks (bản ghim + sha256) quét toàn bộ lịch sử Git với .gitleaks.toml
-                  ├─ functions: deno check ai-process/index.ts → deno lint → deno test --allow-env
+                  ├─ e2e:       build --mode e2e → Playwright (Chromium, Supabase giả bằng page.route, không cần secret)
+                  ├─ functions: deno check */index.ts → deno lint → deno test --allow-env
                   └─ database:  supabase start (Docker, gọn) → áp mọi migration + seed → db lint → pgTAP
 
 push main ─────► Deploy (.github/workflows/deploy.yml)
@@ -75,7 +76,7 @@ push main ─────► Deploy (.github/workflows/deploy.yml)
 ## Môi trường: demo, staging, production
 - Hiện chỉ có **một** project Supabase hosted (`dfohmtznhercbhutvyag`), đóng vai production cho site GitHub Pages. Chưa có project staging hay demo riêng.
 - Muốn có staging/demo: tạo project Supabase mới, áp cùng migration (`supabase db push --db-url <staging>`), đặt secrets riêng (khoá Gemini riêng, `AI_DAILY_LIMIT` thấp), và build web với `VITE_SUPABASE_URL`/`VITE_SUPABASE_PUBLISHABLE_KEY` của project đó. Không dùng chung tài khoản người dùng hay bucket giữa các môi trường; báo cáo số liệu dùng thật chỉ lấy từ production (DỰ ÁN.md B14).
-- Dữ liệu minh họa (thẻ `mau-*`, chuyện mẫu trang chủ, demo `/trai-nghiem` đang bổ sung) nằm trong mã web, **không** ghi vào database. Vì vậy nút "Khôi phục dữ liệu mẫu" chỉ đặt lại trạng thái trong trình duyệt.
+- Dữ liệu minh họa (thẻ `mau-*`, chuyện mẫu trang chủ, demo `/trai-nghiem`) nằm trong mã web, **không** ghi vào database. Vì vậy nút "Khôi phục dữ liệu mẫu" chỉ đặt lại trạng thái trong trình duyệt.
 - **Production không có lệnh reset.** Không chạy `db reset`, seed, `config push` hay script xoá hàng loạt với project hosted (xem mục Quy tắc an toàn database). Xoá dữ liệu gia đình chỉ đi qua yêu cầu xoá và được ghi nhật ký.
 
 ## Sao lưu và khôi phục

@@ -80,7 +80,7 @@ export function createAudioCache(urls: { create: (b: Blob) => string; revoke: (u
       const gen = generation;
       const p = fetchBlob().then(
         (blob) => {
-          inflight.delete(key);
+          if (inflight.get(key) === p) inflight.delete(key);
           const url = urls.create(blob);
           // Cleared while loading: do not leak an URL nobody will revoke.
           if (gen !== generation) {
@@ -92,7 +92,7 @@ export function createAudioCache(urls: { create: (b: Blob) => string; revoke: (u
           return url;
         },
         (e: unknown) => {
-          inflight.delete(key);
+          if (inflight.get(key) === p) inflight.delete(key);
           throw e;
         },
       );

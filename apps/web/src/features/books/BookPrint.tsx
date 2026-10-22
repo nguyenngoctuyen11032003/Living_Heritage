@@ -118,6 +118,11 @@ function PrintSheets({ book, chapters, back }: { book: BookRow; chapters: Chapte
               {t('print.label')}
             </Badge>
             <p className="text-[0.85rem] text-ink-soft">{t('print.hint')}</p>
+            {chapters.length > inputs.length && (
+              <p className="text-[0.85rem] text-[#6b4a0c]" role="status">
+                {t('print.excluded', { n: chapters.length - inputs.length })}
+              </p>
+            )}
           </div>
           <Button leftIcon={<Printer className="size-5" />} onClick={() => void document.fonts.ready.then(() => window.print())} disabled={inputs.length === 0}>
             {t('print.print')}

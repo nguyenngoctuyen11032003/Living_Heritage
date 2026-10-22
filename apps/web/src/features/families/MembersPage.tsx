@@ -20,9 +20,11 @@ import { inviteUrl } from './urls';
 const WRAP_BADGE = 'rounded-2xl [&>span:last-child]:whitespace-normal [&>span:last-child]:[overflow-wrap:anywhere]';
 
 export default function MembersPage() {
+  const fam = useCurrentFamily();
   return (
     <FamilyGate>
-      <Members />
+      {/* Remount per family so the previous family's members/invites never flash after switching. */}
+      <Members key={fam.current?.id} />
     </FamilyGate>
   );
 }

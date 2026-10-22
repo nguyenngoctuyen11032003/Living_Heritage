@@ -40,3 +40,12 @@ describe('loginHref / callbackUrl', () => {
     expect(callbackUrl('https://evil.example')).toBe(siteHref(`/auth/callback?next=${encodeURIComponent(DEFAULT_AFTER_LOGIN)}`));
   });
 });
+
+describe('safeNext auth-page loop guard', () => {
+  it('rejects the auth pages to avoid redirect loops', () => {
+    expect(safeNext('/dang-nhap')).toBe(DEFAULT_AFTER_LOGIN);
+    expect(safeNext('/dang-nhap?next=/x')).toBe(DEFAULT_AFTER_LOGIN);
+    expect(safeNext('/dang-ky/')).toBe(DEFAULT_AFTER_LOGIN);
+    expect(safeNext('/dang-nhap-khac')).toBe('/dang-nhap-khac');
+  });
+});

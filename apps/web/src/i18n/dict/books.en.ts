@@ -96,6 +96,7 @@ export default {
     label: 'Proof print — not a book-printing service',
     print: 'Print / Save PDF',
     back: 'Back to the book builder',
+    excluded: '{n} chapter(s) are not approved and are left out of the print.',
     hint: 'In the print dialog choose A5 paper. To save a PDF, choose “Save as PDF”.',
     noPermissionTitle: 'Only editors can print this book',
     noPermissionBody: 'You can still read the book in the app. If you need a printed copy, ask a family manager.',

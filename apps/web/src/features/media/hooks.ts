@@ -97,6 +97,9 @@ export function useStoryPhotos(storyId: string | null | undefined): StoryPhotosS
 
   useEffect(() => {
     loaded.current = false;
+    // New story: never show the previous story's photos while loading.
+    setPhotos([]);
+    setState('loading');
     void refresh();
   }, [refresh]);
 

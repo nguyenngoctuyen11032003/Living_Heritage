@@ -200,6 +200,7 @@ export default {
       reasonTooLong: 'Lý do tối đa {max} ký tự.',
       confirmRequired: 'Vui lòng đánh dấu xác nhận.',
       familyRequired: 'Chưa xác định được gia đình.',
+      duplicate: 'Đã có một yêu cầu xoá cùng phạm vi đang chờ xử lý.',
     },
     status: {
       open: 'Đã tiếp nhận',
