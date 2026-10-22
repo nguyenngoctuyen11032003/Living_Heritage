@@ -1,0 +1,37 @@
+/* Shared styles for the motion primitives (ScrollText, BlurWords). */
+
+/* ScrollText: --st-p is the scroll progress (0..1), --st-s each glyph's start, --st-n how many glyphs fade at once (inverse). */
+.scroll-text__ch {
+  opacity: calc(var(--st-dim) + (1 - var(--st-dim)) * clamp(0, (var(--st-p, 0) - var(--st-s)) * var(--st-n), 1));
+  transition: opacity 0.12s linear;
+}
+
+/* BlurWords: each word rises out of a blur, staggered by --bw-i, once the parent carries [data-bw-in]. */
+.blur-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.42em);
+  filter: blur(7px);
+  transition:
+    opacity 1.05s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 1.15s cubic-bezier(0.22, 0.61, 0.36, 1),
+    filter 1.05s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition-delay: calc(var(--bw-delay, 0s) + var(--bw-i, 0) * 0.085s);
+}
+[data-bw-in] .blur-word {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-text__ch {
+    opacity: 1;
+  }
+  .blur-word {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+}

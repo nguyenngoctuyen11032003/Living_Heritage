@@ -1,7 +1,7 @@
 import { useLayoutEffect, useSyncExternalStore } from 'react';
 
 // Light / dark theme for the signed-in app. The choice is remembered in localStorage; with no stored choice the
-// system preference (prefers-color-scheme) wins. Applied as html[data-theme] (design/tokens.css redefines the
+// default is dark. Applied as html[data-theme] (design/tokens.css redefines the
 // colour tokens for 'dark'), but only while the app shell is mounted (useApplyTheme), so the public site keeps
 // its own light/night design. One shared store, so every ThemeToggle on the page shows the same choice.
 
@@ -17,15 +17,10 @@ function isTheme(v: unknown): v is Theme {
   return v === 'light' || v === 'dark';
 }
 
-function systemTheme(): Theme {
-  try {
-    return typeof window !== 'undefined' && window.matchMedia?.(DARK_QUERY).matches ? 'dark' : 'light';
-  } catch {
-    return 'light';
-  }
-}
+/** Default for first-time visitors. */
+const DEFAULT_THEME: Theme = 'dark';
 
-/** Stored choice, else the system preference. */
+/** Stored choice, else dark. */
 export function getTheme(): Theme {
   try {
     const stored = localStorage.getItem(THEME_KEY);
@@ -33,7 +28,7 @@ export function getTheme(): Theme {
   } catch {
     /* storage blocked */
   }
-  return memory ?? systemTheme();
+  return memory ?? DEFAULT_THEME;
 }
 
 /** Persist and broadcast a theme. */
@@ -64,7 +59,7 @@ function subscribe(listener: () => void): () => void {
 }
 
 export function useTheme(): [Theme, (next: Theme) => void] {
-  const theme = useSyncExternalStore(subscribe, getTheme, () => 'light' as Theme);
+  const theme = useSyncExternalStore(subscribe, getTheme, () => DEFAULT_THEME);
   return [theme, setTheme];
 }
 
@@ -78,7 +73,7 @@ export function useApplyTheme(): void {
     // Flip every colour in one frame: otherwise each transition-colors element animates (and repaints) separately.
     if (flip) root.classList.add('theme-switching');
     root.dataset.theme = theme;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#111A17' : '#FAF7F0');
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#000000' : '#FAF7F0');
     if (!flip) return;
     const raf = requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('theme-switching')));
     return () => {

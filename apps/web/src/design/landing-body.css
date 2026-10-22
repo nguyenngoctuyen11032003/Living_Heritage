@@ -1,0 +1,52 @@
+/*
+ * Body of /cach-hoat-dong, /kham-pha and /to-chuc (everything under the hero), kept in step with /sach-ky-uc, which is
+ * the reference for type, scale and the dark palette.
+ * 1. Type (both themes): serif headings use the /sach-ky-uc display face — Instrument Serif 400 in English (loaded by
+ *    useDisplayFont), the bundled Noto Serif 400 in Vietnamese (Instrument Serif has no Vietnamese glyphs).
+ * 2. Dark theme: remaps the site tokens to the /sach-ky-uc cinema palette: pure black page, near-transparent white glass
+ *    surfaces, hairline borders, white type. Light theme colours are untouched.
+ */
+/* Heading face and eyebrows are site-wide now (design/typography.css); section titles follow SectionHeading. */
+
+:root[data-theme='dark'] .lp-body {
+  --cream: #000;
+  --paper: rgb(255 255 255 / 0.045);
+  --line: rgb(255 255 255 / 0.12);
+  --ink: #fff;
+  --ink-soft: rgb(255 255 255 / 0.7);
+  /* No green accents in the cinema palette: actions and highlights are cream-white, as on /sach-ky-uc. */
+  --heritage: #f2efe6;
+  --heritage-deep: #fff;
+  --mint: rgb(255 255 255 / 0.1);
+  --terracotta: #e8997f;
+  background: #000;
+  color: #fff;
+}
+/* Glass cards: faint top highlight like .liquid-glass. */
+:root[data-theme='dark'] .lp-body .bg-paper {
+  box-shadow: inset 0 1px 1px rgb(255 255 255 / 0.08);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+/* Section bands: a barely lifted black instead of the greenish slab. */
+:root[data-theme='dark'] .lp-body .bg-paper\/60 { background: rgb(255 255 255 / 0.02); }
+/* Narration card and org contact card: deep dark glass, not the (now white) heritage-deep / flat night fills. */
+:root[data-theme='dark'] .lp-body .lp-dark-card {
+  background: linear-gradient(160deg, rgb(255 255 255 / 0.08), rgb(255 255 255 / 0.03));
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.12);
+  color: #fff;
+}
+:root[data-theme='dark'] .lp-body .lp-dark-card .bg-night-ink { background: #fff; }
+:root[data-theme='dark'] .lp-body .lp-dark-card :is(.text-mint, .text-mint-fixed) { color: #fff; }
+:root[data-theme='dark'] .lp-body :focus-visible { outline-color: #fff; }
+/* Amber notices (illustrative-data banner): pale amber on glass, as the /sach-ky-uc "planned" tag. */
+:root[data-theme='dark'] .lp-body .lp-note {
+  background: rgb(251 236 200 / 0.06);
+  border-color: rgb(246 220 160 / 0.3);
+  color: #f6dca0;
+}
+/* Knowledge cards: the pastel topic band becomes a faint glass strip with white type. */
+:root[data-theme='dark'] .lp-body .lp-band {
+  background-color: rgb(255 255 255 / 0.05) !important;
+  color: rgb(255 255 255 / 0.85) !important;
+}

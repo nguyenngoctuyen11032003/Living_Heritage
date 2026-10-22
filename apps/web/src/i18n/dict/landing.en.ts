@@ -221,6 +221,50 @@ export default {
     title: 'Every story starts with a single question',
     body: '“What was your favourite food as a child?” — that’s all it takes to begin.',
   },
+  home: {
+    hero: {
+      video: 'The background video is illustrative stock footage, not a family using Living Heritage.',
+      shortcuts: 'Shortcuts',
+    },
+    about: {
+      label: 'What Living Heritage is',
+      titleA: 'Keep the voices, the memories',
+      titleB: 'and the know-how of those who came before.',
+    },
+    featured: {
+      label: 'How it works',
+      cta: 'See how it works',
+    },
+    philosophy: {
+      titleA: 'People',
+      titleB: 'AI',
+    },
+    services: {
+      title: 'One story, many places to live on',
+      label: 'Explore further',
+      explore: { tag: 'Explore knowledge', title: 'Know-how from those who came before', link: 'Open the knowledge hub' },
+      book: { tag: 'Memory books', title: 'A book that speaks', link: 'See memory books' },
+      org: { tag: 'For organizations', title: 'Record a community’s memories', link: 'See the programme for organizations' },
+    },
+    marquee: {
+      label: 'The topics people tell most',
+      rowA: 'Cooking|Gardening|Crafts|Tết|Village markets|Childhood',
+      rowB: 'Hometown|Home ways|Working life|Harvest|Family|Star lanterns',
+    },
+    sphere: {
+      label: 'A sphere of memories',
+      title: 'Every elder is a book',
+      hint: 'Drag to rotate · pick a memory to read it',
+      hintTouch: 'Swipe sideways to rotate · tap to read',
+      open: 'Open memory: {title}',
+      read: 'Read the whole story',
+      listen: 'Hear the sample story',
+      age: 'age {age}',
+    },
+    steps: {
+      label: 'Four steps',
+    },
+  },
   footer: {
     tagline: 'Keep their voices, pass on what they know.',
     cols: { product: 'Product', explore: 'Explore', about: 'About', legal: 'Legal' },

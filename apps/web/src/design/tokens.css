@@ -15,19 +15,26 @@
 }
 
 /*
- * Dark theme for the signed-in app (lib/theme.ts sets html[data-theme] only while the app shell is mounted).
- * Same token roles, so every bg-cream / bg-paper / text-ink / bg-heritage … flips without per-component changes:
- * cream = page, paper = raised surface, heritage = primary (light green, so `bg-heritage text-cream` stays legible).
+ * Dark theme for every page, modelled on /sach-ky-uc (the reference page): a black page, near-black raised surfaces,
+ * white type and cream-white actions — no green tint. Same token roles, so every bg-cream / bg-paper / text-ink /
+ * bg-heritage … flips without per-component changes: cream = page, paper = raised surface (opaque, so dialogs and menus
+ * stay solid; cards get their glass look from cards.css), heritage = primary (cream-white, so `bg-heritage text-cream`
+ * is a cream pill with black text, like the /sach-ky-uc buttons).
  */
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --cream: #111a17;
-  --paper: #18231f;
-  --ink: #e9e4d4;
-  --ink-soft: #a7b3ad;
-  --heritage: #8cc7b0;
-  --heritage-deep: #b9e0cf;
-  --terracotta: #e58e74;
-  --mint: #22372f;
-  --line: #2c3a35;
+  --cream: #000;
+  --paper: #0e0e0e;
+  --ink: #f5f3ee;
+  --ink-soft: #ababab;
+  --heritage: #f2efe6;
+  --heritage-deep: #fff;
+  --terracotta: #e8997f;
+  --mint: #1e1e1e;
+  --line: rgb(255 255 255 / 0.13);
+  --night: #050505;
+  --night-card: #111;
+  --night-ink: #f2efe6;
+  --heritage-deep-fixed: #0a0a0a;
+  --mint-fixed: #f2efe6;
 }

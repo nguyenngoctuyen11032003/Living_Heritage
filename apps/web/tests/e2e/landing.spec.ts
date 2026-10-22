@@ -69,6 +69,14 @@ test('no horizontal scroll at 360px', async ({ page }) => {
   await expectNoHorizontalScroll(page);
 });
 
+test('the hero search opens the knowledge hub with the query', async ({ page }) => {
+  await page.goto('/');
+  const search = page.getByRole('search', { name: vi.knowledge.hero.searchLabel }).first();
+  await search.getByRole('searchbox').fill('cá kho');
+  await search.getByRole('button', { name: vi.knowledge.hero.searchCta }).click();
+  await expect(page).toHaveURL(/\/kham-pha\?q=c%C3%A1(\+|%20)kho/);
+});
+
 test('FAQ accordion works with the keyboard', async ({ page }) => {
   await page.goto('/');
   const faq = page.getByRole('region', { name: vi.landing.faq.title });

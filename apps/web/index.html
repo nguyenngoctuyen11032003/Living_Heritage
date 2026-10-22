@@ -12,20 +12,19 @@
     <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
     <script>
       (function () {
-        // Theme before first paint (same rule as lib/theme.ts: stored choice, else the system preference): no light flash.
+        // Theme before first paint (same rule as lib/theme.ts: stored choice, else dark by default): no light flash.
         var d = document.documentElement;
         var th;
         try {
           th = localStorage.getItem('lh.theme');
         } catch (e) {}
-        if (th !== 'light' && th !== 'dark') th = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        if (th !== 'light' && th !== 'dark') th = 'dark';
         d.dataset.theme = th;
-        if (th === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#111A17');
+        if (th === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000000');
         try {
           var l = localStorage.getItem('lh.locale');
           if (l === 'en' || l === 'vi') document.documentElement.lang = l;
-          var s = localStorage.getItem('lh.textScale');
-          if (s === '115' || s === '130') document.documentElement.dataset.textScale = s;
+          localStorage.removeItem('lh.textScale');
         } catch (e) {}
       })();
     </script>

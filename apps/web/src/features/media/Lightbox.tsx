@@ -92,7 +92,7 @@ export function Lightbox({
             {item.url ? (
               <img src={item.url} alt={alt} onError={onImageError} className="max-h-[62dvh] w-auto max-w-full object-contain" />
             ) : (
-              <p className="flex items-center gap-2 p-8 text-cream">
+              <p className="flex items-center gap-2 p-8 text-cream-fixed">
                 <ImageOff className="size-5" aria-hidden="true" />
                 {t('photos.noPreview')}
               </p>

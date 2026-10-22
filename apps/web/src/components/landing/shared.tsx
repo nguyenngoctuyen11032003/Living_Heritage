@@ -44,7 +44,7 @@ export function SectionHeading({ eyebrow, title, lead, align = 'left', tone = 'l
           <span aria-hidden="true" className={cn('h-px w-6', dark ? 'bg-mint/60' : 'bg-terracotta/60')} />
           {eyebrow}
         </p>
-        <h2 id={id} className={cn('mt-4 text-balance font-serif text-[clamp(1.9rem,4.2vw,3.15rem)] font-semibold leading-display tracking-[-0.02em]', dark ? 'text-night-ink' : 'text-heritage-deep')}>
+        <h2 id={id} className={cn('mt-4 text-balance font-serif text-[clamp(2.3rem,5vw,4.4rem)] leading-display', dark ? 'text-night-ink' : 'text-heritage-deep')}>
           {title}
         </h2>
         {lead && <p className={cn('mt-5 text-pretty text-[1.05rem] leading-relaxed md:text-[1.12rem]', dark ? 'text-night-ink/80' : 'text-ink-soft', align === 'center' && 'mx-auto max-w-2xl')}>{lead}</p>}

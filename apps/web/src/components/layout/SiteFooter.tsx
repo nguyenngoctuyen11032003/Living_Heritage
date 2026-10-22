@@ -1,14 +1,21 @@
-// Public site footer (restyled by Workstream C; export name kept).
-import { ArrowUp } from 'lucide-react';
+// Public site footer ("meadow"): brand block + link columns on paper, a looping meadow video fading into it, and a
+// giant frosted wordmark sinking into fog. Layout and values live in site-footer.css.
+import { ArrowUp, Mic } from 'lucide-react';
 import { Link } from 'react-router';
 import { useT } from '@/i18n';
-import { Logo } from './Logo';
+import { useReducedMotionSafe } from '@/design/motion';
+import { LogoMark } from './Logo';
+import './site-footer.css';
 
 type FooterLink = { to: string; label: string };
+
+const MEADOW_VIDEO = 'https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/4d01c727-d9c5-47c8-a778-35a451ffd39f.mp4';
+const MEADOW_POSTER = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261014_121838_c97d0940-f430-4304-8573-4f47ee44f447.png';
 
 export function SiteFooter() {
   const tc = useT('common');
   const t = useT('landing');
+  const reduced = useReducedMotionSafe();
   const columns: Array<{ title: string; links: FooterLink[] }> = [
     {
       title: t('footer.cols.product'),
@@ -36,65 +43,72 @@ export function SiteFooter() {
         { to: '/to-chuc#lien-he', label: tc('footer.contact') },
       ],
     },
-    {
-      title: t('footer.cols.legal'),
-      links: [
-        { to: '/quyen-rieng-tu', label: t('footer.links.privacy') },
-        { to: '/dieu-khoan', label: t('footer.links.terms') },
-      ],
-    },
   ];
 
   return (
-    <footer className="relative isolate overflow-hidden bg-night text-night-ink">
-      <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 -z-10 opacity-[0.12] mix-blend-overlay" />
-      {/* @container: the link grid steps by available em-width, so at very large text it drops to one column. */}
-      <div className="@container mx-auto max-w-7xl px-4 pb-10 pt-16 sm:px-6 md:pt-20 lg:px-8">
-        <div className="grid gap-12 lg:grid-cols-12">
-          <div className="min-w-0 lg:col-span-4">
-            <Logo tone="dark" wrap />
-            <p className="mt-4 max-w-xs font-serif text-[1.1rem] italic leading-relaxed text-night-ink/80">{t('footer.tagline')}</p>
-            <div className="mt-6 inline-flex max-w-sm items-start gap-3 rounded-2xl bg-white/5 p-4 ring-1 ring-white/10">
-              <span aria-hidden="true" className="relative mt-1.5 inline-flex size-2 shrink-0">
-                <span className="absolute inset-0 animate-ping rounded-full bg-mint/50 motion-reduce:hidden" />
-                <span className="relative size-2 rounded-full bg-mint" />
-              </span>
-              <span>
-                <span className="block text-[0.9rem] font-semibold text-night-ink">{t('footer.status')}</span>
-                <span className="mt-1 block text-[0.8rem] leading-relaxed text-night-ink/75">{t('footer.statusBody')}</span>
-              </span>
-            </div>
-          </div>
-          <nav aria-label={tc('brand.name')} className="grid min-w-0 grid-cols-1 gap-8 @min-[16em]:grid-cols-2 @min-[32em]:grid-cols-4 lg:col-span-8">
-            {columns.map((col) => (
-              <div key={col.title}>
-                <h2 className="text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-mint">{col.title}</h2>
-                <ul className="mt-4 flex flex-col">
-                  {col.links.map((l) => (
-                    <li key={l.to}>
-                      <Link to={l.to} className="inline-flex min-h-11 items-center text-[0.95rem] text-night-ink/80 transition-colors hover:text-white">
-                        {l.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </nav>
-        </div>
-
-        <p aria-hidden="true" className="pointer-events-none mt-16 select-none overflow-hidden whitespace-nowrap pb-[0.08em] pt-[0.12em] font-sans text-[15.5vw] font-semibold leading-[1.06] tracking-[-0.06em] text-night-ink/[0.07] xl:text-[13.5rem]">
-          {tc('brand.name')}
-        </p>
-
-        <div className="mt-6 flex flex-col gap-5 border-t border-white/10 pt-6 md:flex-row md:items-center md:justify-between">
-          <p className="text-[0.82rem] text-night-ink/70">{tc('footer.rights')}</p>
-          <a href="#main" className="inline-flex min-h-12 items-center gap-2 self-start rounded-full px-4 text-[0.85rem] font-semibold text-night-ink/85 ring-1 ring-white/15 transition-colors hover:bg-white/8 md:self-auto">
-            <ArrowUp aria-hidden="true" className="size-4" />
-            {t('footer.backToTop')}
-          </a>
-        </div>
+    <footer className="sf">
+      <div className="sf__stage" aria-hidden="true">
+        <video
+          className="sf__video"
+          src={MEADOW_VIDEO}
+          poster={MEADOW_POSTER}
+          autoPlay={!reduced}
+          muted
+          loop
+          playsInline
+          preload={reduced ? 'metadata' : 'auto'}
+          disablePictureInPicture
+          tabIndex={-1}
+        />
       </div>
+      <p className="sf__wordmark" aria-hidden="true" style={{ ["--chars" as string]: tc("brand.name").length }}>
+        {tc('brand.name')}
+      </p>
+      <div className="sf__fog" aria-hidden="true" />
+
+      <div className="sf__content">
+        <div className="sf-brand">
+          <Link to="/" className="sf-brand__logo">
+            <LogoMark inner="var(--cream)" />
+            {tc('brand.name')}
+          </Link>
+          <h2 className="sf-brand__title">{t('footer.tagline')}</h2>
+          <p className="sf-brand__text">
+            <span className="block font-semibold text-ink">{t('footer.status')}</span>
+            <span className="block">{t('footer.statusBody')}</span>
+          </p>
+          <Link to="/ke-chuyen" className="sf-brand__cta">
+            <Mic aria-hidden="true" />
+            {t('footer.links.tell')}
+          </Link>
+          <p className="sf-brand__copy">{tc('footer.rights')}</p>
+          <ul className="sf__legal">
+            <li>
+              <Link to="/quyen-rieng-tu">{t('footer.links.privacy')}</Link>
+            </li>
+            <li>
+              <Link to="/dieu-khoan">{t('footer.links.terms')}</Link>
+            </li>
+          </ul>
+        </div>
+        {columns.map((col) => (
+          <nav key={col.title} aria-label={col.title}>
+            <h2 className="sf-col__title">{col.title}</h2>
+            <ul className="sf-col__list">
+              {col.links.map((l) => (
+                <li key={l.to}>
+                  <Link to={l.to}>{l.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))}
+      </div>
+
+      <a href="#main" className="sf__top">
+        <ArrowUp aria-hidden="true" className="size-4" />
+        {t('footer.backToTop')}
+      </a>
     </footer>
   );
 }

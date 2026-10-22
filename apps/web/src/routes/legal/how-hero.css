@@ -3,8 +3,9 @@
  * HowHero). Portrait tablets and phones reflow into a grid mirrored across a centre rail. One entrance, then still.
  */
 .hh-frame {
-  --hh-display: 'Oswald', 'Be Vietnam Pro', system-ui, sans-serif;
-  --hh-ui: 'Oswald', 'Be Vietnam Pro', system-ui, sans-serif;
+  /* Same type as /sach-ky-uc: display serif (Instrument Serif in English, Noto Serif in Vietnamese) + Be Vietnam Pro. */
+  --hh-display: 'Instrument Serif', var(--font-serif);
+  --hh-ui: var(--font-sans);
   --hh-strong: var(--heritage-deep);
   --hh-ink: var(--ink-soft);
   --hh-accent: var(--terracotta);
@@ -22,17 +23,22 @@
   font-variant-ligatures: none;
   text-rendering: geometricPrecision;
 }
-.hh-scene { position: absolute; inset: 0; z-index: -1; opacity: 0.14; pointer-events: none; }
-:root[data-theme='dark'] .hh-scene { display: none; }
-.hh-video { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: center; background: #0a0b0c; }
+.hh-video { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; object-position: center; background: var(--cream); }
+/* Light theme: milky cream wash over the footage (like the /sach-ky-uc hero) so deep-green type stays readable. */
 .hh-tint {
   position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(60% 46% at 50% 40%, rgba(250,247,240,.72) 0%, rgba(250,247,240,.3) 70%, transparent 100%),
+    linear-gradient(to bottom, rgba(250,247,240,.55) 0%, rgba(250,247,240,.38) 40%, rgba(250,247,240,.62) 72%, rgba(250,247,240,.82) 100%);
+}
+:root[data-theme='dark'] .hh-video { background: #0a0b0c; }
+:root[data-theme='dark'] .hh-tint {
   background: linear-gradient(to bottom, rgba(0,0,0,.118) 0%, rgba(0,0,0,.092) 11%, rgba(0,0,0,.083) 20%, rgba(0,0,0,.079) 29%, rgba(0,0,0,.014) 37.5%, rgba(0,0,0,.016) 46%, rgba(0,0,0,.043) 55%, rgba(0,0,0,.058) 64%, rgba(0,0,0,.062) 73%, rgba(0,0,0,.08) 81%, rgba(0,0,0,.09) 90%, rgba(0,0,0,.095) 100%);
 }
 /* Over the footage: cream type, white icons, soft shadows (as in the reference). */
 :root[data-theme='dark'] .hh-frame { --hh-strong: #f7f5ef; --hh-ink: rgba(255,255,255,.88); --hh-accent: #d6523a; background: #0a0b0c; }
 :root[data-theme='dark'] .hh-icon { color: #f9f9f9; --hh-cut: #101215; }
-:root[data-theme='dark'] .hh-eyebrow { color: #f7f5ef; text-shadow: 0 1px 3px rgba(0,0,0,.45); }
+:root[data-theme='dark'] .hh-eyebrow { color: rgb(247 245 239 / 0.75); text-shadow: 0 1px 3px rgba(0,0,0,.45); }
 :root[data-theme='dark'] .hh-headline { text-shadow: 0 15px 36px rgba(0,0,0,.5); }
 :root[data-theme='dark'] .hh-feature h2 { color: #f9f9f9; text-shadow: 0 1px 4px rgba(0,0,0,.4); }
 :root[data-theme='dark'] .hh-feature p { text-shadow: 0 1px 3px rgba(0,0,0,.35); }
@@ -42,25 +48,24 @@
   width: 1280px; height: 800px; margin: -400px 0 0 -640px;
   transform: scale(var(--s)); transform-origin: 50% 50%;
 }
-.hh-eyebrow, .hh-headline { position: absolute; left: 0; width: 1280px; margin: 0; text-align: center; text-transform: uppercase; }
+.hh-eyebrow, .hh-headline { position: absolute; left: 0; width: 1280px; margin: 0; text-align: center; }
+.hh-eyebrow { text-transform: uppercase; }
 .hh-eyebrow {
-  top: 67.8px; font: 700 7.4px/7.4px var(--hh-ui); word-spacing: 0.522px;
-  color: var(--hh-accent); letter-spacing: 2.252px; text-indent: 2.252px;
+  top: 80px; font: 600 9px/9px var(--hh-ui);
+  color: color-mix(in srgb, var(--hh-strong) 62%, transparent); letter-spacing: 0.2em; text-indent: 0.2em;
 }
 .hh-eyebrow > span { position: relative; display: block; left: -0.9px; }
-.hh-headline { top: 0; height: 330px; font: 700 61.74px/61.74px var(--hh-display); word-spacing: 2.691px; color: var(--hh-strong); }
-.hh-headline span { position: absolute; left: 0; width: 1280px; display: block; white-space: nowrap; }
-.hh-headline .hh-l1 { top: 83.62px; letter-spacing: -0.075px; left: 0.45px; text-indent: -0.075px; }
-.hh-headline .hh-l2 { top: 137.02px; letter-spacing: -0.4px; text-indent: -0.4px; }
-.hh-headline .hh-l3 { top: 187.97px; letter-spacing: -0.237px; left: 1.8px; text-indent: -0.237px; }
-.hh-headline .hh-l4 { top: 247.92px; letter-spacing: -0.487px; left: 1.35px; text-indent: -0.487px; }
+.hh-headline { top: 106px; font: 400 70px/1 var(--hh-display); letter-spacing: -0.02em; color: var(--hh-strong); }
+.hh-headline:lang(vi) { font-family: var(--font-serif); font-size: 58px; line-height: 1.14; letter-spacing: -0.03em; }
+.hh-headline span { display: block; white-space: nowrap; }
 
 .hh-mark { position: absolute; left: 614px; top: 493.6px; width: 52px; height: 52px; overflow: visible; color: var(--hh-accent); }
 
 .hh-feature { position: absolute; top: 0; width: 0; height: 0; }
 .hh-feature h2, .hh-feature p, .hh-feature .hh-icon { position: absolute; margin: 0; }
-.hh-feature h2 { font: 700 19.57px/20px var(--hh-ui); word-spacing: 1.838px; text-transform: uppercase; color: var(--hh-strong); top: 617.68px; }
-.hh-feature p { font: 400 12.28px/15.1px var(--hh-ui); word-spacing: -0.194px; color: var(--hh-ink); top: 681.9px; }
+.hh-feature h2 { font: 400 26px/1.05 var(--hh-display); letter-spacing: -0.01em; color: var(--hh-strong); top: 606px; }
+.hh-feature h2:lang(vi) { font-family: var(--font-serif); font-size: 22px; line-height: 1.2; }
+.hh-feature p { font: 400 11.5px/1.5 var(--hh-ui); color: var(--hh-ink); top: 674px; }
 .hh-feature h2 span, .hh-feature p span { position: relative; display: block; white-space: nowrap; }
 .hh-left { right: 748.5px; text-align: right; }
 .hh-left h2 { right: 0; }
@@ -152,4 +157,14 @@
   .hh-feature p span::after { content: ' '; }
   .hh-left p { margin-left: auto; }
   .hh-right p { margin-right: auto; }
+}
+
+/* Vietnamese on tablet / phone: keep the responsive sizes, with leading loose enough for stacked marks. */
+@media (min-width: 610px) and (max-aspect-ratio: 1/1) {
+  .hh-headline:lang(vi) { font-size: calc(72 * var(--u)); line-height: 1.12; }
+  .hh-feature h2:lang(vi) { font-size: calc(22 * var(--u)); }
+}
+@media (max-width: 609px) {
+  .hh-headline:lang(vi) { font-size: clamp(26px, min(10vw, calc(44 * var(--u))), 56px); line-height: 1.14; }
+  .hh-feature h2:lang(vi) { font-size: clamp(15px, calc(17 * var(--u)), 20px); }
 }

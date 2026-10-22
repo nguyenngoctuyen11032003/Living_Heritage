@@ -1,5 +1,6 @@
 // Landing sections (Workstream C). Reusable on static pages.
-export { Hero, StoryRibbon } from './Hero';
+export { StoryRibbon } from './Hero';
+export { HomeHero, HomeAbout, HomeFeatured, HomeSteps, HomePhilosophy, HomeServices, HomeCta } from './HomeCinema';
 export { CurvedCarousel } from './CurvedCarousel';
 export { SampleStory } from './SampleStory';
 export { Manifesto, CreamPillLink } from './Manifesto';
@@ -16,3 +17,6 @@ export type { FaqKey } from './Faq';
 export { FinalCta } from './FinalCta';
 export { PrimaryCta, SectionHeading, ArrowLink, Section } from './shared';
 export { cardGeometry, pushX, edgeHeight, cardWidth } from './carouselGeometry';
+export { TopicMarquee } from './TopicMarquee';
+export { MemorySphere } from './MemorySphere';
+export { CursorDot } from './CursorDot';

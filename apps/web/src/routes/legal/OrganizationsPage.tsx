@@ -1,12 +1,16 @@
-import { ArrowDown, Building2, Check, Landmark, Library, School, UsersRound, type LucideIcon } from 'lucide-react';
+import { ArrowDown, ArrowRight, Building2, Check, Landmark, Library, School, UsersRound, type LucideIcon } from 'lucide-react';
 import { useEffect } from 'react';
 import { useLocation } from 'react-router';
 import { Section, SectionHeading } from '@/components/landing';
 import { Reveal } from '@/components/motion';
 import { useT } from '@/i18n';
 import { OrgContactForm } from './OrgContactForm';
-import { PageHero, StepGrid } from './StaticPage';
+import { StepGrid } from './StaticPage';
 import { useDocumentTitle, useLegalDict } from './hooks';
+import { useReducedMotionSafe } from '@/design/motion';
+import { useDisplayFont } from '@/design/useDisplayFont';
+import './org-hero.css';
+import '@/design/landing-body.css';
 
 const AUDIENCES: Array<{ key: 'library' | 'museum' | 'seniors' | 'school'; icon: LucideIcon }> = [
   { key: 'library', icon: Library },
@@ -16,11 +20,48 @@ const AUDIENCES: Array<{ key: 'library' | 'museum' | 'seniors' | 'school'; icon:
 ];
 const PRINCIPLES = ['a', 'b', 'c', 'd'] as const;
 
+const HERO_VIDEO = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_204103_f607742e-09da-4cf5-bb06-4e67b0a531de.mp4';
+
+/** Full-viewport hero over looping footage; the last words of the heading are set in italics. */
+function OrgHero() {
+  const t = useT('legal');
+  const reduced = useReducedMotionSafe();
+  const words = t('orgs.heading').split(' ');
+  const cut = Math.max(1, words.length - 3);
+  return (
+    <section aria-labelledby="org-title" className="oh">
+      <video className="oh__video" src={HERO_VIDEO} autoPlay={!reduced} muted loop playsInline preload={reduced ? 'metadata' : 'auto'} disablePictureInPicture aria-hidden="true" tabIndex={-1} />
+      <div aria-hidden="true" className="oh__wash" />
+      <div className="oh__inner">
+        <p className="oh__eyebrow">
+          <i aria-hidden="true" />
+          {t('orgs.eyebrow')}
+          <i aria-hidden="true" />
+        </p>
+        <h1 id="org-title" className="oh__title">
+          {words.slice(0, cut).join(' ')} <em>{words.slice(cut).join(' ')}</em>
+        </h1>
+        <p className="oh__lead">{t('orgs.lead')}</p>
+        <div className="oh__actions">
+          <a href="#lien-he" className="oh__btn oh__btn--solid">
+            {t('orgs.contactCta')}
+            <ArrowRight aria-hidden="true" />
+          </a>
+          <a href="#chuong-trinh" className="oh__btn oh__btn--ghost">
+            {t('orgs.programTitle')}
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /** /to-chuc */
 export default function OrganizationsPage() {
   const t = useT('legal');
   const d = useLegalDict().orgs;
   useDocumentTitle(t('orgs.title'));
+  useDisplayFont();
   const { hash } = useLocation();
 
   // Footer deep link /to-chuc#lien-he.
@@ -32,8 +73,9 @@ export default function OrganizationsPage() {
 
   return (
     <>
-      <PageHero eyebrow={t('orgs.eyebrow')} heading={t('orgs.heading')} lead={t('orgs.lead')} />
+      <OrgHero />
 
+      <div className="lp-body">
       <Section labelledBy="aud-title" className="!pt-4">
         <h2 id="aud-title" className="sr-only">
           {t('orgs.audiencesTitle')}
@@ -51,7 +93,7 @@ export default function OrganizationsPage() {
         </ul>
       </Section>
 
-      <Section labelledBy="program-title" className="bg-paper/60">
+      <Section id="chuong-trinh" labelledBy="program-title" className="bg-paper/60">
         <SectionHeading id="program-title" eyebrow={t('orgs.eyebrow')} title={t('orgs.programTitle')} />
         <Reveal className="mt-12">
           <StepGrid steps={(['s1', 's2', 's3', 's4'] as const).map((k) => d.program[k])} />
@@ -73,9 +115,9 @@ export default function OrganizationsPage() {
               ))}
             </ul>
           </Reveal>
-          <Reveal delay={0.1} className="relative isolate overflow-hidden rounded-[1.75rem] bg-night p-7 text-night-ink md:p-9">
+          <Reveal delay={0.1} className="lp-dark-card relative isolate overflow-hidden rounded-[1.75rem] bg-night p-7 text-night-ink md:p-9">
             <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 -z-10 opacity-[0.15] mix-blend-overlay" />
-            <span aria-hidden="true" className="inline-flex size-12 items-center justify-center rounded-2xl bg-mint/12 text-mint ring-1 ring-mint/20">
+            <span aria-hidden="true" className="inline-flex size-12 items-center justify-center rounded-2xl bg-white/10 text-mint-fixed ring-1 ring-white/15">
               <Building2 className="size-5" />
             </span>
             <h2 className="mt-5 font-serif text-[1.6rem] font-semibold">{t('orgs.contactTitle')}</h2>
@@ -98,6 +140,7 @@ export default function OrganizationsPage() {
           </Reveal>
         </div>
       </Section>
+      </div>
     </>
   );
 }

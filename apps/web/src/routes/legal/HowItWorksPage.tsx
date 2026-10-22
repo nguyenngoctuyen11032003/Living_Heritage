@@ -1,31 +1,18 @@
 import { BadgeCheck, Check, FileText, Mic, Share2, type LucideIcon } from 'lucide-react';
-import { useEffect, useLayoutEffect, useRef } from 'react';
-import { StoryScene } from '@/components/illustrations/scenes';
+import { useLayoutEffect, useRef } from 'react';
 import { Faq, FinalCta, OneVoiceThreeOutputs, PrimaryCta, Section } from '@/components/landing';
 import { Reveal } from '@/components/motion';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
-import { useTheme } from '@/lib/theme';
 import { useReducedMotionSafe } from '@/design/motion';
+import { useDisplayFont } from '@/design/useDisplayFont';
 import { useDocumentTitle, useLegalDict } from './hooks';
 import './how-hero.css';
+import '@/design/landing-body.css';
 
 const ICONS: Record<'s1' | 's2' | 's3' | 's4', LucideIcon> = { s1: Mic, s2: FileText, s3: BadgeCheck, s4: Share2 };
 
 const TRAIN_VIDEO = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20261005_115944_095d91d4-030f-4e82-b42b-a388c0816d24.mp4';
-const OSWALD = 'https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap';
-
-/** Oswald (condensed display face of the hero; has a Vietnamese subset). Falls back to Be Vietnam Pro until loaded. */
-function useOswald() {
-  useEffect(() => {
-    if (document.getElementById('font-oswald')) return;
-    const link = document.createElement('link');
-    link.id = 'font-oswald';
-    link.rel = 'stylesheet';
-    link.href = OSWALD;
-    document.head.appendChild(link);
-  }, []);
-}
 
 /** Accent mark on the centre axis: a dashed ring around a small spoken "voice" curl. */
 function AxisMark() {
@@ -87,9 +74,8 @@ function SheetsIcon() {
 function HowHero() {
   const t = useT('legal');
   const frame = useRef<HTMLElement>(null);
-  const [theme] = useTheme();
   const reduced = useReducedMotionSafe();
-  useOswald();
+  useDisplayFont();
 
   // Landscape stage is 1280x800, fitted to the frame (the CSS reflows to a grid instead in portrait / on phones).
   useLayoutEffect(() => {
@@ -109,27 +95,20 @@ function HowHero() {
   ] as const;
   return (
     <section ref={frame} aria-labelledby="how-title" className="hh-frame">
-      {/* Dark theme: aerial freight-train footage (decorative, muted, looping; not fetched in the light theme). */}
-      {theme === 'dark' && (
-        <>
-          <video
-            className="hh-video"
-            src={TRAIN_VIDEO}
-            autoPlay={!reduced}
-            muted
-            loop
-            playsInline
-            preload={reduced ? 'metadata' : 'auto'}
-            disablePictureInPicture
-            aria-hidden="true"
-            tabIndex={-1}
-          />
-          <div aria-hidden="true" className="hh-tint" />
-        </>
-      )}
-      <div aria-hidden="true" className="hh-scene">
-        <StoryScene kind="porch" className="absolute inset-0" />
-      </div>
+      {/* Aerial freight-train footage in both themes (decorative, muted, looping). Light theme adds a cream wash, as on /sach-ky-uc. */}
+      <video
+        className="hh-video"
+        src={TRAIN_VIDEO}
+        autoPlay={!reduced}
+        muted
+        loop
+        playsInline
+        preload={reduced ? 'metadata' : 'auto'}
+        disablePictureInPicture
+        aria-hidden="true"
+        tabIndex={-1}
+      />
+      <div aria-hidden="true" className="hh-tint" />
       <div className="hh-stage">
         <p className="hh-eyebrow">
           <span>{t('how.eyebrow')}</span>
@@ -171,6 +150,7 @@ export default function HowItWorksPage() {
     <>
       <HowHero />
 
+      <div className="lp-body">
       <Section className="!pb-0">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-pretty text-[1.1rem] leading-relaxed text-ink-soft md:text-[1.2rem]">{t('how.lead')}</p>
@@ -213,6 +193,7 @@ export default function HowItWorksPage() {
       <OneVoiceThreeOutputs />
       <Faq keys={['ai', 'write', 'who']} />
       <FinalCta />
+      </div>
     </>
   );
 }

@@ -53,7 +53,7 @@ export function Book3D({ className }: { className?: string }) {
             open && '[transform:rotateY(-158deg)]',
           )}
         >
-          <div className="absolute inset-0 flex flex-col overflow-hidden rounded-r-md rounded-l-sm bg-heritage-deep p-7 text-left text-night-ink shadow-[inset_8px_0_14px_-8px_rgba(0,0,0,0.5)]">
+          <div className="absolute inset-0 flex flex-col overflow-hidden rounded-r-md rounded-l-sm bg-[#163a31] p-7 text-left text-[#e9e4d4] shadow-[inset_8px_0_14px_-8px_rgba(0,0,0,0.5)] [:root[data-theme='dark']_&]:ring-1 [:root[data-theme='dark']_&]:ring-[#d8b46a]/25">
             <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-overlay" />
             <div className="absolute inset-3 rounded-sm border border-[#d8b46a]/40" aria-hidden="true" />
             <p className="relative text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-[#d8b46a]">{t('manifesto.wordmark')}</p>
@@ -61,7 +61,7 @@ export function Book3D({ className }: { className?: string }) {
               <StoryScene kind="garden" />
             </div>
             <p className="relative mt-6 text-center font-serif text-[1.55rem] font-semibold leading-tight text-[#f1dca8] sm:text-[1.75rem]">{t('book.coverTitle')}</p>
-            <p className="relative mt-auto text-center font-serif text-[0.9rem] italic text-night-ink/80">{t('book.coverAuthor')}</p>
+            <p className="relative mt-auto text-center font-serif text-[0.9rem] italic text-[#e9e4d4]/80">{t('book.coverAuthor')}</p>
           </div>
         </div>
       </div>
