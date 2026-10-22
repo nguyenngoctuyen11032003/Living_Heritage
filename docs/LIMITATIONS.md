@@ -12,7 +12,7 @@ Ký hiệu: **Thật** — xử lý và lưu trữ thật. **Minh họa** — d�
 | Ghi âm | Ghi, tạm dừng, nghe lại, ghi lại có xác nhận, tải tệp có sẵn, giữ bản ghi trên máy khi mất mạng, tối đa 10 phút / 20 MB | — | Tệp ghi âm mẫu dự phòng cho demo |
 | Chép lời và bản nháp | Gemini gọi từ Edge Function `ai-process`; thử lại không nhân đôi; hạn mức theo ngày | Khối "Một lời kể, ba đầu ra" ở trang chủ ghi "Mô phỏng kết quả AI" | — |
 | Duyệt và lưu | Phiên bản, chỉ người kể duyệt (hoặc người hỗ trợ ghi nhận đồng ý), sửa bản công khai thì rút và phải duyệt lại | — | Trường sửa riêng cho tên người, địa điểm, chủ đề |
-| Kho gia đình, bộ sưu tập, album, cây gia đình | Đăng nhập, RLS theo gia đình và từng câu chuyện | — | Kho mẫu (nháp / riêng / được mời) cho demo: **đang bổ sung** cùng `/trai-nghiem` |
+| Kho gia đình, bộ sưu tập, album, cây gia đình | Đăng nhập, RLS theo gia đình và từng câu chuyện | — | Kho mẫu (nháp / riêng / được mời) cho demo (đường demo `/trai-nghiem` dựng sẵn dữ liệu riêng trong bộ nhớ, không dùng kho này) |
 | Kho tri thức | `search_public` chỉ trả bản đã duyệt công bố; tìm có/không dấu; hỏi đáp có dẫn nguồn | Khi kho trống: 8 thẻ `mau-*` với người kể hư cấu, âm thanh phát mô phỏng (không có tệp) | Tệp âm thanh mẫu có quyền dùng |
 | Chia sẻ và quyền | 3 lựa chọn, bật/tắt giọng kể–tên thật–vùng–ảnh, xem trước bản công khai, rút công bố, nhật ký | — | Thời hạn chia sẻ; quyền tải xuống riêng; vai trò biên tập hỗ trợ theo phiên |
 | Tải xuống (B11) | Thành viên chỉ xem không có nút tải; in sách chỉ dành cho người biên tập | — | Chưa có quyền tải riêng ở tầng lưu trữ: ai nghe/xem được câu chuyện đều nhận liên kết có chữ ký hiệu lực 1 giờ tới tệp âm thanh/ảnh, nên người rành kỹ thuật vẫn có thể lưu tệp. Hướng P1: cờ `allow_download` theo từng câu chuyện và liên kết ngắn hạn hơn cho người chỉ xem |
@@ -22,7 +22,7 @@ Ký hiệu: **Thật** — xử lý và lưu trữ thật. **Minh họa** — d�
 | Liên hệ | Đề nghị trao đổi và báo cáo nội dung lưu vào cơ sở dữ liệu | Với thẻ minh họa: chỉ mô phỏng, có thông báo | Kênh liên hệ cho tổ chức (trang `/to-chuc` ghi rõ đang chuẩn bị) |
 | Quản trị | Duyệt công bố, báo cáo, đề nghị trao đổi, AI lỗi, số liệu AI tổng hợp | — | Gỡ nội dung công khai từ báo cáo: **đang bổ sung**. Trạng thái "đang xử lý" và thao tác xoá thật cho yêu cầu xoá: **đang bổ sung** (hiện quản trị phải xoá thủ công) |
 | Đo lường (B17) | `ai_usage` (lượt AI, độ trễ, dung lượng) | — | Sự kiện sản phẩm `app_events`, mã người tham gia, đếm nội dung đã duyệt theo nguồn: **đang bổ sung**. Xuất số hoàn thành theo mã và nhập phiếu dễ dùng: chưa có |
-| Demo | — | Trang chủ, `/kham-pha`, `/tri-thuc/mau-*` chạy được khi chưa kết nối máy chủ | Đường demo `/trai-nghiem` không cần API và nút "Khôi phục dữ liệu mẫu": **đang bổ sung** |
+| Demo | — | Trang chủ, `/kham-pha`, `/tri-thuc/mau-*` chạy được khi chưa kết nối máy chủ | Đường demo `/trai-nghiem` chạy trong bộ nhớ, không gọi API, có nút đặt lại tiến trình (không phải "khôi phục dữ liệu mẫu" trên database) |
 
 Các trang kể chuyện, bản nháp, kho gia đình và sách hiện báo "chưa kết nối" khi không có Supabase; chúng không có chế độ dữ liệu giả.
 

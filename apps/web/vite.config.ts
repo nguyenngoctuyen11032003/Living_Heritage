@@ -46,6 +46,25 @@ function preloadFonts(base: string): Plugin {
   };
 }
 
+/** Warm the TCP/TLS connection to Supabase (used right after first paint). Skipped without a real URL (e2e/dev). */
+function preconnectSupabase(url: string | undefined): Plugin {
+  let origin: string | null = null;
+  try {
+    const u = new URL(url ?? '');
+    if (u.protocol === 'https:' && !u.hostname.endsWith('.invalid')) origin = u.origin;
+  } catch {
+    /* no valid URL */
+  }
+  return {
+    name: 'lh-preconnect-supabase',
+    apply: 'build',
+    transformIndexHtml() {
+      if (!origin) return [];
+      return [{ tag: 'link', attrs: { rel: 'preconnect', href: origin, crossorigin: '' }, injectTo: 'head' as const }];
+    },
+  };
+}
+
 function normalizeBase(value: string | undefined): string {
   if (!value) return '/';
   let base = value.trim().replace(/\/{2,}/g, '/');
@@ -68,7 +87,7 @@ export default defineConfig(({ mode }) => {
     define: { __LH_VERSION__: JSON.stringify(appVersion(env)) },
     base: normalizeBase(env.VITE_BASE_PATH),
     envDir: rootDir,
-    plugins: [react(), tailwindcss(), spaFallback(), preloadFonts(normalizeBase(env.VITE_BASE_PATH))],
+    plugins: [react(), tailwindcss(), spaFallback(), preloadFonts(normalizeBase(env.VITE_BASE_PATH)), preconnectSupabase(env.VITE_SUPABASE_URL)],
     resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
     server: { port: 5173, strictPort: true },
     preview: { port: 4173, strictPort: true },

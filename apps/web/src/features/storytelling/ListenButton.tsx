@@ -106,7 +106,7 @@ export function ListenButton({ text, lang, cache: sharedCache, autoPlay = false 
     [text, speechLang],
   );
 
-  const play = useCallback(async () => {
+  const play = useCallback(async (auto = false) => {
     stopAll();
     const run = ++runRef.current;
     setNotice(null);
@@ -129,6 +129,7 @@ export function ListenButton({ text, lang, cache: sharedCache, autoPlay = false 
     try {
       url = await cache.load(voiceKey(lang, text), () => withTimeout((signal) => fetchQuestionAudio(text, lang, transport, signal)));
     } catch (e) {
+      if (runRef.current !== run) return; // stopped / unmounted: not a server failure
       cache.recordFailure(errorCode(e));
       return fallback();
     }
@@ -144,16 +145,18 @@ export function ListenButton({ text, lang, cache: sharedCache, autoPlay = false 
       await audio.play();
       if (runRef.current === run) setState('playing');
     } catch {
-      // Autoplay blocked (no tap yet) or the file could not play: stay quiet on auto-read, fall back on a tap.
+      // Autoplay blocked (no tap yet) or the file could not play: stay quiet on auto-read, fall back on a tap
+      // (iOS Safari rejects play() after the fetch has outlived the tap).
       if (runRef.current !== run) return;
       audioRef.current = null;
-      setState('idle');
+      if (auto) setState('idle');
+      else fallback();
     }
   }, [cache, lang, serverPossible, speakBrowser, speech, stopAll, text, transport]);
 
   // Stop reading when the question changes or the page goes away; read the new one when auto-read is on.
   useEffect(() => {
-    if (autoPlay && available) void play();
+    if (autoPlay && available) void play(true);
     return stopAll;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text, lang, autoPlay]);
@@ -161,10 +164,10 @@ export function ListenButton({ text, lang, cache: sharedCache, autoPlay = false 
   if (!available) {
     return (
       <div className="flex flex-col gap-2">
-        <Button size="lg" variant="secondary" disabled aria-describedby="listen-unsupported" leftIcon={<Volume2 className="size-6" aria-hidden="true" />} className="text-[1.17rem]!">
+        <Button size="lg" variant="secondary" disabled aria-describedby="listen-unsupported" leftIcon={<Volume2 className="size-6" aria-hidden="true" />} className="text-[1.25rem]!">
           {t('session.listen')}
         </Button>
-        <p id="listen-unsupported" className="text-[1.17rem] text-ink-soft">
+        <p id="listen-unsupported" className="text-[1.25rem] text-ink-soft">
           {t('session.listenUnsupported')}
         </p>
       </div>
@@ -177,17 +180,17 @@ export function ListenButton({ text, lang, cache: sharedCache, autoPlay = false 
       <Button
         size="lg"
         variant="secondary"
-        onClick={() => (state === 'idle' ? void play() : stopAll())}
+        onClick={() => (state === 'idle' ? void play(false) : stopAll())}
         aria-pressed={active}
         aria-busy={state === 'loading'}
-        className="text-[1.17rem]!"
+        className="text-[1.25rem]!"
         leftIcon={
           state === 'loading' ? <Spinner size="sm" decorative /> : active ? <Square className="size-6" aria-hidden="true" /> : <Volume2 className="size-6" aria-hidden="true" />
         }
       >
         {state === 'loading' ? t('session.listenPreparing') : active ? t('session.stopListening') : t('session.listen')}
       </Button>
-      <p role="status" aria-live="polite" className="text-[1.17rem] text-ink-soft empty:hidden">
+      <p role="status" aria-live="polite" className="text-[1.25rem] text-ink-soft empty:hidden">
         {notice === 'fallback' ? t('session.listenFallback') : notice === 'noVoice' ? t('session.noVoice') : notice === 'failed' ? t('session.listenFailed') : ''}
       </p>
     </div>

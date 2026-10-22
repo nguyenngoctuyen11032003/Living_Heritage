@@ -21,6 +21,11 @@ export function translate(locale: Locale, ns: Namespace, key: string, vars?: TVa
   for (const part of key.split('.')) {
     node = node && typeof node === 'object' ? (node as Record<string, unknown>)[part] : undefined;
   }
+  // A key missing in `en` falls back to `vi` (when that dictionary is in memory), then to the key itself.
+  if (typeof node !== 'string' && locale !== 'vi') {
+    node = getLoaded('vi', ns);
+    for (const part of key.split('.')) node = node && typeof node === 'object' ? (node as Record<string, unknown>)[part] : undefined;
+  }
   if (typeof node !== 'string') return key;
   if (!vars) return node;
   return node.replace(/\{(\w+)\}/g, (m, name: string) => (name in vars ? String(vars[name]) : m));

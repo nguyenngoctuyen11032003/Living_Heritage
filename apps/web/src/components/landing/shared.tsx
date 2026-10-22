@@ -6,6 +6,7 @@ import { baseDisplay } from '@/components/ui/display';
 import { Reveal } from '@/components/motion';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
+import './landing.css';
 
 /** The one primary CTA, repeated per section: heritage pill inside a dashed outline ring. */
 export function PrimaryCta({ className, size = 'xl', to = '/ke-chuyen' }: { className?: string; size?: 'lg' | 'xl'; to?: string }) {

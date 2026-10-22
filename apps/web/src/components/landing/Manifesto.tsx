@@ -25,9 +25,9 @@ export function CreamPillLink({ to, children }: { to: string; children: React.Re
 export function Manifesto() {
   const t = useT('landing');
   return (
-    <section aria-labelledby="manifesto-title" className="px-2 py-2 hyphens-auto wrap-anywhere sm:px-3">
+    <section aria-labelledby="manifesto-title" className="cv-section px-2 py-2 hyphens-auto wrap-anywhere sm:px-3">
       <div className="relative isolate overflow-hidden rounded-[2rem] bg-night text-night-ink">
-        <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 -z-10 opacity-[0.15] mix-blend-overlay" />
+        <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 -z-10 opacity-[0.05]" />
         {/* Soft glow as a radial gradient: same look as a 120px blur filter, without re-rasterising a huge filtered layer. */}
         <div
           aria-hidden="true"

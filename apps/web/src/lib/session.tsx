@@ -33,11 +33,17 @@ export function SessionProvider({ children }: { children: ReactNode }) {
             setLoading(false);
             return;
           }
-          void sb.auth.getSession().then(({ data }) => {
-            if (!alive) return;
-            setSession((prev) => (sameSession(prev, data.session) ? prev : data.session));
-            setLoading(false);
-          });
+          sb.auth
+            .getSession()
+            .then(({ data }) => {
+              if (alive) setSession((prev) => (sameSession(prev, data.session) ? prev : data.session));
+            })
+            .catch(() => {
+              /* treat as signed out */
+            })
+            .finally(() => {
+              if (alive) setLoading(false);
+            });
           // Supabase re-emits SIGNED_IN with a freshly parsed session on every tab focus: keep the old object when
           // nothing changed, otherwise every consumer keyed on `user` refetches and gated pages remount (losing drafts,
           // recordings).

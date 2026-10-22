@@ -1,5 +1,5 @@
 import { X } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useReducedMotionSafe, EASE_OUT } from '@/design/motion';
@@ -69,6 +69,11 @@ export function Dialog({ open, onClose, title, description, children, footer, si
       }
       const first = items[0]!;
       const last = items[items.length - 1]!;
+      if (!panelRef.current.contains(document.activeElement)) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+        return;
+      }
       if (e.shiftKey && (document.activeElement === first || document.activeElement === panelRef.current)) {
         e.preventDefault();
         last.focus();
@@ -91,7 +96,7 @@ export function Dialog({ open, onClose, title, description, children, footer, si
     <AnimatePresence>
       {open && (
         <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center sm:p-6">
-          <motion.div
+          <m.div
             className="absolute inset-0 bg-night/60"
             initial={reduced ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -100,7 +105,7 @@ export function Dialog({ open, onClose, title, description, children, footer, si
             onClick={() => onCloseRef.current()}
             aria-hidden="true"
           />
-          <motion.div
+          <m.div
             ref={panelRef}
             role="dialog"
             aria-modal="true"
@@ -110,9 +115,9 @@ export function Dialog({ open, onClose, title, description, children, footer, si
             initial={reduced ? false : { opacity: 0, y: 24, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={reduced ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.98 }}
-            transition={{ duration: 0.3, ease: EASE_OUT }}
+            transition={{ duration: 0.22, ease: EASE_OUT }}
             className={cn(
-              'relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[1.75rem] bg-paper text-ink shadow-[0_30px_80px_-30px_rgba(18,27,24,0.55)] focus:outline-none sm:rounded-[1.75rem]',
+              'relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[1.75rem] bg-paper text-ink shadow-[0_24px_48px_-24px_rgba(18,27,24,0.5)] focus:outline-none sm:rounded-[1.75rem]',
               widths[size],
               className,
             )}
@@ -141,7 +146,7 @@ export function Dialog({ open, onClose, title, description, children, footer, si
             </div>
             {children && <div className="overflow-y-auto px-6 py-3 sm:px-8">{children}</div>}
             {footer && <div className="flex flex-col-reverse gap-3 border-t border-line/70 px-6 py-4 sm:flex-row sm:justify-end sm:px-8">{footer}</div>}
-          </motion.div>
+          </m.div>
         </div>
       )}
     </AnimatePresence>,

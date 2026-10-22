@@ -1,11 +1,15 @@
 import { Suspense, useState } from 'react';
+import { LazyMotion } from 'motion/react';
 import { RouterProvider } from 'react-router';
 import { ToastProvider } from '@/components/ui';
 import { CurrentFamilyProvider } from '@/features/families/current';
 import { LocaleProvider } from '@/i18n';
 import { SessionProvider } from '@/lib/session';
 import { useApplyTheme } from '@/lib/theme';
+import { NavProgress } from './NavProgress';
 import { createAppRouter } from './router';
+
+const loadMotionFeatures = () => import('./motionFeatures').then((mod) => mod.default);
 
 export function App() {
   const [router] = useState(createAppRouter);
@@ -18,7 +22,10 @@ export function App() {
         <SessionProvider>
           <CurrentFamilyProvider>
             <ToastProvider>
-              <RouterProvider router={router} />
+              <LazyMotion features={loadMotionFeatures} strict>
+                <NavProgress router={router} />
+                <RouterProvider router={router} />
+              </LazyMotion>
             </ToastProvider>
           </CurrentFamilyProvider>
         </SessionProvider>

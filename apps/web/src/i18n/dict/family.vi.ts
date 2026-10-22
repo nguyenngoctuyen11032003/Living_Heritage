@@ -227,6 +227,8 @@ export default {
     invalid_email: 'Email chưa hợp lệ.',
     invalid_role: 'Vai trò chưa hợp lệ.',
     invalid_ttl: 'Thời hạn chưa hợp lệ.',
+    invalid_argument: 'Thông tin chưa hợp lệ. Vui lòng kiểm tra lại.',
+    invalid_fields: 'Thông tin chưa hợp lệ. Vui lòng kiểm tra lại.',
     invite_not_found: 'Không tìm thấy lời mời. Liên kết có thể bị thiếu ký tự hoặc đã bị huỷ.',
     invite_used: 'Lời mời này đã được dùng bởi một tài khoản khác.',
     invite_expired: 'Lời mời đã hết hạn. Hãy nhờ người mời gửi lời mời mới.',

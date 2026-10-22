@@ -2,7 +2,7 @@ import { BadgeCheck, FileText, Mic, Share2, type LucideIcon } from 'lucide-react
 import { Reveal } from '@/components/motion';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
-import { ArrowLink, Section, SectionHeading } from './shared';
+import { ArrowLink, PrimaryCta, Section, SectionHeading } from './shared';
 
 const STEPS: Array<{ key: 's1' | 's2' | 's3' | 's4'; icon: LucideIcon; who: 'person' | 'ai' }> = [
   { key: 's1', icon: Mic, who: 'person' },
@@ -16,7 +16,7 @@ export function HowItWorks({ showLink = true, headingLevel = 2 }: { showLink?: b
   const t = useT('landing');
   const H = headingLevel === 2 ? 'h3' : 'h4';
   return (
-    <Section id="cach-hoat-dong" labelledBy="how-title" className="bg-paper/60">
+    <Section id="cach-hoat-dong" labelledBy="how-title" className="cv-section bg-paper/60">
       <SectionHeading id="how-title" eyebrow={t('how.eyebrow')} title={t('how.title')} lead={t('how.lead')} aside={
           showLink ? (
             <div className="flex flex-wrap gap-x-6">
@@ -53,6 +53,11 @@ export function HowItWorks({ showLink = true, headingLevel = 2 }: { showLink?: b
           </Reveal>
         ))}
       </ol>
+      {showLink && (
+        <div className="mt-12 flex justify-center">
+          <PrimaryCta size="lg" />
+        </div>
+      )}
     </Section>
   );
 }

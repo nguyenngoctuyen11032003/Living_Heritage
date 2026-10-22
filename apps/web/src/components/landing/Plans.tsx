@@ -16,9 +16,9 @@ const PLANS = [
 /** Block 12 — planned pricing (clearly not charged) + organisations block. */
 export function Plans({ showOrgs = true }: { showOrgs?: boolean }) {
   const t = useT('landing');
-  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<(typeof PLANS)[number]['key'] | null>(null);
   return (
-    <Section id="goi-dich-vu" labelledBy="plans-title" className="bg-paper/60">
+    <Section id="goi-dich-vu" labelledBy="plans-title" className="cv-section bg-paper/60">
       <SectionHeading id="plans-title" eyebrow={t('plans.eyebrow')} title={t('plans.title')} lead={t('plans.lead')} align="center" />
       <Reveal className="mt-6 flex justify-center">
         <Badge tone="warning" icon={<Info />}>
@@ -58,7 +58,7 @@ export function Plans({ showOrgs = true }: { showOrgs?: boolean }) {
                     </li>
                   ))}
                 </ul>
-                <Button variant={featured ? 'dark-cream' : 'secondary'} size="lg" fullWidth className="mt-8" onClick={() => setOpen(true)}>
+                <Button variant={featured ? 'dark-cream' : 'secondary'} size="lg" fullWidth className="mt-8" onClick={() => setSelected(plan.key)}>
                   {t('cta.interest')}
                 </Button>
               </div>
@@ -70,7 +70,7 @@ export function Plans({ showOrgs = true }: { showOrgs?: boolean }) {
       {showOrgs && (
         <Reveal className="mt-6">
           <div className="relative isolate overflow-hidden rounded-[1.75rem] bg-night p-7 text-night-ink md:p-10">
-            <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 -z-10 opacity-[0.15] mix-blend-overlay" />
+            <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 -z-10 opacity-[0.05]" />
             <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
               <div className="flex gap-5">
                 <span aria-hidden="true" className="hidden size-14 shrink-0 items-center justify-center rounded-2xl bg-mint/12 text-mint-fixed ring-1 ring-mint/20 sm:inline-flex">
@@ -91,16 +91,16 @@ export function Plans({ showOrgs = true }: { showOrgs?: boolean }) {
       )}
 
       <Dialog
-        open={open}
-        onClose={() => setOpen(false)}
+        open={selected !== null}
+        onClose={() => setSelected(null)}
         title={t('plans.interestTitle')}
         description={t('plans.interestBody')}
         footer={
           <>
-            <Button variant="ghost" onClick={() => setOpen(false)}>
+            <Button variant="ghost" onClick={() => setSelected(null)}>
               {t('plans.interestLater')}
             </Button>
-            <ButtonLink to="/bat-dau">{t('plans.interestCta')}</ButtonLink>
+            <ButtonLink to={`/ket-noi?plan=${selected ?? 'year'}`}>{t('plans.interestCta')}</ButtonLink>
           </>
         }
       />

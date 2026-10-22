@@ -4,8 +4,24 @@ import type { Supabase } from '@/lib/supabase';
 import type { PendingStore, PendingUpload } from './pendingStore';
 
 /** Object path inside the bucket — exactly three segments, no bucket prefix. */
-export function buildRecordingPath(familyId: string, narratorId: string, uuid: string): string {
-  return `${familyId}/${narratorId}/${uuid}.webm`;
+export function buildRecordingPath(familyId: string, narratorId: string, uuid: string, mime = 'audio/webm'): string {
+  return `${familyId}/${narratorId}/${uuid}.${recordingExtension(mime)}`;
+}
+
+/** File extension for a recorded MIME type (Safari/iOS records mp4/AAC, everything else webm). */
+export function recordingExtension(mime: string): string {
+  const base = baseMime(mime);
+  if (base === 'audio/mp4' || base === 'audio/x-m4a' || base === 'audio/m4a') return 'm4a';
+  if (base === 'audio/aac') return 'aac';
+  if (base === 'audio/ogg') return 'ogg';
+  if (base === 'audio/mpeg' || base === 'audio/mp3') return 'mp3';
+  if (base === 'audio/wav' || base === 'audio/x-wav') return 'wav';
+  return 'webm';
+}
+
+/** "audio/webm;codecs=opus" -> "audio/webm" (Storage matches its allow-list on the bare type). */
+export function baseMime(mime: string): string {
+  return mime.split(';')[0]!.trim().toLowerCase();
 }
 
 export type UploadErrorCode = 'network' | 'too_large' | 'forbidden' | 'failed';
@@ -115,26 +131,31 @@ export function clampDuration(seconds: number): number {
  */
 export async function uploadPending(pending: PendingUpload, backend: UploadBackend, store: PendingStore): Promise<string> {
   if (pending.blob.size > MAX_AUDIO_BYTES) throw new UploadError('too_large');
-  const path = buildRecordingPath(pending.familyId, pending.narratorId, pending.attemptId);
+  if (pending.blob.size === 0) throw new UploadError('failed');
+  const path = buildRecordingPath(pending.familyId, pending.narratorId, pending.attemptId, pending.mime);
   let current = pending;
 
   if (!current.uploaded) {
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) throw new UploadError('network');
     let res: { error: StorageErr | null };
     try {
-      res = await backend.uploadObject(path, current.blob, current.mime);
+      res = await backend.uploadObject(path, current.blob, baseMime(current.mime) || 'audio/webm');
     } catch {
       throw new UploadError('network');
     }
     if (res.error && !isDuplicateObject(res.error)) {
+      if (String(res.error.statusCode ?? res.error.status ?? '') === '413' || /exceeded the maximum allowed size|too large/i.test(res.error.message)) throw new UploadError('too_large');
       throw new UploadError(isForbidden(res.error) ? 'forbidden' : isNetwork(res.error) ? 'network' : 'failed');
     }
     current = { ...current, uploaded: true };
-    await store.put(current);
+    // The file is safe on the server; failing to note that locally must not fail the upload.
+    await store.put(current).catch(() => {});
   }
 
   let recordingId = current.recordingId;
   if (!recordingId) {
     let res: { id: string | null; error: DbErr | null };
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) throw new UploadError('network', true);
     try {
       res = await backend.insertRecording({
         family_id: current.familyId,
@@ -159,6 +180,6 @@ export async function uploadPending(pending: PendingUpload, backend: UploadBacke
     if (!recordingId) throw new UploadError('failed', true);
   }
 
-  await store.delete(current.key);
+  await store.delete(current.key).catch(() => {});
   return recordingId;
 }

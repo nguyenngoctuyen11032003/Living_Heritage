@@ -6,7 +6,8 @@ import { track } from '@/lib/events';
 import { DurationClock } from './clock';
 import { initialRecorderState, recorderReducer, type RecorderErrorCode } from './recorderReducer';
 
-export const MIME_PREFERENCE = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4'] as const;
+// Chrome/Firefox/Android: webm; Safari/iOS: mp4 (AAC). Last entries cover older Safari builds.
+export const MIME_PREFERENCE = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4;codecs=mp4a.40.2', 'audio/mp4', 'audio/aac'] as const;
 export const WARN_AT_SECONDS = 540;
 
 export interface RecordingResult {

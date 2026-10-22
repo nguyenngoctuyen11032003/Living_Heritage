@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { AnimatePresence, motion, type Variants } from 'motion/react';
+import { AnimatePresence, m, type Variants } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { Button, Dialog } from '@/components/ui';
 import { useReducedMotionSafe } from '@/design/motion';
@@ -11,8 +11,8 @@ import { BookPageView, type BookMeta } from './BookPageView';
 // Light slide + fade between pages (B15: no 3D needed to read); reduced motion → a short cross-fade.
 const slide: Variants = {
   enter: (dir: number) => ({ x: dir > 0 ? 24 : -24, opacity: 0 }),
-  center: { x: 0, opacity: 1, transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] } },
-  exit: (dir: number) => ({ x: dir > 0 ? -24 : 24, opacity: 0, transition: { duration: 0.2, ease: 'easeIn' } }),
+  center: { x: 0, opacity: 1, transition: { duration: 0.24, ease: [0.22, 1, 0.36, 1] } },
+  exit: (dir: number) => ({ x: dir > 0 ? -24 : 24, opacity: 0, transition: { duration: 0.15, ease: 'easeIn' } }),
 };
 
 const fade: Variants = {
@@ -66,17 +66,17 @@ export function BookPreview({ open, onClose, book, pages, chapters }: { open: bo
           <div className="relative w-full max-w-[420px]" style={{ containerType: 'inline-size' }}>
             <div className="relative aspect-[148/210] w-full">
               <AnimatePresence initial={false} custom={dir}>
-                <motion.div
+                <m.div
                   key={index}
                   custom={dir}
                   variants={reduced ? fade : slide}
                   initial="enter"
                   animate="center"
                   exit="exit"
-                  className="absolute inset-0 overflow-hidden rounded-[6px] shadow-[0_24px_50px_-28px_rgba(18,27,24,0.55),0_0_0_1px_rgba(31,41,51,0.08)]"
+                  className="absolute inset-0 overflow-hidden rounded-[6px] shadow-[0_14px_28px_-20px_rgba(18,27,24,0.55),0_0_0_1px_rgba(31,41,51,0.08)]"
                 >
                   <BookPageView page={page} book={book} chapters={chapters} onGoToPage={(n) => setPos(([i]) => [Math.max(0, Math.min(total - 1, n)), n >= i ? 1 : -1])} />
-                </motion.div>
+                </m.div>
               </AnimatePresence>
             </div>
           </div>

@@ -11,6 +11,8 @@ export function safeNext(raw: string | null | undefined, fallback = DEFAULT_AFTE
   const value = raw.trim();
   if (!value.startsWith('/') || value.startsWith('//') || value.includes('\\')) return fallback;
   for (let i = 0; i < value.length; i++) if (value.charCodeAt(i) < 32) return fallback;
+  // Never bounce back into the auth pages themselves: a signed-in user would loop between them.
+  if (/^\/(dang-nhap|dang-ky)(?:[/?#]|$)/.test(value)) return fallback;
   return value;
 }
 

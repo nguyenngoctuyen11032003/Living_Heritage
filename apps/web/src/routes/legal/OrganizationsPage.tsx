@@ -116,7 +116,7 @@ export default function OrganizationsPage() {
             </ul>
           </Reveal>
           <Reveal delay={0.1} className="lp-dark-card relative isolate overflow-hidden rounded-[1.75rem] bg-night p-7 text-night-ink md:p-9">
-            <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 -z-10 opacity-[0.15] mix-blend-overlay" />
+            <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 -z-10 opacity-[0.06]" />
             <span aria-hidden="true" className="inline-flex size-12 items-center justify-center rounded-2xl bg-white/10 text-mint-fixed ring-1 ring-white/15">
               <Building2 className="size-5" />
             </span>

@@ -1,6 +1,5 @@
-import { motion } from 'motion/react';
 import type { CSSProperties, ReactNode } from 'react';
-import { EASE_OUT, useReducedMotionSafe } from '@/design/motion';
+import { useReducedMotionSafe } from '@/design/motion';
 import { baseDisplay } from '@/components/ui/display';
 import { cn } from '@/lib/cn';
 
@@ -14,19 +13,16 @@ export interface HandNoteProps {
   style?: CSSProperties;
 }
 
-/** Hand-written Caveat note in heritage green that fades in once. Decorative by default (aria-hidden) — repeat important text elsewhere. */
+/** Hand-written Caveat note in heritage green that fades in once (CSS keyframes). Decorative by default (aria-hidden) — repeat important text elsewhere. */
 export function HandNote({ children, rotate = -4, delay = 0, className, style }: HandNoteProps) {
   const reduced = useReducedMotionSafe();
   return (
-    <motion.span
+    <span
       aria-hidden="true"
-      className={cn(baseDisplay('inline-block', className), 'pointer-events-none select-none whitespace-nowrap font-hand font-semibold leading-[1.15] text-heritage', className)}
-      style={{ ...style, rotate }}
-      initial={reduced ? false : { opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: EASE_OUT, delay }}
+      className={cn(baseDisplay('inline-block', className), 'pointer-events-none select-none whitespace-nowrap font-hand font-semibold leading-[1.15] text-heritage', reduced ? 'lh-note-static' : 'lh-note', className)}
+      style={{ ...style, '--hn-r': `${rotate}deg`, '--hn-delay': `${delay}s` } as CSSProperties}
     >
       {children}
-    </motion.span>
+    </span>
   );
 }

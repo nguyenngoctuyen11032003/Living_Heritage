@@ -54,7 +54,7 @@ export function Book3D({ className }: { className?: string }) {
           )}
         >
           <div className="absolute inset-0 flex flex-col overflow-hidden rounded-r-md rounded-l-sm bg-[#163a31] p-7 text-left text-[#e9e4d4] shadow-[inset_8px_0_14px_-8px_rgba(0,0,0,0.5)] [:root[data-theme='dark']_&]:ring-1 [:root[data-theme='dark']_&]:ring-[#d8b46a]/25">
-            <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 opacity-[0.12] mix-blend-overlay" />
+            <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 opacity-[0.05]" />
             <div className="absolute inset-3 rounded-sm border border-[#d8b46a]/40" aria-hidden="true" />
             <p className="relative text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-[#d8b46a]">{t('manifesto.wordmark')}</p>
             <div className="relative mx-auto mt-6 size-28 overflow-hidden rounded-full ring-2 ring-[#d8b46a]/50 sm:size-32">

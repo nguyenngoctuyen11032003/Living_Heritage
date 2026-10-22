@@ -1,5 +1,5 @@
 import { CircleAlert, CircleCheck, Info, X } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { EASE_OUT, useReducedMotionSafe } from '@/design/motion';
 import { useT } from '@/i18n';
@@ -70,7 +70,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     (opts: ToastOptions) => {
       const id = nextId.current++;
       const tone = opts.tone ?? 'info';
-      setItems((list) => [...list.slice(-3), { ...opts, tone, id }]);
+      setItems((list) => {
+        const next = [...list, { ...opts, tone, id }];
+        // Cap at 4: drop the oldest non-error first so unresolved errors stay visible.
+        while (next.length > 4) {
+          const drop = next.findIndex((i) => i.tone !== 'error');
+          const [gone] = next.splice(drop < 0 ? 0 : drop, 1);
+          const timer = gone && timers.current.get(gone.id);
+          if (timer) window.clearTimeout(timer);
+        }
+        return next;
+      });
       const duration = opts.duration === undefined ? (tone === 'error' ? null : 6000) : opts.duration;
       if (duration !== null) timers.current.set(id, window.setTimeout(() => dismiss(id), duration));
       return id;
@@ -93,16 +103,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           {items.map((item) => {
             const Icon = icons[item.tone ?? 'info'];
             return (
-              <motion.div
+              <m.div
                 key={item.id}
-                layout={reduced ? false : 'position'}
                 initial={reduced ? false : { opacity: 0, y: 16, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, transition: { duration: 0.15 } }}
-                transition={{ duration: 0.3, ease: EASE_OUT }}
+                transition={{ duration: 0.22, ease: EASE_OUT }}
                 role={item.tone === 'error' ? 'alert' : 'status'}
                 aria-live={item.tone === 'error' ? 'assertive' : 'polite'}
-                className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl bg-paper p-4 pr-2 text-ink shadow-[0_20px_50px_-20px_rgba(18,27,24,0.45)] ring-1 ring-line"
+                className="pointer-events-auto flex w-full max-w-sm items-start gap-3 rounded-2xl bg-paper p-4 pr-2 text-ink shadow-[0_12px_24px_-12px_rgba(18,27,24,0.4)] ring-1 ring-line"
               >
                 <Icon aria-hidden="true" className={cn('mt-0.5 size-5 shrink-0', toneClasses[item.tone ?? 'info'])} />
                 <div className="min-w-0 flex-1">
@@ -129,7 +138,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 >
                   <X className="size-4" aria-hidden="true" />
                 </button>
-              </motion.div>
+              </m.div>
             );
           })}
         </AnimatePresence>
