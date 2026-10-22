@@ -1,9 +1,12 @@
 /* Shared styles for the motion primitives (ScrollText, BlurWords). */
 
-/* ScrollText: --st-p is the scroll progress (0..1), --st-s each glyph's start, --st-n how many glyphs fade at once (inverse). */
+/* ScrollText: --st-dim is the opacity before a glyph is reached; the component adds .is-lit as the reading line crosses it. */
 .scroll-text__ch {
-  opacity: calc(var(--st-dim) + (1 - var(--st-dim)) * clamp(0, (var(--st-p, 0) - var(--st-s)) * var(--st-n), 1));
-  transition: opacity 0.12s linear;
+  opacity: var(--st-dim, 0.2);
+  transition: opacity 0.18s linear;
+}
+.scroll-text__ch.is-lit {
+  opacity: 1;
 }
 
 /* BlurWords: each word rises out of a blur, staggered by --bw-i, once the parent carries [data-bw-in]. */
@@ -11,7 +14,7 @@
   display: inline-block;
   opacity: 0;
   transform: translateY(0.42em);
-  filter: blur(7px);
+  filter: blur(4px);
   transition:
     opacity 1.05s cubic-bezier(0.22, 0.61, 0.36, 1),
     transform 1.15s cubic-bezier(0.22, 0.61, 0.36, 1),

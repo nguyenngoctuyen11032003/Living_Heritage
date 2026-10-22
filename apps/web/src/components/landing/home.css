@@ -81,3 +81,38 @@
     radial-gradient(68% 55% at 50% 48%, rgb(var(--mb-bg-rgb) / var(--home-wash-centre)) 0%, transparent 78%),
     linear-gradient(180deg, rgb(var(--mb-bg-rgb) / var(--home-wash-top)) 0%, transparent 28%, transparent 70%, rgb(var(--mb-bg-rgb)) 100%);
 }
+
+/*
+ * Scroll-linked scale, run by the browser's scroll timeline (no per-frame JS measuring). Browsers without
+ * animation-timeline simply show the end state; reduced motion switches it off.
+ * - .grow-on-scroll: 0.9 -> 1 as the block rises from the bottom edge to the middle of the screen.
+ * - .home-step-card: shrinks a little (to --target) while the cards after it slide over, from its own share (--i)
+ *   of the list's scroll until the list ends.
+ */
+@keyframes lh-grow {
+  from { scale: 0.9; }
+  to { scale: 1; }
+}
+@keyframes lh-step-shrink {
+  from { scale: 1; }
+  to { scale: var(--target, 1); }
+}
+@supports (animation-timeline: view()) {
+  .home-steps-list { view-timeline: --lh-steps block; }
+  .grow-on-scroll {
+    animation: lh-grow linear both;
+    animation-timeline: view();
+    animation-range: cover 0% cover 50%;
+  }
+  .home-step-card {
+    animation: lh-step-shrink linear both;
+    animation-timeline: --lh-steps;
+    animation-range: contain calc(var(--i, 0) * 100%) contain 100%;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) .grow-on-scroll,
+    :root:not([data-motion="full"]) .home-step-card { animation: none; }
+  }
+  :root[data-motion="reduce"] .grow-on-scroll,
+  :root[data-motion="reduce"] .home-step-card { animation: none; }
+}
