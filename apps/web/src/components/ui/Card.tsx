@@ -27,7 +27,7 @@ export function Card({ tone = 'paper', padding = 'md', interactive, className, r
         tones[tone],
         paddings[padding],
         interactive &&
-          'transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-24px_rgba(22,58,49,0.45)] focus-within:-translate-y-0.5 motion-reduce:hover:translate-y-0',
+          'transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-0.5 hover:shadow-[0_12px_24px_-16px_rgba(22,58,49,0.45)] focus-within:-translate-y-0.5 motion-reduce:hover:translate-y-0',
         className,
       )}
       {...rest}

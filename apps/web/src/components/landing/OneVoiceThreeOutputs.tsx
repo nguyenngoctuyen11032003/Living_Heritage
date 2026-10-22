@@ -59,7 +59,7 @@ export function OneVoiceThreeOutputs() {
   ];
 
   return (
-    <Section id="dau-ra" labelledBy="outputs-title">
+    <Section id="dau-ra" labelledBy="outputs-title" className="cv-section">
       <SectionHeading id="outputs-title" eyebrow={t('outputs.eyebrow')} title={t('outputs.title')} lead={t('outputs.lead')} />
       <div className="mt-12 grid grid-cols-1 gap-6 lg:mt-16 lg:grid-cols-12 lg:gap-8">
         {/* Source narration */}

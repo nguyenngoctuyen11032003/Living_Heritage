@@ -17,7 +17,7 @@ const pill = 'min-h-12 items-center whitespace-nowrap justify-center rounded-ful
  * Transparent over the hero, solid cream once the page scrolls (no backdrop blur: it re-filters on every scroll frame).
  * Logo left, nav centred, language + auth right; sheet menu on mobile.
  * `tone="dark"` (route-driven from SiteLayout, e.g. /sach-ky-uc): light text and controls over a dark hero, white focus
- * ring; once scrolled a translucent black bar — the only header state that uses a backdrop blur.
+ * ring; once scrolled a translucent black bar (near-opaque, no blur).
  */
 export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
   const dark = tone === 'dark';
@@ -35,10 +35,25 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
   }
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
+    let raf = 0;
+    let last = window.scrollY > 8;
+    const apply = () => {
+      raf = 0;
+      const next = window.scrollY > 8;
+      if (next !== last) {
+        last = next;
+        setScrolled(next);
+      }
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(apply);
+    };
+    setScrolled(last);
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
 
   useEffect(() => {
@@ -62,7 +77,7 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
       className={cn(
         'sticky top-0 z-40 transition-[background-color,box-shadow] duration-200',
         dark
-          ? cn('text-night-ink', solid ? 'bg-black/70 shadow-[0_1px_0_rgba(255,255,255,0.08)] backdrop-blur-md' : 'bg-transparent')
+          ? cn('text-night-ink', solid ? 'bg-black/90 shadow-[0_1px_0_rgba(255,255,255,0.08)]' : 'bg-transparent')
           : solid
             ? 'bg-cream shadow-[0_1px_0_var(--line)]'
             : 'bg-transparent',

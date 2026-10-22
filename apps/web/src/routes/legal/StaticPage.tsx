@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { motion } from 'motion/react';
+import { m } from 'motion/react';
 import { Badge } from '@/components/ui';
 import { EASE_OUT, useReducedMotionSafe } from '@/design/motion';
 import { useT } from '@/i18n';
@@ -14,24 +14,24 @@ export function PageHero({ eyebrow, heading, lead, meta, children }: { eyebrow: 
     <section className="relative isolate -mt-[4.5rem] overflow-hidden hyphens-auto wrap-anywhere pb-14 pt-[calc(4.5rem+3.5rem)] md:pb-20 md:pt-[calc(4.5rem+5.5rem)]">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(55%_60%_at_50%_0%,rgba(220,232,213,0.9),rgba(250,247,240,0)_75%)]" />
       <div className="mx-auto max-w-4xl px-4 text-center sm:px-6">
-        <motion.p {...rise(0.05)} className="inline-flex items-center gap-2 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-terracotta">
+        <m.p {...rise(0.05)} className="inline-flex items-center gap-2 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-terracotta">
           <span aria-hidden="true" className="h-px w-6 bg-terracotta/60" />
           {eyebrow}
           <span aria-hidden="true" className="h-px w-6 bg-terracotta/60" />
-        </motion.p>
-        <motion.h1 {...rise(0.12)} className="mt-5 text-balance font-serif text-[clamp(2.2rem,5.4vw,4rem)] font-semibold leading-[1.12] tracking-[-0.025em] text-heritage-deep">
+        </m.p>
+        <m.h1 {...rise(0.12)} className="mt-5 text-balance font-serif text-[clamp(2.2rem,5.4vw,4rem)] font-semibold leading-[1.12] tracking-[-0.025em] text-heritage-deep">
           {heading}
-        </motion.h1>
-        <motion.p {...rise(0.2)} className="mx-auto mt-6 max-w-2xl text-pretty text-[1.08rem] leading-relaxed text-ink-soft md:text-[1.15rem]">
+        </m.h1>
+        <m.p {...rise(0.2)} className="mx-auto mt-6 max-w-2xl text-pretty text-[1.08rem] leading-relaxed text-ink-soft md:text-[1.15rem]">
           {lead}
-        </motion.p>
+        </m.p>
         {meta && (
-          <motion.div {...rise(0.28)} className="mt-6 flex flex-wrap items-center justify-center gap-2">
+          <m.div {...rise(0.28)} className="mt-6 flex flex-wrap items-center justify-center gap-2">
             <Badge tone="warning">{t('common.draft')}</Badge>
             <Badge tone="outline">{t('common.updated')}</Badge>
-          </motion.div>
+          </m.div>
         )}
-        {children && <motion.div {...rise(0.32)} className="mt-8 flex flex-wrap justify-center gap-3">{children}</motion.div>}
+        {children && <m.div {...rise(0.32)} className="mt-8 flex flex-wrap justify-center gap-3">{children}</m.div>}
       </div>
     </section>
   );

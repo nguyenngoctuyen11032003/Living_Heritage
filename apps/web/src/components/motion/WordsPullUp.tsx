@@ -1,7 +1,7 @@
-import { motion, useInView } from 'motion/react';
-import { Fragment, useRef, type ElementType } from 'react';
-import { EASE_CARD, useReducedMotionSafe } from '@/design/motion';
+import { Fragment, useEffect, useRef, type CSSProperties, type ElementType } from 'react';
+import { useReducedMotionSafe } from '@/design/motion';
 import { cn } from '@/lib/cn';
+import { observeOnce } from './inView';
 
 export interface PullUpSegment {
   text: string;
@@ -40,12 +40,25 @@ export interface WordsPullUpMultiStyleProps extends BaseProps {
  */
 function PullUp({ as: Tag = 'p', className, delay = 0, stagger = 0.08, immediate, distance = 20, words, suffix }: BaseProps & { words: Array<{ w: string; cls?: string }>; suffix?: React.ReactNode }) {
   const ref = useRef<HTMLElement>(null);
-  const inView = useInView(ref, { once: true, margin: '0px 0px -10% 0px' });
   const reduced = useReducedMotionSafe();
-  const show = immediate || inView;
   const label = words.map((x) => x.w).join(' ');
+
+  // Keyed on the text: a language switch remounts the element, so the observer re-arms and the pull-up replays.
+  useEffect(() => {
+    const el = ref.current;
+    if (reduced || !el) return;
+    const go = () => {
+      void el.getBoundingClientRect(); // commit the hidden state first so the transitions run
+      el.setAttribute('data-pull-in', '');
+    };
+    if (immediate) {
+      go();
+      return;
+    }
+    return observeOnce(el, go);
+  }, [reduced, immediate, label]);
   return (
-    <Tag ref={ref} className={className}>
+    <Tag key={label} ref={ref} className={className} data-pull={reduced ? undefined : ''}>
       <span className="sr-only">{label}</span>
       <span aria-hidden="true">
         {words.map(({ w, cls }, i) => {
@@ -56,22 +69,13 @@ function PullUp({ as: Tag = 'p', className, delay = 0, stagger = 0.08, immediate
               {/* Clip only vertically (overflow-y: clip, x stays visible): the rise is still masked, but a trailing
                   suffix (superscript *) or negative tracking on the last glyph is never cut at the right edge. */}
               <span className={cn('inline-block overflow-x-visible overflow-y-clip pb-[0.12em] pt-[0.22em] align-bottom -mb-[0.12em] -mt-[0.22em]', last && suffix ? 'pr-[0.08em]' : undefined)}>
-              {reduced ? (
-                <span className={cn('inline-block', cls)}>
-                  {w}
-                  {last && suffix}
-                </span>
-              ) : (
-                <motion.span
-                  className={cn('inline-block', cls)}
-                  initial={{ y: distance, opacity: 0 }}
-                  animate={show ? { y: 0, opacity: 1 } : undefined}
-                  transition={{ duration: 0.35, ease: EASE_CARD, delay: delay + i * stagger }}
-                >
-                  {w}
-                  {last && suffix}
-                </motion.span>
-              )}
+              <span
+                className={cn('inline-block', !reduced && 'lh-pull-w', cls)}
+                style={reduced ? undefined : ({ '--pu-y': `${distance}px`, '--pu-d': `${delay + i * stagger}s` } as CSSProperties)}
+              >
+                {w}
+                {last && suffix}
+              </span>
               </span>
               {!last && ' '}
             </Fragment>

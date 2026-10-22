@@ -1,6 +1,6 @@
-import { motion } from 'motion/react';
-import type { ReactNode } from 'react';
-import { EASE_CARD, useReducedMotionSafe } from '@/design/motion';
+import { createElement, useEffect, useRef, type CSSProperties, type ReactNode, type TransitionEvent } from 'react';
+import { useReducedMotionSafe } from '@/design/motion';
+import { observeOnce } from './inView';
 
 export interface RevealProps {
   children: ReactNode;
@@ -15,19 +15,41 @@ export interface RevealProps {
   as?: 'div' | 'li' | 'section' | 'article';
 }
 
-/** Fade-up once when scrolled into view. Content is in the DOM (and clickable) from the start; reduced motion renders it static. */
+/**
+ * Fade-up once when scrolled into view, as a CSS transition (opacity + transform) switched on by one shared
+ * IntersectionObserver. Content is in the DOM (and clickable) from the start; reduced motion renders it static.
+ */
 export function Reveal({ children, delay = 0, y = 16, scale, duration = 0.35, className, as = 'div' }: RevealProps) {
   const reduced = useReducedMotionSafe();
-  const Comp = motion[as];
-  return (
-    <Comp
-      className={className}
-      initial={reduced ? false : { opacity: 0, y, scale: scale ?? 1 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, margin: '0px 0px -8% 0px' }}
-      transition={{ duration, ease: EASE_CARD, delay }}
-    >
-      {children}
-    </Comp>
+  const ref = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (reduced || !el) return;
+    return observeOnce(el, () => {
+      el.setAttribute('data-reveal-in', '');
+    });
+  }, [reduced]);
+
+  if (reduced) return createElement(as, { className }, children);
+
+  const style = {
+    '--rv-y': `${y}px`,
+    '--rv-s': scale ?? 1,
+    '--rv-d': `${duration}s`,
+    '--rv-delay': `${delay}s`,
+  } as CSSProperties;
+  return createElement(
+    as,
+    {
+      ref,
+      className,
+      style,
+      'data-reveal': '',
+      onTransitionEnd: (e: TransitionEvent<HTMLElement>) => {
+        if (e.target === e.currentTarget && e.propertyName === 'transform') e.currentTarget.setAttribute('data-reveal-done', '');
+      },
+    },
+    children,
   );
 }

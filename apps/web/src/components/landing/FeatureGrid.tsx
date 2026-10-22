@@ -1,11 +1,12 @@
 import { ArrowRight, BookHeart, Check, Library, Lock, type LucideIcon } from 'lucide-react';
-import { motion } from 'motion/react';
 import type { CSSProperties } from 'react';
 import { Link } from 'react-router';
 import { StoryScene } from '@/components/illustrations/scenes';
-import { EASE_CARD, useReducedMotionSafe } from '@/design/motion';
+import { Reveal } from '@/components/motion';
+import { useReducedMotionSafe } from '@/design/motion';
 import { useT } from '@/i18n';
 import { SectionHeading } from './shared';
+import './landing.css';
 
 const CARDS: Array<{ key: 'vault' | 'hub' | 'book'; icon: LucideIcon; to: string }> = [
   { key: 'vault', icon: Lock, to: '/gia-dinh' },
@@ -51,34 +52,23 @@ function WaveIllustration() {
 /** Block 8 — dark 4-column feature grid (Prisma). */
 export function FeatureGrid() {
   const t = useT('landing');
-  const reduced = useReducedMotionSafe();
-  const item = (i: number) =>
-    reduced
-      ? {}
-      : {
-          initial: { opacity: 0, y: 16 },
-          whileInView: { opacity: 1, y: 0 },
-          viewport: { once: true, margin: '0px 0px -10% 0px' },
-          transition: { duration: 0.35, ease: EASE_CARD, delay: i * 0.08 },
-        };
-
   return (
-    <section aria-labelledby="features-title" className="px-2 py-2 hyphens-auto wrap-anywhere sm:px-3">
+    <section aria-labelledby="features-title" className="cv-section px-2 py-2 hyphens-auto wrap-anywhere sm:px-3">
       <div className="relative isolate overflow-hidden rounded-[2rem] bg-night text-night-ink">
-        <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 -z-10 opacity-[0.15] mix-blend-overlay" />
+        <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 -z-10 opacity-[0.05]" />
         <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28 lg:px-8">
           <SectionHeading id="features-title" tone="dark" eyebrow={t('features.eyebrow')} title={t('features.title')} />
           <ul className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-5">
-            <motion.li {...item(0)} className="relative min-h-[26rem] overflow-hidden rounded-[1.5rem] ring-1 ring-white/10 lg:min-h-[480px]">
+            <Reveal as="li" delay={0} className="relative min-h-[26rem] overflow-hidden rounded-[1.5rem] ring-1 ring-white/10 lg:min-h-[480px]">
               <WaveIllustration />
               <div className="absolute inset-x-0 bottom-0 p-6">
                 <span className="inline-flex rounded-full bg-white/10 px-2.5 py-0.5 text-[0.72rem] font-semibold text-night-ink/85 ring-1 ring-white/15">{t('features.illoTag')}</span>
                 <p className="mt-3 font-serif text-[1.15rem] italic leading-snug text-night-ink">{t('features.illoCaption')}</p>
               </div>
-            </motion.li>
+            </Reveal>
             {CARDS.map(({ key, icon: Icon, to }, i) => (
-              <motion.li key={key} {...item(i + 1)} className="relative flex min-h-[26rem] flex-col overflow-hidden rounded-[1.5rem] bg-night-card p-6 ring-1 ring-white/8 lg:min-h-[480px] lg:p-7">
-                <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 opacity-[0.15] mix-blend-overlay" />
+              <Reveal as="li" key={key} delay={(i + 1) * 0.08} className="relative flex min-h-[26rem] flex-col overflow-hidden rounded-[1.5rem] bg-night-card p-6 ring-1 ring-white/8 lg:min-h-[480px] lg:p-7">
+                <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 opacity-[0.05]" />
                 <div className="relative flex items-start justify-between">
                   <span aria-hidden="true" className="inline-flex size-12 items-center justify-center rounded-2xl bg-mint/12 text-mint-fixed ring-1 ring-mint/20">
                     <Icon className="size-5" />
@@ -101,7 +91,7 @@ export function FeatureGrid() {
                   <span className="sr-only">: {t(`features.cards.${key}.title`)}</span>
                   <ArrowRight aria-hidden="true" className="size-4 -rotate-45 transition-transform duration-200 group-hover/fl:-translate-y-0.5 group-hover/fl:translate-x-0.5" />
                 </Link>
-              </motion.li>
+              </Reveal>
             ))}
           </ul>
         </div>

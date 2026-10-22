@@ -47,7 +47,7 @@ export function SiteFooter() {
 
   return (
     <footer className="relative isolate overflow-hidden bg-night text-night-ink">
-      <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 -z-10 opacity-[0.12] mix-blend-overlay" />
+      <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 -z-10 opacity-[0.06]" />
       {/* @container: the link grid steps by available em-width, so at very large text it drops to one column. */}
       <div className="@container mx-auto max-w-7xl px-4 pb-10 pt-16 sm:px-6 md:pt-20 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-12">

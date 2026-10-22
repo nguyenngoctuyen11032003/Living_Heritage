@@ -1,5 +1,5 @@
 import { Plus } from 'lucide-react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, m } from 'motion/react';
 import { useId, useState } from 'react';
 import { Reveal } from '@/components/motion';
 import { EASE_OUT, useReducedMotionSafe } from '@/design/motion';
@@ -33,7 +33,7 @@ function FaqItem({ k, open, onToggle }: { k: FaqKey; open: boolean; onToggle: ()
       </h3>
       <AnimatePresence initial={false}>
         {open && (
-          <motion.div
+          <m.div
             id={`${id}-a`}
             role="region"
             aria-labelledby={`${id}-q`}
@@ -44,7 +44,7 @@ function FaqItem({ k, open, onToggle }: { k: FaqKey; open: boolean; onToggle: ()
             className="overflow-hidden"
           >
             <p className="max-w-3xl pb-6 pr-12 text-[1.02rem] leading-relaxed text-ink-soft">{t(`faq.items.${k}.a`)}</p>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </li>
@@ -56,7 +56,7 @@ export function Faq({ keys = ALL }: { keys?: FaqKey[] }) {
   const t = useT('landing');
   const [open, setOpen] = useState<FaqKey | null>(keys[0] ?? null);
   return (
-    <Section id="cau-hoi" labelledBy="faq-title">
+    <Section id="cau-hoi" labelledBy="faq-title" className="cv-section">
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
         <div className="lg:col-span-4">
           <SectionHeading id="faq-title" eyebrow={t('faq.eyebrow')} title={t('faq.title')} />
