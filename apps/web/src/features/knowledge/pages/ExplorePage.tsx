@@ -11,7 +11,6 @@ import { track } from '@/lib/events';
 import { REGIONS, STORY_KINDS, type Region, type StoryKind } from '@lh/shared';
 import { AskTheElders } from '../components/AskTheElders';
 import { KnowledgeCard, KnowledgeCardSkeleton } from '../components/KnowledgeCard';
-import { SampleBanner } from '../components/SampleBanner';
 import { activeFilterCount, DECADES, EMPTY_FILTERS, filtersFromParams, filtersToParams, type KnowledgeFilters } from '../filters';
 import { useSaved } from '../useSaved';
 import { findTopic, topicStyle, useTopics } from '../topics';
@@ -26,6 +25,11 @@ export default function ExplorePage() {
   const t = useT('knowledge');
   const reduced = useReducedMotionSafe();
   useDisplayFont();
+  const tcommon = useT('common');
+  const exploreTitle = tcommon('nav.explore');
+  useEffect(() => {
+    document.title = exploreTitle;
+  }, [exploreTitle]);
   const pick = usePick();
   const topics = useTopics();
   const saved = useSaved().list;
@@ -175,7 +179,7 @@ export default function ExplorePage() {
                 return (
                   <li key={topic.slug}>
                     <button type="button" aria-pressed={on} onClick={() => update({ topic: on ? null : topic.slug })} className="kh-glass kh__chip">
-                      <span aria-hidden="true" className="size-2.5 rounded-full" style={{ backgroundColor: on ? 'currentColor' : style.ink }} />
+                      <span aria-hidden="true" className="size-2.5 rounded-full" style={{ backgroundColor: on ? 'currentColor' : style.band, boxShadow: 'inset 0 0 0 1px currentColor' }} />
                       {pick(topic.title)}
                     </button>
                   </li>
@@ -191,12 +195,12 @@ export default function ExplorePage() {
       </section>
 
       <div className="lp-body">
-      <div className="mx-auto max-w-6xl px-4 py-12 md:px-8 md:py-20">
+      <div className="mx-auto max-w-[1264px] px-4 py-10 sm:px-6 lg:px-8 md:py-14">
         {/* Ask the elders (AI answers only from published items, with citations) */}
-        <AskTheElders hubMode={search.mode} notConfigured={search.notConfigured} onSearch={searchFor} onBrowse={focusResults} className="mb-14" />
+        <AskTheElders hubMode={search.mode} notConfigured={search.notConfigured} onSearch={searchFor} onBrowse={focusResults} className="mb-10" />
 
         {/* Filters */}
-        <section aria-labelledby="filters-title" className="rounded-[1.75rem] bg-paper p-5 ring-1 ring-line md:p-6">
+        <section aria-labelledby="filters-title" className="rounded-2xl bg-paper p-5 ring-1 ring-line md:p-6">
           <h2 id="filters-title" className="sr-only">
             {t('filters.title')}
           </h2>
@@ -276,7 +280,6 @@ export default function ExplorePage() {
           )}
         </section>
 
-        {search.mode === 'sample' && <SampleBanner notConfigured={search.notConfigured} className="mt-8" />}
 
         {/* Results */}
         <section ref={resultsRef} tabIndex={-1} aria-labelledby="results-title" aria-busy={search.loading} className="mt-10 focus:outline-none">
@@ -370,7 +373,7 @@ function NoResults({
   const t = useT('knowledge');
   const q = filters.q.trim();
   return (
-    <div className="mt-6 rounded-[1.75rem] border border-dashed border-line bg-paper/70 px-6 py-10 md:px-10">
+    <div className="mt-6 rounded-2xl border border-dashed border-line bg-paper/70 px-6 py-10 md:px-10">
       <div className="flex flex-col items-start gap-4 sm:flex-row">
         <span aria-hidden="true" className="inline-flex size-14 shrink-0 items-center justify-center rounded-2xl bg-mint text-heritage">
           <SearchX className="size-7" />

@@ -1,12 +1,13 @@
-import { MailCheck } from 'lucide-react';
+import { ArrowRight, Mail, MailCheck, UserRound } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router';
-import { Button, Field, Input } from '@/components/ui';
+import { Button, Field } from '@/components/ui';
 import { useLocale, useT } from '@/i18n';
 import { useSession } from '@/lib/session';
 import { getSupabase } from '@/lib/supabase';
 import { ErrorNotice, NotConfiguredNotice } from '@/features/families/states';
 import { AuthLayout } from './AuthLayout';
+import { AuthNotice, authLink, IconInput, PasswordInput } from './controls';
 import { authErrorKey, type AuthErrorKey } from './errors';
 import { callbackUrl, loginHref, MIN_PASSWORD, safeNext } from './next';
 
@@ -82,12 +83,13 @@ export default function SignupPage() {
 
   return (
     <AuthLayout
+      kicker={t('signup.kicker')}
       title={t('signup.title')}
       subtitle={t('signup.subtitle')}
       footer={
         <p>
           {t('signup.haveAccount')}{' '}
-          <Link className="font-semibold text-heritage underline-offset-4 hover:underline" to={loginHref(rawNext)}>
+          <Link className={authLink} to={loginHref(rawNext)}>
             {t('signup.toLogin')}
           </Link>
         </p>
@@ -96,24 +98,22 @@ export default function SignupPage() {
       {!sb ? (
         <NotConfiguredNotice />
       ) : sentTo ? (
-        <div role="status" className="rounded-[1.5rem] bg-mint/60 p-6 ring-1 ring-heritage/10">
-          <MailCheck aria-hidden="true" className="size-8 text-heritage" />
-          <h2 className="mt-3 font-serif text-[1.4rem] font-semibold text-heritage-deep">{t('signup.checkEmailTitle')}</h2>
-          <p className="mt-2 leading-relaxed text-ink [overflow-wrap:anywhere]">{t('signup.checkEmailBody', { email: sentTo })}</p>
-        </div>
+        <AuthNotice icon={<MailCheck />} title={t('signup.checkEmailTitle')}>
+          {t('signup.checkEmailBody', { email: sentTo })}
+        </AuthNotice>
       ) : (
         <form noValidate onSubmit={onSubmit} className="flex flex-col gap-5">
           <Field label={t('fields.displayName')} hint={t('fields.displayNameHint')} error={errors.name} required>
-            <Input autoComplete="name" value={name} maxLength={80} onChange={(e) => setName(e.target.value)} />
+            <IconInput icon={<UserRound />} autoComplete="name" value={name} maxLength={80} onChange={(e) => setName(e.target.value)} />
           </Field>
           <Field label={t('fields.email')} error={errors.email} required>
-            <Input type="email" autoComplete="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            <IconInput icon={<Mail />} type="email" autoComplete="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </Field>
           <Field label={t('fields.password')} hint={t('fields.passwordHint', { n: MIN_PASSWORD })} error={errors.password} required>
-            <Input type="password" autoComplete="new-password" minLength={MIN_PASSWORD} value={password} onChange={(e) => setPassword(e.target.value)} />
+            <PasswordInput autoComplete="new-password" minLength={MIN_PASSWORD} value={password} onChange={(e) => setPassword(e.target.value)} />
           </Field>
           <div className="flex flex-col gap-1.5">
-            <label className="flex cursor-pointer items-start gap-3 rounded-2xl p-1 leading-relaxed text-ink">
+            <label className="flex cursor-pointer items-start gap-3 rounded-2xl bg-cream/70 p-4 leading-relaxed text-ink ring-1 ring-line transition-shadow has-[:checked]:ring-heritage/40 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-heritage has-[[aria-invalid=true]]:ring-2 has-[[aria-invalid=true]]:ring-terracotta">
               <input
                 type="checkbox"
                 checked={consent}
@@ -140,8 +140,10 @@ export default function SignupPage() {
               </p>
             )}
           </div>
-          <div aria-live="assertive">{error && <ErrorNotice message={t(`errors.${error}`)} />}</div>
-          <Button type="submit" size="lg" fullWidth loading={busy}>
+          <div aria-live="assertive" className="empty:hidden">
+            {error && <ErrorNotice message={t(`errors.${error}`)} />}
+          </div>
+          <Button type="submit" size="lg" fullWidth loading={busy} rightIcon={busy ? undefined : <ArrowRight aria-hidden="true" />}>
             {t('signup.submit')}
           </Button>
         </form>

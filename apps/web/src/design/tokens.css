@@ -9,32 +9,42 @@
   --terracotta: #a84832;
   --mint: #dce8d5;
   --line: #e6e0d2;
+  /* Control borders (inputs, outline buttons): >= 3:1 on paper/cream (WCAG 1.4.11). --line stays for decorative hairlines. */
+  --line-strong: #8c8573;
+  /* Notice / warning surfaces (was hard-coded #fbecc8 / #5a3e0a / #e9cf8f). Text on bg >= 7:1. */
+  --warning-bg: #fbecc8;
+  --warning-fg: #5a3e0a;
+  --warning-line: #e9cf8f;
   --night: #121b18;
   --night-card: #1b2622;
   --night-ink: #e9e4d4;
 }
 
 /*
- * Dark theme for every page, modelled on /sach-ky-uc (the reference page): a black page, near-black raised surfaces,
- * white type and cream-white actions — no green tint. Same token roles, so every bg-cream / bg-paper / text-ink /
- * bg-heritage … flips without per-component changes: cream = page, paper = raised surface (opaque, so dialogs and menus
- * stay solid; cards get their glass look from cards.css), heritage = primary (cream-white, so `bg-heritage text-cream`
- * is a cream pill with black text, like the /sach-ky-uc buttons).
+ * Dark theme for every page: a warm deep-forest charcoal (not pure black) with clearly stepped surfaces, soft ivory type
+ * and a champagne-gold primary. Tuned for comfortable reading by children and older readers: body text ~14:1, secondary
+ * text >= 7:1 on every surface (WCAG AAA), control borders >= 3:1. Same token roles, so every bg-cream / bg-paper /
+ * text-ink / bg-heritage flips without per-component changes: cream = page, paper = raised surface (opaque, so dialogs
+ * and menus stay solid), heritage = primary (champagne, so  is a gold pill with dark text).
  */
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --cream: #000;
-  --paper: #0e0e0e;
-  --ink: #f5f3ee;
-  --ink-soft: #ababab;
-  --heritage: #f2efe6;
-  --heritage-deep: #fff;
-  --terracotta: #e8997f;
-  --mint: #1e1e1e;
-  --line: rgb(255 255 255 / 0.13);
-  --night: #050505;
-  --night-card: #111;
-  --night-ink: #f2efe6;
-  --heritage-deep-fixed: #0a0a0a;
-  --mint-fixed: #f2efe6;
+  --cream: #151c1a;
+  --paper: #1e2825;
+  --ink: #f3efe4;
+  --ink-soft: #bcc5be;
+  --heritage: #e6cf9a;
+  --heritage-deep: #f6e7bd;
+  --terracotta: #f2a98f;
+  --mint: #2a3833;
+  --line: rgb(243 239 228 / 0.16);
+  --line-strong: rgb(243 239 228 / 0.52);
+  --warning-bg: #33280f;
+  --warning-fg: #f6e2a8;
+  --warning-line: #6b5521;
+  --night: #101614;
+  --night-card: #1a2320;
+  --night-ink: #f3efe4;
+  --heritage-deep-fixed: #101614;
+  --mint-fixed: #e6cf9a;
 }

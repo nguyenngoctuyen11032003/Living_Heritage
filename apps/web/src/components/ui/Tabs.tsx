@@ -89,7 +89,7 @@ export function TabList({ label, className, children }: TabListProps) {
       className={cn(
         baseDisplay('inline-flex', className),
         'max-w-full gap-1 overflow-x-auto rounded-full p-1 [scrollbar-width:none]',
-        tone === 'light' ? 'bg-paper ring-1 ring-line' : 'bg-white/6 ring-1 ring-white/12',
+        tone === 'light' ? 'bg-paper ring-1 ring-line' : 'bg-white/6 ring-1 ring-white/20',
         className,
       )}
     >
@@ -122,18 +122,18 @@ export function Tab({ value, disabled, icon, className, children }: TabProps) {
       onClick={() => select(value)}
       className={cn(
         baseDisplay('inline-flex', className),
-        'min-h-12 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-5 text-[0.92rem] font-semibold transition-colors duration-200',
+        'min-h-12 shrink-0 items-center gap-2 whitespace-nowrap rounded-full px-5 text-[1rem] font-semibold transition-colors duration-200',
         tone === 'light'
           ? selected
             ? 'bg-heritage text-cream shadow-sm'
             : 'text-ink-soft hover:bg-mint/60 hover:text-heritage'
           : selected
             ? 'bg-night-ink text-night'
-            : 'text-night-ink/75 hover:bg-white/8 hover:text-night-ink',
+            : 'text-night-ink/90 hover:bg-white/12 hover:text-night-ink',
         className,
       )}
     >
-      {icon && <span aria-hidden="true" className="inline-flex [&>svg]:size-4">{icon}</span>}
+      {icon && <span aria-hidden="true" className="inline-flex shrink-0 [&>svg]:size-4">{icon}</span>}
       {children}
     </button>
   );

@@ -24,21 +24,22 @@ export default function StartPage() {
   return (
     <>
       <PageHero eyebrow={t('start.eyebrow')} heading={t('start.heading')} lead={t('start.lead')} />
-      <Section labelledBy="start-roles" className="!pt-4">
+      <Section labelledBy="start-roles" className="!pt-4 !pb-16 md:!pb-20">
         <h2 id="start-roles" className="sr-only">
           {t('start.rolesTitle')}
         </h2>
         <ul className="grid grid-cols-1 gap-5 md:grid-cols-3 lg:gap-6">
           {START_ROLES.map(({ key, icon: Icon, to, alt }, i) => (
             <Reveal as="li" key={key} delay={i * 0.08}>
-              <div className="flex h-full flex-col rounded-[1.75rem] bg-paper p-6 ring-1 ring-line md:p-7">
+              <div className="flex h-full flex-col rounded-2xl bg-paper p-6 ring-1 ring-line md:p-7">
                 <span aria-hidden="true" className={cn('inline-flex size-12 items-center justify-center rounded-2xl', key === 'tell' ? 'bg-heritage text-cream' : 'bg-mint text-heritage')}>
-                  <Icon className="size-5" />
+                  <Icon className="size-6" />
                 </span>
-                <p className="mt-5 text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-terracotta">{t(`start.roles.${key}.who`)}</p>
+                <p className="mt-5 text-[0.8125rem] font-semibold uppercase tracking-[0.14em] text-terracotta">{t(`start.roles.${key}.who`)}</p>
                 <h3 className="mt-1 font-serif text-[1.4rem] font-semibold leading-snug text-heritage-deep">{t(`start.roles.${key}.title`)}</h3>
                 <p className="mt-2 flex-1 leading-relaxed text-ink-soft">{t(`start.roles.${key}.body`)}</p>
-                <Link to={to} className={buttonClasses({ variant: key === 'tell' ? 'primary' : 'secondary', size: 'lg', fullWidth: true, className: 'mt-6 gap-2' })}>
+                <div className={cn('mt-6 flex flex-col', !alt && 'md:pb-14')}>
+                <Link to={to} className={buttonClasses({ variant: key === 'tell' ? 'primary' : 'secondary', size: 'lg', fullWidth: true, className: 'gap-2' })}>
                   {t(`start.roles.${key}.cta`)}
                   <ArrowRight aria-hidden="true" className="size-4" />
                 </Link>
@@ -47,6 +48,7 @@ export default function StartPage() {
                     {t('start.signIn')}
                   </Link>
                 )}
+                </div>
               </div>
             </Reveal>
           ))}

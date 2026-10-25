@@ -124,7 +124,7 @@ function CollectionsInner() {
       ) : (
         <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           {items.map((c) => (
-            <li key={c.id} className="relative flex min-w-0 flex-col gap-3 rounded-[1.5rem] bg-paper p-5 ring-1 ring-line/80 focus-within:ring-2 focus-within:ring-heritage">
+            <li key={c.id} className="relative flex min-w-0 flex-col gap-3 rounded-2xl bg-paper p-5 ring-1 ring-line/80 focus-within:ring-2 focus-within:ring-heritage">
               <h2 className="font-serif text-[1.25rem] font-semibold leading-snug break-words text-heritage-deep">
                 <Link to={`/gia-dinh/bo-suu-tap/${c.id}`} className="outline-none hover:underline">
                   {c.title}
@@ -380,7 +380,7 @@ function CollectionInner({ collectionId }: { collectionId: string }) {
         meta={t('collections.count', { n: rows.length })}
         actions={
           canEdit && (
-            <div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap lg:justify-end">
+            <div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap xl:justify-end">
               <Button variant="secondary" leftIcon={<Pencil className="size-4" />} onClick={() => setEditing(true)}>
                 {t('collections.rename')}
               </Button>

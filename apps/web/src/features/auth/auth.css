@@ -1,0 +1,54 @@
+/*
+ * Auth pages (features/auth/AuthLayout.tsx): the cinema look of the homepage and /kham-pha, scaled down to a sign-in
+ * screen. A soft page glow behind the form, and a dark film panel (looping clip, deep wash, glass chips) that stays dark
+ * in both themes, like the hero clips. Under reduced motion the clip never loads and the still composition below shows.
+ */
+.auth-glow {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(48% 42% at 8% 6%, var(--mb-fb2) 0%, transparent 70%),
+    radial-gradient(40% 46% at 46% 100%, var(--mb-fb1) 0%, transparent 72%);
+  opacity: 0.85;
+}
+:root[data-theme='dark'] .auth-glow { opacity: 0.6; }
+
+/* The form surface: solid (no glass) so labels and errors keep full contrast for every reader. */
+.auth-card {
+  background: var(--paper);
+  box-shadow:
+    inset 0 0 0 1px var(--line),
+    0 1px 2px rgb(22 58 49 / 0.05),
+    0 30px 60px -36px rgb(22 58 49 / 0.32);
+}
+:root[data-theme='dark'] .auth-card {
+  box-shadow:
+    inset 0 0 0 1px var(--line),
+    inset 0 1px 0 rgb(255 255 255 / 0.04),
+    0 30px 60px -30px rgb(0 0 0 / 0.6);
+}
+
+/* Film panel: still fallback (forest night, a warm lantern glow and a voice wave) under the clip. */
+.auth-film {
+  background:
+    radial-gradient(60% 45% at 78% 18%, rgb(230 207 154 / 0.28) 0%, transparent 70%),
+    radial-gradient(70% 60% at 15% 85%, rgb(47 122 95 / 0.35) 0%, transparent 70%),
+    linear-gradient(160deg, #1f3b33 0%, #12201c 55%, #0c1412 100%);
+  box-shadow: 0 40px 80px -40px rgb(12 20 18 / 0.55), inset 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+.auth-film__wash {
+  background:
+    linear-gradient(to bottom, rgb(12 20 18 / 0.55) 0%, rgb(12 20 18 / 0.05) 28%, rgb(12 20 18 / 0.2) 50%, rgb(12 20 18 / 0.88) 100%);
+}
+.auth-film__wave span {
+  display: block;
+  width: 3px;
+  border-radius: 999px;
+  background: rgb(230 207 154 / 0.55);
+  transform-origin: bottom;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .auth-film__wave span { animation: var(--animate-wave); }
+}

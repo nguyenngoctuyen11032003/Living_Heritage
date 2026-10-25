@@ -55,7 +55,6 @@ describe('AudioPlayer', () => {
     expect(screen.getByText('0:12 / 0:30')).toBeInTheDocument();
     act(() => ref.current?.play());
     expect(screen.getByRole('button', { name: 'Tạm dừng' })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByText(/Phát mô phỏng/)).toBeInTheDocument();
   });
 
   it('shows a load failure in the compact layout too, and clears it when the source changes', () => {

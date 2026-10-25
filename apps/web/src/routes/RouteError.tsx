@@ -1,4 +1,4 @@
-import { Home, RefreshCw } from 'lucide-react';
+import { CircleAlert, Home, RefreshCw } from 'lucide-react';
 import { useRouteError } from 'react-router';
 import { Button, ButtonLink } from '@/components/ui';
 import { useT } from '@/i18n';
@@ -9,7 +9,10 @@ export function RouteError() {
   const t = useT('common');
   if (import.meta.env.DEV) console.error(error);
   return (
-    <main id="main" className="mx-auto flex min-h-dvh max-w-xl flex-col items-center justify-center gap-6 px-4 text-center">
+    <main id="main" className="mx-auto flex min-h-dvh max-w-xl flex-col items-center justify-center gap-6 px-4 text-center sm:px-6">
+      <span aria-hidden="true" className="flex size-14 items-center justify-center rounded-2xl bg-mint text-heritage-deep ring-1 ring-line">
+        <CircleAlert className="size-6" strokeWidth={1.75} />
+      </span>
       <h1 role="alert" className="text-balance font-serif text-3xl font-semibold leading-display text-heritage-deep">
         {t('states.error')}
       </h1>

@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router';
 import { Badge, Button, Card, Dialog, EmptyState, Field, Input, PageHeader, Select, Skeleton, useToast } from '@/components/ui';
 import { useLocale, useT } from '@/i18n';
+import { cn } from '@/lib/cn';
 import { formatDate } from '@/lib/format';
 import { useSession } from '@/lib/session';
 import { getSupabase } from '@/lib/supabase';
@@ -43,6 +44,7 @@ function Members() {
   const [invites, setInvites] = useState<InviteView[]>([]);
   const [error, setError] = useState<FamilyErrorCode | null>(null);
   const [confirmRemove, setConfirmRemove] = useState<MemberView | null>(null);
+  const [confirmCancel, setConfirmCancel] = useState<InviteView | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
   const inviteRef = useRef<HTMLDivElement>(null);
 
@@ -109,9 +111,15 @@ function Members() {
   async function deleteInvite(inv: InviteView) {
     const sb = getSupabase();
     if (!sb) return;
+    setBusyId(inv.id);
     const { error: err } = await sb.from('family_invites').delete().eq('id', inv.id);
+    setBusyId(null);
+    setConfirmCancel(null);
     if (err) toast({ title: t(`errors.${rpcErrorCode(err)}`), tone: 'error' });
-    else void load();
+    else {
+      toast({ title: t('invite.cancelled'), tone: 'success' });
+      void load();
+    }
   }
 
   const isSelf = (m: MemberView) => m.user_id === user?.id;
@@ -120,7 +128,7 @@ function Members() {
     <div className="mx-auto max-w-5xl">
       <PageHeader title={t('members.title')} lede={t('members.subtitle', { name: fam.current!.name })} />
       {error && <ErrorNotice className="mb-6" message={t(`errors.${error}`)} onRetry={() => void load()} />}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] [&>*]:min-w-0">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] [&>*]:min-w-0">
         <SectionCard title={t('members.listTitle')}>
           {!members && !error ? (
             <div aria-busy="true" className="flex flex-col gap-3">
@@ -137,7 +145,7 @@ function Members() {
                 const removable = m.role !== 'owner' && (fam.canManage || isSelf(m));
                 const name = m.display_name || t('members.unnamed');
                 return (
-                  <li key={m.user_id} className="flex min-w-0 flex-col gap-3 py-4 sm:flex-row sm:items-center">
+                  <li key={m.user_id} className={cn('flex min-w-0 flex-col gap-3 py-4 sm:flex-row sm:items-center', editable && 'lg:flex-col lg:items-stretch')}>
                     <div className="flex min-w-0 flex-1 items-center gap-3">
                       <HeritageAvatar name={name} seed={m.user_id} />
                       <div className="min-w-0 flex-1">
@@ -148,7 +156,7 @@ function Members() {
                         <p className="break-words text-[0.9rem] text-ink-soft">{[m.relation, t('members.since', { date: formatDateSafe(m.created_at) })].filter(Boolean).join(' · ')}</p>
                       </div>
                     </div>
-                    <div className="flex min-w-0 items-center gap-2 min-[420px]:pl-15 sm:pl-0">
+                    <div className={cn('flex min-w-0 items-center gap-2 min-[420px]:pl-15 sm:pl-0', editable && 'lg:pl-15')}>
                       {editable ? (
                         <div className="min-w-0 flex-1 sm:w-44 sm:flex-none">
                           <Select aria-label={t('members.roleFor', { name })} value={m.role} disabled={busyId === m.user_id} onChange={(e) => void changeRole(m, e.target.value as MemberRole)}>
@@ -212,7 +220,7 @@ function Members() {
                             </p>
                           </div>
                           {!inv.accepted_at && (
-                            <Button variant="ghost" iconOnly aria-label={t('invite.cancelFor', { email: inv.email })} onClick={() => void deleteInvite(inv)}>
+                            <Button variant="ghost" iconOnly aria-label={t('invite.cancelFor', { email: inv.email })} onClick={() => setConfirmCancel(inv)}>
                               <Trash2 className="size-5" aria-hidden="true" />
                             </Button>
                           )}
@@ -246,6 +254,23 @@ function Members() {
             </Button>
             <Button variant="terracotta" loading={busyId !== null} onClick={() => confirmRemove && void remove(confirmRemove)}>
               {confirmRemove && isSelf(confirmRemove) ? t('members.leave') : t('members.remove')}
+            </Button>
+          </>
+        }
+      />
+      <Dialog
+        open={confirmCancel !== null}
+        onClose={() => setConfirmCancel(null)}
+        size="sm"
+        title={t('invite.cancelTitle')}
+        description={confirmCancel && t('invite.cancelBody', { email: confirmCancel.email })}
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setConfirmCancel(null)}>
+              {t('invite.cancelKeep')}
+            </Button>
+            <Button variant="terracotta" loading={busyId !== null && busyId === confirmCancel?.id} onClick={() => confirmCancel && void deleteInvite(confirmCancel)}>
+              {t('invite.cancelConfirm')}
             </Button>
           </>
         }

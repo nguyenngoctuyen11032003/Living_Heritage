@@ -57,7 +57,7 @@ function Album() {
       ) : state === 'error' ? (
         <ErrorNotice message={t('album.loadError')} onRetry={() => void refresh()} />
       ) : state === 'loading' ? (
-        <div aria-busy="true" className="columns-2 gap-4 sm:columns-3 lg:columns-4">
+        <div aria-busy="true" className="columns-2 gap-4 sm:columns-3 xl:columns-4">
           <span className="sr-only" role="status">
             {t('photos.loading')}
           </span>
@@ -69,7 +69,7 @@ function Album() {
         <EmptyState icon={<Images />} title={t('album.emptyTitle')} description={canAdd ? t('album.emptyBody') : t('album.emptyBodyViewer')}action={<ButtonLink to="/gia-dinh">{t('album.emptyCta')}</ButtonLink>} />
       ) : (
         <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-4 rounded-[1.5rem] bg-paper p-4 ring-1 ring-line/80 sm:flex-row sm:flex-wrap sm:items-end sm:gap-x-6 md:p-5">
+          <div className="flex flex-col gap-4 rounded-2xl bg-paper p-4 ring-1 ring-line/80 sm:flex-row sm:flex-wrap sm:items-end sm:gap-x-6 md:p-5">
             <div role="radiogroup" aria-labelledby="album-group-label" className="flex flex-col gap-1.5">
               <span id="album-group-label" className="text-[0.9rem] font-semibold text-ink">
                 {t('album.groupBy')}
@@ -132,7 +132,7 @@ function Album() {
                     )}
                     <span className="font-sans text-[0.9rem] font-normal text-ink-soft">{t('album.count', { n: g.photos.length })}</span>
                   </h2>
-                  <ul className="columns-2 gap-4 sm:columns-3 lg:columns-4">
+                  <ul className="columns-2 gap-4 sm:columns-3 xl:columns-4">
                     {g.photos.map((p) => (
                       <AlbumTile key={p.id} photo={p} showStory={mode === 'narrator'} onOpen={() => setOpen(indexOf.get(p.id) ?? 0)} onImageError={onImageError} />
                     ))}
@@ -177,7 +177,7 @@ function AlbumTile({ photo: p, showStory, onOpen, onImageError }: { photo: Album
           <figcaption className="flex flex-col gap-1 px-3 py-2.5">
             {p.caption?.trim() && <span className="line-clamp-3 font-serif text-[0.95rem] italic leading-snug text-ink">{p.caption}</span>}
             {showStory && (
-              <Link to={`/cau-chuyen/${p.story_id}`} aria-label={t('album.openStory', { title })} className="inline-flex min-h-8 items-center text-[0.85rem] font-semibold text-heritage underline-offset-4 hover:underline">
+              <Link to={`/cau-chuyen/${p.story_id}`} aria-label={t('album.openStory', { title })} className="inline-flex min-h-11 items-center text-[0.9rem] font-semibold text-heritage underline-offset-4 hover:underline">
                 {title}
               </Link>
             )}
@@ -192,7 +192,7 @@ function AlbumTile({ photo: p, showStory, onOpen, onImageError }: { photo: Album
 function AddPhotosHint() {
   const t = useT('media');
   return (
-    <aside className="flex flex-col items-start gap-3 rounded-[1.5rem] border border-dashed border-line bg-paper/70 p-5 sm:flex-row sm:items-center sm:justify-between">
+    <aside className="flex flex-col items-start gap-3 rounded-2xl border border-dashed border-line bg-paper/70 p-5 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex items-start gap-3">
         <span aria-hidden="true" className="inline-flex size-11 shrink-0 items-center justify-center rounded-2xl bg-mint text-heritage">
           <ImagePlus className="size-5" />

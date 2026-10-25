@@ -169,9 +169,9 @@ export default function HowItWorksPage() {
                 <span aria-hidden="true" className={cn('absolute left-0 top-8 z-10 hidden size-14 items-center justify-center rounded-2xl ring-8 ring-cream md:inline-flex', key === 's2' ? 'bg-mint text-heritage-deep' : 'bg-heritage text-cream')}>
                   <Icon className="size-6" />
                 </span>
-                <div className="grid grid-cols-1 gap-6 rounded-[1.75rem] bg-paper p-6 ring-1 ring-line md:grid-cols-12 md:p-9">
+                <div className="grid grid-cols-1 gap-6 rounded-2xl bg-paper p-6 ring-1 ring-line md:grid-cols-12 md:p-9">
                   <div className="md:col-span-5">
-                    <p className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-terracotta">0{i + 1}</p>
+                    <p className="text-[0.8125rem] font-semibold uppercase tracking-[0.14em] text-terracotta">0{i + 1}</p>
                     <h2 className="mt-2 font-serif text-[1.7rem] font-semibold leading-snug text-heritage-deep">{title}</h2>
                     <p className="mt-3 leading-relaxed text-ink-soft">{body}</p>
                   </div>

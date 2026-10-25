@@ -1,20 +1,22 @@
 /*
  * Homepage hero wash over the clip, on top of the /sach-ky-uc palette (.mb-page variables): a soft centre pool behind
  * the centred headline and search, darker/creamier top under the header, and a fade into the page at the bottom.
- * Light theme: cream wash, deep-green text. Dark: black wash, white text.
+ * Light theme: cream wash, deep-green text. Dark: charcoal wash, white text.
  */
 .home-hero {
-  --home-wash-centre: 0.88;
-  --home-wash-top: 0.45;
+  --home-wash-centre: 0.92;
+  --home-wash-top: 0.9;
+  --home-wash-base: 0.4;
 }
 :root[data-theme='dark'] .home-hero {
-  --home-wash-centre: 0.45;
-  --home-wash-top: 0.55;
+  --home-wash-centre: 0.62;
+  --home-wash-top: 0.7;
+  --home-wash-base: 0;
 }
 /* Topic marquee: outlined second row, soft fade at both edges into the page colour. */
 .home-marquee__outline {
   color: transparent;
-  -webkit-text-stroke: 1px color-mix(in srgb, var(--mb-fg) 55%, transparent);
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--mb-fg) 75%, transparent);
 }
 .home-marquee__fade {
   background: linear-gradient(90deg, rgb(var(--mb-bg-rgb)) 0%, transparent 14%, transparent 86%, rgb(var(--mb-bg-rgb)) 100%);
@@ -73,12 +75,13 @@
     color-mix(in srgb, var(--mb-fg) 4%, var(--mb-bg));
   box-shadow:
     inset 0 0 0 1px color-mix(in srgb, var(--mb-fg) 12%, transparent),
-    0 -18px 50px -30px rgb(0 0 0 / 0.45);
+    0 -18px 50px -30px rgb(16 22 20 / 0.5);
 }
 
 .home-hero__wash {
   background:
-    radial-gradient(68% 55% at 50% 48%, rgb(var(--mb-bg-rgb) / var(--home-wash-centre)) 0%, transparent 78%),
+    linear-gradient(rgb(var(--mb-bg-rgb) / var(--home-wash-base)), rgb(var(--mb-bg-rgb) / var(--home-wash-base))),
+    radial-gradient(68% 55% at 50% 48%, rgb(var(--mb-bg-rgb) / var(--home-wash-centre)) 0%, transparent 85%),
     linear-gradient(180deg, rgb(var(--mb-bg-rgb) / var(--home-wash-top)) 0%, transparent 28%, transparent 70%, rgb(var(--mb-bg-rgb)) 100%);
 }
 

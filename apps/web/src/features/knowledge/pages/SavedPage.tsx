@@ -27,7 +27,7 @@ export default function SavedPage() {
   );
   return (
     <div className="bg-cream">
-      <div className="mx-auto max-w-4xl px-4 py-12 md:px-8 md:py-16">
+      <div className="mx-auto max-w-[1264px] px-4 py-12 sm:px-6 lg:px-8 md:py-16">
         <PageHeader
           eyebrow={t('saved.kicker')}
           title={t('saved.title')}
@@ -35,7 +35,7 @@ export default function SavedPage() {
           className="mb-0 md:mb-0"
         />
         {saved.mergeFailed && (
-          <p role="status" className="mt-6 rounded-2xl bg-[#fdf6e3] px-4 py-3 text-[0.92rem] leading-relaxed text-[#5b430f] ring-1 ring-[#e9d6a6]">
+          <p role="status" className="mt-6 rounded-2xl bg-warning-bg px-4 py-3 text-[0.92rem] leading-relaxed text-warning-fg ring-1 ring-warning-line">
             {t('saved.mergeFailed')}
           </p>
         )}
@@ -45,7 +45,7 @@ export default function SavedPage() {
               {t('saved.loading')}
             </span>
             {[0, 1].map((i) => (
-              <Skeleton key={i} className="h-28 w-full rounded-[1.5rem]" />
+              <Skeleton key={i} className="h-28 w-full rounded-2xl" />
             ))}
           </div>
         ) : saved.status === 'error' ? (
@@ -77,7 +77,7 @@ export default function SavedPage() {
             <p aria-live="polite" className="mt-8 text-[0.92rem] font-semibold text-ink-soft">
               {t('saved.count', { n: list.length })}
             </p>
-            <ul className="mt-4 flex flex-col gap-4">
+            <ul className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
               {list.map((e) =>
                 withdrawn.has(e.id) ? <WithdrawnRow key={e.id} entry={e} onRemove={remove} /> : <SavedRow key={e.id} entry={e} onRemove={remove} />,
               )}
@@ -103,7 +103,7 @@ function SavedRow({ entry, onRemove }: { entry: SavedEntry; onRemove: (id: strin
   const style = topicStyle(entry.topicSlug);
   const topic = findTopic(topics, entry.topicSlug);
   return (
-    <li className="group relative flex overflow-hidden rounded-[1.5rem] bg-paper ring-1 ring-line transition-shadow focus-within:ring-2 focus-within:ring-heritage hover:shadow-[0_18px_40px_-30px_rgba(22,58,49,0.55)]">
+    <li className="group relative flex overflow-hidden rounded-2xl bg-paper ring-1 ring-line transition-shadow focus-within:ring-2 focus-within:ring-heritage hover:shadow-[0_18px_40px_-30px_rgba(22,58,49,0.55)]">
       <div aria-hidden="true" className="relative w-20 shrink-0 overflow-hidden sm:w-28" style={{ backgroundColor: style.band, color: style.ink }}>
         <TopicMotif slug={entry.topicSlug} className="absolute -left-6 bottom-0 h-full w-[220%] opacity-50" />
       </div>
@@ -141,7 +141,7 @@ function WithdrawnRow({ entry, onRemove }: { entry: SavedEntry; onRemove: (id: s
   const t = useT('knowledge');
   const { locale } = useLocale();
   return (
-    <li className="relative flex overflow-hidden rounded-[1.5rem] border border-dashed border-line bg-paper/70">
+    <li className="relative flex overflow-hidden rounded-2xl border border-dashed border-line bg-paper/70">
       <div className="min-w-0 flex-1 p-5 pr-16">
         <h2 className="font-serif text-[1.1rem] font-semibold leading-snug text-ink-soft">{t('saved.unavailableTitle')}</h2>
         <p className="mt-1 text-[0.88rem] leading-relaxed text-ink-soft">{t('saved.unavailableBody')}</p>

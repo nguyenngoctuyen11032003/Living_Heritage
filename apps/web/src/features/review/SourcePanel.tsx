@@ -183,7 +183,7 @@ function TranscriptSection({ recordingId, rail, canEdit, state, onStateChange }:
           )}
         </h3>
         {current && !editing && (corrected || canEdit) && (
-          <div className="flex flex-wrap gap-x-2">
+          <div className="-ml-5 flex flex-wrap gap-x-2">
             {canEdit && !showOriginal && (
               <Button variant="ghost" onClick={startEdit} leftIcon={<PencilLine className="size-4" aria-hidden="true" />}>
                 {t('source.edit.open')}

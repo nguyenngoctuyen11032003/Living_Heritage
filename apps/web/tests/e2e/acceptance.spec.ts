@@ -1,23 +1,11 @@
 // Mock-backed checks mapped to the acceptance criteria in DỰ ÁN.md B19 that journeys.spec.ts / visual.spec.ts do not
-// already cover: NT03 (illustrative data is labelled), NT12 (no horizontal scroll at 360 / 768 / 1440 on every public
+// already cover: NT12 (no horizontal scroll at 360 / 768 / 1440 on every public
 // screen) and the NT13 pieces not asserted elsewhere (focus rings on a form, reflow at 320 px, no autoplay, reduced motion).
 // NT01 / NT02 and the keyboard-only passes live in journeys.spec.ts; the skip link is asserted there too.
 // NT04-NT11 and NT14-NT18 need a real device, the real backend or an operator (RLS: supabase/tests, pgTAP).
 import { expect, test } from '@playwright/test';
 import { expectNoHorizontalScroll, IDS, mockSupabase, ready, signedIn } from './fixtures';
-import { vi } from './i18n';
 import { openScreen, SCREENS } from './routes';
-
-test('NT03: illustrative data is labelled in an empty public hub and on the landing page', async ({ page }) => {
-  await mockSupabase(page, { db: { public_items: [] } });
-  await page.goto('/kham-pha');
-  await ready(page);
-  await expect(page.getByRole('complementary', { name: vi.knowledge.sample.bannerTitle })).toBeVisible();
-
-  await page.goto('/');
-  await ready(page);
-  await expect(page.getByText(vi.landing.sample.note)).toBeAttached();
-});
 
 test('NT03: the landing page invents no achievement counters', async ({ page }) => {
   await mockSupabase(page);

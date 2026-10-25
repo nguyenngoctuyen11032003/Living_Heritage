@@ -33,7 +33,6 @@ describe('LandingPage', () => {
     const h1 = screen.getByRole('heading', { level: 1 });
     expect(h1).toHaveTextContent('Giữ lại giọng kể,');
     expect(h1).toHaveTextContent('trao truyền kinh nghiệm');
-    expect(screen.getByText('Đang thử nghiệm · 2026')).toBeInTheDocument();
     expect(screen.getAllByRole('link', { name: /Kể câu chuyện đầu tiên/ }).length).toBeGreaterThanOrEqual(2);
     expect(screen.getByRole('button', { name: /Nghe chuyện mẫu/ })).toBeInTheDocument();
     // how it works: four steps and the people × AI split
@@ -41,13 +40,8 @@ describe('LandingPage', () => {
     expect(steps).toHaveLength(4);
     expect(screen.getByRole('heading', { level: 3, name: 'Con người quyết định' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 3, name: 'AI làm phần nặng nhọc' })).toBeInTheDocument();
-    // honesty labels
-    expect(screen.getAllByText('Dữ liệu minh họa').length).toBeGreaterThan(0);
-    expect(screen.getByText(/Video nền là cảnh minh họa/)).toBeInTheDocument();
     // FAQ
     expect(screen.getByRole('button', { name: 'Dự án đã thu tiền chưa?' })).toHaveAttribute('aria-expanded', 'false');
-    // footer status line
-    expect(screen.getByText('Dự án đang trong giai đoạn thử nghiệm')).toBeInTheDocument();
   }, 30_000);
 
   it('every sample card and "Xem câu chuyện" opens a real detail screen; each block leads to its page', () => {
@@ -67,7 +61,6 @@ describe('LandingPage', () => {
     expect(hero.getByRole('searchbox', { name: 'Tìm trong kho tri thức' })).toBeInTheDocument();
     expect(hero.getByRole('button', { name: 'Nghe chuyện mẫu' })).toBeInTheDocument();
     expect(hero.getByRole('link', { name: 'Trải nghiệm thử (dữ liệu mẫu)' })).toHaveAttribute('href', '/trai-nghiem');
-    expect(hero.getByRole('button', { name: /video nền/ })).toBeInTheDocument();
     // how it works → its page and the demo
     expect(screen.getByRole('link', { name: /Xem cách hoạt động/ })).toHaveAttribute('href', '/cach-hoat-dong');
     expect(screen.getByRole('link', { name: /Dùng thử với dữ liệu mẫu/ })).toHaveAttribute('href', '/trai-nghiem');
@@ -86,8 +79,6 @@ describe('LandingPage', () => {
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Keep their voices,');
     expect(screen.getAllByRole('link', { name: /Tell your first story/ }).length).toBeGreaterThanOrEqual(2);
     expect(screen.getByRole('region', { name: 'One story, many places to live on' })).toBeInTheDocument();
-    expect(screen.getAllByText('Illustrative data').length).toBeGreaterThan(0);
-    expect(screen.getByText('This project is in its pilot phase')).toBeInTheDocument();
     expect(screen.queryByText('Kể câu chuyện đầu tiên')).not.toBeInTheDocument();
   }, 30_000);
 });

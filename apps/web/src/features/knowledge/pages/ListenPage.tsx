@@ -39,13 +39,13 @@ export default function ListenPage() {
     body = <PageState title={tc('states.notConfigured')} action={<ButtonLink to="/">{t('listen.home')}</ButtonLink>} />;
   } else if (sessionLoading || (user && state.key !== key)) {
     body = (
-      <div aria-busy="true" className="rounded-[1.75rem] bg-paper p-8 ring-1 ring-line">
+      <div aria-busy="true" className="rounded-2xl bg-paper p-8 ring-1 ring-line">
         <p role="status" className="sr-only">
           {t('listen.checking')}
         </p>
         <Skeleton className="h-4 w-40" />
         <Skeleton className="mt-5 h-9 w-4/5" />
-        <Skeleton className="mt-8 h-24 w-full rounded-[1.5rem]" />
+        <Skeleton className="mt-8 h-24 w-full rounded-2xl" />
       </div>
     );
   } else if (state.error && user) {
@@ -82,7 +82,7 @@ export default function ListenPage() {
   } else {
     const r = state.result;
     body = (
-      <article className="rounded-[1.75rem] bg-night p-6 text-night-ink shadow-[0_30px_60px_-40px_rgba(18,27,24,0.8)] md:p-9">
+      <article className="rounded-2xl bg-night p-6 text-night-ink shadow-[0_30px_60px_-40px_rgba(18,27,24,0.8)] md:p-9">
         <p className="flex items-center gap-2 text-[0.78rem] font-bold uppercase tracking-[0.18em] text-night-ink/75">
           <Headphones aria-hidden="true" className="size-4" />
           {t('listen.kicker')}
@@ -95,18 +95,18 @@ export default function ListenPage() {
             <p className="mt-3 text-[0.82rem] text-night-ink/65">{t('listen.linkExpiry')}</p>
           </>
         ) : (
-          <p role={r.audioError ? 'alert' : undefined} className="mt-6 rounded-2xl bg-white/6 px-4 py-3 text-night-ink/85">
+          <p role={r.audioError ? 'alert' : undefined} className="mt-6 rounded-2xl bg-night-ink/10 px-4 py-3 text-night-ink/90">
             {r.audioError ? t('listen.audioError') : t('listen.noAudio')}
           </p>
         )}
-        <p className="mt-6 border-t border-white/10 pt-4 text-[0.88rem] text-night-ink/70">{t('listen.privateNote')}</p>
+        <p className="mt-6 border-t border-night-ink/20 pt-4 text-[0.88rem] text-night-ink/80">{t('listen.privateNote')}</p>
       </article>
     );
   }
 
   return (
     <div className="bg-cream">
-      <div className="mx-auto max-w-2xl px-4 py-12 md:py-20">{body}</div>
+      <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6 md:py-20">{body}</div>
     </div>
   );
 }

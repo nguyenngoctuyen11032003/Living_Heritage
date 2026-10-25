@@ -235,7 +235,7 @@ function ShareBody({ storyId, onChanged }: { storyId: string; onChanged?: () => 
               key={c}
               className={cn(
                 'relative flex cursor-pointer items-start gap-4 rounded-[1.25rem] p-4 ring-1 transition-[box-shadow,background-color] focus-within:ring-2 focus-within:ring-heritage sm:p-5',
-                selected ? 'bg-mint/50 ring-2 ring-heritage' : 'bg-paper ring-line hover:ring-heritage/50',
+                selected ? 'bg-mint/50 ring-2 ring-heritage' : 'bg-paper ring-line-strong hover:ring-heritage/50',
                 !opt.enabled && 'cursor-not-allowed opacity-70',
               )}
             >
@@ -320,7 +320,7 @@ function ShareBody({ storyId, onChanged }: { storyId: string; onChanged?: () => 
             })}
           </ul>
           {toggleNote && (
-            <p role="status" className="rounded-2xl bg-[#fbecc8] p-3 text-[0.92rem] text-[#6b4a0c]">
+            <p role="status" className="rounded-2xl bg-warning-bg p-3 text-[0.92rem] text-warning-fg">
               {t('share.toggleOnPublic')}
             </p>
           )}
@@ -422,7 +422,7 @@ function PreviewCard({ preview, state, onRetry }: { preview: PublicPreview | nul
   const region = preview.region === 'bac' || preview.region === 'trung' || preview.region === 'nam' ? t(`share.preview.regions.${preview.region}`) : t('share.preview.hidden');
   const topic = findTopic(topics, preview.topic_slug);
   return (
-    <figure className="overflow-hidden rounded-[1.5rem] bg-paper ring-1 ring-heritage/30" aria-labelledby="share-preview-title">
+    <figure className="overflow-hidden rounded-2xl bg-paper ring-1 ring-heritage/30" aria-labelledby="share-preview-title">
       <figcaption id="share-preview-title" className="bg-mint/60 px-5 py-3 text-[0.88rem] font-semibold text-heritage-deep">
         {t('share.preview.title')}
       </figcaption>

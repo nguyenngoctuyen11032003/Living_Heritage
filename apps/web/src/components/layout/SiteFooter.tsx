@@ -1,6 +1,6 @@
 // Public site footer ("meadow"): brand block + link columns on paper, a looping meadow video fading into it, and a
 // giant frosted wordmark sinking into fog. Layout and values live in site-footer.css.
-import { ArrowUp, Mic } from 'lucide-react';
+import { Mic } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { useT } from '@/i18n';
@@ -63,10 +63,6 @@ export function SiteFooter() {
             {tc('brand.name')}
           </Link>
           <h2 className="sf-brand__title">{t('footer.tagline')}</h2>
-          <p className="sf-brand__text">
-            <span className="block font-semibold text-ink">{t('footer.status')}</span>
-            <span className="block">{t('footer.statusBody')}</span>
-          </p>
           <Link to="/ke-chuyen" className="sf-brand__cta">
             <Mic aria-hidden="true" />
             {t('footer.links.tell')}
@@ -94,11 +90,6 @@ export function SiteFooter() {
           </nav>
         ))}
       </div>
-
-      <a href="#main" className="sf__top">
-        <ArrowUp aria-hidden="true" className="size-4" />
-        {t('footer.backToTop')}
-      </a>
     </footer>
   );
 }

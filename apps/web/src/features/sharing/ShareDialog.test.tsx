@@ -160,7 +160,7 @@ describe('ShareDialog', () => {
     const photos = await screen.findByRole('switch', { name: /Ảnh đi kèm/ });
     expect(photos).toBeDisabled();
     expect(photos).not.toBeChecked();
-    expect(screen.getByText(/Trang công khai chưa đăng ảnh/)).toBeInTheDocument();
+    expect(screen.getByText(/Trang công khai chưa hỗ trợ đăng ảnh/)).toBeInTheDocument();
     expect(screen.getByRole('switch', { name: /Vùng miền/ })).toBeEnabled();
   });
 

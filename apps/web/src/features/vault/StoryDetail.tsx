@@ -87,7 +87,7 @@ function StoryDetailInner({ storyId }: { storyId: string }) {
         <p className="sr-only" role="status">
           {t('state.loading')}
         </p>
-        <Skeleton className="h-40 rounded-[2rem]" />
+        <Skeleton className="h-40 rounded-2xl" />
         <Skeleton className="h-10 w-2/3" />
         <Skeleton className="h-24" />
         <Skeleton className="h-64" />
@@ -130,7 +130,7 @@ function StoryView({ data, onChanged }: { data: Loaded; onChanged: () => void })
           }
         />
 
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_320px]">
           <div className="flex min-w-0 flex-col gap-8">
             <section aria-labelledby="story-audio" className="flex flex-col gap-3">
               <h2 id="story-audio" className="text-[0.85rem] font-semibold uppercase tracking-[0.12em] text-ink-soft">
@@ -139,7 +139,7 @@ function StoryView({ data, onChanged }: { data: Loaded; onChanged: () => void })
               <StoryAudio recording={recording} title={title} narrator={narrator} />
             </section>
 
-            <section aria-labelledby="story-reading" className="rounded-[2rem] bg-paper px-6 py-8 ring-1 ring-line/80 md:px-12 md:py-12">
+            <section aria-labelledby="story-reading" className="rounded-2xl bg-paper px-6 py-8 ring-1 ring-line/80 md:px-12 md:py-12">
               <h2 id="story-reading" className="sr-only">
                 {t('detail.reading')}
               </h2>
@@ -151,7 +151,7 @@ function StoryView({ data, onChanged }: { data: Loaded; onChanged: () => void })
           </div>
 
           <aside className="flex min-w-0 flex-col gap-6">
-            <section aria-labelledby="story-actions" className="flex flex-col gap-3 rounded-[1.75rem] bg-paper p-5 ring-1 ring-line/80">
+            <section aria-labelledby="story-actions" className="flex flex-col gap-3 rounded-2xl bg-paper p-5 ring-1 ring-line/80">
               <h2 id="story-actions" className="text-[0.85rem] font-semibold uppercase tracking-[0.12em] text-ink-soft">
                 {t('detail.actions.label')}
               </h2>
@@ -196,7 +196,7 @@ function StoryView({ data, onChanged }: { data: Loaded; onChanged: () => void })
               )}
             </section>
 
-            <section aria-labelledby="story-source" className="rounded-[1.75rem] bg-cream p-5 ring-1 ring-line">
+            <section aria-labelledby="story-source" className="rounded-2xl bg-cream p-5 ring-1 ring-line">
               <h2 id="story-source" className="font-serif text-[1.15rem] font-semibold text-heritage-deep">
                 {t('detail.source.title')}
               </h2>
@@ -269,7 +269,7 @@ function StoryAudio({ recording, title, narrator }: { recording: RecordingLite |
         {t('detail.audioError')}
       </p>
     );
-  if (!url) return <Skeleton className="h-20 rounded-3xl" />;
+  if (!url) return <Skeleton className="h-20 rounded-2xl" />;
   return <AudioPlayer src={url} duration={Number(recording.duration_s) || 0} title={title} subtitle={narrator} />;
 }
 

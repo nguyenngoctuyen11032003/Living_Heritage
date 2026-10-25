@@ -1,7 +1,7 @@
 import { CircleCheck, Info, RotateCcw } from 'lucide-react';
 import { useEffect, useId, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router';
-import { Button, ButtonLink, Field, IllustrativeBadge, Input, Select, Textarea, useToast } from '@/components/ui';
+import { Button, ButtonLink, Field, Input, Select, Textarea, useToast } from '@/components/ui';
 import { useT } from '@/i18n';
 import { useSession } from '@/lib/session';
 import { getSupabase } from '@/lib/supabase';
@@ -31,10 +31,9 @@ export default function ConnectPage() {
   const plan = parseConnectPlan(params.get('plan'));
   const itemParam = params.get('item');
   const pageTitle = t('connect.page.pageTitle');
-  const brand = tc('brand.name');
   useEffect(() => {
-    document.title = `${pageTitle} · ${brand}`;
-  }, [pageTitle, brand]);
+    document.title = pageTitle;
+  }, [pageTitle]);
 
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
@@ -104,7 +103,7 @@ export default function ConnectPage() {
 
   return (
     <div className="bg-cream">
-      <div className="mx-auto max-w-3xl px-4 py-12 md:px-8 md:py-16">
+      <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 lg:px-8 md:py-16">
         <p className="text-[0.875rem] font-bold uppercase tracking-[0.14em] text-terracotta">{t('connect.page.kicker')}</p>
         <h1 className="mt-3 font-serif text-[clamp(2.1rem,1.6rem+2vw,3rem)] font-semibold leading-[1.2] text-heritage-deep">{t('connect.page.title')}</h1>
         <p className="mt-4 max-w-2xl text-[1.05rem] leading-relaxed text-ink-soft">{t('connect.page.lede')}</p>
@@ -116,16 +115,6 @@ export default function ConnectPage() {
           </p>
         )}
 
-        {simulated && (
-          <aside className="mt-5 rounded-[1.5rem] border border-[#e9d6a6] bg-[#fdf6e3] px-5 py-4 text-[#5b430f]">
-            <div className="flex items-center gap-3">
-              <IllustrativeBadge />
-              <p className="font-serif text-[1.08rem] font-semibold">{t('connect.page.simulatedTitle')}</p>
-            </div>
-            <p className="mt-2 text-[0.95rem] leading-relaxed">{t('connect.page.simulatedBody')}</p>
-          </aside>
-        )}
-
         {done ? (
           <div className="mt-8">
             <p
@@ -133,7 +122,7 @@ export default function ConnectPage() {
               className={
                 done === 'sent'
                   ? 'flex items-start gap-3 rounded-2xl bg-mint/70 p-4 leading-relaxed text-heritage-deep'
-                  : 'flex items-start gap-3 rounded-2xl bg-[#fdf6e3] p-4 leading-relaxed text-[#5b430f] ring-1 ring-[#e9d6a6]'
+                  : 'flex items-start gap-3 rounded-2xl bg-warning-bg p-4 leading-relaxed text-warning-fg ring-1 ring-warning-line'
               }
             >
               <CircleCheck aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
@@ -144,7 +133,7 @@ export default function ConnectPage() {
             </Button>
           </div>
         ) : (
-          <form onSubmit={onSubmit} noValidate className="mt-8 flex flex-col gap-5 rounded-[1.75rem] bg-paper p-6 ring-1 ring-line md:p-8">
+          <form onSubmit={onSubmit} noValidate className="mt-8 flex flex-col gap-5 rounded-2xl bg-paper p-6 ring-1 ring-line md:p-8">
             <Field label={t('connect.page.topic')} hint={t('connect.page.topicHint')} required error={err('topic')}>
               <Input value={topic} onChange={(e) => setTopic(e.target.value)} maxLength={120} />
             </Field>
@@ -196,7 +185,7 @@ export default function ConnectPage() {
                   onChange={(e) => setConsent(e.target.checked)}
                   aria-invalid={errors.consent ? true : undefined}
                   aria-describedby={errors.consent ? `${consentId}-err` : undefined}
-                  className="mt-1 size-5 shrink-0 accent-[#214e43]"
+                  className="mt-1 size-5 shrink-0 accent-heritage"
                 />
                 <span className="text-[0.95rem] leading-relaxed text-ink">{t('connect.consent')}</span>
               </label>

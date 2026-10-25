@@ -21,7 +21,6 @@ describe('ConnectPage (no Supabase = simulation)', () => {
   it('labels itself as a simulation and never claims a real send', async () => {
     renderPage('/ket-noi?plan=year');
     expect(screen.getByRole('heading', { level: 1, name: 'Kết nối với nhóm điều phối' })).toBeInTheDocument();
-    expect(screen.getByText('Chế độ mô phỏng')).toBeInTheDocument();
     expect(screen.getByText(/chưa thu phí và chưa nhận thanh toán/)).toBeInTheDocument();
     await userEvent.type(screen.getByLabelText(/Chủ đề bạn muốn trao đổi/), 'Kho cá');
     await userEvent.type(screen.getByLabelText(/Tên của bạn/), 'Lan');

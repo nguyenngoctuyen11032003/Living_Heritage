@@ -1,4 +1,4 @@
-import { BarChart3, Bot, Flag, MessageSquareText, Globe2, Handshake, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
+import { BarChart3, Bot, Flag, MessageSquareText, Globe2, Send, Handshake, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router';
 import { Button, ButtonLink, EmptyState, Skeleton, Tab, TabList, TabPanel, Tabs } from '@/components/ui';
@@ -10,6 +10,7 @@ import { parseAdminTab, resolveAdminAccess, visibleAdminTabs, type AdminCheck, t
 import { AiJobsTab } from './tabs/AiJobsTab';
 import { ConnectTab } from './tabs/ConnectTab';
 import { DeletionTab } from './tabs/DeletionTab';
+import { LoginLinkTab } from './tabs/LoginLinkTab';
 import { MetricsTab } from './tabs/MetricsTab';
 import { QuestionsTab } from './tabs/QuestionsTab';
 import { PublishTab } from './tabs/PublishTab';
@@ -23,6 +24,7 @@ const ICONS: Record<AdminTab, ReactNode> = {
   aiJobs: <Bot />,
   questions: <MessageSquareText />,
   metrics: <BarChart3 />,
+  loginLink: <Send />,
 };
 
 const PANELS: Record<AdminTab, () => ReactNode> = {
@@ -33,6 +35,7 @@ const PANELS: Record<AdminTab, () => ReactNode> = {
   aiJobs: () => <AiJobsTab />,
   questions: () => <QuestionsTab />,
   metrics: () => <MetricsTab />,
+  loginLink: () => <LoginLinkTab />,
 };
 
 /** /quan-tri — moderation console. Data is only queried after rpc('is_admin') returns true (RLS enforces it too). */
@@ -87,7 +90,7 @@ export default function AdminPage() {
           {t('states.checking')}
         </p>
         <Skeleton className="h-12 w-full max-w-2xl rounded-full" />
-        <Skeleton className="mt-6 h-40 w-full rounded-[1.5rem]" />
+        <Skeleton className="mt-6 h-40 w-full rounded-2xl" />
       </div>
     );
   } else if (access === 'error') {
@@ -126,7 +129,7 @@ export default function AdminPage() {
         }
       >
         <div ref={tabsRef}>
-          <TabList label={t('tabs.label')} className="max-w-full sm:flex-wrap sm:rounded-[1.75rem]">
+          <TabList label={t('tabs.label')} className="max-w-full sm:flex-wrap sm:rounded-2xl">
             {tabs.map((id) => (
               <Tab key={id} value={id} icon={ICONS[id]}>
                 {t(`tabs.${id}`)}

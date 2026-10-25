@@ -54,7 +54,7 @@ export default {
     count: '{n} stories',
     countSearch: '{n} stories found',
     more: 'Show more',
-    end: 'That’s every story.',
+    end: 'You’ve seen every story.',
   },
   card: {
     untitled: 'Untitled story',
@@ -64,8 +64,8 @@ export default {
     recorded: 'Recorded on',
   },
   empty: {
-    title: 'Your family has no stories yet. Start with a memory that comes easily.',
-    description: 'A Tết family meal, the road to school, an old trade — just talk, and we take care of the rest.',
+    title: 'Your vault is empty',
+    description: 'Start with a memory that comes easily: a Tết family meal, the road to school or an old trade. Just tell it, and Living Heritage will help record it and write it down.',
     start: 'Get started',
     viewer: 'Stories will appear here once your family records and shares them.',
   },
@@ -161,7 +161,7 @@ export default {
     count: '{n} stories',
     open: 'Open collection',
     emptyTitle: 'No collections yet',
-    emptyBody: 'Group stories that belong together so the family can find them again: one Tết season, one trade, one person.',
+    emptyBody: 'Group stories on the same theme so the family can find them again: one Tết season, one trade, one person.',
     viewerEmpty: 'Family editors group stories into collections. Meanwhile, you can read everything in the vault.',
     viewerCta: 'Open the story vault',
     saved: 'Saved.',
@@ -185,7 +185,7 @@ export default {
     },
   },
   sharing: {
-    photosUnavailable: 'The public page does not post photos yet, so family photos always stay private. This option opens once that exists.',
+    photosUnavailable: 'The public page does not support photos yet, so family photos always stay private. This option opens once the feature is ready.',
     preview: {
       topic: 'Topic',
       photos: 'Photos',

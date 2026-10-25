@@ -1,4 +1,4 @@
-// /auth/callback: lands here from magic-link, signup-confirmation and password-reset emails.
+// /auth/callback: lands here from signup-confirmation and password-reset emails.
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { ButtonLink, Spinner } from '@/components/ui';
@@ -25,6 +25,7 @@ export default function CallbackPage() {
   const navigate = useNavigate();
   const { user } = useSession();
   const [status, setStatus] = useState<'working' | 'ok' | AuthErrorKey>('working');
+  const [timedOut, setTimedOut] = useState(false);
   const ran = useRef(false);
   const sb = getSupabase();
 
@@ -53,6 +54,13 @@ export default function CallbackPage() {
     })();
   }, [sb, params]);
 
+  // Never spin forever: after 10s without a result, tell the user and offer a way back.
+  useEffect(() => {
+    if (!sb) return;
+    const id = window.setTimeout(() => setTimedOut(true), 10_000);
+    return () => window.clearTimeout(id);
+  }, [sb]);
+
   // Navigate once the session context has caught up, so guarded pages do not bounce back to login.
   useEffect(() => {
     if (status === 'ok' && user) navigate(next, { replace: true });
@@ -60,18 +68,19 @@ export default function CallbackPage() {
 
   if (!sb) {
     return (
-      <AuthLayout title={t('callback.title')}>
+      <AuthLayout kicker={t('callback.kicker')} title={t('callback.title')}>
         <NotConfiguredNotice />
       </AuthLayout>
     );
   }
 
-  const failed = status !== 'working' && status !== 'ok';
+  const stuck = timedOut && (status === 'working' || status === 'ok');
+  const failed = stuck || (status !== 'working' && status !== 'ok');
   return (
-    <AuthLayout title={failed ? t('callback.failedTitle') : t('callback.title')}>
+    <AuthLayout kicker={t('callback.kicker')} title={failed ? t('callback.failedTitle') : t('callback.title')}>
       {failed ? (
         <div className="flex flex-col gap-5">
-          <ErrorNotice message={t(`errors.${status}`)} />
+          <ErrorNotice message={stuck || status === 'working' || status === 'ok' ? t('callback.timeout') : t(`errors.${status}`)} />
           <div className="flex flex-col gap-3 sm:flex-row">
             <ButtonLink to="/dang-nhap" size="lg">
               {t('callback.backToLogin')}
@@ -82,8 +91,10 @@ export default function CallbackPage() {
           </div>
         </div>
       ) : (
-        <p role="status" aria-live="polite" className="flex items-center gap-3 text-[1.1rem] text-ink-soft">
-          <Spinner decorative className="text-heritage" />
+        <p role="status" aria-live="polite" className="flex items-center gap-4 text-[1.05rem] leading-relaxed text-ink-soft">
+          <span aria-hidden="true" className="inline-flex size-14 shrink-0 items-center justify-center rounded-2xl bg-mint ring-1 ring-heritage/15">
+            <Spinner decorative className="text-heritage" />
+          </span>
           {t('callback.working')}
         </p>
       )}

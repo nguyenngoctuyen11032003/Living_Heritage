@@ -5,7 +5,6 @@ import { Link } from 'react-router';
 import { StoryScene, type SceneKind } from '@/components/illustrations/scenes';
 import { Label } from '@/components/memory-book';
 import { BlurWords } from '@/components/motion';
-import { IllustrativeBadge } from '@/components/ui';
 import { useReducedMotionSafe } from '@/design/motion';
 import { getSampleItem } from '@/features/knowledge/sample-items';
 import { usePick, useT } from '@/i18n';
@@ -224,7 +223,7 @@ export function MemorySphere() {
       world.style.transform = `translateZ(${c.camZ.toFixed(2)}px) rotateY(${sy.toFixed(3)}deg) rotateX(${sx.toFixed(3)}deg)`;
       // Same centre point and depth as before, but outside the sphere's 3D context (see the JSX): no counter-rotation needed.
       head.style.transform = `translateZ(${(c.camZ + R * 0.62).toFixed(1)}px)`;
-      head.style.opacity = String(isLit ? 0 : Math.max(0, 1 - p * 0.55));
+      head.style.opacity = String(isLit ? 0 : Math.max(0, 1 - p * 0.2));
 
       const rx = sx / DEG;
       const ry = sy / DEG;
@@ -412,9 +411,10 @@ export function MemorySphere() {
         </div>
         <div aria-hidden="true" className="ms-vignette" style={{ opacity: lit !== null ? 0 : 1 }} />
 
-        <div className="pointer-events-none absolute inset-x-0 top-0 flex flex-wrap items-center justify-between gap-3 px-4 pt-24 sm:px-6 lg:px-8">
-          <Label>{t('home.sphere.label')}</Label>
-          <IllustrativeBadge tone="outline" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 pt-24">
+          <div className="mx-auto flex w-full max-w-[1264px] flex-wrap items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+            <Label>{t('home.sphere.label')}</Label>
+          </div>
         </div>
         <div className="pointer-events-none absolute inset-x-0 bottom-[5.5rem] flex justify-center px-4 sm:bottom-6">
           <p className="ms-cue text-center" style={{ opacity: lit !== null ? 0 : 1 }}>
@@ -533,7 +533,7 @@ function MemoryLightbox({ memory, source, onClose, reduced }: { memory: Memory; 
           if (!(e.target as HTMLElement).closest('.ms-art, .ms-meta')) requestClose();
         }}
       >
-        <div className="mx-auto grid min-h-full max-w-6xl items-center gap-8 px-4 pb-12 pt-20 sm:px-6 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:gap-14 md:py-16 lg:px-8">
+        <div className="mx-auto grid min-h-full max-w-[1264px] items-center gap-8 px-4 pb-12 pt-20 sm:px-6 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:gap-14 md:py-16 lg:px-8">
           <div ref={artRef} className="ms-art relative mx-auto aspect-[3/4] w-full max-w-[min(420px,calc((100svh-10rem)*0.75))] overflow-hidden rounded-[14px] bg-[var(--mb-fr2)] max-md:max-w-[min(300px,70vw)]">
             <StoryScene kind={memory.scene} />
           </div>
@@ -544,7 +544,7 @@ function MemoryLightbox({ memory, source, onClose, reduced }: { memory: Memory; 
             </h3>
             <p className="mt-5 text-[1rem] text-mb/70">
               {pick(memory.narrator)}
-              {meta && <span className="text-mb/50"> · {meta}</span>}
+              {meta && <span className="text-mb/75"> · {meta}</span>}
             </p>
             {hub && <p className="mt-4 max-w-xl text-pretty text-[1rem] leading-relaxed text-mb/80">{pick(hub.summary)}</p>}
             <div className="mt-7 flex flex-wrap items-center gap-3">
@@ -559,7 +559,6 @@ function MemoryLightbox({ memory, source, onClose, reduced }: { memory: Memory; 
                   {t('home.sphere.listen')}
                 </button>
               )}
-              <IllustrativeBadge tone="outline" />
             </div>
           </div>
         </div>

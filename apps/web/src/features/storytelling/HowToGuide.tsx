@@ -27,8 +27,8 @@ export function HowToGuide({ open, onClose }: { open: boolean; onClose: () => vo
       <ol className="flex flex-col gap-4">
         {STEPS.map((step, i) => (
           <li key={step.title} className="flex items-start gap-4 rounded-2xl bg-mint/50 p-4">
-            <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-heritage text-cream" aria-hidden="true">
-              <step.icon className="size-7" />
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-heritage text-cream" aria-hidden="true">
+              <step.icon className="size-6" />
             </span>
             <span className="flex flex-col gap-1">
               <span className="text-[1.25rem] font-medium text-heritage">{t('howto.step', { n: i + 1 })}</span>

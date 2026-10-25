@@ -111,7 +111,7 @@ export default {
     signOutFailed: 'Chưa đăng xuất được. Vui lòng thử lại.',
     deleteTitle: 'Yêu cầu xoá tài khoản',
     deleteBody: 'Yêu cầu được gửi tới nhóm vận hành và một người sẽ xử lý, không có gì bị xoá tự động. Bạn theo dõi trạng thái ngay tại đây.',
-    deleteNoFamily: 'Hiện yêu cầu xoá cần gắn với một gia đình. Bạn chưa tham gia gia đình nào, hãy liên hệ nhóm qua trang Liên hệ.',
+    deleteNoFamily: 'Yêu cầu xoá cần gắn với một gia đình, mà bạn chưa tham gia gia đình nào. Vui lòng liên hệ chúng tôi qua trang Liên hệ.',
     deleteFiledFor: 'Yêu cầu sẽ được gửi kèm gia đình đang xem: {family}.',
     deleteReason: 'Lý do (giúp người xử lý hiểu đúng ý bạn)',
     deleteConfirm: 'Tôi hiểu rằng khi hoàn tất, tài khoản và quyền truy cập của tôi sẽ bị xoá.',
@@ -167,7 +167,7 @@ export default {
   deletion: {
     title: 'Yêu cầu xoá',
     body: 'Bạn có thể yêu cầu xoá cả kho gia đình hoặc một câu chuyện. Một người trong nhóm vận hành sẽ xem và xử lý từng yêu cầu; không có gì bị xoá tự động.',
-    backupNote: 'Sau khi xoá, bản sao lưu của hệ thống có thể còn giữ dữ liệu thêm một thời gian. Thời hạn đó và các trường hợp phải lưu theo quy định do nhóm và cố vấn pháp lý xác định trước khi vận hành thật. Bản đã tải ra ngoài hoặc đã được người khác sao chép thì không thu hồi được.',
+    backupNote: 'Sau khi xoá, bản sao lưu của hệ thống có thể còn giữ dữ liệu thêm một thời gian. Thời hạn đó và các trường hợp pháp luật yêu cầu phải lưu giữ sẽ được công bố rõ khi dịch vụ chính thức vận hành. Bản đã tải ra ngoài hoặc đã được người khác sao chép thì không thu hồi được.',
     statusesNote: 'Trạng thái: Đã tiếp nhận → Đang xử lý → Hoàn tất, hoặc Không thực hiện kèm lời giải thích.',
     listTitle: 'Yêu cầu bạn đã gửi cho gia đình này',
     listNote: 'Bạn chỉ thấy các yêu cầu do chính mình gửi.',

@@ -116,7 +116,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                 <Icon aria-hidden="true" className={cn('mt-0.5 size-5 shrink-0', toneClasses[item.tone ?? 'info'])} />
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold leading-snug">{item.title}</p>
-                  {item.description && <p className="mt-0.5 text-[0.88rem] leading-snug text-ink-soft">{item.description}</p>}
+                  {item.description && <p className="mt-0.5 text-[0.92rem] leading-snug text-ink-soft">{item.description}</p>}
                   {item.action && (
                     <button
                       type="button"
@@ -124,7 +124,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                         item.action?.onClick();
                         dismiss(item.id);
                       }}
-                      className="mt-2 min-h-10 rounded-full px-3 text-[0.88rem] font-semibold text-heritage underline-offset-4 hover:underline"
+                      className="mt-2 min-h-11 rounded-full px-3 text-[0.92rem] font-semibold text-heritage underline-offset-4 hover:underline"
                     >
                       {item.action.label}
                     </button>
@@ -134,9 +134,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                   type="button"
                   onClick={() => dismiss(item.id)}
                   aria-label={t('ui.toast.close')}
-                  className="inline-flex size-10 shrink-0 items-center justify-center rounded-full text-ink-soft hover:bg-mint/60 hover:text-heritage"
+                  className="inline-flex size-11 shrink-0 items-center justify-center rounded-full text-ink-soft hover:bg-mint/60 hover:text-heritage"
                 >
-                  <X className="size-4" aria-hidden="true" />
+                  <X className="size-5" aria-hidden="true" />
                 </button>
               </m.div>
             );

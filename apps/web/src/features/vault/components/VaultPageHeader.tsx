@@ -66,7 +66,7 @@ export function VaultPageHeader({ back, eyebrow, title, lede, meta, actions, ban
         </Link>
       )}
       {band ? (
-        <div className="overflow-hidden rounded-[2rem] ring-1 ring-line/80" style={{ background: band.background, color: band.ink }}>
+        <div className="overflow-hidden rounded-2xl ring-1 ring-line/80" style={{ background: band.background, color: band.ink }}>
           <div className="grid items-stretch md:grid-cols-[minmax(0,1fr)_220px]">
             <div className="p-6 md:p-10">{body}</div>
             <div className="hidden h-full min-h-48 md:block" aria-hidden="true">

@@ -56,14 +56,13 @@ export function FeatureGrid() {
     <section aria-labelledby="features-title" className="cv-section px-2 py-2 hyphens-auto wrap-anywhere sm:px-3">
       <div className="relative isolate overflow-hidden rounded-[2rem] bg-night text-night-ink">
         <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 -z-10 opacity-[0.05]" />
-        <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-28 lg:px-8">
+        <div className="mx-auto max-w-[1264px] px-4 py-12 sm:px-6 md:py-16 lg:px-8 lg:py-20">
           <SectionHeading id="features-title" tone="dark" eyebrow={t('features.eyebrow')} title={t('features.title')} />
-          <ul className="mt-14 grid grid-cols-1 gap-4 md:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-5">
+          <ul className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:mt-10 lg:grid-cols-4 lg:gap-5">
             <Reveal as="li" delay={0} className="relative min-h-[26rem] overflow-hidden rounded-[1.5rem] ring-1 ring-white/10 lg:min-h-[480px]">
               <WaveIllustration />
               <div className="absolute inset-x-0 bottom-0 p-6">
-                <span className="inline-flex rounded-full bg-white/10 px-2.5 py-0.5 text-[0.72rem] font-semibold text-night-ink/85 ring-1 ring-white/15">{t('features.illoTag')}</span>
-                <p className="mt-3 font-serif text-[1.15rem] italic leading-snug text-night-ink">{t('features.illoCaption')}</p>
+                <p className="font-serif text-[1.15rem] italic leading-snug text-night-ink">{t('features.illoCaption')}</p>
               </div>
             </Reveal>
             {CARDS.map(({ key, icon: Icon, to }, i) => (
@@ -71,9 +70,9 @@ export function FeatureGrid() {
                 <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 opacity-[0.05]" />
                 <div className="relative flex items-start justify-between">
                   <span aria-hidden="true" className="inline-flex size-12 items-center justify-center rounded-2xl bg-mint/12 text-mint-fixed ring-1 ring-mint/20">
-                    <Icon className="size-5" />
+                    <Icon className="size-6" />
                   </span>
-                  <span className="font-serif text-[0.95rem] text-night-ink/60" aria-hidden="true">
+                  <span className="font-serif text-[0.95rem] text-night-ink/80" aria-hidden="true">
                     0{i + 1}
                   </span>
                 </div>

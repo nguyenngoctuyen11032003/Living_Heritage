@@ -119,7 +119,7 @@ function PrintSheets({ book, chapters, back }: { book: BookRow; chapters: Chapte
             </Badge>
             <p className="text-[0.85rem] text-ink-soft">{t('print.hint')}</p>
             {chapters.length > inputs.length && (
-              <p className="text-[0.85rem] text-[#6b4a0c]" role="status">
+              <p className="text-[0.85rem] text-warning-fg" role="status">
                 {t('print.excluded', { n: chapters.length - inputs.length })}
               </p>
             )}

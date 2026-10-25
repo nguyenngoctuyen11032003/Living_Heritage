@@ -78,7 +78,7 @@ export function ReportsTab() {
       <ListState status={q.status} empty={rows.length === 0} emptyTitle={t('reports.emptyTitle')} emptyBody={t('reports.emptyBody')} emptyAction={<HubLink />} onRetry={q.reload}>
         <ul className="flex flex-col gap-4">
           {rows.map((row) => (
-            <li key={row.id} className="rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-6">
+            <li key={row.id} className="rounded-2xl bg-paper p-5 ring-1 ring-line md:p-6">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="font-semibold text-terracotta">{reasonLabel(row.reason)}</p>

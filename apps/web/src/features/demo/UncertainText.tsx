@@ -14,7 +14,7 @@ export function UncertainText({ text, fix }: { text: string; fix?: string | null
             (fix ? (
               <mark className="rounded bg-mint px-1 font-semibold text-heritage-deep">{fix}</mark>
             ) : (
-              <mark className="rounded bg-[#fbecc8] px-1 font-semibold text-[#6b4a0c] underline decoration-dotted underline-offset-4">
+              <mark className="rounded bg-warning-bg px-1 font-semibold text-warning-fg underline decoration-dotted underline-offset-4">
                 [?] <span className="text-[0.85em] font-normal">{t('transcript.unclear')}</span>
               </mark>
             ))}

@@ -4,9 +4,9 @@ import { cn } from '@/lib/cn';
 export type PillTone = 'warning' | 'mint' | 'neutral' | 'heritage' | 'outline';
 
 const TONES: Record<PillTone, string> = {
-  warning: 'bg-[#fbecc8] text-[#5a3e0a] ring-1 ring-[#e9cf8f]',
+  warning: 'bg-warning-bg text-warning-fg ring-1 ring-warning-line',
   mint: 'bg-mint text-heritage-deep',
-  neutral: 'bg-[#efe9dc] text-ink',
+  neutral: 'bg-mint text-ink',
   heritage: 'bg-heritage text-cream',
   outline: 'bg-transparent text-ink-soft ring-1 ring-line',
 };

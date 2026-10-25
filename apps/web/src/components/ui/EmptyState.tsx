@@ -25,13 +25,13 @@ export function EmptyState({ icon, title, description, action, tone = 'light', h
     <div
       className={cn(
         baseDisplay('flex', className),
-        'flex-col items-center rounded-[1.75rem] px-6 py-12 text-center',
-        tone === 'light' ? 'border border-dashed border-line bg-paper/70' : 'bg-night-card text-night-ink ring-1 ring-white/10',
+        'flex-col items-center rounded-2xl px-6 py-12 text-center',
+        tone === 'light' ? 'border border-dashed border-line bg-paper/70' : 'bg-night-card text-night-ink ring-1 ring-white/18',
         className,
       )}
     >
       {icon && (
-        <div aria-hidden="true" className={cn('mb-4 inline-flex size-14 items-center justify-center rounded-2xl [&>svg]:size-7', tone === 'light' ? 'bg-mint text-heritage' : 'bg-white/8 text-night-ink')}>
+        <div aria-hidden="true" className={cn('mb-4 inline-flex size-14 shrink-0 items-center justify-center rounded-2xl [&>svg]:size-6', tone === 'light' ? 'bg-mint text-heritage' : 'bg-white/12 text-night-ink')}>
           {icon}
         </div>
       )}

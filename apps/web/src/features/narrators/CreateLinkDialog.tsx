@@ -72,7 +72,7 @@ function Body({ narrator, onClose, onCreated }: { narrator: Narrator; onClose: (
     >
       {result ? (
         <div className="flex flex-col gap-5 pb-2">
-          <div role="alert" className="flex items-start gap-3 rounded-2xl bg-[#fbecc8] p-4 text-[#6b4a0c]">
+          <div role="alert" className="flex items-start gap-3 rounded-2xl bg-warning-bg p-4 text-warning-fg">
             <TriangleAlert aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
             <p className="leading-relaxed">{t('links.onceWarning')}</p>
           </div>

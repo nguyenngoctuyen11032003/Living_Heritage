@@ -6,8 +6,8 @@
   /* Same type as /sach-ky-uc: display serif (Instrument Serif in English, Noto Serif in Vietnamese) + Be Vietnam Pro. */
   --hh-display: 'Instrument Serif', var(--font-serif);
   --hh-ui: var(--font-sans);
-  --hh-strong: var(--heritage-deep);
-  --hh-ink: var(--ink-soft);
+  --hh-strong: #0b2a22;
+  --hh-ink: var(--ink);
   --hh-accent: var(--terracotta);
   --s: 1;
   --cover: max(100vw / 1280, 100vh / 800);
@@ -28,19 +28,19 @@
 .hh-tint {
   position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background:
-    radial-gradient(60% 46% at 50% 40%, rgba(250,247,240,.72) 0%, rgba(250,247,240,.3) 70%, transparent 100%),
+    radial-gradient(60% 46% at 50% 40%, rgba(250,247,240,.88) 0%, rgba(250,247,240,.5) 70%, transparent 100%),
     linear-gradient(to bottom, rgba(250,247,240,.55) 0%, rgba(250,247,240,.38) 40%, rgba(250,247,240,.62) 72%, rgba(250,247,240,.82) 100%);
 }
-:root[data-theme='dark'] .hh-video { background: #0a0b0c; }
+:root[data-theme='dark'] .hh-video { background: #101614; }
 :root[data-theme='dark'] .hh-tint {
   background: linear-gradient(to bottom, rgba(0,0,0,.118) 0%, rgba(0,0,0,.092) 11%, rgba(0,0,0,.083) 20%, rgba(0,0,0,.079) 29%, rgba(0,0,0,.014) 37.5%, rgba(0,0,0,.016) 46%, rgba(0,0,0,.043) 55%, rgba(0,0,0,.058) 64%, rgba(0,0,0,.062) 73%, rgba(0,0,0,.08) 81%, rgba(0,0,0,.09) 90%, rgba(0,0,0,.095) 100%);
 }
 /* Over the footage: cream type, white icons, soft shadows (as in the reference). */
-:root[data-theme='dark'] .hh-frame { --hh-strong: #f7f5ef; --hh-ink: rgba(255,255,255,.88); --hh-accent: #d6523a; background: #0a0b0c; }
-:root[data-theme='dark'] .hh-icon { color: #f9f9f9; --hh-cut: #101215; }
-:root[data-theme='dark'] .hh-eyebrow { color: rgb(247 245 239 / 0.75); text-shadow: 0 1px 3px rgba(0,0,0,.45); }
+:root[data-theme='dark'] .hh-frame { --hh-strong: #f3efe4; --hh-ink: #dfe4dc; --hh-accent: #e8997f; background: #101614; }
+:root[data-theme='dark'] .hh-icon { color: #f3efe4; --hh-cut: #101614; }
+:root[data-theme='dark'] .hh-eyebrow { color: rgb(243 239 228 / 0.9); text-shadow: 0 1px 3px rgba(0,0,0,.45); }
 :root[data-theme='dark'] .hh-headline { text-shadow: 0 15px 36px rgba(0,0,0,.5); }
-:root[data-theme='dark'] .hh-feature h2 { color: #f9f9f9; text-shadow: 0 1px 4px rgba(0,0,0,.4); }
+:root[data-theme='dark'] .hh-feature h2 { color: #f3efe4; text-shadow: 0 1px 4px rgba(0,0,0,.4); }
 :root[data-theme='dark'] .hh-feature p { text-shadow: 0 1px 3px rgba(0,0,0,.35); }
 
 .hh-stage {

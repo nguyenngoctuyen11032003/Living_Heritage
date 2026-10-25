@@ -109,7 +109,7 @@ function Narrators() {
       {error ? (
         <ErrorNotice message={t('narrators.loadError')} onRetry={() => void reload()} />
       ) : loading ? (
-        <div aria-busy="true" className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <div aria-busy="true" className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
           <Skeleton className="h-56" />
           <Skeleton className="h-56" />
         </div>
@@ -129,7 +129,7 @@ function Narrators() {
       ) : (
         <>
           {linksError && <ErrorNotice className="mb-4" message={t('links.loadError')} onRetry={() => void loadLinks()} />}
-          <ul className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <ul className="grid grid-cols-1 items-start gap-4 sm:gap-6 md:grid-cols-2">
             {narrators.map((n) => (
               <li key={n.id} className="min-w-0">
                 <NarratorCard
@@ -216,7 +216,7 @@ function NarratorCard({
   return (
     <Card padding="none" className="flex h-full min-w-0 flex-col overflow-hidden">
       {/* Warm wash in the avatar's colour so each storyteller card has its own tone. */}
-      <div className="flex items-start gap-4 px-5 pb-4 pt-5 sm:px-6 sm:pt-6" style={{ backgroundImage: `linear-gradient(180deg, ${palette.bg}59 0%, transparent 100%)` }}>
+      <div className="flex items-start gap-4 px-4 pb-4 pt-4 sm:px-6 sm:pt-6" style={{ backgroundImage: `linear-gradient(180deg, ${palette.bg}59 0%, transparent 100%)` }}>
         <HeritageAvatar name={n.display_name} seed={n.id} size="lg" />
         <div className="min-w-0 flex-1 pt-1">
           <h2 className="break-words font-serif text-[1.35rem] font-semibold leading-[1.2] text-heritage-deep">{n.display_name}</h2>
@@ -230,7 +230,7 @@ function NarratorCard({
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-4 px-5 pb-5 sm:px-6 sm:pb-6">
+      <div className="flex flex-1 flex-col gap-4 px-4 pb-4 sm:px-6 sm:pb-6">
         <ul className="flex flex-wrap gap-2" aria-label={t('narrators.detailsLabel')}>
           {n.relation && (
             <li className="max-w-full">

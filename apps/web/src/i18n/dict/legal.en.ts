@@ -4,10 +4,7 @@ import type vi from './legal.vi';
 export default {
   _ns: 'legal',
   common: {
-    draft: 'Draft for the pilot phase',
-    updated: 'Updated 21 October 2026',
     toc: 'On this page',
-    pilotNote: 'Living Heritage is in its pilot phase. This page may change before full launch; we will announce any significant change in advance.',
     related: 'See also',
     signUp: 'Create a free account',
   },
@@ -15,7 +12,7 @@ export default {
     title: 'How it works',
     eyebrow: 'From a spoken story to a legacy',
     heading: 'Grandparents just talk. We do the rest together with the family.',
-    lead: 'Living Heritage breaks the journey into four clear steps. At every step you know who is doing what, where the data is, and what comes next.',
+    lead: 'Living Heritage works in four clear steps. At each one you know who is doing what, where the data is, and what comes next.',
     hero: {
       l1: 'Grandparents just talk.',
       l2: 'We do the rest',
@@ -34,7 +31,7 @@ export default {
       },
       s2: {
         title: 'AI drafts',
-        body: 'The recording goes to our server, where AI transcribes the Vietnamese and prepares a draft. The browser never holds an AI key.',
+        body: 'The recording goes to our server, where AI transcribes the Vietnamese and prepares a draft. The AI key never sits in the browser.',
         a: 'The transcript keeps the way they speak; anything unclear is flagged “Needs checking”.',
         b: 'AI suggests a story that reads well, or a structured know-how card.',
         c: 'If processing fails, the original recording is kept and you can try again.',
@@ -70,7 +67,7 @@ export default {
       a: 'All prices are planned and may change after the pilot.',
       b: 'When official plans launch, you’ll be told in advance and choose whether to join.',
       c: 'Everything you create during the pilot still belongs to your family.',
-      d: 'Printed books are planned; the print-at-home PDF comes first.',
+      d: 'Printed books are only planned; a PDF you can print at home comes first.',
     },
   },
   orgs: {
@@ -97,14 +94,18 @@ export default {
       a: 'Storytellers keep the rights to their own stories.',
       b: 'Nothing is published without consent and review.',
       c: 'Content is never used to train AI models without permission.',
-      d: 'The programme is in a pilot phase; there are no official partners yet.',
     },
-    contactTitle: 'Interested in piloting with us?',
-    contactBody: 'Leave a few lines about your organisation to get advice on the pilot programme.',
+    contactTitle: 'Want to bring this to your organisation?',
+    contactBody: 'Send a few lines about your organisation and what you would like to record. We will get in touch to shape a programme that fits.',
     contactCta: 'Request a consultation',
     form: {
       eyebrow: 'Contact',
       title: 'Talk to us about a programme',
+      channelsTitle: 'Reach us directly',
+      call: 'Call us',
+      email: 'Send an email',
+      nextTitle: 'After you send your details',
+      next: { a: 'You send your organisation and what you need.', b: 'We get back to you to understand your goals.', c: 'Together we plan a programme that fits.' },
       lead: 'Tell us about your organisation and what you would like to record. We will reply by the email or phone number you leave.',
       name: 'Full name',
       contact: 'Email or phone number',
@@ -117,7 +118,6 @@ export default {
       submit: 'Compose the request email',
       opened: 'Your email app was opened with your message, addressed to {email}. It is not sent until you press Send there. If no app opened, please email that address directly.',
       subject: 'Programme consultation request — {org}',
-      noChannel: 'The official intake channel for organisations is being prepared; no form is stored yet. In the meantime, create an account to try the full journey and hear when the programme opens.',
       errors: {
         required: 'Please fill this in.',
         contactInvalid: 'Please enter a valid email or phone number.',
@@ -133,7 +133,7 @@ export default {
     sections: {
       scope: {
         title: 'Scope',
-        body: 'This policy covers the Living Heritage website and its features during the pilot phase: storytelling mode, the family vault, the knowledge hub and memory books.',
+        body: 'This policy covers the Living Heritage website and its features: storytelling mode, the family vault, the knowledge hub and memory books.',
       },
       data: {
         title: 'What we store',
@@ -181,7 +181,7 @@ export default {
       },
       changes: {
         title: 'Changes to this policy',
-        body: 'This is a draft for the pilot phase. If anything important changes, we will post a notice on the website before it takes effect.',
+        body: 'If anything important changes, we will post a notice on the website before it takes effect.',
       },
     },
   },
@@ -192,8 +192,8 @@ export default {
     lead: 'Short, clear, and with the storyteller’s rights first.',
     sections: {
       pilot: {
-        title: 'Pilot phase',
-        body: 'The service is in a pilot and may change or pause while we improve it. We work hard to keep data safe, but we encourage families to download copies of anything important.',
+        title: 'Service availability',
+        body: 'The service may change or pause while we improve it. We work hard to keep data safe, but we encourage families to download copies of anything important.',
       },
       account: {
         title: 'Your account',
@@ -255,9 +255,8 @@ export default {
     hero: {
       titleA: 'Keep the voice,',
       titleB: 'bound in a book',
-      lead: 'A memory book is one of the outputs of the storytelling journey: grandchildren read with their eyes and scan a QR code to listen — in their grandparent’s own voice, at the exact passage.',
+      lead: 'A memory book is one way to keep the stories that were told: grandchildren read with their eyes and scan a QR code to listen — in their grandparent’s own voice, at the exact passage.',
       secondary: 'See how a book is made',
-      videoNote: 'The videos on this page are illustrative stock footage, not families using Living Heritage.',
     },
     video: {
       pause: 'Pause background video',
@@ -272,7 +271,7 @@ export default {
     featured: {
       label: 'Read with your eyes, listen with your ears',
       body: 'Every chapter has a QR code. Scan it with a phone to open that story’s listening page — the storyteller’s real voice, not a machine reading it aloud.',
-      explore: 'Explore the knowledge hub',
+      explore: 'Browse the knowledge hub',
     },
     stepsLabel: 'Five steps',
     stepsTitle: 'Making a book',

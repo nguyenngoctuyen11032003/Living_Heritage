@@ -82,7 +82,7 @@ export function DeletionSection({ family, stories, storiesError }: { family: Fam
                 key={s.value}
                 className={cn(
                   'flex cursor-pointer items-start gap-3 rounded-2xl p-4 ring-1 focus-within:ring-2 focus-within:ring-heritage',
-                  scope === s.value ? 'bg-mint/60 ring-heritage/40' : 'bg-paper ring-line',
+                  scope === s.value ? 'bg-mint/60 ring-heritage/40' : 'bg-paper ring-line-strong',
                 )}
               >
                 <input type="radio" name="lh-deletion-scope" value={s.value} checked={scope === s.value} onChange={() => setScope(s.value)} className="mt-1 size-5 shrink-0 accent-heritage" />

@@ -153,7 +153,7 @@ export function ConnectDialog({ item, open, onClose }: { item: KnowledgeItem; op
             <Textarea value={message} onChange={(e) => setMessage(e.target.value)} maxLength={1900} rows={4} />
           </Field>
           <div>
-            <label htmlFor={consentId} className="flex cursor-pointer items-start gap-3 rounded-2xl bg-cream p-4 ring-1 ring-line has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-heritage">
+            <label htmlFor={consentId} className="flex cursor-pointer items-start gap-3 rounded-2xl bg-cream p-4 ring-1 ring-line-strong has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-heritage">
               <input
                 id={consentId}
                 type="checkbox"
@@ -161,7 +161,7 @@ export function ConnectDialog({ item, open, onClose }: { item: KnowledgeItem; op
                 onChange={(e) => setConsent(e.target.checked)}
                 aria-invalid={errors.consent ? true : undefined}
                 aria-describedby={errors.consent ? `${consentId}-err` : undefined}
-                className="mt-1 size-5 shrink-0 accent-[#214e43]"
+                className="mt-1 size-5 shrink-0 accent-heritage"
               />
               <span className="text-[0.95rem] leading-relaxed text-ink">{t('connect.consent')}</span>
             </label>

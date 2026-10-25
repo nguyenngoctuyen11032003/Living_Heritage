@@ -9,7 +9,7 @@ export default function TermsPage() {
   useDocumentTitle(t('terms.title'));
   return (
     <>
-      <PageHero eyebrow={t('terms.eyebrow')} heading={t('terms.heading')} lead={t('terms.lead')} meta />
+      <PageHero eyebrow={t('terms.eyebrow')} heading={t('terms.heading')} lead={t('terms.lead')} />
       <LegalDoc sections={d.terms.sections} />
     </>
   );

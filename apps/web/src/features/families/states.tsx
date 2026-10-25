@@ -51,7 +51,7 @@ export function CopyField({ value, label, className }: { value: string; label: s
           value={value}
           aria-label={label}
           onFocus={(e) => e.currentTarget.select()}
-          className="min-h-12 w-full min-w-0 flex-1 rounded-2xl bg-cream px-4 font-mono text-[0.85rem] text-ink ring-1 ring-line focus:outline-none focus:ring-2 focus:ring-heritage"
+          className="min-h-12 w-full min-w-0 flex-1 rounded-2xl bg-cream px-4 font-mono text-[0.85rem] text-ink ring-1 ring-line-strong focus:outline-none focus:ring-2 focus:ring-heritage"
         />
         <Button variant="primary" onClick={onCopy} leftIcon={state === 'copied' ? <Check className="size-4" aria-hidden="true" /> : <Copy className="size-4" aria-hidden="true" />}>
           {state === 'copied' ? t('share.copied') : t('share.copy')}

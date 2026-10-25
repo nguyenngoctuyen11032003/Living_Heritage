@@ -40,11 +40,9 @@ describe('/bat-dau', () => {
 describe('OrgContactForm', () => {
   afterEach(() => vi.restoreAllMocks());
 
-  it('without a configured mailbox shows the honest note and no form', () => {
-    wrap(<OrgContactForm email={null} />);
-    expect(screen.getByText(/đang được chuẩn bị/)).toBeInTheDocument();
-    expect(screen.queryByRole('button')).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Tạo tài khoản miễn phí' })).toHaveAttribute('href', '/dang-ky');
+  it('falls back to the public contact mailbox when none is configured', () => {
+    wrap(<OrgContactForm />);
+    expect(screen.getByRole('button', { name: /Soạn email/ })).toBeInTheDocument();
   });
 
   it('validates, then opens the mail app and never claims the request was sent', () => {

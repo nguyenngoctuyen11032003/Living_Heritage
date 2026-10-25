@@ -36,19 +36,19 @@ export function ApprovalBar({ mode, canEdit, dirty, waiting, busy, consent, onSa
   if (mode === 'send_to_narrator') {
     if (!(waiting && !dirty))
       primary = (
-        <Button size={size} onClick={onSave} loading={busy === 'save'} aria-describedby={describedBy} leftIcon={<Send className="size-5" aria-hidden="true" />}>
+        <Button size={size} className="px-5! sm:px-7!" onClick={onSave} loading={busy === 'save'} aria-describedby={describedBy} leftIcon={<Send className="size-5" aria-hidden="true" />}>
           {t('approval.sendButton')}
         </Button>
       );
   } else if (dirty && canEdit) {
     primary = (
-      <Button size={size} onClick={onSave} loading={busy === 'save'} leftIcon={<Save className="size-5" aria-hidden="true" />}>
+      <Button size={size} className="px-5! sm:px-7!" onClick={onSave} loading={busy === 'save'} leftIcon={<Save className="size-5" aria-hidden="true" />}>
         {busy === 'save' ? t('editor.saving') : t('editor.save')}
       </Button>
     );
   } else if (mode === 'narrator_confirm') {
     primary = (
-      <Button size={size} onClick={() => onApprove(false)} loading={busy === 'approve'} aria-describedby={describedBy} leftIcon={<CheckCircle2 className="size-5" aria-hidden="true" />}>
+      <Button size={size} className="px-5! sm:px-7!" onClick={() => onApprove(false)} loading={busy === 'approve'} aria-describedby={describedBy} leftIcon={<CheckCircle2 className="size-5" aria-hidden="true" />}>
         {busy === 'approve' ? t('approval.confirming') : t('approval.confirm')}
       </Button>
     );
@@ -56,6 +56,7 @@ export function ApprovalBar({ mode, canEdit, dirty, waiting, busy, consent, onSa
     primary = (
       <Button
         size={size}
+        className="px-5! sm:px-7!"
         onClick={() => onApprove(true)}
         disabled={!consent}
         loading={busy === 'approve'}
@@ -93,7 +94,7 @@ export function ApprovalBar({ mode, canEdit, dirty, waiting, busy, consent, onSa
         <p className="min-w-0 text-[0.85rem] leading-snug line-clamp-2" aria-live="polite">
           {status}
         </p>
-        {primary && <div className="flex max-w-[68%] shrink-0 justify-end text-balance">{primary}</div>}
+        {primary && <div className="flex max-w-[82%] shrink-0 sm:max-w-[68%] justify-end text-balance">{primary}</div>}
       </div>
     </div>
   );

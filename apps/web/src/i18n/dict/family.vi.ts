@@ -97,6 +97,11 @@ export default {
     accepted: 'Đã tham gia',
     expired: 'Đã hết hạn',
     cancelFor: 'Huỷ lời mời gửi {email}',
+    cancelTitle: 'Huỷ lời mời này?',
+    cancelBody: 'Liên kết mời gửi cho {email} sẽ không còn dùng được nữa.',
+    cancelConfirm: 'Huỷ lời mời',
+    cancelKeep: 'Giữ lại',
+    cancelled: 'Đã huỷ lời mời',
   },
   acceptInvite: {
     working: 'Đang nhận lời mời…',

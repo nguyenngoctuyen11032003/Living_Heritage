@@ -84,7 +84,7 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
       className={cn(
         'sticky top-0 z-40 transition-[background-color,box-shadow] duration-200',
         dark
-          ? cn('text-night-ink', solid ? 'bg-black/90 shadow-[0_1px_0_rgba(255,255,255,0.08)]' : 'bg-transparent')
+          ? cn('text-night-ink', solid ? 'bg-[rgb(21_28_26/0.94)] shadow-[0_1px_0_rgba(255,255,255,0.1)]' : 'bg-transparent')
           : solid
             ? 'bg-cream shadow-[0_1px_0_var(--line)]'
             : 'bg-transparent',
@@ -104,14 +104,14 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
       <div className="@container">
         <div
           className={cn(
-            'mx-auto grid min-h-[4.5rem] max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 sm:px-6 lg:px-8 @min-[71em]:grid-cols-[auto_1fr_auto] @min-[85em]:grid-cols-[1fr_auto_1fr]',
+            'mx-auto grid min-h-[4.5rem] max-w-[90rem] grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 sm:px-6 lg:px-8 @min-[71em]:grid-cols-[auto_1fr_auto]',
             // White focus ring on the dark bar only; the cream mobile sheet keeps the default terracotta ring.
             dark && '[&_:focus-visible]:outline-white',
           )}
         >
-          <Logo wordmark="container" tone={tone} className="min-w-0" />
+          <Logo wordmark="container" tone={tone} className="shrink-0" />
           <nav className="hidden justify-center @min-[71em]:flex" aria-label={t('nav.menu')}>
-            <ul className={cn('flex items-center gap-1 rounded-full p-1 ring-1', dark ? 'bg-white/10 ring-white/15' : 'bg-paper/80 ring-line/80')}>
+            <ul className={cn('flex items-center gap-1 rounded-full p-1 ring-1', dark ? 'bg-white/10 ring-white/15' : 'bg-paper/95 ring-line')}>
               {links.map((l) => (
                 <li key={l.to}>
                   <NavLink
@@ -120,7 +120,7 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
                       cn('inline-flex min-h-10 items-center whitespace-nowrap rounded-full px-3.5 text-[0.84rem] font-medium @min-[85em]:px-4 transition-colors', dark
                           ? isActive
                             ? 'bg-night-ink text-night'
-                            : 'text-night-ink/85 hover:bg-white/10 hover:text-white'
+                            : 'text-night-ink hover:bg-white/10 hover:text-white'
                           : isActive
                             ? 'bg-heritage text-cream'
                             : 'text-ink-soft hover:bg-mint/70 hover:text-heritage-deep')
@@ -138,7 +138,7 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
               <LanguageSwitch tone={tone} />
             </div>
             {/* ThemeToggle has no dark tone: recolour its pill and icon from outside for the dark header. */}
-            <span className={cn('inline-flex', dark && '[&>div]:bg-white/10 [&>div]:ring-white/15 [&_button]:text-night-ink/85 [&_button:hover]:text-white')}>
+            <span className={cn('inline-flex', dark && '[&>div]:bg-white/10 [&>div]:ring-white/15 [&_button]:text-night-ink [&_button:hover]:text-white')}>
               <ThemeToggle />
             </span>
             {signedIn ? (
@@ -161,7 +161,7 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
                   to="/dang-nhap"
                   className={cn(
                     pill,
-                    'hidden ring-1 @min-[43em]:inline-flex',
+                    'hidden ring-1 @min-[80em]:inline-flex',
                     dark ? 'bg-white/10 text-night-ink ring-white/20 hover:bg-white/15 hover:text-white' : 'bg-paper text-ink ring-line hover:text-heritage hover:ring-heritage/50',
                   )}
                 >
@@ -175,7 +175,7 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
             <button
               type="button"
               className={cn(
-                'inline-flex size-12 items-center justify-center rounded-full ring-1 @min-[71em]:hidden',
+                'inline-flex size-12 shrink-0 items-center justify-center rounded-full ring-1 @min-[71em]:hidden',
                 dark ? 'bg-white/10 text-night-ink ring-white/20' : 'bg-paper ring-line',
               )}
               aria-label={open ? t('nav.closeMenu') : t('nav.menu')}
@@ -183,7 +183,7 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
               aria-controls="mobile-menu"
               onClick={() => setOpen((v) => !v)}
             >
-              {open ? <X className="size-5" aria-hidden="true" /> : <Menu className="size-5" aria-hidden="true" />}
+              {open ? <X className="size-[1.15rem]" aria-hidden="true" /> : <Menu className="size-[1.15rem]" aria-hidden="true" />}
             </button>
           </div>
         </div>
@@ -193,9 +193,9 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
               id="mobile-menu"
               aria-label={t('nav.menu')}
               className={cn(
-                'absolute inset-x-0 top-full animate-drop-in border-t px-4 pb-6 pt-3 @min-[71em]:hidden',
+                'absolute inset-x-0 top-full animate-drop-in border-t px-4 sm:px-6 pb-6 pt-3 @min-[71em]:hidden',
                 dark
-                  ? 'border-white/10 bg-[#050505] text-night-ink shadow-[0_24px_40px_-24px_rgba(0,0,0,0.8)]'
+                  ? 'border-white/10 bg-[#151c1a] text-night-ink shadow-[0_24px_40px_-24px_rgba(8,12,11,0.7)]'
                   : 'border-line bg-cream shadow-[0_24px_40px_-24px_rgba(18,27,24,0.35)]',
               )}
             >
@@ -207,7 +207,7 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
                       className={({ isActive }) =>
                         cn(
                           'flex min-h-14 items-center rounded-2xl px-4 text-[1.1rem] font-medium',
-                          dark ? (isActive ? 'bg-white/12 text-white' : 'text-night-ink/85 hover:bg-white/8') : isActive ? 'bg-mint text-heritage-deep' : 'text-ink hover:bg-mint/60',
+                          dark ? (isActive ? 'bg-white/12 text-white' : 'text-night-ink hover:bg-white/8') : isActive ? 'bg-mint text-heritage-deep' : 'text-ink hover:bg-mint/60',
                         )
                       }
                     >
@@ -228,7 +228,7 @@ export function SiteHeader({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
                   </div>
                 )}
                 <div className="flex items-center justify-between">
-                  <span className={cn('text-[0.85rem]', dark ? 'text-night-ink/70' : 'text-ink-soft')}>{t('lang.label')}</span>
+                  <span className={cn('text-[0.85rem]', dark ? 'text-night-ink/90' : 'text-ink-soft')}>{t('lang.label')}</span>
                   <LanguageSwitch tone={tone} />
                 </div>
               </div>

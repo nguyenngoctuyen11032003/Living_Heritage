@@ -3,7 +3,7 @@ import { useEffect, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router';
 import { StoryScene } from '@/components/illustrations/scenes';
 import { Reveal } from '@/components/motion';
-import { AudioPlayer, Button, ButtonLink, IllustrativeBadge, Skeleton } from '@/components/ui';
+import { AudioPlayer, Button, ButtonLink, Skeleton } from '@/components/ui';
 import { useLocale, usePick, useT } from '@/i18n';
 import { formatDate } from '@/lib/format';
 import { getSupabase } from '@/lib/supabase';
@@ -12,7 +12,6 @@ import { ItemActions } from '../components/ItemActions';
 import { ItemBody, SourceBox } from '../components/ItemBody';
 import { KnowledgeCard } from '../components/KnowledgeCard';
 import { PageState } from '../components/PageState';
-import { SampleBanner } from '../components/SampleBanner';
 import { TopicMotif } from '../components/TopicMotif';
 import { findTopic, topicStyle, useTopics } from '../topics';
 import { bareQuote, narratorText, type KnowledgeItem } from '../types';
@@ -27,9 +26,9 @@ export default function ItemPage() {
 
   useEffect(() => {
     // A withdrawn / unknown item must not keep a previous title in the tab (B16: no title leak).
-    if (item) document.title = `${bareQuote(item.title)} · ${tc('brand.name')}`;
-    else if (status === 'not-found') document.title = `${t('states.notFoundTitle')} · ${tc('brand.name')}`;
-  }, [item, status, t, tc]);
+    if (item) document.title = bareQuote(item.title);
+    else if (status === 'not-found') document.title = t('states.notFoundTitle');
+  }, [item, status, t]);
 
   if (status === 'loading') return <ItemSkeleton />;
   if (status === 'not-configured') {
@@ -72,7 +71,7 @@ export default function ItemPage() {
 }
 
 function Shell({ children }: { children: ReactNode }) {
-  return <div className="mx-auto max-w-3xl px-4 py-16 md:px-8">{children}</div>;
+  return <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6 lg:px-8">{children}</div>;
 }
 
 function ItemView({ item, related, topics }: { item: KnowledgeItem; related: KnowledgeItem[]; topics: ReturnType<typeof useTopics> }) {
@@ -90,19 +89,18 @@ function ItemView({ item, related, topics }: { item: KnowledgeItem; related: Kno
   return (
     <article className="bg-cream">
       {/* Hero */}
-      <header className="relative overflow-hidden border-b border-line/70" style={{ backgroundColor: style.wash }}>
-        <div aria-hidden="true" className="pointer-events-none absolute -bottom-10 -left-10 w-[520px] opacity-[0.12]" style={{ color: style.ink }}>
+      <header className="relative overflow-hidden border-b border-line/70" style={{ backgroundColor: `color-mix(in srgb, ${style.band} 22%, var(--cream))` }}>
+        <div aria-hidden="true" className="pointer-events-none absolute -bottom-10 -left-10 w-[520px] text-heritage opacity-[0.12]">
           <TopicMotif slug={item.topicSlug} className="w-full" />
         </div>
-        <div className="relative mx-auto max-w-6xl px-4 pb-10 pt-8 md:px-8 md:pb-14 md:pt-10">
+        <div className="relative mx-auto max-w-[1264px] px-4 pb-10 pt-8 sm:px-6 lg:px-8 md:pb-14 md:pt-10">
           <Link to="/kham-pha" className="inline-flex min-h-12 items-center gap-2 rounded-full pr-3 text-[0.92rem] font-semibold text-heritage hover:text-heritage-deep">
             <ArrowLeft aria-hidden="true" className="size-4" />
             {t('detail.back')}
           </Link>
-          {item.sample && <SampleBanner compact className="mt-4" />}
           <div className="mt-6 grid grid-cols-1 items-end gap-10 lg:grid-cols-[minmax(0,1fr)_300px]">
             <div className="min-w-0">
-              <p className="text-[0.8rem] font-bold uppercase tracking-[0.2em]" style={{ color: style.ink }}>
+              <p className="text-[0.8rem] font-bold uppercase tracking-[0.2em] text-heritage-deep">
                 {topicTitle ? `${topicTitle} · ` : ''}
                 {t(`kinds.${item.kind}`)}
               </p>
@@ -118,41 +116,31 @@ function ItemView({ item, related, topics }: { item: KnowledgeItem; related: Kno
                 </h1>
               </Reveal>
               {/* Each "·" travels with the item after it (never dangles at a line end); phones drop the dots and wrap on the gap. */}
-              <p className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-1 text-[1rem] text-ink-soft sm:gap-x-3">
+              <p className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-1 text-[1rem] text-ink-soft">
                 <span>
                   {t('detail.by')}: <strong className="font-semibold text-ink">{narrator}</strong>
                 </span>
                 {item.region && (
                   <span className="min-w-0 break-words sm:whitespace-nowrap">
-                    <span aria-hidden="true" className="mr-3 hidden sm:inline">
-                      ·
-                    </span>
                     {t(`regions.${item.region}`)}
                   </span>
                 )}
                 {item.decade && (
                   <span className="min-w-0 break-words sm:whitespace-nowrap">
-                    <span aria-hidden="true" className="mr-3 hidden sm:inline">
-                      ·
-                    </span>
                     {t('card.decade', { decade: item.decade })}
                   </span>
                 )}
                 {item.publishedAt && !item.sample && (
                   <span className="min-w-0 break-words sm:whitespace-nowrap">
-                    <span aria-hidden="true" className="mr-3 hidden sm:inline">
-                      ·
-                    </span>
                     {t('detail.publishedOn', { date: formatDate(item.publishedAt, locale) })}
                   </span>
                 )}
-                {item.sample && <IllustrativeBadge />}
               </p>
               <div className="mt-8">
                 <ItemActions item={item} />
               </div>
             </div>
-            <div aria-hidden="true" className="relative hidden aspect-[3/4] overflow-hidden rounded-[2rem] shadow-[0_30px_60px_-40px_rgba(22,58,49,0.6)] ring-1 ring-black/5 lg:block" style={{ backgroundColor: style.band }}>
+            <div aria-hidden="true" className="relative hidden aspect-[3/4] overflow-hidden rounded-2xl shadow-[0_30px_60px_-40px_rgba(22,58,49,0.6)] ring-1 ring-black/5 lg:block" style={{ backgroundColor: style.band }}>
               <StoryScene kind={style.scene} className="absolute inset-0" />
             </div>
           </div>
@@ -160,10 +148,10 @@ function ItemView({ item, related, topics }: { item: KnowledgeItem; related: Kno
       </header>
 
       {/* Body */}
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-12 px-4 py-12 md:px-8 md:py-16 lg:grid-cols-[minmax(0,1fr)_320px]">
+      <div className="mx-auto grid max-w-[1264px] grid-cols-1 gap-12 px-4 py-12 sm:px-6 lg:px-8 md:py-16 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0 max-w-3xl">
           {audioSrc || showSamplePlayer ? (
-            <section aria-labelledby="listen-title" className="mb-12 rounded-[1.75rem] bg-night p-5 text-night-ink shadow-[0_30px_60px_-40px_rgba(18,27,24,0.8)] md:p-7">
+            <section aria-labelledby="listen-title" className="mb-12 rounded-2xl bg-night p-5 text-night-ink shadow-[0_30px_60px_-40px_rgba(18,27,24,0.8)] md:p-7">
               <h2 id="listen-title" className="flex items-center gap-2 text-[0.8rem] font-bold uppercase tracking-[0.18em] text-night-ink/80">
                 <Headphones aria-hidden="true" className="size-4" />
                 {t('detail.listenTitle')}
@@ -193,7 +181,7 @@ function ItemView({ item, related, topics }: { item: KnowledgeItem; related: Kno
 
       {related.length > 0 && (
         <section aria-labelledby="related-title" className="border-t border-line/70 bg-paper/50">
-          <div className="mx-auto max-w-6xl px-4 py-12 md:px-8 md:py-16">
+          <div className="mx-auto max-w-[1264px] px-4 py-12 sm:px-6 lg:px-8 md:py-16">
             <div className="flex flex-wrap items-end justify-between gap-3">
               <h2 id="related-title" className="font-serif text-[1.6rem] font-semibold text-heritage-deep">
                 {t('detail.related')}
@@ -222,7 +210,7 @@ function ItemView({ item, related, topics }: { item: KnowledgeItem; related: Kno
 function ItemSkeleton() {
   const tc = useT('common');
   return (
-    <div aria-busy="true" className="mx-auto max-w-6xl px-4 py-12 md:px-8">
+    <div aria-busy="true" className="mx-auto max-w-[1264px] px-4 py-12 sm:px-6 lg:px-8">
       <span role="status" className="sr-only">{tc('actions.loading')}</span>
       <Skeleton className="h-5 w-40" />
       <Skeleton className="mt-8 h-12 w-full max-w-3xl" />
@@ -232,7 +220,7 @@ function ItemSkeleton() {
         <Skeleton className="h-12 w-40 rounded-full" />
         <Skeleton className="h-12 w-32 rounded-full" />
       </div>
-      <Skeleton className="mt-14 h-40 w-full max-w-3xl rounded-[1.75rem]" />
+      <Skeleton className="mt-14 h-40 w-full max-w-3xl rounded-2xl" />
       <div className="mt-10 max-w-3xl space-y-3">
         <Skeleton className="h-5 w-full" />
         <Skeleton className="h-5 w-11/12" />

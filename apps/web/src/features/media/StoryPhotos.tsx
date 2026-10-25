@@ -181,17 +181,17 @@ export function StoryPhotos({ storyId, familyId, canEdit, className }: StoryPhot
                 </button>
                 {p.caption?.trim() && <p className="line-clamp-3 font-serif text-[0.95rem] italic leading-snug text-ink-soft">{p.caption}</p>}
                 {canEdit && (
-                  <div className="flex flex-wrap gap-1">
-                    <Button variant="ghost" iconOnly aria-label={t('photos.captionFor', { n: i + 1 })} title={t('photos.editCaption')} onClick={() => setEditing(p)}>
+                  <div className="flex flex-wrap gap-0.5 -ml-1.5">
+                    <Button variant="ghost" iconOnly aria-label={t('photos.captionFor', { n: i + 1 })} title={t('photos.editCaption')} onClick={() => setEditing(p)} className="size-11 min-h-11">
                       <Pencil className="size-4" aria-hidden="true" />
                     </Button>
-                    <Button variant="ghost" iconOnly aria-label={t('photos.moveEarlier', { n: i + 1 })} disabled={i === 0 || moving} onClick={() => void move(p, -1)}>
+                    <Button variant="ghost" iconOnly aria-label={t('photos.moveEarlier', { n: i + 1 })} disabled={i === 0 || moving} onClick={() => void move(p, -1)} className="size-11 min-h-11">
                       <ArrowUp className="size-4" aria-hidden="true" />
                     </Button>
-                    <Button variant="ghost" iconOnly aria-label={t('photos.moveLater', { n: i + 1 })} disabled={i === photos.length - 1 || moving} onClick={() => void move(p, 1)}>
+                    <Button variant="ghost" iconOnly aria-label={t('photos.moveLater', { n: i + 1 })} disabled={i === photos.length - 1 || moving} onClick={() => void move(p, 1)} className="size-11 min-h-11">
                       <ArrowDown className="size-4" aria-hidden="true" />
                     </Button>
-                    <Button variant="ghost" iconOnly aria-label={t('photos.removeFor', { n: i + 1 })} onClick={() => setRemoving(p)} className="text-terracotta hover:bg-terracotta/10">
+                    <Button variant="ghost" iconOnly aria-label={t('photos.removeFor', { n: i + 1 })} onClick={() => setRemoving(p)} className="size-11 min-h-11 text-terracotta hover:bg-terracotta/10">
                       <Trash2 className="size-4" aria-hidden="true" />
                     </Button>
                   </div>
@@ -270,7 +270,7 @@ function DropZone({ onFiles, disabled, emptyHint }: { onFiles: (files: File[]) =
       onDragLeave={() => setOver(false)}
       onDrop={onDrop}
       className={cn(
-        'flex flex-col items-center gap-3 rounded-[1.5rem] border-2 border-dashed px-5 py-6 text-center transition-colors print:hidden',
+        'flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed px-5 py-6 text-center transition-colors print:hidden',
         over ? 'border-heritage bg-mint/60' : 'border-line bg-paper/70',
       )}
     >

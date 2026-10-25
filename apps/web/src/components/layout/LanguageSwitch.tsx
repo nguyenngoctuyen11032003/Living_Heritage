@@ -19,7 +19,7 @@ export function LanguageSwitch({ tone = 'light', className }: { tone?: 'light' |
       className={cn(
         baseDisplay('inline-flex', className),
         'shrink-0 items-center rounded-full p-0.5 text-[0.75rem] font-semibold',
-        tone === 'light' ? 'bg-heritage/8 ring-1 ring-line' : 'bg-white/10 ring-1 ring-white/15',
+        tone === 'light' ? 'bg-paper/95 ring-1 ring-line-strong/40' : 'bg-white/10 ring-1 ring-white/15',
         className,
       )}
     >

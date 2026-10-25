@@ -21,7 +21,7 @@ export default function LandingPage() {
   useDisplayFont();
 
   useEffect(() => {
-    document.title = `${tc('brand.name')} — ${t('footer.tagline')}`;
+    document.title = tc('brand.name');
   }, [tc, t]);
 
   // Deep links such as /#chuyen-mau or /#cau-hoi (footer).

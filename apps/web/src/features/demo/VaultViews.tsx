@@ -65,7 +65,7 @@ function TopicLabel({ slug }: { slug: string }) {
 function StoryCard({ card, onOpen }: { card: CardView; onOpen: () => void }) {
   const t = useT('demo');
   return (
-    <li className="flex flex-col gap-3 rounded-[1.5rem] bg-paper p-5 ring-1 ring-line">
+    <li className="flex flex-col gap-3 rounded-2xl bg-paper p-5 ring-1 ring-line">
       <div className="flex flex-wrap items-center gap-2">
         <StatusBadge status={card.status} />
         <Badge tone="outline" size="sm">
@@ -87,7 +87,7 @@ function StoryCard({ card, onOpen }: { card: CardView; onOpen: () => void }) {
 
 function Panel({ title, icon, children }: { title: string; icon: ReactNode; children: ReactNode }) {
   return (
-    <section className="flex flex-col gap-3 rounded-[1.5rem] bg-cream p-5 ring-1 ring-line md:p-7">
+    <section className="flex flex-col gap-3 rounded-2xl bg-cream p-5 ring-1 ring-line md:p-7">
       <h3 className="flex items-center gap-2 font-serif text-[1.3rem] font-semibold text-heritage-deep">
         {icon}
         {title}
@@ -134,7 +134,7 @@ export function VaultStep({ s, dispatch, headingRef }: StepProps) {
             />
           </ul>
         ) : (
-          <div className="flex flex-col items-start gap-3 rounded-[1.5rem] border border-dashed border-line bg-paper/70 p-5">
+          <div className="flex flex-col items-start gap-3 rounded-2xl border border-dashed border-line bg-paper/70 p-5">
             <p className="text-ink-soft">{t('vault.noSaved')}</p>
             <Button onClick={() => dispatch({ type: 'goto', step: 'topic' })} leftIcon={<Mic className="size-5" aria-hidden="true" />}>
               {t('vault.startJourney')}

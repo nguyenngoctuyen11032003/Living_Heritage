@@ -12,7 +12,7 @@ export function useDisplayFont() {
   const { locale } = useLocale();
   const enabled = locale === 'en';
   useEffect(() => {
-    if (!enabled || document.getElementById('font-instrument-serif')) return;
+    if (!enabled || typeof document === 'undefined' || document.getElementById('font-instrument-serif')) return;
     const link = document.createElement('link');
     link.id = 'font-instrument-serif';
     link.rel = 'stylesheet';

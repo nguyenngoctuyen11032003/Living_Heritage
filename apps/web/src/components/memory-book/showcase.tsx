@@ -1,4 +1,4 @@
-import { Info, Play } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { Book3D } from '@/components/landing';
 import { Reveal } from '@/components/motion';
 import { Badge, QrCode } from '@/components/ui';
@@ -16,24 +16,20 @@ const SPECS = ['format', 'pages', 'qr', 'pdf'] as const;
 export function MbShowcase() {
   const t = useT('landing');
   return (
-    <section aria-labelledby="mb-book-title" className="mb-cv bg-mb-bg py-24 md:py-36">
+    <section aria-labelledby="mb-book-title" className="mb-cv bg-mb-bg py-12 md:py-[4.5rem]">
       <Wrap>
         <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-12 lg:gap-10">
           <Reveal y={20} className="relative order-2 lg:order-1 lg:col-span-6">
             <div className="liquid-glass relative mx-auto flex max-w-xl flex-col items-center justify-center gap-8 rounded-[2rem] px-6 py-12 sm:min-h-[34rem] sm:py-14">
-              <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(55%_50%_at_45%_45%,rgba(216,180,106,0.22),rgba(0,0,0,0)_75%)]" />
-              {/* The cover, quote and "1:12" are a mock-up of a book that does not exist yet (NT03, B9). */}
-              <Badge tone="warning" size="sm" icon={<Info />} className="relative z-10 max-w-full whitespace-normal text-center sm:absolute sm:left-4 sm:top-4">
-                {t('book.sampleLabel')}
-              </Badge>
+              <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(55%_50%_at_45%_45%,rgba(216,180,106,0.22),rgba(21,28,26,0)_75%)]" />
               <Book3D className="relative sm:-translate-x-16" />
-              <div className="relative w-[11rem] rotate-[4deg] rounded-[1.25rem] bg-paper p-3 shadow-[0_18px_32px_-20px_rgba(0,0,0,0.8)] ring-1 ring-mb/20 sm:absolute sm:bottom-8 sm:right-5 sm:w-[10.5rem]">
+              <div className="relative w-[11rem] rotate-[4deg] rounded-[1.25rem] bg-paper p-3 shadow-[0_18px_32px_-20px_rgba(16,22,20,0.8)] ring-1 ring-mb/20 sm:absolute sm:bottom-8 sm:right-5 sm:w-[10.5rem]">
                 <div className="rounded-xl bg-cream p-2">
                   <QrCode value={siteHref('/kham-pha')} label={t('book.qrLabel')} size={176} className="h-auto w-full" />
                 </div>
                 <div className="mt-3 flex items-center gap-2.5">
                   <span aria-hidden="true" className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-heritage text-cream">
-                    <Play className="ml-0.5 size-3.5 fill-current" />
+                    <Play className="ml-0.5 size-4 fill-current" />
                   </span>
                   <span className="text-[0.85rem] font-semibold leading-tight text-ink">
                     {t('book.qrTitle')} · <span className="tabular-nums">{t('book.qrDuration')}</span>
@@ -64,7 +60,6 @@ export function MbShowcase() {
               ))}
             </dl>
             <p className="mt-4 text-[0.92rem] leading-relaxed text-mb/70">{t('book.plannedNote')}</p>
-            <p className="mt-2 text-[0.85rem] text-mb/60">{t('book.qrHint')}</p>
           </Reveal>
         </div>
       </Wrap>

@@ -69,7 +69,7 @@ function BooksListInner() {
       {error ? (
         <LoadError onRetry={() => setTick((x) => x + 1)} message={t('state.loadError')} />
       ) : books === null ? (
-        <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4" aria-busy="true">
+        <div className="grid grid-cols-2 gap-5 md:grid-cols-3 xl:grid-cols-4" aria-busy="true">
           {[0, 1, 2].map((i) => (
             <Skeleton key={i} className="aspect-[148/210]" />
           ))}
@@ -88,7 +88,7 @@ function BooksListInner() {
           }
         />
       ) : (
-        <ul className="grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3 lg:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-x-5 gap-y-8 md:grid-cols-3 xl:grid-cols-4">
           {books.map((b) => {
             const theme = COVER_THEMES[asCoverStyle(b.cover_style)];
             return (

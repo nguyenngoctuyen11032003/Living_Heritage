@@ -154,7 +154,7 @@ function VaultHomeInner() {
         title={current?.name || t('header.fallbackName')}
         actions={
           // Phones: the primary action full width, the two secondary ones side by side under it.
-          <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap md:items-center lg:justify-end">
+          <div className="grid grid-cols-2 gap-3 md:flex md:flex-wrap md:items-center xl:justify-end">
             {canEdit && !lookups.loading && (
               <div className="col-span-2 md:contents">
                 <NewStoryButton narrators={lookups.narrators} className="w-full md:w-auto" />
@@ -271,7 +271,7 @@ function StatsRow({ stats, error, onRetry }: { stats: VaultStats | null; error: 
   // One compact strip of three cells at every width (phones keep the story list close to the top).
   return (
     <section aria-label={t('stats.label')}>
-      <dl className="grid grid-cols-3 divide-x divide-line/80 overflow-hidden rounded-3xl bg-paper ring-1 ring-line/80">
+      <dl className="grid grid-cols-3 divide-x divide-line/80 overflow-hidden rounded-2xl bg-paper ring-1 ring-line/80">
         {cells.map((c) => (
           <div key={c.key} className="flex min-w-0 flex-col-reverse justify-end gap-1 px-3 py-3 sm:px-5 sm:py-4">
             <dt className="text-[0.8rem] leading-snug text-ink-soft sm:text-[0.9rem]">
@@ -291,12 +291,12 @@ function StatsRow({ stats, error, onRetry }: { stats: VaultStats | null; error: 
 function ReviewRow({ review, narratorName }: { review: { items: VaultStory[]; total: number }; narratorName: (id: string) => string | undefined }) {
   const t = useT('vault');
   return (
-    <section aria-labelledby="vault-review" className="rounded-[1.75rem] bg-mint/50 p-4 ring-1 ring-heritage/10 md:p-6">
+    <section aria-labelledby="vault-review" className="rounded-2xl bg-mint/50 p-4 ring-1 ring-heritage/10 md:p-6">
       <h2 id="vault-review" className="font-serif text-[1.2rem] font-semibold text-heritage-deep md:text-[1.3rem]">
         {t('review.title')}
       </h2>
       <p className="mt-1 text-[0.95rem] text-ink-soft">{t('review.description')}</p>
-      <ul className="mt-3 grid gap-2 md:mt-4 md:grid-cols-2 md:gap-3 lg:grid-cols-3">
+      <ul className="mt-3 grid gap-2 md:mt-4 md:grid-cols-2 md:gap-3 xl:grid-cols-3">
         {review.items.map((s) => (
           <li key={s.id}>
             {/* Phones: one compact row per draft; md+: a small card with the status. */}
@@ -352,7 +352,7 @@ function FilterBar({
   const filtersId = useId();
 
   return (
-    <div className="flex flex-col gap-4 rounded-[1.75rem] bg-paper p-4 ring-1 ring-line/80 md:p-5">
+    <div className="flex flex-col gap-4 rounded-2xl bg-paper p-4 ring-1 ring-line/80 md:p-5">
       <form role="search" onSubmit={submit} className="flex items-end gap-2">
         <Field label={t('search.label')} className="min-w-0 flex-1">
           <Input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t('search.placeholder')} className="min-h-12" />
@@ -382,7 +382,7 @@ function FilterBar({
           {activeCount > 0 ? t('filters.toggleActive', { n: activeCount }) : t('filters.toggle')}
         </Button>
       </div>
-      <fieldset id={filtersId} className={cn('grid-cols-1 gap-3 min-[420px]:grid-cols-2 md:grid lg:grid-cols-4', filtersOpen ? 'grid' : 'hidden')}>
+      <fieldset id={filtersId} className={cn('grid-cols-1 gap-3 min-[420px]:grid-cols-2 md:grid xl:grid-cols-4', filtersOpen ? 'grid' : 'hidden')}>
         <legend className="sr-only">{t('filters.title')}</legend>
         <Field label={t('filters.narrator')}>
           <Select value={filters.narratorId} onChange={(e) => onChange({ narratorId: e.target.value })} className="min-h-12">

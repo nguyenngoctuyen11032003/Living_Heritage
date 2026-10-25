@@ -43,7 +43,7 @@ export function composeConnectMessage(formatLabel: string, message: string): str
 
 // ---- Public page /ket-noi (interest form) ----
 
-export const CONNECT_PLANS = ['month', 'year', 'book'] as const;
+export const CONNECT_PLANS = ['trial', 'month', 'year', 'book', 'program', 'license'] as const;
 export type ConnectPlan = (typeof CONNECT_PLANS)[number];
 
 /** `?plan=` from the pricing cards; anything unknown is ignored. */

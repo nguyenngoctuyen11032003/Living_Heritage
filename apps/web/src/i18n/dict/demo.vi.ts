@@ -37,7 +37,7 @@ export default {
     fictional: 'Nhân vật minh họa',
   },
   topic: {
-    title: 'Hôm nay bác muốn kể về chuyện gì?',
+    title: 'Hôm nay ông/bà muốn kể về chuyện gì?',
     lede: 'Chọn một chủ đề. Nếu chưa nghĩ ra, chọn “Chưa biết kể gì”.',
     legend: 'Chủ đề',
     unsure: 'Chưa biết kể gì',
@@ -102,11 +102,11 @@ export default {
     cautions: 'Lưu ý',
     limits: 'Giới hạn',
     errorRequired: 'Không được để trống.',
-    errorTooLong: 'Dài quá, hãy rút gọn.',
+    errorTooLong: 'Nội dung quá dài, hãy rút gọn.',
     next: 'Tiếp tục: xác nhận',
   },
   confirm: {
-    title: 'Nội dung này đã đúng điều bác muốn kể chưa?',
+    title: 'Nội dung này đã đúng điều ông/bà muốn kể chưa?',
     lede: 'Người kể duyệt trước. Chưa có ai khác thấy câu chuyện cho tới khi bác đồng ý.',
     by: 'Kể bởi {name}',
     yes: 'Đúng rồi',

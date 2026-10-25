@@ -16,7 +16,7 @@ export default function PlansPage() {
       <PageHero eyebrow={t('plans.eyebrow')} heading={t('plans.heading')} lead={t('plans.lead')} />
       <Plans />
       <Section labelledBy="plan-notes" className="!pb-0">
-        <Reveal className="mx-auto max-w-3xl rounded-[1.75rem] bg-paper p-7 ring-1 ring-line md:p-9">
+        <Reveal className="mx-auto max-w-3xl rounded-2xl bg-paper p-7 ring-1 ring-line md:p-9">
           <h2 id="plan-notes" className="flex items-center gap-3 font-serif text-[1.5rem] font-semibold text-heritage-deep">
             <Info aria-hidden="true" className="size-6 text-terracotta" />
             {t('plans.notesTitle')}

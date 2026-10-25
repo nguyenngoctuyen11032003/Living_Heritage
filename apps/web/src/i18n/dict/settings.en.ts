@@ -113,7 +113,7 @@ export default {
     signOutFailed: 'We could not sign you out. Please try again.',
     deleteTitle: 'Request account deletion',
     deleteBody: 'Your request goes to the operations team and a person handles it; nothing is deleted automatically. You can follow its status right here.',
-    deleteNoFamily: 'For now a deletion request must be attached to a family. You have not joined one, so please reach the team through the Contact page.',
+    deleteNoFamily: 'A deletion request must be attached to a family, and you have not joined one yet. Please contact us through the Contact page.',
     deleteFiledFor: 'The request will be filed with your current family: {family}.',
     deleteReason: 'Reason (helps the person handling it understand you)',
     deleteConfirm: 'I understand that once completed, my account and my access will be deleted.',
@@ -169,7 +169,7 @@ export default {
   deletion: {
     title: 'Deletion requests',
     body: 'You can ask for the whole family vault or a single story to be deleted. A person on the operations team reviews and handles every request; nothing is deleted automatically.',
-    backupNote: 'After deletion, system backups may keep the data for a further period. That period, and any cases where data must be kept by law, will be set by the team and its legal advisers before real-world operation. Copies already downloaded or copied by someone else cannot be recalled.',
+    backupNote: 'After deletion, system backups may keep the data for a further period. That period, and any cases where the law requires data to be kept, will be stated clearly when the service officially launches. Copies already downloaded or copied by someone else cannot be recalled.',
     statusesNote: 'Status: Received → In progress → Completed, or Not carried out, with an explanation.',
     listTitle: 'Requests you sent for this family',
     listNote: 'You only see the requests you sent yourself.',

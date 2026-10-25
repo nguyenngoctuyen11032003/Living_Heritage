@@ -113,16 +113,16 @@ function FamilyTree() {
           action={fam.canEdit ? <ButtonLink to="/gia-dinh/nguoi-ke?new=1">{t('tree.emptyCta')}</ButtonLink> : undefined}
         />
       ) : (
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col gap-8">
           {tiers.length > 0 && (
-            <>
+            <div className="flex flex-col gap-4">
               <p className="text-[0.9rem] text-ink-soft">{t('tree.note')}</p>
               <TreeTiers tiers={tiers} counts={counts} canEdit={fam.canEdit} />
-            </>
+            </div>
           )}
 
           {unplaced.length > 0 && (
-            <section aria-labelledby="tree-unplaced" className="rounded-[1.75rem] border border-dashed border-line bg-paper/70 p-5 md:p-6 print:break-inside-avoid">
+            <section aria-labelledby="tree-unplaced" className="rounded-2xl border border-dashed border-line bg-paper/70 p-5 md:p-6 print:break-inside-avoid">
               <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <h2 id="tree-unplaced" className="font-serif text-[1.25rem] font-semibold text-heritage-deep">
@@ -136,7 +136,7 @@ function FamilyTree() {
                   </Link>
                 )}
               </div>
-              <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {unplaced.map((n) => (
                   <li key={n.id} className="flex">
                     <PersonCard narrator={n} count={counts instanceof Map ? (counts.get(n.id) ?? 0) : 0} countsState={counts === null ? 'loading' : counts === 'failed' ? 'failed' : 'ready'} canEdit={fam.canEdit} className="w-full" />
@@ -170,7 +170,7 @@ function FamilyTree() {
 }
 
 // Fixed card width + gap: rows are centred flex rows, and the connectors use the same numbers to find card centres.
-const CARD_W = 224;
+const CARD_W = 264;
 const CARD_GAP = 20;
 
 function TreeTiers({ tiers, counts, canEdit }: { tiers: Array<{ generation: Generation; narrators: Narrator[] }>; counts: Counts; canEdit: boolean }) {
@@ -179,7 +179,7 @@ function TreeTiers({ tiers, counts, canEdit }: { tiers: Array<{ generation: Gene
   const width = widest * CARD_W + (widest - 1) * CARD_GAP;
   const centers = (k: number) => packedCenters(k, widest, CARD_W, CARD_GAP);
   return (
-    <div className="rounded-[2rem] bg-cream/60 p-4 ring-1 ring-line md:overflow-x-auto md:p-8 print:overflow-visible print:bg-transparent print:p-0 print:ring-0">
+    <div className="rounded-2xl bg-cream/60 p-4 ring-1 ring-line md:overflow-x-auto md:p-8 print:overflow-visible print:bg-transparent print:p-0 print:ring-0">
       <ol className="flex flex-col md:mx-auto md:w-[var(--tree-w)]" style={{ ['--tree-w' as string]: `${width}px` }}>
         {tiers.map((tier, i) => {
           const next = tiers[i + 1];
@@ -205,7 +205,7 @@ function TierRow({ narrators, counts, canEdit }: { narrators: Narrator[]; counts
   return (
     <ul className="flex flex-wrap items-stretch justify-center gap-4 md:flex-nowrap md:gap-5">
       {narrators.map((n) => (
-        <li key={n.id} className="flex w-full sm:w-[calc(50%-0.5rem)] md:w-[224px] md:shrink-0">
+        <li key={n.id} className="flex w-full sm:w-[calc(50%-0.5rem)] md:w-[264px] md:shrink-0">
           <PersonCard narrator={n} count={counts instanceof Map ? (counts.get(n.id) ?? 0) : 0} countsState={counts === null ? 'loading' : counts === 'failed' ? 'failed' : 'ready'} canEdit={canEdit} className="w-full" />
         </li>
       ))}
@@ -230,7 +230,7 @@ function Connector({ paths }: { paths: string[] }) {
 function PersonCard({ narrator: n, count, countsState, canEdit, className }: { narrator: Narrator; count: number; countsState: 'loading' | 'ready' | 'failed'; canEdit: boolean; className?: string }) {
   const t = useT('media');
   return (
-    <article className={`flex flex-col gap-3 rounded-[1.5rem] bg-paper p-4 shadow-[0_12px_30px_-24px_rgba(22,58,49,0.5)] ring-1 ring-line/80 print:shadow-none ${className ?? ''}`}>
+    <article className={`flex flex-col gap-3 rounded-2xl bg-paper p-4 shadow-[0_12px_30px_-24px_rgba(22,58,49,0.5)] ring-1 ring-line/80 print:shadow-none ${className ?? ''}`}>
       <div className="flex items-center gap-3">
         <NarratorAvatar id={n.id} name={n.display_name} size="lg" className="print:bg-transparent! print:text-heritage print:ring-1 print:ring-heritage" />
         <div className="min-w-0">
@@ -251,14 +251,14 @@ function PersonCard({ narrator: n, count, countsState, canEdit, className }: { n
           <Skeleton className="h-5 w-32" />
         )}
       </p>
-      <div className="mt-auto flex flex-wrap gap-x-4 gap-y-1 print:hidden">
-        <Link to={vaultByNarratorPath(n.id)} aria-label={t('tree.viewStoriesOf', { name: n.display_name })} className="inline-flex min-h-11 items-center gap-1.5 text-[0.9rem] font-semibold text-heritage underline-offset-4 hover:underline">
-          <BookOpen className="size-4" aria-hidden="true" />
+      <div className="mt-auto flex flex-wrap gap-x-3 gap-y-1 print:hidden">
+        <Link to={vaultByNarratorPath(n.id)} aria-label={t('tree.viewStoriesOf', { name: n.display_name })} className="inline-flex min-h-11 items-center gap-2 text-[0.9rem] font-semibold text-heritage underline-offset-4 hover:underline">
+          <BookOpen className="size-4 shrink-0" aria-hidden="true" />
           {t('tree.viewStories')}
         </Link>
         {canEdit && (
-          <Link to={assistedTellPath(n.id)} aria-label={t('tree.tellWith', { name: n.display_name })} className="inline-flex min-h-11 items-center gap-1.5 text-[0.9rem] font-semibold text-terracotta underline-offset-4 hover:underline">
-            <Mic className="size-4" aria-hidden="true" />
+          <Link to={assistedTellPath(n.id)} aria-label={t('tree.tellWith', { name: n.display_name })} className="inline-flex min-h-11 items-center gap-2 text-[0.9rem] font-semibold text-terracotta underline-offset-4 hover:underline">
+            <Mic className="size-4 shrink-0" aria-hidden="true" />
             {t('tree.tell')}
           </Link>
         )}

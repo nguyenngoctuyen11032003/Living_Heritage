@@ -43,7 +43,7 @@ function FaqItem({ k, open, onToggle }: { k: FaqKey; open: boolean; onToggle: ()
             transition={{ duration: 0.22, ease: EASE_OUT }}
             className="overflow-hidden"
           >
-            <p className="max-w-3xl pb-6 pr-12 text-[1.02rem] leading-relaxed text-ink-soft">{t(`faq.items.${k}.a`)}</p>
+            <p className="max-w-3xl pb-6 sm:pr-12 text-[1.02rem] leading-relaxed text-ink-soft">{t(`faq.items.${k}.a`)}</p>
           </m.div>
         )}
       </AnimatePresence>
@@ -57,11 +57,11 @@ export function Faq({ keys = ALL }: { keys?: FaqKey[] }) {
   const [open, setOpen] = useState<FaqKey | null>(keys[0] ?? null);
   return (
     <Section id="cau-hoi" labelledBy="faq-title" className="cv-section">
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
-        <div className="lg:col-span-4">
-          <SectionHeading id="faq-title" eyebrow={t('faq.eyebrow')} title={t('faq.title')} />
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
+        <div className="lg:col-span-5">
+          <SectionHeading size="sm" id="faq-title" eyebrow={t('faq.eyebrow')} title={t('faq.title')} />
         </div>
-        <Reveal className="lg:col-span-8">
+        <Reveal className="lg:col-span-7">
           <ul className="border-t border-line">
             {keys.map((k) => (
               <FaqItem key={k} k={k} open={open === k} onToggle={() => setOpen((cur) => (cur === k ? null : k))} />

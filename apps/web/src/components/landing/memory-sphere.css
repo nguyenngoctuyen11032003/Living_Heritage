@@ -71,7 +71,7 @@
   inset-inline: 0;
   bottom: 0;
   padding: 22px 10px 9px;
-  background: linear-gradient(180deg, transparent, rgb(0 0 0 / 0.62));
+  background: linear-gradient(180deg, transparent, rgb(16 22 20 / 0.82));
   color: #fff;
   font-size: max(8px, calc(var(--ms-cw) * 0.066));
   font-weight: 600;
@@ -104,8 +104,12 @@
   font-size: clamp(26px, 3.9vw, 58px);
   color: var(--mb-fg);
   text-shadow:
-    0 2px 34px rgb(var(--mb-bg-rgb) / 0.9),
+    0 2px 34px rgb(var(--mb-bg-rgb) / 1),
+    0 0 22px rgb(var(--mb-bg-rgb) / 0.95),
     0 0 14px rgb(var(--mb-bg-rgb) / 0.7);
+  z-index: 5;
+  -webkit-text-stroke: 0.14em rgb(var(--mb-bg-rgb) / 0.92);
+  paint-order: stroke fill;
   pointer-events: none;
 }
 .ms-headline__inner {
@@ -142,7 +146,7 @@
   font-size: 0.72rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--mb-fg) 55%, transparent);
+  color: color-mix(in srgb, var(--mb-fg) 78%, transparent);
   transition: opacity 0.4s ease;
 }
 .ms-cue s {
@@ -180,7 +184,7 @@
   transition: opacity 0.3s ease;
 }
 .ms-art {
-  box-shadow: 0 30px 90px rgb(0 0 0 / 0.55);
+  box-shadow: 0 30px 90px rgb(16 22 20 / 0.6);
   transform-origin: 0 0;
 }
 .ms-meta {

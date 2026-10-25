@@ -21,7 +21,7 @@ describe('Plans interest button', () => {
       </LocaleProvider>,
     );
     expect(screen.getByText('Giá dự kiến, chưa thu phí', { exact: false })).toBeInTheDocument();
-    await userEvent.click(screen.getAllByRole('button', { name: 'Đăng ký quan tâm' })[1]!);
+    await userEvent.click(screen.getAllByRole('button', { name: 'Đăng ký quan tâm' })[2]!);
     expect(screen.getByRole('link', { name: 'Gửi quan tâm' })).toHaveAttribute('href', '/ket-noi?plan=year');
   });
 });

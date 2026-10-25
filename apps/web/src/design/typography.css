@@ -16,8 +16,8 @@
 }
 
 p.uppercase.text-terracotta {
-  color: color-mix(in srgb, var(--ink) 60%, transparent);
-  font-weight: 500;
+  color: var(--ink-soft);
+  font-weight: 600;
   letter-spacing: 0.2em;
 }
 p.uppercase.text-terracotta > span[aria-hidden='true'].h-px { display: none; }

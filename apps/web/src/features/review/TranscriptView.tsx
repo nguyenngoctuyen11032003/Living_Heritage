@@ -12,7 +12,7 @@ export function TranscriptView({ text, verbatim = true }: { text: string; verbat
   return (
     <div className="flex flex-col gap-3">
       {n > 0 && (
-        <p className="rounded-2xl bg-[#fbecc8]/60 p-3 text-[0.9rem] leading-relaxed text-[#5b3f0a]">
+        <p className="rounded-2xl bg-warning-bg p-3 text-[0.9rem] leading-relaxed text-warning-fg">
           <strong className="font-semibold">{t('source.uncertainCount', { n })}.</strong> {t('source.uncertainHint')}
         </p>
       )}
@@ -21,9 +21,9 @@ export function TranscriptView({ text, verbatim = true }: { text: string; verbat
           s.kind === 'text' ? (
             <span key={i}>{s.text}</span>
           ) : (
-            <mark key={i} className="mx-0.5 inline-flex items-baseline gap-1 rounded-lg bg-[#fbecc8] px-1.5 py-0.5 text-[#5b3f0a] underline decoration-dotted decoration-2 underline-offset-4">
+            <mark key={i} className="mx-0.5 inline-flex items-baseline gap-1 rounded-lg bg-warning-bg px-1.5 py-0.5 text-warning-fg underline decoration-dotted decoration-2 underline-offset-4">
               {s.text ? <span>{s.text}</span> : <span className="italic">{t('source.uncertainUnclear')}</span>}
-              <span className="inline-flex items-center gap-0.5 self-center whitespace-nowrap rounded-full bg-paper px-1.5 text-[0.7rem] font-semibold no-underline ring-1 ring-[#e3c77f]">
+              <span className="inline-flex items-center gap-0.5 self-center whitespace-nowrap rounded-full bg-paper px-1.5 text-[0.75rem] font-semibold no-underline ring-1 ring-warning-line">
                 <CircleHelp aria-hidden="true" className="size-3" />
                 {t('source.uncertainLabel')}
               </span>

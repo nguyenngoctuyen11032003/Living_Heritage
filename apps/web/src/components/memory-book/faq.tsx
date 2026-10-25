@@ -64,7 +64,7 @@ export function MbFaq({ keys }: { keys: FaqKey[] }) {
   const tl = useT('legal');
   const [open, setOpen] = useState<FaqKey | null>(keys[0] ?? null);
   return (
-    <section id="cau-hoi" aria-labelledby="mb-faq-title" className="mb-cv scroll-mt-24 bg-mb-bg pb-24 pt-12 md:pb-36 md:pt-20">
+    <section id="cau-hoi" aria-labelledby="mb-faq-title" className="mb-cv scroll-mt-24 bg-mb-bg pb-16 pt-6 md:pb-24 md:pt-10">
       <Wrap className="grid grid-cols-1 gap-10 lg:grid-cols-12">
         <Reveal y={20} className="lg:col-span-4">
           <Label>{t('faq.eyebrow')}</Label>

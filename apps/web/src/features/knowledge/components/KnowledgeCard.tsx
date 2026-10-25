@@ -1,6 +1,6 @@
 import { Clock3, Headphones, MapPin } from 'lucide-react';
 import { Link } from 'react-router';
-import { IllustrativeBadge, Skeleton } from '@/components/ui';
+import { Skeleton } from '@/components/ui';
 import { usePick, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { formatDuration } from '@/lib/format';
@@ -33,8 +33,8 @@ export function KnowledgeCard({ item, topics, featured, headingLevel = 'h3', onO
   return (
     <article
       className={cn(
-        'group relative flex h-full overflow-hidden rounded-[1.75rem] bg-paper ring-1 ring-line/90 transition-[transform,box-shadow] duration-200 ease-out',
-        'hover:-translate-y-1 hover:shadow-[0_26px_50px_-32px_rgba(22,58,49,0.55)] focus-within:-translate-y-1 focus-within:ring-2 focus-within:ring-heritage active:scale-[0.995] motion-reduce:transform-none',
+        'group relative flex h-full overflow-hidden rounded-2xl bg-paper ring-1 ring-line/90 transition-[transform,box-shadow] duration-200 ease-out',
+        'hover:shadow-md focus-within:-translate-y-1 focus-within:ring-2 focus-within:ring-heritage active:scale-[0.995] motion-reduce:transform-none',
         featured ? 'flex-col md:flex-row' : 'flex-col',
       )}
     >
@@ -45,7 +45,7 @@ export function KnowledgeCard({ item, topics, featured, headingLevel = 'h3', onO
         <TopicMotif
           slug={item.topicSlug}
           className={cn(
-            'absolute opacity-55 transition-transform duration-500 ease-out group-hover:scale-105 motion-reduce:group-hover:scale-100',
+            'absolute opacity-55 transition-transform duration-500 ease-out motion-reduce:group-hover:scale-100',
             featured ? '-right-6 bottom-0 w-[115%] md:bottom-6 md:right-auto md:-left-4' : '-right-8 -bottom-4 w-[85%]',
           )}
         />
@@ -71,7 +71,7 @@ export function KnowledgeCard({ item, topics, featured, headingLevel = 'h3', onO
           <Link
             to={`/tri-thuc/${item.id}`}
             onClick={onOpen}
-            className="after:absolute after:inset-0 after:rounded-[1.75rem] after:content-[''] focus-visible:outline-none"
+            className="after:absolute after:inset-0 after:rounded-2xl after:content-[''] focus-visible:outline-none"
           >
             {bareQuote(item.title)}
           </Link>
@@ -94,7 +94,6 @@ export function KnowledgeCard({ item, topics, featured, headingLevel = 'h3', onO
                 </span>
               )}
               {item.decade && <span>{t('card.decade', { decade: item.decade })}</span>}
-              {item.sample && <IllustrativeBadge />}
             </p>
             <p className="flex flex-wrap items-center gap-2 text-[0.78rem]">
               {showAudio ? (
@@ -121,7 +120,7 @@ export function KnowledgeCard({ item, topics, featured, headingLevel = 'h3', onO
 
 export function KnowledgeCardSkeleton({ featured }: { featured?: boolean }) {
   return (
-    <div className={cn('flex h-full overflow-hidden rounded-[1.75rem] bg-paper ring-1 ring-line', featured ? 'flex-col md:flex-row' : 'flex-col')}>
+    <div className={cn('flex h-full overflow-hidden rounded-2xl bg-paper ring-1 ring-line', featured ? 'flex-col md:flex-row' : 'flex-col')}>
       <Skeleton className={cn('rounded-none', featured ? 'h-36 md:h-auto md:w-[38%]' : 'h-28')} />
       <div className="flex flex-1 flex-col gap-3 p-6">
         <Skeleton className="h-6 w-28 rounded-full" />

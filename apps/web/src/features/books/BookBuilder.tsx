@@ -44,7 +44,7 @@ function BookBuilderInner({ bookId }: { bookId: string }) {
           {t('state.loading')}
         </p>
         <Skeleton className="h-10 w-1/2" />
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-6 xl:grid-cols-2">
           <Skeleton className="h-80" />
           <Skeleton className="h-80" />
         </div>
@@ -179,9 +179,9 @@ function Builder({ book: initialBook, initialChapters }: { book: BookRow; initia
         {announce}
       </p>
 
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+      <div className="grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
         {canEdit && (
-          <section aria-labelledby="book-picker" className="flex min-w-0 flex-col gap-3 rounded-[1.75rem] bg-paper p-5 ring-1 ring-line/80">
+          <section aria-labelledby="book-picker" className="flex min-w-0 flex-col gap-3 rounded-2xl bg-paper p-5 ring-1 ring-line/80">
             <h2 id="book-picker" className="font-serif text-[1.3rem] font-semibold text-heritage-deep">
               {t('builder.picker.title')}
             </h2>
@@ -216,7 +216,7 @@ function Builder({ book: initialBook, initialChapters }: { book: BookRow; initia
           </section>
         )}
 
-        <div className={canEdit ? 'flex min-w-0 flex-col gap-8' : 'flex min-w-0 flex-col gap-8 lg:col-span-2'}>
+        <div className={canEdit ? 'flex min-w-0 flex-col gap-8' : 'flex min-w-0 flex-col gap-8 xl:col-span-2'}>
           <section aria-labelledby="book-chapters" className="flex flex-col gap-3">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h2 id="book-chapters" className="font-serif text-[1.3rem] font-semibold text-heritage-deep">
@@ -249,7 +249,7 @@ function Builder({ book: initialBook, initialChapters }: { book: BookRow; initia
                       </Link>
                       <span className="text-[0.85rem] text-ink-soft">{narratorName(c.story.narrator_id) ?? ''}</span>
                       {c.story.edit_status !== 'approved' && (
-                        <span className="inline-flex items-start gap-1.5 text-[0.85rem] text-[#6b4a0c]">
+                        <span className="inline-flex items-start gap-1.5 text-[0.85rem] text-warning-fg">
                           <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
                           {t('builder.chapters.notApproved')}
                         </span>
@@ -266,7 +266,7 @@ function Builder({ book: initialBook, initialChapters }: { book: BookRow; initia
       </div>
 
       {canEdit && (
-        <section aria-labelledby="book-danger" className="flex flex-col gap-3 rounded-[1.75rem] border border-terracotta/30 bg-terracotta/5 p-5 sm:flex-row sm:items-center sm:justify-between md:p-6">
+        <section aria-labelledby="book-danger" className="flex flex-col gap-3 rounded-2xl border border-terracotta/30 bg-terracotta/5 p-5 sm:flex-row sm:items-center sm:justify-between md:p-6">
           <div className="min-w-0">
             <h2 id="book-danger" className="font-serif text-[1.15rem] font-semibold text-terracotta">
               {t('builder.danger.title')}
@@ -327,7 +327,7 @@ function CoverEditor({ book, onSaved }: { book: BookRow; onSaved: (b: BookRow) =
   }
 
   return (
-    <section aria-labelledby="book-cover" className="rounded-[1.75rem] bg-paper p-5 ring-1 ring-line/80">
+    <section aria-labelledby="book-cover" className="rounded-2xl bg-paper p-5 ring-1 ring-line/80">
       <h2 id="book-cover" className="mb-4 font-serif text-[1.3rem] font-semibold text-heritage-deep">
         {t('builder.cover')}
       </h2>
@@ -349,7 +349,7 @@ function ChapterThumb({ n, style }: { n: number; style: { band: string; ink: str
     <span
       aria-hidden="true"
       className="relative mt-0.5 hidden aspect-[148/210] w-11 shrink-0 items-center justify-center overflow-hidden rounded-[4px] font-serif text-[1.05rem] font-semibold shadow-[0_6px_14px_-8px_rgba(18,27,24,0.5)] min-[400px]:flex"
-      style={{ background: `linear-gradient(160deg, ${style.wash} 0%, ${style.band} 100%)`, color: style.ink }}
+      style={{ background: style.band, color: style.ink }}
     >
       <span className="absolute inset-y-0 left-0 w-1" style={{ background: style.ink, opacity: 0.35 }} />
       {String(n).padStart(2, '0')}

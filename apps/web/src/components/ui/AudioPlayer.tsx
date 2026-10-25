@@ -143,7 +143,7 @@ export function AudioPlayer({ src, duration: durationProp = 0, title, subtitle, 
 
   const skipBtn = cn(
     'inline-flex size-12 shrink-0 items-center justify-center rounded-full transition-colors',
-    dark ? 'text-night-ink/80 hover:bg-white/10 hover:text-night-ink' : 'text-ink-soft hover:bg-mint/70 hover:text-heritage',
+    dark ? 'text-night-ink/90 hover:bg-white/15 hover:text-night-ink' : 'text-ink-soft hover:bg-mint/70 hover:text-heritage',
   );
 
   const playButton = (
@@ -155,7 +155,7 @@ export function AudioPlayer({ src, duration: durationProp = 0, title, subtitle, 
       className={cn(
         'inline-flex shrink-0 items-center justify-center rounded-full transition-[background-color,transform] duration-200 active:scale-95',
         compact ? 'size-12' : 'size-14',
-        dark ? 'bg-night-ink text-night hover:bg-white' : 'bg-heritage text-cream hover:bg-heritage-deep',
+        dark ? 'bg-night-ink text-night hover:bg-night-ink/85' : 'bg-heritage text-cream hover:bg-heritage-deep',
       )}
     >
       {playing ? <Pause className="size-5 fill-current" aria-hidden="true" /> : <Play className="ml-0.5 size-5 fill-current" aria-hidden="true" />}
@@ -194,7 +194,7 @@ export function AudioPlayer({ src, duration: durationProp = 0, title, subtitle, 
     <div
       className={cn(
         'w-full',
-        compact ? cn(baseDisplay('flex', className), 'items-center gap-3') : 'rounded-[1.5rem] p-4 sm:p-5',
+        compact ? cn(baseDisplay('flex', className), 'items-center gap-3') : 'rounded-2xl p-4 sm:p-5',
         !compact && (dark ? 'bg-night-card ring-1 ring-white/10' : 'bg-paper ring-1 ring-line'),
         dark ? 'text-night-ink' : 'text-ink',
         className,
@@ -218,11 +218,11 @@ export function AudioPlayer({ src, duration: durationProp = 0, title, subtitle, 
           {playButton}
           {track}
           {failed ? (
-            <span role="alert" className={cn('shrink-0 text-[0.8rem] font-medium', dark ? 'text-[#f0a48f]' : 'text-terracotta')}>
+            <span role="alert" className={cn('shrink-0 text-[0.85rem] font-medium', dark ? 'text-[#f0a48f]' : 'text-terracotta')}>
               {t('ui.player.error')}
             </span>
           ) : (
-            <span className={cn('shrink-0 text-[0.8rem] font-medium tabular-nums', dark ? 'text-night-ink/80' : 'text-ink-soft')}>{timeText}</span>
+            <span className={cn('shrink-0 text-[0.85rem] font-medium tabular-nums', dark ? 'text-night-ink/80' : 'text-ink-soft')}>{timeText}</span>
           )}
         </>
       ) : (
@@ -246,9 +246,9 @@ export function AudioPlayer({ src, duration: durationProp = 0, title, subtitle, 
               <RotateCw className="size-5" aria-hidden="true" />
             </button>
           </div>
-          {(simulated || failed) && (
-            <p role={failed ? 'alert' : undefined} className={cn('mt-2 text-[0.78rem]', failed ? (dark ? 'text-[#f0a48f]' : 'text-terracotta') : dark ? 'text-night-ink/70' : 'text-ink-soft')}>
-              {failed ? t('ui.player.error') : t('ui.player.simulated')}
+          {failed && (
+            <p role={failed ? 'alert' : undefined} className={cn('mt-2 text-[0.85rem]', failed ? (dark ? 'text-[#f0a48f]' : 'text-terracotta') : dark ? 'text-night-ink/70' : 'text-ink-soft')}>
+              {t('ui.player.error')}
             </p>
           )}
         </>

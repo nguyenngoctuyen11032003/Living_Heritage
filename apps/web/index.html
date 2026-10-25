@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Di Sản Sống — Living Heritage</title>
+    <title>Di Sản Sống</title>
     <meta
       name="description"
       content="Di Sản Sống giúp ông bà kể chuyện bằng giọng nói tiếng Việt, AI hỗ trợ chép lời và biên tập, gia đình lưu giữ và người trẻ học hỏi từ kinh nghiệm được chia sẻ."
@@ -14,6 +14,7 @@
     <meta property="og:description" content="Ông bà kể chuyện bằng giọng nói tiếng Việt, AI hỗ trợ bản nháp, gia đình lưu giữ và người trẻ học hỏi." />
     <meta name="theme-color" content="#FAF7F0" />
     <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
+    <style>html[data-theme="dark"]{background:#151c1a;color-scheme:dark}</style>
     <script>
       (function () {
         // Theme before first paint (same rule as lib/theme.ts: stored choice, else dark by default): no light flash.
@@ -24,7 +25,7 @@
         } catch (e) {}
         if (th !== 'light' && th !== 'dark') th = 'dark';
         d.dataset.theme = th;
-        if (th === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000000');
+        if (th === 'dark') document.querySelector('meta[name="theme-color"]').setAttribute('content', '#151c1a');
         try {
           var l = localStorage.getItem('lh.locale');
           if (l === 'en' || l === 'vi') document.documentElement.lang = l;
