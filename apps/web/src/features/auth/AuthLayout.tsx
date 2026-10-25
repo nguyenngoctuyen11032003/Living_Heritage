@@ -1,14 +1,14 @@
 import { BadgeCheck, Download, ShieldCheck, type LucideIcon } from 'lucide-react';
 import type { CSSProperties, ReactNode } from 'react';
-import { LazyVideo, VideoPlaybackProvider, VideoToggle } from '@/components/memory-book';
+import { LazyVideo, VideoPlaybackProvider, VideoToggle, VIDEOS } from '@/components/memory-book';
 import { Reveal } from '@/components/motion';
 import { useDisplayFont } from '@/design/useDisplayFont';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import './auth.css';
 
-/** Same footage as the homepage "people × AI" block; decorative atmosphere only (see memory-book/playback.ts). */
-const CLIP = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260406_133058_0504132a-0cf3-4450-a370-8ea3b05c95d4.mp4';
+/** A reader on a hillside at dusk (the /sach-ky-uc print clip); decorative atmosphere only (see memory-book/playback.ts). */
+const CLIP = VIDEOS.print;
 
 const TRUST: { key: 'private' | 'approve' | 'control'; icon: LucideIcon }[] = [
   { key: 'private', icon: ShieldCheck },
@@ -18,7 +18,7 @@ const TRUST: { key: 'private' | 'approve' | 'control'; icon: LucideIcon }[] = [
 
 /**
  * Auth pages in the cinema style of the homepage and /kham-pha: kicker + display serif title, the form on a solid card,
- * and (desktop) a sticky dark film panel with the proverb and the three privacy promises. Phones get the promises as a
+ * and (desktop) a dark film panel as tall as the form row with the proverb and the three privacy promises. Phones get the promises as a
  * quiet row under the form instead of the panel.
  */
 export function AuthLayout({ kicker, title, subtitle, children, footer }: { kicker?: ReactNode; title: ReactNode; subtitle?: ReactNode; children: ReactNode; footer?: ReactNode }) {
@@ -27,9 +27,9 @@ export function AuthLayout({ kicker, title, subtitle, children, footer }: { kick
     <VideoPlaybackProvider>
       <div className="mb-page relative isolate overflow-hidden">
         <div aria-hidden="true" className="auth-glow" />
-        <div className="mx-auto grid w-full max-w-[1264px] grid-cols-1 gap-10 px-4 pb-16 pt-8 sm:px-6 md:pt-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)] lg:gap-14 lg:px-8 lg:pb-12 lg:pt-6 xl:gap-20">
-          <div className="flex min-w-0 flex-col justify-center lg:min-h-[calc(100svh-4.5rem-4.5rem)]">
-            <div className="mx-auto w-full max-w-[30rem]">
+        <div className="mx-auto grid w-full max-w-[1264px] grid-cols-1 gap-10 px-4 pb-16 pt-8 sm:px-6 md:pt-12 lg:min-h-[calc(100svh-4.5rem)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.08fr)] lg:items-stretch lg:gap-14 lg:px-8 lg:pb-12 lg:pt-6 xl:gap-20">
+          <div className="flex min-w-0 flex-col justify-center">
+            <div className="mx-auto w-full max-w-[30rem] lg:mx-0 xl:mx-auto">
               <Reveal y={16}>
                 {kicker && <p className="text-[0.78rem] font-medium uppercase tracking-[0.2em] text-heritage">{kicker}</p>}
                 <h1 className="mb-display mt-4 text-balance break-words text-[clamp(2.35rem,4.4vw,3.5rem)] text-heritage-deep">{title}</h1>
@@ -38,7 +38,7 @@ export function AuthLayout({ kicker, title, subtitle, children, footer }: { kick
               <Reveal y={20} delay={0.08}>
                 <div className="auth-card mt-8 rounded-[1.75rem] p-5 sm:p-8">{children}</div>
               </Reveal>
-              {footer && <div className="mt-6 text-center text-[0.95rem] text-ink-soft">{footer}</div>}
+              {footer && <div className="mt-6 text-balance text-center text-[0.95rem] leading-relaxed text-ink-soft">{footer}</div>}
               <TrustList className="mt-10 border-t border-line pt-6 lg:hidden" />
             </div>
           </div>
@@ -69,7 +69,7 @@ function FilmPanel() {
   return (
     <aside
       aria-label={t('layout.panelLabel')}
-      className="auth-film relative isolate hidden overflow-hidden rounded-[2rem] text-cream-fixed lg:sticky lg:top-[5.25rem] lg:flex lg:h-[calc(100svh-6.75rem)] lg:max-h-[54rem] lg:min-h-[36rem] lg:flex-col lg:self-start"
+      className="auth-film relative isolate hidden overflow-hidden rounded-[2rem] text-cream-fixed lg:flex lg:min-h-[34rem] lg:flex-col"
     >
       <div aria-hidden="true" className="absolute inset-0 -z-10">
         <LazyVideo src={CLIP} />

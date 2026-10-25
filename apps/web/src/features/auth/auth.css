@@ -12,6 +12,9 @@
     radial-gradient(48% 42% at 8% 6%, var(--mb-fb2) 0%, transparent 70%),
     radial-gradient(40% 46% at 46% 100%, var(--mb-fb1) 0%, transparent 72%);
   opacity: 0.85;
+  /* Fade in from the header line so the tint never starts on a hard edge. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 9rem);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 9rem);
 }
 :root[data-theme='dark'] .auth-glow { opacity: 0.6; }
 
