@@ -1,7 +1,7 @@
 // The narrator side of the walkthrough (large text): topic → listen → transcript → draft → confirm → scope.
 import { ArrowRight, Check, CircleAlert, Eye, Globe, Lock, Sparkles, Users } from 'lucide-react';
 import { useId, useState, type Dispatch, type ReactNode, type RefObject } from 'react';
-import { Badge, Button, Field, Input, Textarea } from '@/components/ui';
+import { Button, Field, Input, Textarea } from '@/components/ui';
 import { STATIC_TOPICS } from '@/features/knowledge/topics';
 import { useLocale, usePick, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
@@ -75,9 +75,6 @@ function NarratorCard({ id }: { id: keyof typeof DEMO_NARRATORS }) {
         <span className="font-semibold text-ink">{t('listen.by', { name: pick(n.name) })}</span>
         <span className="block text-[1rem] text-ink-soft">{pick(n.meta)}</span>
       </p>
-      <Badge tone="outline" size="sm">
-        {t('narrator.fictional')}
-      </Badge>
     </div>
   );
 }
@@ -87,7 +84,7 @@ function OptionCard({ name, value, checked, onChange, title, hint, icon }: { nam
     <label
       className={cn(
         'flex min-h-16 cursor-pointer items-start gap-3 rounded-2xl px-4 py-3 ring-1 transition-colors focus-within:ring-2 focus-within:ring-heritage motion-reduce:transition-none',
-        checked ? 'bg-mint ring-heritage' : 'bg-paper ring-line hover:ring-heritage/50',
+        checked ? 'bg-mint ring-heritage' : 'bg-paper ring-line-strong hover:ring-heritage/50',
       )}
     >
       <input type="radio" name={name} value={value} checked={checked} onChange={onChange} className="mt-1.5 size-6 shrink-0 accent-heritage" />
@@ -143,7 +140,7 @@ export function TopicStep({ s, dispatch, headingRef }: StepProps) {
         size="xl"
         className="self-start"
         aria-describedby={tried && !ready ? errId : undefined}
-        rightIcon={<ArrowRight className="size-6" aria-hidden="true" />}
+        rightIcon={<ArrowRight className="size-5" aria-hidden="true" />}
         onClick={() => {
           setTried(true);
           if (ready) dispatch({ type: 'start' });
@@ -171,7 +168,7 @@ export function ListenStep({ s, dispatch, headingRef }: StepProps) {
       <p role="status" className="min-h-8 font-medium text-heritage-deep">
         {s.heard ? t('listen.heard') : ''}
       </p>
-      <Button size="xl" className="self-start" rightIcon={<ArrowRight className="size-6" aria-hidden="true" />} onClick={() => dispatch({ type: 'goto', step: 'transcript' })}>
+      <Button size="xl" className="self-start" rightIcon={<ArrowRight className="size-5" aria-hidden="true" />} onClick={() => dispatch({ type: 'goto', step: 'transcript' })}>
         {t('listen.next')}
       </Button>
     </div>
@@ -205,9 +202,9 @@ export function TranscriptStep({ s, dispatch, headingRef }: StepProps) {
     <div className="flex flex-col gap-6">
       <StepTitle headingRef={headingRef} title={t('transcript.title')} lede={t('transcript.lede')} badge={<AiBadge label={t('transcript.aiLabel')} />} />
       <NarratorCard id={n.narrator} />
-      <ol className="flex flex-col gap-3 rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-7">
+      <ol className="flex flex-col gap-3 rounded-2xl bg-paper p-5 ring-1 ring-line md:p-7">
         {n.lines.map((line) => (
-          <li key={line.t} className={cn('flex flex-col gap-2 rounded-2xl px-3 py-2', line.uncertain && !resolved && 'bg-[#fdf6e6] ring-1 ring-[#e9cf8f]')}>
+          <li key={line.t} className={cn('flex flex-col gap-2 rounded-2xl px-3 py-2', line.uncertain && !resolved && 'bg-warning-bg ring-1 ring-warning-line')}>
             {line.uncertain && (
               <Pill tone={resolved ? 'mint' : 'warning'} icon={resolved ? <Check /> : <CircleAlert />} className="text-[0.95rem]">
                 {resolved ? (s.check.status === 'fixed' ? t('transcript.checkedFixed', { value: s.check.value }) : t('transcript.checkedKept', { value: s.check.value })) : t('transcript.needsCheck')}
@@ -220,7 +217,7 @@ export function TranscriptStep({ s, dispatch, headingRef }: StepProps) {
         ))}
       </ol>
 
-      <section aria-labelledby={`${fixId}-h`} className="flex flex-col gap-4 rounded-[1.5rem] bg-cream p-5 ring-1 ring-line md:p-7">
+      <section aria-labelledby={`${fixId}-h`} className="flex flex-col gap-4 rounded-2xl bg-cream p-5 ring-1 ring-line md:p-7">
         <h3 id={`${fixId}-h`} className="font-serif text-[1.4rem] font-semibold text-heritage-deep">
           {t('transcript.checkTitle')}
         </h3>
@@ -246,7 +243,7 @@ export function TranscriptStep({ s, dispatch, headingRef }: StepProps) {
         size="xl"
         className="self-start"
         aria-describedby={tried && !resolved ? errId : undefined}
-        rightIcon={<ArrowRight className="size-6" aria-hidden="true" />}
+        rightIcon={<ArrowRight className="size-5" aria-hidden="true" />}
         onClick={() => {
           setTried(true);
           if (resolved) dispatch({ type: 'toDraft', locale, narratorName: pick(DEMO_NARRATORS[n.narrator].short) });
@@ -287,7 +284,7 @@ export function DraftStep({ s, dispatch, headingRef }: StepProps) {
   return (
     <div className="flex flex-col gap-6">
       <StepTitle headingRef={headingRef} title={t('draft.title')} lede={t('draft.lede')} badge={<AiBadge label={t('draft.aiLabel')} />} />
-      <div className="flex flex-col gap-5 rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-7">
+      <div className="flex flex-col gap-5 rounded-2xl bg-paper p-5 ring-1 ring-line md:p-7">
         <Field label={t('draft.titleLabel')} error={msg(errs.title)} required>
           <Input value={s.draft.title} maxLength={MAX_TITLE + 20} onChange={(e) => edit({ title: e.target.value })} className="text-[1.2rem]!" />
         </Field>
@@ -299,7 +296,7 @@ export function DraftStep({ s, dispatch, headingRef }: StepProps) {
         </Field>
       </div>
       {n.card && (
-        <section aria-labelledby="demo-card-h" className="flex flex-col gap-4 rounded-[1.5rem] bg-cream p-5 ring-1 ring-line md:p-7">
+        <section aria-labelledby="demo-card-h" className="flex flex-col gap-4 rounded-2xl bg-cream p-5 ring-1 ring-line md:p-7">
           <div className="flex flex-wrap items-center gap-3">
             <h3 id="demo-card-h" className="font-serif text-[1.4rem] font-semibold text-heritage-deep">
               {t('draft.cardTitle')}
@@ -335,7 +332,7 @@ export function DraftStep({ s, dispatch, headingRef }: StepProps) {
       <Button
         size="xl"
         className="self-start"
-        rightIcon={<ArrowRight className="size-6" aria-hidden="true" />}
+        rightIcon={<ArrowRight className="size-5" aria-hidden="true" />}
         onClick={() => {
           setTried(true);
           dispatch({ type: 'toConfirm' });
@@ -353,7 +350,7 @@ export function ConfirmStep({ s, dispatch, headingRef }: StepProps) {
   return (
     <div className="flex flex-col gap-6">
       <StepTitle headingRef={headingRef} title={t('confirm.title')} lede={t('confirm.lede')} />
-      <article className="flex flex-col gap-4 rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-8">
+      <article className="flex flex-col gap-4 rounded-2xl bg-paper p-5 ring-1 ring-line md:p-8">
         <h3 className="font-serif text-[1.6rem] font-semibold leading-snug text-ink">{s.draft.title}</h3>
         <p className="text-[1rem] text-ink-soft">{t('confirm.by', { name: s.draft.narratorName })}</p>
         <div className="flex flex-col gap-3 font-serif text-[1.2rem] leading-relaxed text-ink">
@@ -361,7 +358,7 @@ export function ConfirmStep({ s, dispatch, headingRef }: StepProps) {
         </div>
       </article>
       <div className="flex flex-col gap-3 sm:flex-row">
-        <Button size="xl" leftIcon={<Check className="size-6" aria-hidden="true" />} onClick={() => dispatch({ type: 'confirm', ok: true })}>
+        <Button size="xl" leftIcon={<Check className="size-5" aria-hidden="true" />} onClick={() => dispatch({ type: 'confirm', ok: true })}>
           {t('confirm.yes')}
         </Button>
         <Button size="xl" variant="secondary" onClick={() => dispatch({ type: 'confirm', ok: false })}>
@@ -396,7 +393,7 @@ export function ScopeStep({ s, dispatch, headingRef }: StepProps) {
         ))}
       </fieldset>
       {s.scope && (
-        <section aria-labelledby={`${errId}-preview`} className="flex flex-col gap-3 rounded-[1.5rem] bg-cream p-5 ring-1 ring-line md:p-7">
+        <section aria-labelledby={`${errId}-preview`} className="flex flex-col gap-3 rounded-2xl bg-cream p-5 ring-1 ring-line md:p-7">
           <h3 id={`${errId}-preview`} className="flex items-center gap-2 font-serif text-[1.3rem] font-semibold text-heritage-deep">
             <Eye className="size-5" aria-hidden="true" />
             {t('scope.previewTitle')}

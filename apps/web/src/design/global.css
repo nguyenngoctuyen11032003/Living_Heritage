@@ -14,6 +14,10 @@
   --color-terracotta: var(--terracotta);
   --color-mint: var(--mint);
   --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-fg: var(--warning-fg);
+  --color-warning-line: var(--warning-line);
   --color-mb: var(--mb-fg);
   --color-mb-bg: var(--mb-bg);
   --color-night: var(--night);
@@ -51,6 +55,8 @@
  * Base 18px at the browser default (16px × 112.5%). Percentages, not px, so a reader who raised the browser's own
  * font size keeps that boost.
  */
+/* Lucide icons: one stroke weight everywhere (low specificity so an explicit stroke-* class still wins). */
+:where(svg.lucide) { stroke-width: 1.75; }
 html {
   font-size: 112.5%;
   background: var(--cream);
@@ -60,7 +66,7 @@ html {
   scrollbar-gutter: stable;
 }
 /* Dark public pages (SiteLayout sets it with the dark header): the root background also fills the scrollbar gutter, so no cream strip. */
-html[data-page-tone='dark'], html[data-page-tone='dark'] body { background: #000; }
+html[data-page-tone='dark'], html[data-page-tone='dark'] body { background: #151c1a; }
 
 /* Set for one frame while the theme flips (lib/theme.ts): every colour changes at once instead of dozens of
    transition-colors elements animating (and repainting) together. */
@@ -76,8 +82,10 @@ body {
   line-height: 1.6;
   background: var(--cream);
   color: var(--ink);
-  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
+/* Light-on-dark text blooms, so grayscale-smooth it only in dark; dark-on-light stays full-weight and crisp. */
+:root[data-theme='dark'] body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
 /* Narrator mode: larger base text (spec: 20-22px). */
 .narrator-mode { font-size: 1.3rem; }

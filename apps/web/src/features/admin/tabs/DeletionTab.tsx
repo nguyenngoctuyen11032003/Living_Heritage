@@ -106,7 +106,7 @@ function DeletionCard({ row, onChanged }: { row: DeletionRow; onChanged: (r: Del
   const known = (DELETION_STATUSES as readonly string[]).includes(row.status);
   const scope = deletionScope(row);
   return (
-    <li className="rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-6">
+    <li className="rounded-2xl bg-paper p-5 ring-1 ring-line md:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 text-[0.9rem] text-ink-soft">
           <p className="font-semibold text-ink">{scope === 'story' ? (row.story_id ? t('deletion.story', { id: row.story_id.slice(0, 8) }) : t('deletion.storyErased')) : t(`deletion.scopes.${scope}`)}</p>

@@ -68,8 +68,8 @@ export function RouteProgress() {
 }
 
 /**
- * Floating "back to top" with a ring that fills as the page is read. Appears after ~1.5 screens, steps aside once the
- * footer (which has its own link) is on screen.
+ * Floating "back to top" with a ring that fills as the page is read. Appears after ~1.5 screens and stays through the
+ * footer (it is the page's only back-to-top control).
  */
 export function BackToTop({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
   const t = useT('common');
@@ -79,31 +79,21 @@ export function BackToTop({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
 
   useEffect(() => {
     let frame = 0;
-    let footerVisible = false;
     const update = () => {
       frame = 0;
       const max = document.documentElement.scrollHeight - window.innerHeight;
       const y = window.scrollY;
       ringRef.current?.style.setProperty('stroke-dashoffset', String(100 - (max > 0 ? Math.min(1, y / max) : 0) * 100));
-      setShow(y > window.innerHeight * 1.5 && !footerVisible);
+      setShow(y > window.innerHeight * 1.5);
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
     };
-    const footer = document.querySelector('footer');
-    const io = footer
-      ? new IntersectionObserver(([e]) => {
-          footerVisible = Boolean(e?.isIntersecting);
-          onScroll();
-        })
-      : null;
-    if (footer) io?.observe(footer);
     update();
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
     return () => {
       cancelAnimationFrame(frame);
-      io?.disconnect();
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
@@ -122,8 +112,8 @@ export function BackToTop({ tone = 'light' }: { tone?: 'light' | 'dark' }) {
         document.querySelector<HTMLElement>('#main')?.focus({ preventScroll: true });
       }}
       className={cn(
-        'fixed bottom-5 right-4 z-30 inline-flex size-14 items-center justify-center rounded-full shadow-[0_12px_30px_-12px_rgba(0,0,0,0.45)] transition-[opacity,transform,background-color] duration-300 sm:bottom-6 sm:right-6',
-        dark ? 'bg-black/70 text-white ring-1 ring-white/15 backdrop-blur-md hover:bg-black/85' : 'bg-paper text-heritage ring-1 ring-line hover:bg-cream',
+        'fixed bottom-5 right-4 z-30 inline-flex size-14 items-center justify-center rounded-full shadow-[0_12px_30px_-12px_rgba(8,12,11,0.5)] transition-[opacity,transform,background-color] duration-300 sm:bottom-6 sm:right-6',
+        dark ? 'bg-[#151c1a]/90 text-night-ink ring-1 ring-white/20 backdrop-blur-md hover:bg-[#151c1a]' : 'bg-paper text-heritage ring-1 ring-line hover:bg-cream',
         show ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0',
       )}
     >

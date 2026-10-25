@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { StoryScene } from '@/components/illustrations/scenes';
 import { useReducedMotionSafe } from '@/design/motion';
 import { Reveal } from '@/components/motion';
-import { AudioPlayer, Badge, IllustrativeBadge, type AudioPlayerHandle } from '@/components/ui';
+import { AudioPlayer, Badge, type AudioPlayerHandle } from '@/components/ui';
 import { usePick, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { formatDuration } from '@/lib/format';
@@ -37,7 +37,7 @@ export function SampleStory() {
   return (
     <Section id="chuyen-mau" labelledBy="sample-title">
       <SectionHeading id="sample-title" eyebrow={t('sample.eyebrow')} title={t('sample.title')} lead={t('sample.lead')} />
-      <div className="mt-12 grid grid-cols-1 gap-6 lg:mt-16 lg:grid-cols-12 lg:gap-8">
+      <div className="mt-8 grid grid-cols-1 gap-6 lg:mt-10 lg:grid-cols-12 lg:gap-8">
         <Reveal className="lg:col-span-5">
           <figure className="relative h-full min-h-[22rem] overflow-hidden rounded-[2rem] bg-mint">
             <StoryScene kind={SAMPLE_STORY.scene} className="absolute inset-0" />
@@ -46,7 +46,6 @@ export function SampleStory() {
               <Badge tone="mint" size="sm">
                 {pick(SAMPLE_STORY.topic)}
               </Badge>
-              <IllustrativeBadge />
             </div>
             <figcaption className="absolute inset-x-0 bottom-0 p-6 text-cream-fixed md:p-8">
               <Quote aria-hidden="true" className="size-7 text-mint-fixed/80" />
@@ -61,7 +60,7 @@ export function SampleStory() {
           <div className="rounded-[1.5rem] bg-paper p-3 ring-1 ring-line sm:p-7">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h3 className="font-semibold text-ink">{t('sample.transcript')}</h3>
-              <p className="text-[0.82rem] text-ink-soft">{t('sample.follow')}</p>
+              <p className="text-[0.8125rem] text-ink-soft">{t('sample.follow')}</p>
             </div>
             <ol className="mt-4 flex flex-col gap-1">
               {lines.map((line, i) => (
@@ -86,7 +85,6 @@ export function SampleStory() {
                 </li>
               ))}
             </ol>
-            <p className="mt-4 border-t border-line pt-4 text-[0.82rem] leading-relaxed text-ink-soft">{t('sample.note')}</p>
             <ArrowLink to={`/tri-thuc/${SAMPLE_STORY.itemId}`} className="mt-2">
               {t('sample.open')}
             </ArrowLink>

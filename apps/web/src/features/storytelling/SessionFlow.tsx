@@ -114,7 +114,7 @@ function LevelMeter({ read, active, label }: { read: () => number; active: boole
 
 function AiPill({ label, className }: { label: string; className?: string }) {
   return (
-    <span className={cn('inline-flex items-center gap-2 rounded-full bg-[#fbecc8] px-4 py-1.5 text-[1.25rem] font-semibold text-[#5a3e0a] ring-1 ring-[#e9cf8f]', className)}>
+    <span className={cn('inline-flex items-center gap-2 rounded-full bg-warning-bg px-4 py-1.5 text-[1.25rem] font-semibold text-warning-fg ring-1 ring-warning-line', className)}>
       <Sparkles className="size-5" aria-hidden="true" />
       {label}
     </span>
@@ -477,7 +477,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
 
   const filePicker = (
     <div className="flex flex-col gap-2">
-      <label htmlFor={fileInputId} className="inline-flex min-h-14 cursor-pointer items-center justify-center gap-2 rounded-full bg-paper px-7 text-[1.25rem] font-semibold text-ink ring-1 ring-line hover:text-heritage hover:ring-heritage/60 focus-within:outline-3 focus-within:outline-offset-4 focus-within:outline-terracotta">
+      <label htmlFor={fileInputId} className="inline-flex min-h-14 cursor-pointer items-center justify-center gap-2 rounded-full bg-paper px-7 text-[1.25rem] font-semibold text-ink ring-1 ring-line-strong hover:text-heritage hover:ring-heritage/60 focus-within:outline-3 focus-within:outline-offset-4 focus-within:outline-terracotta">
         <FileAudio className="size-6" aria-hidden="true" />
         {t('errors.fileLabel')}
         <input id={fileInputId} type="file" accept="audio/*" className="sr-only" onChange={(e) => void onFile(e)} aria-describedby={`${fileInputId}-hint`} />
@@ -504,7 +504,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
   function recorderView() {
     if (!supported || status === 'unsupported') {
       return (
-        <Card padding="lg" className="flex flex-col gap-5 text-center">
+        <Card padding="none" className="p-5 sm:p-8 flex flex-col gap-5 text-center">
           <h2 className="font-serif text-[1.5rem] font-semibold text-heritage-deep">{t('errors.unsupportedTitle')}</h2>
           <p className="text-[1.25rem] leading-relaxed text-ink">{t('errors.unsupportedDesc')}</p>
           {filePicker}
@@ -514,7 +514,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     }
     if (status === 'denied') {
       return (
-        <Card padding="lg" className="flex flex-col gap-5">
+        <Card padding="none" className="p-5 sm:p-8 flex flex-col gap-5">
           <h2 className="font-serif text-[1.5rem] font-semibold text-heritage-deep">{t('errors.deniedTitle')}</h2>
           <p className="text-[1.25rem] leading-relaxed">{t('errors.deniedDesc')}</p>
           <p className="text-[1.25rem] font-semibold text-heritage-deep">{t(`errors.micHelp.${micHelp}.label`)}</p>
@@ -538,7 +538,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     const warn = live && recorder.elapsed >= WARN_AT_SECONDS;
 
     return (
-      <div className="flex flex-col items-center gap-6 text-center">
+      <div className="flex flex-col items-center gap-5 text-center">
         <p role="status" aria-live="polite" className="flex items-center gap-3 text-[1.3rem] font-semibold text-ink">
           {recording && <span aria-hidden="true" className="size-3.5 rounded-full bg-terracotta motion-safe:animate-pulse" />}
           {status === 'paused' && <Pause className="size-5" aria-hidden="true" />}
@@ -561,8 +561,8 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
               aria-describedby="rec-start-hint"
               className="group flex flex-col items-center gap-3 rounded-[2rem] p-2 disabled:opacity-60"
             >
-              <span className="flex size-[7.5rem] items-center justify-center rounded-full bg-heritage text-cream shadow-[0_12px_30px_-12px_rgba(31,77,58,0.6)] transition-transform group-hover:bg-heritage-deep group-active:scale-95">
-                {status === 'requesting' ? <Spinner size="lg" decorative /> : <Mic className="size-12" aria-hidden="true" />}
+              <span className="flex size-[6.5rem] items-center justify-center rounded-full bg-heritage text-cream shadow-[0_12px_30px_-12px_rgba(31,77,58,0.6)] transition-transform group-hover:bg-heritage-deep group-active:scale-95">
+                {status === 'requesting' ? <Spinner size="lg" decorative /> : <Mic className="size-8" aria-hidden="true" />}
               </span>
               <span className="text-[1.35rem] font-semibold text-heritage-deep">{t('rec.start')}</span>
             </button>
@@ -588,15 +588,15 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
             )}
 
             {warn && (
-              <p role="alert" className="rounded-2xl bg-[#fbecc8] px-5 py-3 text-[1.25rem] font-medium text-[#5a3e0a]">
+              <p role="alert" className="rounded-2xl bg-warning-bg px-5 py-3 text-[1.25rem] font-medium text-warning-fg">
                 {t('rec.warn')}
               </p>
             )}
 
             <button type="button" onClick={() => void recorder.stop()} aria-label={t('rec.stopLabel')} className="group relative flex flex-col items-center gap-3 rounded-[2rem] p-2">
-              <span className="relative flex size-[7.5rem] items-center justify-center rounded-full bg-terracotta text-cream group-active:scale-95">
+              <span className="relative flex size-[6.5rem] items-center justify-center rounded-full bg-terracotta text-cream group-active:scale-95">
                 {recording && <span aria-hidden="true" className="absolute inset-0 rounded-full bg-terracotta/40 motion-safe:animate-ping" />}
-                <Square className="relative size-11 fill-current" aria-hidden="true" />
+                <Square className="relative size-7 fill-current" aria-hidden="true" />
               </span>
               <span className="text-[1.35rem] font-semibold text-terracotta">{t('rec.stop')}</span>
             </button>
@@ -621,7 +621,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     // "Kể tiếp" appends to this same take (the recorder is only paused); a file or a finished take cannot grow.
     const canContinue = !fileTake && recorder.state.canContinue;
     return (
-      <Card padding="lg" className="flex flex-col gap-5">
+      <Card padding="none" className="p-5 sm:p-8 flex flex-col gap-5">
         <div>
           <h2 className="font-serif text-[1.5rem] font-semibold text-heritage-deep">{t('rec.reviewTitle')}</h2>
           <p className="mt-2 text-[1.25rem] leading-relaxed text-ink-soft">{t('rec.reviewDesc')}</p>
@@ -721,7 +721,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
           phase.code === 'forbidden' ? t('errors.uploadForbidden') : phase.code === 'too_large' ? t('errors.uploadTooLarge') : phase.restored ? t('errors.restoredDesc') : network ? t('errors.networkDesc') : t('errors.uploadFailedDesc');
         const canRetry = phase.code === 'network' || phase.code === 'failed';
         return (
-          <Card padding="lg" className="flex flex-col gap-4" role="alert">
+          <Card padding="none" className="p-5 sm:p-8 flex flex-col gap-4" role="alert">
             <h2 className="flex items-center gap-3 font-serif text-[1.5rem] font-semibold text-heritage-deep">
               <WifiOff className="size-7 shrink-0 text-terracotta" aria-hidden="true" />
               {phase.restored ? t('errors.restoredTitle') : network ? t('errors.networkTitle') : t('errors.uploadFailedTitle')}
@@ -752,7 +752,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
         );
       case 'ai-failed':
         return (
-          <Card padding="lg" className="flex flex-col gap-4" role="alert">
+          <Card padding="none" className="p-5 sm:p-8 flex flex-col gap-4" role="alert">
             <h2 className="font-serif text-[1.5rem] font-semibold text-heritage-deep">{t('errors.aiTitle')}</h2>
             <p className="rounded-2xl bg-mint/70 px-5 py-3 text-[1.25rem] font-medium text-heritage-deep">{t('errors.aiSafe')}</p>
             <p className="text-[1.25rem] leading-relaxed">{t(`errors.ai.${phase.code}` as 'errors.ai.internal')}</p>
@@ -769,7 +769,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
       case 'done': {
         const first = phase.storyIds[0];
         return (
-          <Card padding="lg" tone="mint" className="flex flex-col gap-5 text-center" role="status" aria-live="polite">
+          <Card padding="none" tone="mint" className="p-5 sm:p-8 flex flex-col gap-5 text-center" role="status" aria-live="polite">
             {thanks}
             <h2 className="font-serif text-[1.7rem] font-semibold text-heritage-deep">{t('rec.doneTitle')}</h2>
             <p className="text-[1.25rem] leading-relaxed">{first ? (assisted ? t('rec.doneDescAssisted') : t('rec.doneDesc')) : t('rec.doneNoDraft')}</p>
@@ -794,6 +794,10 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
     }
   }
 
+  // These views draw their own card; the recorder / uploading / processing views sit on the soft panel.
+  const cardView =
+    phase.kind === 'upload-failed' || phase.kind === 'ai-failed' || phase.kind === 'done' || (phase.kind === 'record' && (take !== null || status === 'denied' || status === 'unsupported' || !supported));
+
   return (
     <div className={cn('flex flex-col gap-8', ELDER_CONTROLS)}>
       {assisted && <AssistedBanner name={narrator.display_name} />}
@@ -813,15 +817,15 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
         </h1>
         {aiQuestion && <AiPill label={t('followUps.aiBadge')} className="self-start" />}
         {showQuestionTools && (
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-2">
             {(question || aiQuestion) && <ListenButton text={questionText} lang={lang} cache={audioCache} autoPlay={autoRead} />}
             {questions.length > 1 && (
-              <Button size="lg" variant="ghost" onClick={changeQuestion} leftIcon={<Shuffle className="size-5" aria-hidden="true" />}>
+              <Button size="lg" variant="ghost" className="-ml-3 px-3! sm:ml-0" onClick={changeQuestion} leftIcon={<Shuffle className="size-5" aria-hidden="true" />}>
                 {t('session.change')}
               </Button>
             )}
             {(question || aiQuestion) && (
-              <Button size="lg" variant="ghost" onClick={skipQuestion} leftIcon={<SkipForward className="size-5" aria-hidden="true" />}>
+              <Button size="lg" variant="ghost" className="-ml-3 px-3! sm:ml-0" onClick={skipQuestion} leftIcon={<SkipForward className="size-5" aria-hidden="true" />}>
                 {t('session.skip')}
               </Button>
             )}
@@ -829,7 +833,7 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
         )}
         {showQuestionTools && (question || aiQuestion) && (
           <div className="flex flex-col gap-1">
-            <label htmlFor={autoReadId} className="inline-flex min-h-14 cursor-pointer items-center gap-4 self-start rounded-2xl px-1 text-[1.25rem] font-medium text-ink">
+            <label htmlFor={autoReadId} className="inline-flex min-h-14 cursor-pointer items-center gap-4 self-start rounded-2xl text-[1.25rem] font-medium text-ink">
               <input
                 id={autoReadId}
                 type="checkbox"
@@ -840,14 +844,14 @@ export function SessionFlow({ session, narrator, assisted, topic, questions, ans
               />
               {t('session.autoRead')}
             </label>
-            <p id={`${autoReadId}-hint`} className="pl-12 text-[1.25rem] text-ink-soft">
+            <p id={`${autoReadId}-hint`} className="pl-11 text-[1.25rem] text-ink-soft">
               {t('session.autoReadHint')}
             </p>
           </div>
         )}
       </section>
 
-      <section className={cn('rounded-[2rem] bg-paper/70 px-5 py-8 ring-1 ring-line md:px-10')}>
+      <section className={cn(!cardView && 'rounded-[2rem] bg-paper/70 px-4 py-6 ring-1 ring-line sm:px-6 md:px-10 md:py-8')}>
         {phase.kind !== 'record' ? phaseView() : take ? reviewView(take) : recorderView()}
       </section>
 

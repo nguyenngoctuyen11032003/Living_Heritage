@@ -66,11 +66,12 @@ export default {
     notConfigured: 'The server connection is not configured.',
     forbidden: 'You do not have permission to view this.',
   },
-  notFound: { title: 'Page not found', body: 'This page does not exist or access was revoked.', home: 'Back to home' },
+  notFound: { title: 'Page not found', body: 'This page does not exist or may have moved.', home: 'Back to home' },
   footer: {
-    rights: '© 2026 Living Heritage · Posts and Telecommunications Institute of Technology',
+    rights: '© 2026 Living Heritage',
     privacy: 'Privacy',
     terms: 'Terms',
     contact: 'Contact',
   },
+  contactFab: { open: 'Open quick contact', close: 'Close quick contact', title: 'Need help?', call: 'Call us', email: 'Send an email' },
 } satisfies Shape<typeof vi>;

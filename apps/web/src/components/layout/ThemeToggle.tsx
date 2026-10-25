@@ -13,7 +13,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   const dark = theme === 'dark';
   const label = dark ? t('theme.toLight') : t('theme.toDark');
   return (
-    <div className={cn('inline-flex shrink-0 items-center rounded-full bg-heritage/8 p-0.5 ring-1 ring-line', className)}>
+    <div className={cn('inline-flex shrink-0 items-center rounded-full bg-paper/95 p-0.5 ring-1 ring-line-strong/40', className)}>
       <button
         type="button"
         aria-label={label}

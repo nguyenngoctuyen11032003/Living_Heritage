@@ -34,21 +34,23 @@ export interface SectionHeadingProps {
   className?: string;
   /** Right-side slot (e.g. a link) on wide screens when align="left". */
   aside?: ReactNode;
+  /** 'sm' for headings that sit in a narrow side column. */
+  size?: 'md' | 'sm';
 }
 
-export function SectionHeading({ eyebrow, title, lead, align = 'left', tone = 'light', id, className, aside }: SectionHeadingProps) {
+export function SectionHeading({ eyebrow, title, lead, align = 'left', tone = 'light', id, className, aside, size = 'md' }: SectionHeadingProps) {
   const dark = tone === 'dark';
   return (
-    <Reveal className={cn('flex flex-col gap-6', align === 'left' && Boolean(aside) && 'md:flex-row md:items-end md:justify-between', className)}>
+    <Reveal className={cn('flex flex-col gap-5', align === 'left' && Boolean(aside) && 'md:flex-row md:items-end md:justify-between', className)}>
       <div className={cn(align === 'center' ? 'mx-auto max-w-3xl text-center' : 'max-w-3xl')}>
         <p className={cn('inline-flex items-center gap-2 text-[0.8rem] font-semibold uppercase tracking-[0.14em]', dark ? 'text-mint-fixed' : 'text-terracotta')}>
           <span aria-hidden="true" className={cn('h-px w-6', dark ? 'bg-mint/60' : 'bg-terracotta/60')} />
           {eyebrow}
         </p>
-        <h2 id={id} className={cn('mt-4 text-balance font-serif text-[clamp(2.3rem,5vw,4.4rem)] leading-display', dark ? 'text-night-ink' : 'text-heritage-deep')}>
+        <h2 id={id} className={cn('mt-3 text-balance font-serif leading-display', size === 'sm' ? 'text-[clamp(2rem,3.4vw,2.9rem)]' : 'text-[clamp(2.1rem,4.4vw,3.6rem)]', dark ? 'text-night-ink' : 'text-heritage-deep')}>
           {title}
         </h2>
-        {lead && <p className={cn('mt-5 text-pretty text-[1.05rem] leading-relaxed md:text-[1.12rem]', dark ? 'text-night-ink/80' : 'text-ink-soft', align === 'center' && 'mx-auto max-w-2xl')}>{lead}</p>}
+        {lead && <p className={cn('mt-4 text-pretty text-[1.05rem] leading-relaxed md:text-[1.12rem]', dark ? 'text-night-ink/80' : 'text-ink-soft', align === 'center' && 'mx-auto max-w-2xl')}>{lead}</p>}
       </div>
       {aside && <div className="shrink-0">{aside}</div>}
     </Reveal>
@@ -76,8 +78,8 @@ export function ArrowLink({ to, children, tone = 'light', diagonal, className }:
 /** Standard section wrapper: generous padding, max-w-7xl. Long words hyphenate/break so 200% text never widens the page. */
 export function Section({ id, labelledBy, className, children, inner }: { id?: string; labelledBy?: string; className?: string; inner?: string; children: ReactNode }) {
   return (
-    <section id={id} aria-labelledby={labelledBy} className={cn('scroll-mt-24 py-20 hyphens-auto wrap-anywhere md:py-28 lg:py-32', className)}>
-      <div className={cn('mx-auto max-w-7xl px-4 sm:px-6 lg:px-8', inner)}>{children}</div>
+    <section id={id} aria-labelledby={labelledBy} className={cn('scroll-mt-24 py-12 hyphens-auto wrap-anywhere md:py-16 lg:py-20', className)}>
+      <div className={cn('mx-auto max-w-[1264px] px-4 sm:px-6 lg:px-8', inner)}>{children}</div>
     </section>
   );
 }

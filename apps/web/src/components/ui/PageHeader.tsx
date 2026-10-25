@@ -35,17 +35,17 @@ export function PageHeader({ back, eyebrow, title, lede, description, meta, acti
     <header className={cn('mb-8 flex flex-col gap-3 pt-2 md:mb-10 md:pt-4', className)}>
       {back && (
         <Link to={back.to} className="-ml-1 inline-flex min-h-11 w-fit items-center gap-2 rounded-full pl-1 pr-3 text-[0.95rem] font-semibold text-heritage hover:underline">
-          <ArrowLeft className="size-5 shrink-0" aria-hidden="true" />
+          <ArrowLeft className="size-[1.15rem] shrink-0" aria-hidden="true" />
           {back.label}
         </Link>
       )}
-      <div className={cn('grid gap-x-8 gap-y-3', actions ? 'lg:grid-cols-[minmax(0,1fr)_auto]' : undefined)}>
+      <div className={cn('grid gap-x-8 gap-y-3', actions ? 'xl:grid-cols-[minmax(0,1fr)_auto]' : undefined)}>
         <div className="flex min-w-0 flex-col gap-2">
-          {eyebrow && <p className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-terracotta">{eyebrow}</p>}
+          {eyebrow && <p className="text-[0.85rem] font-semibold uppercase tracking-[0.14em] text-terracotta">{eyebrow}</p>}
           <h1 className="text-balance break-words font-serif text-[clamp(1.8rem,4vw,2.5rem)] font-semibold leading-display text-heritage-deep">{title}</h1>
         </div>
         {(body || meta) && (
-          <div className="flex min-w-0 max-w-2xl flex-col gap-1.5 lg:col-start-1 lg:row-start-2">
+          <div className="flex min-w-0 max-w-2xl flex-col gap-1.5 xl:col-start-1 xl:row-start-2">
             {body && <div className="text-pretty break-words leading-relaxed text-ink-soft">{body}</div>}
             {meta && <div className="text-[0.9rem] text-ink-soft">{meta}</div>}
           </div>
@@ -53,9 +53,9 @@ export function PageHeader({ back, eyebrow, title, lede, description, meta, acti
         {actions && (
           <div
             className={cn(
-              'flex min-w-0 flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:max-w-md lg:justify-end lg:self-start',
+              'flex min-w-0 flex-col gap-3 pt-2 sm:flex-row sm:flex-wrap xl:col-start-2 xl:row-span-2 xl:row-start-1 xl:max-w-2xl xl:justify-end xl:self-start',
               '[&>*]:w-full [&>*]:whitespace-normal [&>*]:text-center sm:[&>*]:w-auto',
-              eyebrow ? 'lg:pt-7' : 'lg:pt-1',
+              eyebrow ? 'xl:pt-7' : 'xl:pt-1',
             )}
           >
             {actions}

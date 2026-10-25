@@ -110,7 +110,7 @@ export function ConnectTab() {
       <ListState status={q.status} empty={rows.length === 0} emptyTitle={t('connect.emptyTitle')} emptyBody={t('connect.emptyBody')} emptyAction={<HubLink />} onRetry={q.reload}>
         <ul className="flex flex-col gap-4">
           {rows.map((row) => (
-            <li key={row.id} className="rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-6">
+            <li key={row.id} className="rounded-2xl bg-paper p-5 ring-1 ring-line md:p-6">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="font-semibold text-ink">{t('connect.from', { name: row.name })}</p>
@@ -143,7 +143,7 @@ export function ConnectTab() {
           </h3>
           <ul className="flex flex-col gap-4">
             {interest.map((row) => (
-              <li key={row.id} className="rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-6">
+              <li key={row.id} className="rounded-2xl bg-paper p-5 ring-1 ring-line md:p-6">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-semibold text-ink">{t('connect.from', { name: row.name })}</p>

@@ -35,7 +35,7 @@ export function StoryCard({ story, narrator, topic, durationS, recordedAt }: Sto
   const recorded = recordedAt || story.created_at;
 
   return (
-    <article className="group relative flex w-full min-w-0 flex-col overflow-hidden rounded-[1.5rem] bg-paper ring-1 ring-line/80 transition-shadow duration-200 focus-within:ring-2 focus-within:ring-heritage hover:shadow-[0_18px_40px_-24px_rgba(22,58,49,0.45)]">
+    <article className="group relative flex w-full min-w-0 flex-col overflow-hidden rounded-2xl bg-paper ring-1 ring-line/80 transition-[box-shadow,--tw-ring-color] duration-200 focus-within:ring-2 focus-within:ring-heritage hover:ring-heritage/40 hover:shadow-sm">
       {/* Topic colour band: photo cover when the story has one, the topic scene otherwise. */}
       <div ref={cover.ref} className="relative h-32 overflow-hidden" style={{ background: style.band }}>
         {cover.url ? (
@@ -43,15 +43,15 @@ export function StoryCard({ story, narrator, topic, durationS, recordedAt }: Sto
             src={cover.url}
             alt=""
             loading="lazy"
-            className="size-full object-cover transition-transform duration-500 group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+            className="size-full object-cover motion-reduce:transition-none motion-reduce:group-hover:scale-100"
           />
         ) : (
           <div aria-hidden="true" className="absolute inset-y-0 right-0 w-2/5 opacity-95">
-            <StoryScene kind={style.scene} className="transition-transform duration-500 group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100" />
+            <StoryScene kind={style.scene} className="transition-transform duration-500" />
           </div>
         )}
         <span
-          className="absolute left-4 top-4 max-w-[55%] truncate rounded-full bg-paper/95 px-3 py-1 text-[0.75rem] font-semibold uppercase tracking-[0.08em] shadow-sm"
+          className="absolute left-4 top-4 max-w-[55%] truncate rounded-full bg-paper/95 px-3 py-1 text-[0.8125rem] font-semibold uppercase tracking-[0.06em] shadow-sm"
           style={{ color: style.ink }}
         >
           {topicLabel}

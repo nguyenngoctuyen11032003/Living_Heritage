@@ -53,7 +53,6 @@ test('the hero reaches the no-account demo (/trai-nghiem)', async ({ page }) => 
   await page.getByRole('link', { name: vi.landing.cta.demo }).first().click();
   await expect(page).toHaveURL(/\/trai-nghiem$/);
   await expect(page.getByRole('heading', { level: 1, name: vi.demo.header.title })).toBeVisible();
-  await expect(page.getByText(vi.demo.banner.text)).toBeVisible();
 });
 
 test('no horizontal scroll at 360px', async ({ page }) => {

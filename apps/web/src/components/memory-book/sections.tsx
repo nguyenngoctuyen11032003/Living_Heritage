@@ -5,14 +5,14 @@ import { Reveal } from '@/components/motion';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { VIDEOS } from './playback';
-import { HeroVideo, LazyVideo, VideoToggle } from './videos';
+import { HeroVideo, LazyVideo } from './videos';
 
 /* Shared bits of the dark /sach-ky-uc page. Every user-visible string goes through t() (namespace 'legal', book.*). */
 
 /** Small uppercase tracked label. white/60 on black is ~7:1 (white/40 would be ~3.7:1, below AA). */
 export function Label({ children, className, as: As = 'p', id }: { children: ReactNode; className?: string; as?: 'p' | 'h3'; id?: string }) {
   return (
-    <As id={id} className={cn('text-[0.78rem] font-medium uppercase tracking-[0.2em] text-mb/60', className)}>
+    <As id={id} className={cn('text-[0.78rem] font-medium uppercase tracking-[0.2em] text-mb/85', className)}>
       {children}
     </As>
   );
@@ -67,10 +67,6 @@ export function MbHero() {
             <ArrowDown aria-hidden="true" className="size-4 shrink-0" />
           </a>
         </div>
-        <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-t border-mb/10 pt-5 md:mt-12">
-          <p className="max-w-md text-[0.82rem] leading-relaxed text-mb/60">{t('book.hero.videoNote')}</p>
-          <VideoToggle showLabel />
-        </div>
       </Wrap>
     </section>
   );
@@ -80,7 +76,7 @@ export function MbHero() {
 export function MbAbout() {
   const t = useT('legal');
   return (
-    <section aria-labelledby="mb-about-title" className="mb-cv bg-mb-bg py-24 md:py-36">
+    <section aria-labelledby="mb-about-title" className="mb-cv bg-mb-bg py-12 md:py-[4.5rem]">
       <Wrap>
         <Reveal y={20}>
           <Label>{t('book.about.label')}</Label>
@@ -94,15 +90,14 @@ export function MbAbout() {
   );
 }
 
-/** Rounded video frame with the gradient fallback and its pause toggle. */
-function VideoFrame({ src, className, toggleClass = 'right-4 top-4', children, zoom }: { src: string; className?: string; toggleClass?: string; children?: ReactNode; zoom?: boolean }) {
+/** Rounded video frame with the gradient fallback. */
+function VideoFrame({ src, className, children, zoom }: { src: string; className?: string; children?: ReactNode; zoom?: boolean }) {
   return (
     <div className={cn('relative isolate overflow-hidden bg-[radial-gradient(80%_80%_at_30%_20%,var(--mb-fr1)_0%,var(--mb-fr2)_70%)]', className)}>
       <div className={cn('absolute inset-0', zoom && 'transition-transform duration-700 ease-out group-hover:scale-105')}>
         <LazyVideo src={src} />
       </div>
       {children}
-      <VideoToggle className={cn('absolute', toggleClass)} />
     </div>
   );
 }
@@ -111,7 +106,7 @@ function VideoFrame({ src, className, toggleClass = 'right-4 top-4', children, z
 export function MbFeatured() {
   const t = useT('legal');
   return (
-    <section aria-labelledby="mb-featured-title" className="mb-cv bg-mb-bg pb-24 md:pb-36">
+    <section aria-labelledby="mb-featured-title" className="mb-cv bg-mb-bg pb-12 md:pb-[4.5rem]">
       <Wrap>
         <Reveal y={20} className="relative">
           <VideoFrame src={VIDEOS.featured} className="aspect-video rounded-3xl">
@@ -141,7 +136,7 @@ const STEPS = ['s1', 's2', 's3', 's4', 's5'] as const;
 export function MbSteps() {
   const t = useT('legal');
   return (
-    <section id="lam-sach" aria-labelledby="mb-steps-title" className="mb-cv scroll-mt-24 bg-mb-bg py-24 md:py-36">
+    <section id="lam-sach" aria-labelledby="mb-steps-title" className="mb-cv scroll-mt-24 bg-mb-bg py-12 md:py-[4.5rem]">
       <Wrap>
         <Reveal y={20}>
           <Label>{t('book.stepsLabel')}</Label>
@@ -174,7 +169,7 @@ const QR_POINTS = ['a', 'b', 'c'] as const;
 export function MbPhilosophy() {
   const t = useT('legal');
   return (
-    <section aria-labelledby="mb-philo-title" className="mb-cv bg-mb-bg py-24 md:py-36">
+    <section aria-labelledby="mb-philo-title" className="mb-cv bg-mb-bg py-12 md:py-[4.5rem]">
       <Wrap>
         <Reveal y={20}>
           <h2 id="mb-philo-title" className="mb-display text-balance text-[clamp(2.8rem,8vw,7rem)] text-mb">
@@ -183,7 +178,7 @@ export function MbPhilosophy() {
         </Reveal>
         <div className="mt-14 grid grid-cols-1 items-center gap-10 md:grid-cols-2 lg:gap-16">
           <Reveal y={20}>
-            <VideoFrame src={VIDEOS.philosophy} className="aspect-[4/3] rounded-3xl" toggleClass="bottom-4 right-4" />
+            <VideoFrame src={VIDEOS.philosophy} className="aspect-[4/3] rounded-3xl" />
           </Reveal>
           <Reveal y={20} delay={0.08} className="flex flex-col gap-8">
             <div>
@@ -221,7 +216,7 @@ const FORMATS = [
 export function MbFormats() {
   const t = useT('legal');
   return (
-    <section aria-labelledby="mb-formats-title" className="mb-cv bg-mb-bg py-24 md:py-36">
+    <section aria-labelledby="mb-formats-title" className="mb-cv bg-mb-bg py-12 md:py-[4.5rem]">
       <Wrap>
         <Reveal y={20} className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <h2 id="mb-formats-title" className="mb-display max-w-3xl text-balance text-[clamp(2.3rem,5.6vw,5rem)] text-mb">
@@ -266,7 +261,7 @@ export function MbFormats() {
 export function MbCta() {
   const t = useT('legal');
   return (
-    <section aria-labelledby="mb-cta-title" className="mb-cv bg-mb-bg px-4 py-16 sm:px-6 md:py-28">
+    <section aria-labelledby="mb-cta-title" className="mb-cv bg-mb-bg px-4 py-12 sm:px-6 md:py-20">
       <Reveal y={20} className="liquid-glass mx-auto max-w-5xl rounded-[2.5rem] bg-[radial-gradient(60%_80%_at_50%_0%,rgba(216,180,106,0.16),transparent_70%)] px-6 py-16 text-center wrap-anywhere md:px-16 md:py-24">
         <h2 id="mb-cta-title" className="mb-display text-balance text-[clamp(2.4rem,6vw,5rem)] text-mb">
           {t('book.ctaTitle')}

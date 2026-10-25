@@ -50,7 +50,7 @@ export function OrderedList<T>({ items, getKey, getTitle, render, onMove, onRemo
               setDragOver(null);
             }}
             className={cn(
-              'flex items-center gap-2 rounded-2xl bg-paper p-3 ring-1 ring-line transition-shadow',
+              'flex flex-wrap items-center gap-2 rounded-2xl bg-paper p-3 sm:flex-nowrap ring-1 ring-line transition-shadow',
               dragOver === i && 'ring-2 ring-heritage',
               dragFrom === i && 'opacity-60',
             )}
@@ -58,7 +58,7 @@ export function OrderedList<T>({ items, getKey, getTitle, render, onMove, onRemo
             {editable && <GripVertical className="hidden size-5 shrink-0 cursor-grab text-ink-soft/60 sm:block" aria-hidden="true" />}
             <div className="min-w-0 flex-1">{render(item, i)}</div>
             {editable && (
-              <div className="flex shrink-0 flex-col gap-1 min-[420px]:flex-row">
+              <div className="flex w-full shrink-0 justify-end gap-1 sm:w-auto">
                 <Button variant="ghost" iconOnly aria-label={labels.moveUp(title)} disabled={disabled || i === 0} onClick={() => onMove?.(i, i - 1)}>
                   <ArrowUp className="size-5" />
                 </Button>

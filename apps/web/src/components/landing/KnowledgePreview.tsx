@@ -3,7 +3,7 @@ import { useId, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { StoryScene } from '@/components/illustrations/scenes';
 import { Reveal } from '@/components/motion';
-import { Button, IllustrativeBadge } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { usePick, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { formatDuration } from '@/lib/format';
@@ -22,28 +22,28 @@ function KnowledgeCard({ item, featured }: { item: SampleItem; featured?: boolea
       <div className={cn('relative overflow-hidden', featured ? 'aspect-[4/3] md:aspect-auto md:min-h-[24rem] md:w-1/2' : 'aspect-[16/10]')}>
         <StoryScene kind={topicStyle(item.topicSlug).scene} className="absolute inset-0 transition-transform duration-500 group-hover:scale-[1.04] motion-reduce:group-hover:scale-100" />
         <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-          <span className={cn('rounded-full px-3 py-1 text-[0.75rem] font-semibold', item.kind === 'experience' ? 'bg-heritage text-cream' : 'bg-cream text-terracotta')}>
+          <span className={cn('rounded-full px-3 py-1 text-[0.8125rem] font-semibold', item.kind === 'experience' ? 'bg-heritage text-cream' : 'bg-cream text-terracotta')}>
             {t(`knowledge.kinds.${item.kind}`)}
           </span>
-          {topic && <span className="rounded-full bg-cream/95 px-3 py-1 text-[0.75rem] font-semibold text-ink">{pick(topic.title)}</span>}
+          {topic && <span className="rounded-full bg-cream/95 px-3 py-1 text-[0.8125rem] font-semibold text-ink">{pick(topic.title)}</span>}
         </div>
       </div>
-      <div className={cn('flex flex-col p-5', featured ? 'md:w-1/2 md:justify-end md:p-8' : 'md:p-6')}>
-        <h3 className={cn('font-serif font-semibold leading-snug text-heritage-deep', featured ? 'text-[1.5rem] md:text-[1.85rem]' : 'text-[1.15rem]')}>
+      <div className={cn('flex flex-1 flex-col p-5', featured ? 'md:w-1/2 md:justify-center md:bg-cream/60 md:p-10 lg:p-12' : 'md:p-6')}>
+        <h3 className={cn('font-serif font-semibold leading-snug text-heritage-deep', featured ? 'text-[1.5rem] md:text-[2.1rem] md:leading-tight' : 'text-[1.15rem]')}>
           <Link to={`/tri-thuc/${item.id}`} className="after:absolute after:inset-0 after:rounded-[1.75rem] after:content-[''] focus-visible:outline-none">
             “{pick(item.title)}”
           </Link>
         </h3>
-        {featured && <p className="mt-3 max-w-xl leading-relaxed text-ink-soft">{pick(item.summary)}</p>}
-        <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.82rem] text-ink-soft">
+        {featured && <p className="mt-4 max-w-xl text-[1.0625rem] leading-relaxed text-ink-soft">{pick(item.summary)}</p>}
+        <p className={cn('mt-auto flex flex-wrap items-center gap-x-4 gap-y-1 pt-4 text-[0.8125rem] text-ink-soft', featured && 'md:mt-6 md:border-t md:border-line')}>
           <span className="font-semibold text-ink">{pick(item.narratorLabel)}</span>
-          <span className="inline-flex items-center gap-1">
-            <MapPin aria-hidden="true" className="size-3.5" />
+          <span className="inline-flex items-center gap-1.5">
+            <MapPin aria-hidden="true" className="size-4 shrink-0" />
             {tk(`regions.${item.region}`)}
           </span>
           {item.durationS !== null && (
-            <span className="inline-flex items-center gap-1 tabular-nums">
-              <Clock3 aria-hidden="true" className="size-3.5" />
+            <span className="inline-flex items-center gap-1.5 tabular-nums">
+              <Clock3 aria-hidden="true" className="size-4 shrink-0" />
               {formatDuration(item.durationS)}
             </span>
           )}
@@ -70,7 +70,7 @@ export function KnowledgePreview() {
   return (
     <Section id="kho-tri-thuc" labelledBy="knowledge-title" className="cv-section bg-paper/60">
       <SectionHeading id="knowledge-title" eyebrow={t('knowledge.eyebrow')} title={t('knowledge.title')} lead={t('knowledge.lead')} />
-      <Reveal className="mt-10">
+      <Reveal className="mt-8">
         <form role="search" onSubmit={onSubmit} className="flex max-w-2xl flex-col gap-3 sm:flex-row">
           <label htmlFor={inputId} className="sr-only">
             {t('knowledge.searchLabel')}
@@ -91,10 +91,7 @@ export function KnowledgePreview() {
           </Button>
         </form>
       </Reveal>
-      <div className="mt-6 flex items-center justify-between gap-4">
-        <IllustrativeBadge />
-      </div>
-      <ul className="mt-5 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+      <ul className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3 lg:gap-6">
         {first && (
           <Reveal as="li" className="md:col-span-2 lg:row-span-2">
             <KnowledgeCard item={first} featured />
@@ -106,7 +103,7 @@ export function KnowledgePreview() {
           </Reveal>
         ))}
       </ul>
-      <div className="mt-10 flex justify-center">
+      <div className="mt-8 flex justify-center">
         <ArrowLink to="/kham-pha">{t('knowledge.seeAll')}</ArrowLink>
       </div>
     </Section>

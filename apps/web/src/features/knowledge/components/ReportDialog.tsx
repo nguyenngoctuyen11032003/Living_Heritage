@@ -106,7 +106,7 @@ export function ReportDialog({ item, open, onClose }: { item: KnowledgeItem; ope
                   key={r}
                   className={cn(
                     'flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl px-4 py-2 text-[0.95rem] ring-1 transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-heritage',
-                    reason === r ? 'bg-mint/70 text-heritage-deep ring-heritage' : 'bg-paper ring-line hover:ring-heritage/40',
+                    reason === r ? 'bg-mint/70 text-heritage-deep ring-heritage' : 'bg-paper ring-line-strong hover:ring-heritage/40',
                   )}
                 >
                   <input
@@ -118,7 +118,7 @@ export function ReportDialog({ item, open, onClose }: { item: KnowledgeItem; ope
                       setReason(r);
                       setReasonError(false);
                     }}
-                    className="size-4 accent-[#214e43]"
+                    className="size-4 accent-heritage"
                   />
                   {t(`report.reasons.${r}`)}
                 </label>

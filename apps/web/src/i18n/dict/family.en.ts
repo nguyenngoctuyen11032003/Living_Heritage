@@ -99,6 +99,11 @@ export default {
     accepted: 'Joined',
     expired: 'Expired',
     cancelFor: 'Cancel the invite to {email}',
+    cancelTitle: 'Cancel this invite?',
+    cancelBody: 'The invite link sent to {email} will stop working.',
+    cancelConfirm: 'Cancel invite',
+    cancelKeep: 'Keep it',
+    cancelled: 'Invite cancelled',
   },
   acceptInvite: {
     working: 'Accepting your invite…',

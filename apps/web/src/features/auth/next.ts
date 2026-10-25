@@ -22,7 +22,7 @@ export function loginHref(next?: string | null, base = '/dang-nhap'): string {
   return safe ? `${base}?next=${encodeURIComponent(safe)}` : base;
 }
 
-/** Absolute auth callback URL (used for magic links, signup confirmation and password reset emails). */
+/** Absolute auth callback URL (used for signup confirmation and password reset emails). */
 export function callbackUrl(next: string): string {
   return siteHref(`/auth/callback?next=${encodeURIComponent(safeNext(next))}`);
 }

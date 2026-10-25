@@ -56,7 +56,7 @@ export function ApprovalSection(props: ApprovalSectionProps) {
         tabIndex={-1}
         role="status"
         aria-live="polite"
-        className="flex flex-col items-start gap-3 rounded-[2rem] bg-mint px-6 py-7 ring-1 ring-heritage/20 focus:outline-none md:px-10"
+        className="flex flex-col items-start gap-3 rounded-2xl bg-mint px-6 py-7 ring-1 ring-heritage/20 focus:outline-none md:px-10"
       >
         <p className="flex items-center gap-2 font-serif text-[1.35rem] font-semibold text-heritage-deep">
           <CheckCircle2 className="size-6" aria-hidden="true" />
@@ -90,14 +90,14 @@ export function ApprovalSection(props: ApprovalSectionProps) {
           <p id={!dirty && consentReady ? describedById : undefined} className={note}>
             {t('approval.assistedLead')}
           </p>
-          <label htmlFor={consentId} className="flex min-h-12 cursor-pointer items-start gap-3 rounded-2xl bg-paper p-3 text-[0.95rem] ring-1 ring-line">
+          <label htmlFor={consentId} className="flex min-h-12 cursor-pointer items-start gap-3 rounded-2xl bg-paper p-3 text-[0.95rem] ring-1 ring-line-strong">
             <input id={consentId} type="checkbox" checked={consent.confirmed} onChange={(e) => onConsentChange({ ...consent, confirmed: e.target.checked })} className="mt-1 size-5 shrink-0 accent-heritage" />
             <span>{t('approval.assistedConsent')}</span>
           </label>
           <fieldset className="flex flex-col gap-2">
             <legend className="mb-1.5 text-[0.9rem] font-semibold text-ink">{t('approval.method.legend')}</legend>
             {CONSENT_METHODS.map((m) => (
-              <label key={m} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl bg-paper px-3 py-2 text-[0.95rem] ring-1 ring-line">
+              <label key={m} className="flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl bg-paper px-3 py-2 text-[0.95rem] ring-1 ring-line-strong">
                 <input type="radio" name={methodName} value={m} checked={consent.method === m} onChange={() => onConsentChange({ ...consent, method: m })} className="size-5 shrink-0 accent-heritage" />
                 <span>{t(`approval.method.${m}`)}</span>
               </label>
@@ -151,9 +151,9 @@ export function ApprovalSection(props: ApprovalSectionProps) {
   }
 
   return (
-    <section aria-labelledby="approval-heading" className="flex flex-col gap-4 rounded-[2rem] bg-mint/45 px-6 py-7 ring-1 ring-heritage/15 md:px-10">
+    <section aria-labelledby="approval-heading" className="flex flex-col gap-4 rounded-2xl bg-mint/45 px-6 py-7 ring-1 ring-heritage/15 md:px-10">
       <div>
-        <p className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-terracotta">{t('approval.finalStep')}</p>
+        <p className="text-[0.8125rem] font-semibold uppercase tracking-[0.14em] text-terracotta">{t('approval.finalStep')}</p>
         <h2 id="approval-heading" className="mt-1 font-serif text-[1.35rem] font-semibold text-heritage-deep">
           {t('approval.sectionTitle')}
         </h2>

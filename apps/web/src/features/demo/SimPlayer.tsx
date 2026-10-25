@@ -50,12 +50,12 @@ export function SimPlayer({ lines, duration, onEnded }: { lines: readonly DemoLi
   }
 
   return (
-    <div className="flex flex-col gap-5 rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-7">
+    <div className="flex flex-col gap-5 rounded-2xl bg-paper p-5 ring-1 ring-line md:p-7">
       <Pill tone="warning" className="text-[1rem]">
         {t('listen.simulated')}
       </Pill>
       <div className="flex flex-wrap items-center gap-3">
-        <Button size="lg" onClick={toggle} aria-pressed={playing} leftIcon={playing ? <Pause className="size-6" aria-hidden="true" /> : <Play className="size-6" aria-hidden="true" />}>
+        <Button size="lg" onClick={toggle} aria-pressed={playing} leftIcon={playing ? <Pause className="size-5" aria-hidden="true" /> : <Play className="size-5" aria-hidden="true" />}>
           {playing ? t('listen.pause') : t('listen.play')}
         </Button>
         <Button

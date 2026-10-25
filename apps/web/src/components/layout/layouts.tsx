@@ -11,6 +11,7 @@ import { useApplyTheme, useTheme } from '@/lib/theme';
 import { getSupabase } from '@/lib/supabase';
 import { cn } from '@/lib/cn';
 import { useDisplayFont } from '@/design/useDisplayFont';
+import { ContactFab } from './ContactFab';
 import { DisplayMenu } from './DisplayMenu';
 import { LanguageSwitch } from './LanguageSwitch';
 import { Logo, LogoMark } from './Logo';
@@ -51,6 +52,8 @@ function useHeaderTone(): 'light' | 'dark' {
 
 export function SiteLayout() {
   const tone = useHeaderTone();
+  const { pathname } = useLocation();
+  const isLanding = (pathname.replace(/\/+$/, '') || '/') === '/';
   const mainRef = useRef<HTMLElement>(null);
   useDisplayFont();
   useRouteFade(mainRef);
@@ -71,6 +74,7 @@ export function SiteLayout() {
       </main>
       <SiteFooter />
       <BackToTop tone={tone} />
+      {isLanding && <ContactFab tone={tone} />}
     </div>
   );
 }
@@ -109,7 +113,7 @@ function fullNameOf(profileName: string | null | undefined, meta: Record<string,
   return null;
 }
 
-const menuRow = 'flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-[0.78rem] text-ink transition-colors hover:bg-mint/60';
+const menuRow = 'flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-[0.9rem] text-ink transition-colors hover:bg-mint/60';
 
 /**
  * Sidebar account button: photo + full name + email, with a chevron. Clicking it opens a menu ABOVE the button
@@ -162,7 +166,7 @@ function SidebarAccount({ onLogout, collapsed }: { onLogout: () => void; collaps
             <Settings className="size-[18px] shrink-0 text-ink-soft" aria-hidden="true" />
             {t('account.settings')}
           </NavLink>
-          <div className="flex min-h-11 items-center gap-3 px-3 text-[0.78rem] text-ink">
+          <div className="flex min-h-11 items-center gap-3 px-3 text-[0.9rem] text-ink">
             <Languages className="size-[18px] shrink-0 text-ink-soft" aria-hidden="true" />
             <span className="flex-1">{t('lang.label')}</span>
             <div role="group" aria-label={t('lang.label')} className="flex rounded-full bg-heritage/8 p-0.5 text-[12px] font-semibold ring-1 ring-line">
@@ -209,7 +213,7 @@ function SidebarAccount({ onLogout, collapsed }: { onLogout: () => void; collaps
       >
         <UserAvatar src={avatarUrl(profile?.avatarPath)} name={fullName ?? user.email} seed={user.id} size="sm" className="size-10" />
         <span className={cn('min-w-0 flex-1 flex-col leading-tight', collapsed ? 'sr-only' : 'flex')}>
-          <span className={cn('truncate text-[0.85rem] font-semibold', fullName ? 'text-ink' : 'text-heritage')}>{fullName ?? t('account.addName')}</span>
+          <span className={cn('truncate text-[0.95rem] font-semibold', fullName ? 'text-ink' : 'text-heritage')}>{fullName ?? t('account.addName')}</span>
           {user.email && <span className="mt-0.5 truncate text-[12.5px] text-ink-soft">{user.email}</span>}
         </span>
         {!collapsed && <ChevronDown className={cn('size-4 shrink-0 text-ink-soft transition-transform', open && 'rotate-180')} aria-hidden="true" />}
@@ -273,11 +277,11 @@ export function AppShell() {
       <div className="flex min-h-dvh bg-cream">
         <aside className={cn('sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-line bg-paper/60 py-5 lg:flex', collapsed ? 'w-[76px] px-3' : 'w-64 px-4')}>
           {collapsed ? (
-            <Link to="/" aria-label={t('brand.name')} className="flex min-h-11 items-center justify-center text-heritage">
+            <Link to="/gia-dinh" aria-label={t('brand.name')} className="flex min-h-11 items-center justify-center text-heritage">
               <LogoMark />
             </Link>
           ) : (
-            <Logo />
+            <Logo to="/gia-dinh" />
           )}
           <nav className="mt-8 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto" aria-label={t('nav.appNav')}>
             {items.map(({ to, label, icon: Icon, end }) => (
@@ -288,7 +292,7 @@ export function AppShell() {
                 title={collapsed ? label : undefined}
                 aria-label={collapsed ? label : undefined}
                 className={({ isActive }) =>
-                  cn('flex min-h-12 items-center gap-3 rounded-xl px-3 text-[0.85rem] transition-colors', collapsed && 'justify-center px-0', isActive ? 'bg-mint text-heritage-deep font-medium' : 'text-ink-soft hover:bg-mint/50')
+                  cn('flex min-h-12 items-center gap-3 rounded-xl px-3 text-[0.95rem] transition-colors', collapsed && 'justify-center px-0', isActive ? 'bg-mint font-semibold text-heritage-deep' : 'text-ink hover:bg-mint/50')
                 }
               >
                 <Icon className="size-5 shrink-0" aria-hidden="true" />
@@ -304,7 +308,7 @@ export function AppShell() {
               aria-expanded={!collapsed}
               aria-label={collapsed ? t('nav.expand') : t('nav.collapse')}
               title={collapsed ? t('nav.expand') : undefined}
-              className={cn('mt-2 flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-[0.78rem] text-ink-soft transition-colors hover:bg-mint/50 hover:text-ink', collapsed && 'justify-center px-0')}
+              className={cn('mt-2 flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-[0.9rem] text-ink-soft transition-colors hover:bg-mint/50 hover:text-ink', collapsed && 'justify-center px-0')}
             >
               {collapsed ? <ChevronsRight className="size-[18px]" aria-hidden="true" /> : <ChevronsLeft className="size-[18px]" aria-hidden="true" />}
               {!collapsed && t('nav.collapse')}
@@ -313,8 +317,8 @@ export function AppShell() {
         </aside>
         <div className="flex min-w-0 flex-1 flex-col">
           {/* Below sm: mark-only logo + one labelled "Hiển thị" button (language, theme), so it stays one row at every text size. */}
-          <header className="flex min-h-14 min-w-0 flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-1.5 lg:hidden">
-            <Logo wordmark="sm" className="min-w-0" />
+          <header className="flex min-h-14 min-w-0 flex-wrap items-center justify-between gap-2 border-b border-line px-4 py-1.5 sm:px-6 lg:hidden">
+            <Logo wordmark="sm" to="/gia-dinh" className="min-w-0" />
             <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-2">
               <DisplayMenu className="sm:hidden" />
               <div className="hidden items-center gap-2 sm:flex">
@@ -323,8 +327,10 @@ export function AppShell() {
               </div>
             </div>
           </header>
-          <main id="main" className="flex-1 px-4 py-6 pb-24 md:px-8 lg:pb-8">
-            <Outlet />
+          <main id="main" className="flex-1 px-4 py-6 pb-24 sm:px-6 lg:px-8 lg:pb-8">
+            <div className="mx-auto w-full max-w-[1200px]">
+              <Outlet />
+            </div>
           </main>
           <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-line bg-paper lg:hidden" aria-label={t('nav.appNav')}>
             {items.map(({ to, icon: Icon, end }) =>
@@ -334,7 +340,7 @@ export function AppShell() {
                   to={to}
                   end={end}
                   className={({ isActive }) =>
-                    cn('flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 px-0.5 text-center text-[0.7rem] leading-tight', isActive ? 'text-heritage font-semibold' : 'text-ink-soft')
+                    cn('flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 px-0.5 text-center text-[0.78rem] leading-tight', isActive ? 'text-heritage font-semibold' : 'text-ink-soft')
                   }
                 >
                   <Icon className="size-5 shrink-0" aria-hidden="true" />
@@ -348,7 +354,7 @@ export function AppShell() {
               aria-haspopup="dialog"
               aria-expanded={moreOpen}
               className={cn(
-                'flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 px-0.5 text-center text-[0.7rem] leading-tight',
+                'flex min-h-16 min-w-0 flex-col items-center justify-center gap-1 px-0.5 text-center text-[0.78rem] leading-tight',
                 inMore ? 'text-heritage font-semibold' : 'text-ink-soft',
               )}
             >
@@ -408,7 +414,7 @@ export function NarratorShell() {
           a single labelled "Hiển thị / Display" button that holds language + theme. From sm up the switches sit inline.
           flex-wrap stays as a last resort for very large text.
         */}
-        <header className="flex min-h-16 min-w-0 flex-wrap items-center justify-between gap-x-[8px] gap-y-2 border-b border-line px-[16px] py-2 sm:gap-x-3 md:px-8">
+        <header className="flex min-h-16 min-w-0 flex-wrap items-center justify-between gap-x-[8px] gap-y-2 border-b border-line px-4 py-2 sm:gap-x-3 sm:px-6 lg:px-8">
           <Logo wordmark="sm" to="/ke-chuyen" className="min-w-0" />
           <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-[8px]">
             {/* Below sm the slotted Help button is held to a compact (still ≥48px, labelled) size so the header stays one row. */}
@@ -420,7 +426,7 @@ export function NarratorShell() {
             </div>
           </div>
         </header>
-        <main id="main" className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 md:py-12">
+        <main id="main" className="mx-auto w-full max-w-3xl flex-1 px-4 py-8 sm:px-6 md:py-12 lg:px-8">
           <NarratorHelpSlotContext.Provider value={helpSlot}>
             <Outlet />
           </NarratorHelpSlotContext.Provider>

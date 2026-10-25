@@ -47,7 +47,7 @@ export function DisplaySection() {
                 lang={l}
                 className={cn(
                   'flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl px-5 ring-1 transition-colors focus-within:ring-2 focus-within:ring-heritage',
-                  locale === l ? 'bg-mint text-heritage-deep ring-heritage/40' : 'bg-paper text-ink ring-line hover:ring-heritage/40',
+                  locale === l ? 'bg-mint text-heritage-deep ring-heritage/40' : 'bg-paper text-ink ring-line-strong hover:ring-heritage/40',
                 )}
               >
                 <input type="radio" name="lh-locale" value={l} checked={locale === l} onChange={() => void choose(l)} className="size-5 accent-heritage" />
@@ -74,7 +74,7 @@ export function DisplaySection() {
                 key={m}
                 className={cn(
                   'flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl px-5 ring-1 transition-colors focus-within:ring-2 focus-within:ring-heritage',
-                  motion === m ? 'bg-mint text-heritage-deep ring-heritage/40' : 'bg-paper text-ink ring-line hover:ring-heritage/40',
+                  motion === m ? 'bg-mint text-heritage-deep ring-heritage/40' : 'bg-paper text-ink ring-line-strong hover:ring-heritage/40',
                 )}
               >
                 <input

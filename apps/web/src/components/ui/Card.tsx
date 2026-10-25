@@ -10,10 +10,10 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 const tones = {
-  paper: 'bg-paper text-ink ring-1 ring-line/80',
+  paper: 'bg-paper text-ink ring-1 ring-line-strong/45',
   cream: 'bg-cream text-ink ring-1 ring-line',
   mint: 'bg-mint/60 text-ink ring-1 ring-heritage/10',
-  night: 'bg-night-card text-night-ink ring-1 ring-white/8',
+  night: 'bg-night-card text-night-ink ring-1 ring-white/14',
 } as const;
 const paddings = { none: '', sm: 'p-4', md: 'p-6', lg: 'p-8 md:p-10' } as const;
 

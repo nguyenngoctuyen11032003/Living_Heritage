@@ -117,7 +117,7 @@ export function Dialog({ open, onClose, title, description, children, footer, si
             exit={reduced ? { opacity: 0 } : { opacity: 0, y: 16, scale: 0.98 }}
             transition={{ duration: 0.22, ease: EASE_OUT }}
             className={cn(
-              'relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-[1.75rem] bg-paper text-ink shadow-[0_24px_48px_-24px_rgba(18,27,24,0.5)] focus:outline-none sm:rounded-[1.75rem]',
+              'relative flex max-h-[92dvh] w-full flex-col overflow-hidden rounded-t-3xl bg-paper text-ink shadow-[0_24px_48px_-24px_rgba(18,27,24,0.5)] focus:outline-none sm:rounded-3xl',
               widths[size],
               className,
             )}
@@ -128,7 +128,7 @@ export function Dialog({ open, onClose, title, description, children, footer, si
                   {title}
                 </h2>
                 {description && (
-                  <p id={descId} className="mt-1.5 text-[0.95rem] leading-relaxed text-ink-soft">
+                  <p id={descId} className="mt-1.5 text-[1rem] leading-relaxed text-ink-soft">
                     {description}
                   </p>
                 )}
@@ -145,7 +145,7 @@ export function Dialog({ open, onClose, title, description, children, footer, si
               )}
             </div>
             {children && <div className="overflow-y-auto px-6 py-3 sm:px-8">{children}</div>}
-            {footer && <div className="flex flex-col-reverse gap-3 border-t border-line/70 px-6 py-4 sm:flex-row sm:justify-end sm:px-8">{footer}</div>}
+            {footer && <div className="flex flex-col-reverse gap-3 border-t border-line px-6 py-4 sm:flex-row sm:justify-end sm:px-8">{footer}</div>}
           </m.div>
         </div>
       )}

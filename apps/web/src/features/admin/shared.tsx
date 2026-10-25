@@ -43,7 +43,7 @@ export function ListState({
     return (
       <div aria-busy="true" className="flex flex-col gap-4">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="rounded-[1.5rem] bg-paper p-6 ring-1 ring-line">
+          <div key={i} className="rounded-2xl bg-paper p-6 ring-1 ring-line">
             <Skeleton className="h-4 w-32" />
             <Skeleton className="mt-4 h-6 w-2/3" />
             <Skeleton className="mt-3 h-4 w-1/2" />
@@ -113,10 +113,10 @@ export function StatusPill({ tone, children }: { tone: 'open' | 'done' | 'muted'
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.78rem] font-semibold',
-        tone === 'open' && 'bg-[#fbecc8] text-[#6b4a0c]',
+        'inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.8125rem] font-semibold',
+        tone === 'open' && 'bg-warning-bg text-warning-fg',
         tone === 'done' && 'bg-mint text-heritage-deep',
-        tone === 'muted' && 'bg-[#efe9dc] text-ink-soft',
+        tone === 'muted' && 'bg-line text-ink',
       )}
     >
       <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />

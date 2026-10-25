@@ -96,7 +96,7 @@ export default {
     titleLabel: 'Title',
     bodyLabel: 'Text',
     bodyHint: 'The part you just checked is filled in. Separate paragraphs with a blank line.',
-    nameLabel: 'Narrator name shown',
+    nameLabel: 'Name shown for the narrator',
     nameHint: 'A pen name is fine.',
     cardTitle: 'Know-how card that comes with it',
     skill: 'Skill',
@@ -104,7 +104,7 @@ export default {
     cautions: 'Cautions',
     limits: 'Limits',
     errorRequired: 'This cannot be empty.',
-    errorTooLong: 'Too long — please shorten it.',
+    errorTooLong: 'This is too long. Please shorten it.',
     next: 'Continue: confirm',
   },
   confirm: {
@@ -134,7 +134,7 @@ export default {
     needScope: 'Choose who may see it.',
   },
   status: {
-    draft: 'Draft · awaiting the narrator',
+    draft: 'Draft · awaiting the narrator’s approval',
     private: 'Private',
     invited: 'Invited people',
     requested: 'Proposed for publication · in review',

@@ -64,7 +64,7 @@ export function Manifesto() {
               className="max-w-5xl text-balance text-[clamp(2rem,5vw,4.2rem)] font-semibold leading-display tracking-[-0.03em]"
               stagger={0.06}
               segments={[
-                { text: t('manifesto.statementA'), className: 'text-night-ink/55' },
+                { text: t('manifesto.statementA'), className: 'text-night-ink/75' },
                 { text: t('manifesto.statementB') },
                 { text: t('manifesto.statementC'), className: 'font-serif font-normal italic text-mint-fixed' },
                 { text: t('manifesto.statementD') },

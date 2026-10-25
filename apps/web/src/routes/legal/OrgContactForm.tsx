@@ -1,17 +1,17 @@
 import { Mail } from 'lucide-react';
 import { useId, useState, type FormEvent } from 'react';
-import { Button, ButtonLink, Field, Input, Textarea } from '@/components/ui';
+import { Button, Field, Input, Textarea } from '@/components/ui';
 import { useT } from '@/i18n';
+import { CONTACT_EMAIL } from '@/lib/contact';
 import { buildOrgMailto, contactEmail, validateOrgContact, type OrgContactErrors, type OrgContactInput } from './orgContact';
 
 const EMPTY: OrgContactInput = { name: '', contact: '', organisation: '', message: '', consent: false };
 
 /**
- * Consultation request for organisations (B6 #9). Without a server-side intake it opens the visitor's mail app
- * with the filled-in message (when VITE_CONTACT_EMAIL is set) and says plainly that nothing is sent until they press
- * Send there. With no mailbox configured it shows the honest "channel in preparation" note and the sign-up link.
+ * Consultation request for organisations (B6 #9). There is no server-side intake yet, so the form opens the visitor's
+ * mail app with the filled-in message and says plainly that nothing is sent until they press Send there.
  */
-export function OrgContactForm({ email = contactEmail() }: { email?: string | null }) {
+export function OrgContactForm({ email = contactEmail() ?? CONTACT_EMAIL }: { email?: string }) {
   const t = useT('legal');
   const consentId = useId();
   const [form, setForm] = useState<OrgContactInput>(EMPTY);
@@ -21,17 +21,6 @@ export function OrgContactForm({ email = contactEmail() }: { email?: string | nu
   const set = <K extends keyof OrgContactInput>(key: K, value: OrgContactInput[K]) => setForm((f) => ({ ...f, [key]: value }));
   const err = (key: keyof OrgContactErrors) => (errors[key] ? t(`orgs.form.errors.${errors[key]!}`) : undefined);
 
-  if (!email) {
-    return (
-      <div className="flex flex-col items-start gap-4">
-        <p className="leading-relaxed text-ink-soft">{t('orgs.form.noChannel')}</p>
-        <ButtonLink to="/dang-ky" size="lg">
-          {t('common.signUp')}
-        </ButtonLink>
-      </div>
-    );
-  }
-
   function onSubmit(e: FormEvent) {
     e.preventDefault();
     const next = validateOrgContact(form);
@@ -40,7 +29,7 @@ export function OrgContactForm({ email = contactEmail() }: { email?: string | nu
       setOpened(false);
       return;
     }
-    const href = buildOrgMailto(email!, t('orgs.form.subject', { org: form.organisation.trim() }), [
+    const href = buildOrgMailto(email, t('orgs.form.subject', { org: form.organisation.trim() }), [
       [t('orgs.form.name'), form.name],
       [t('orgs.form.contact'), form.contact],
       [t('orgs.form.organisation'), form.organisation],
@@ -51,8 +40,8 @@ export function OrgContactForm({ email = contactEmail() }: { email?: string | nu
   }
 
   return (
-    <form noValidate onSubmit={onSubmit} className="flex flex-col gap-5">
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+    <form noValidate onSubmit={onSubmit} className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Field label={t('orgs.form.name')} required error={err('name')}>
           <Input value={form.name} onChange={(e) => set('name', e.target.value)} maxLength={80} autoComplete="name" />
         </Field>
@@ -87,8 +76,8 @@ export function OrgContactForm({ email = contactEmail() }: { email?: string | nu
       </div>
       <p className="text-[0.88rem] leading-relaxed text-ink-soft">{t('orgs.form.how')}</p>
       <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" size="lg" className="gap-2">
-          <Mail aria-hidden="true" className="size-5" />
+        <Button type="submit" size="lg" className="w-full gap-2 sm:w-auto">
+          <Mail aria-hidden="true" className="size-[1.15rem] shrink-0" />
           {t('orgs.form.submit')}
         </Button>
       </div>

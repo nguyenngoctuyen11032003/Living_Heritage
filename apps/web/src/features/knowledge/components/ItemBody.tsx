@@ -56,7 +56,7 @@ export function SourceBox({ item, topicTitle, headingLevel = 'h2' }: { item: Kno
   ];
   if (item.publishedAt && !item.sample) rows.push([t('detail.sourcePublished'), formatDate(item.publishedAt, locale)]);
   return (
-    <section className="rounded-[1.5rem] bg-paper p-6 ring-1 ring-line">
+    <section className="rounded-2xl bg-paper p-6 ring-1 ring-line">
       <H className="font-serif text-[1.15rem] font-semibold text-heritage-deep">{t('detail.sections.source')}</H>
       {topicTitle && <p className="mt-1 text-[0.85rem] text-ink-soft">{topicTitle}</p>}
       <dl className="mt-4 divide-y divide-line/70 text-[0.95rem]">

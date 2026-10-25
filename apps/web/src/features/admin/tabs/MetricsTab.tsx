@@ -53,7 +53,7 @@ function AggregateSection({ id, title, hint, value, onExport }: { id: string; ti
   const show = (c: string, v: Cell) =>
     v === null ? '—' : typeof v === 'boolean' ? t(v ? 'metrics.yes' : 'metrics.no') : c.endsWith('_at') && typeof v === 'string' ? dt(v) : String(v);
   return (
-    <section aria-labelledby={id} className="rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-6">
+    <section aria-labelledby={id} className="rounded-2xl bg-paper p-5 ring-1 ring-line md:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1 basis-64">
           <h3 id={id} className="font-serif text-[1.15rem] font-semibold leading-snug text-heritage-deep">
@@ -134,7 +134,7 @@ export function MetricsTab() {
 
   return (
     <div>
-      <p className="mb-6 flex items-start gap-3 rounded-2xl bg-[#fdf6e3] px-5 py-4 text-[0.92rem] leading-relaxed text-[#5b430f] ring-1 ring-[#e9d6a6]">
+      <p className="mb-6 flex items-start gap-3 rounded-2xl bg-warning-bg px-5 py-4 text-[0.92rem] leading-relaxed text-warning-fg ring-1 ring-warning-line">
         <Info aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
         <span>{m && m.pilot !== 'unavailable' ? t('metrics.privacy') : t('metrics.gap')}</span>
       </p>
@@ -159,7 +159,7 @@ export function MetricsTab() {
               onExport={() => m.pilot !== 'unavailable' && m.pilot !== 'error' && download(toCsv(tableRows(m.pilot)), `di-san-song-pilot-${today()}.csv`)}
             />
             <AggregateSection id="metrics-content" title={t('metrics.contentTitle')} hint={t('metrics.contentHint')} value={m.content} />
-            <section aria-labelledby="metrics-jobs" className="rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-6">
+            <section aria-labelledby="metrics-jobs" className="rounded-2xl bg-paper p-5 ring-1 ring-line md:p-6">
               <h3 id="metrics-jobs" className="font-serif text-[1.15rem] font-semibold leading-snug text-heritage-deep">
                 {t('metrics.jobsTitle')}
               </h3>
@@ -169,7 +169,7 @@ export function MetricsTab() {
                 ))}
               </dl>
             </section>
-            <section aria-labelledby="metrics-publish" className="rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-6">
+            <section aria-labelledby="metrics-publish" className="rounded-2xl bg-paper p-5 ring-1 ring-line md:p-6">
               <h3 id="metrics-publish" className="font-serif text-[1.15rem] font-semibold leading-snug text-heritage-deep">
                 {t('metrics.publishTitle')}
               </h3>
@@ -179,7 +179,7 @@ export function MetricsTab() {
                 ))}
               </dl>
             </section>
-            <section aria-labelledby="metrics-usage" className="rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-6">
+            <section aria-labelledby="metrics-usage" className="rounded-2xl bg-paper p-5 ring-1 ring-line md:p-6">
               <h3 id="metrics-usage" className="font-serif text-[1.15rem] font-semibold leading-snug text-heritage-deep">
                 {t('metrics.usageTitle', { days: METRICS_WINDOW_DAYS })}
               </h3>

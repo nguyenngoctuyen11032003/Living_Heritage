@@ -19,9 +19,9 @@
     --mb-fr2: #f1ebdc;
   }
   :root[data-theme='dark'] .mb-page {
-    --mb-bg: #000;
-    --mb-bg-rgb: 0 0 0;
-    --mb-fg: #fff;
+    --mb-bg: #151c1a;
+    --mb-bg-rgb: 21 28 26;
+    --mb-fg: #f3efe4;
     --mb-wash-top: 0.55;
     --mb-wash-mid: 0.2;
     --mb-wash-low: 0.65;
@@ -30,12 +30,12 @@
     --mb-fb1: #4a3320;
     --mb-fb2: #163a31;
     --mb-fr1: #1f3b33;
-    --mb-fr2: #0b0b0b;
+    --mb-fr2: #101614;
   }
   /* Controls that sit on top of video keep the dark glass look in both themes. */
   .mb-page .mb-media {
-    --mb-fg: #fff;
-    --mb-bg: #000;
+    --mb-fg: #f3efe4;
+    --mb-bg: #151c1a;
   }
 
   /* Planned-feature tag: amber on cream (light) / pale amber on glass (dark). */
@@ -123,6 +123,6 @@
 
   /* White focus ring in dark: the site's terracotta ring is too dark on black and over video. */
   :root[data-theme='dark'] .mb-page :focus-visible {
-    outline-color: #fff;
+    outline-color: #e6cf9a;
   }
 }

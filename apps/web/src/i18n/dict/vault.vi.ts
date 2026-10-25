@@ -52,7 +52,7 @@ export default {
     count: '{n} câu chuyện',
     countSearch: 'Tìm thấy {n} câu chuyện',
     more: 'Xem thêm',
-    end: 'Đã hiện hết câu chuyện.',
+    end: 'Bạn đã xem hết các câu chuyện.',
   },
   card: {
     untitled: 'Câu chuyện chưa đặt tên',
@@ -62,8 +62,8 @@ export default {
     recorded: 'Ngày ghi',
   },
   empty: {
-    title: 'Gia đình mình chưa có câu chuyện nào. Hãy bắt đầu từ một kỷ niệm dễ nhớ.',
-    description: 'Một bữa cơm ngày Tết, một con đường đi học, một nghề cũ — chỉ cần kể, phần còn lại để chúng tôi lo.',
+    title: 'Kho gia đình còn trống',
+    description: 'Hãy bắt đầu từ một kỷ niệm dễ nhớ: bữa cơm ngày Tết, con đường đi học hay một nghề cũ. Bạn chỉ cần kể, Di Sản Sống sẽ giúp ghi lại và chép thành văn bản.',
     start: 'Bắt đầu',
     viewer: 'Khi người trong nhà ghi và chia sẻ câu chuyện, chúng sẽ hiện ở đây.',
   },
@@ -96,7 +96,7 @@ export default {
       conditions: 'Điều kiện',
       steps: 'Các bước',
       cautions: 'Lưu ý',
-      limits: 'Giới hạn áp dụng',
+      limits: 'Phạm vi áp dụng',
       missing: 'Chưa có thông tin',
     },
     source: {
@@ -159,7 +159,7 @@ export default {
     count: '{n} câu chuyện',
     open: 'Mở bộ sưu tập',
     emptyTitle: 'Chưa có bộ sưu tập nào',
-    emptyBody: 'Gom các câu chuyện cùng một mạch để con cháu tìm lại nhanh: một mùa Tết, một nghề, một người.',
+    emptyBody: 'Gom các câu chuyện cùng chủ đề để con cháu dễ tìm lại: một mùa Tết, một nghề, một người.',
     viewerEmpty: 'Người biên tập trong gia đình sẽ gom các câu chuyện thành bộ sưu tập. Trong lúc chờ, bạn có thể đọc trong kho.',
     viewerCta: 'Mở kho câu chuyện',
     saved: 'Đã lưu.',
@@ -184,7 +184,7 @@ export default {
   },
   // Extra lines in the sharing dialog preview (features/sharing/ShareDialog.tsx).
   sharing: {
-    photosUnavailable: 'Trang công khai chưa đăng ảnh, nên ảnh gia đình luôn được giữ riêng. Lựa chọn này sẽ mở khi có tính năng đó.',
+    photosUnavailable: 'Trang công khai chưa hỗ trợ đăng ảnh nên ảnh gia đình luôn được giữ riêng. Lựa chọn này sẽ mở khi tính năng sẵn sàng.',
     preview: {
       topic: 'Chủ đề',
       photos: 'Ảnh',

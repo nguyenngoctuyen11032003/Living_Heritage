@@ -98,8 +98,8 @@ export function AskTheElders({ hubMode, notConfigured, onSearch, onBrowse, ask =
   const count = normalizeQuestion(question).length;
 
   return (
-    <section aria-labelledby={ids.title} className={cn('rounded-[2rem] bg-paper p-6 ring-1 ring-line sm:p-8 md:p-10', className)}>
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-12">
+    <section aria-labelledby={ids.title} className={cn('rounded-2xl bg-paper p-6 ring-1 ring-line sm:p-8 md:p-10', className)}>
+      <div className={cn('grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12', state.status === 'idle' ? 'lg:items-center' : 'lg:items-start')}>
         {/* Left: what it is + suggested questions */}
         <div className="lg:col-span-5">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -137,7 +137,7 @@ export function AskTheElders({ hubMode, notConfigured, onSearch, onBrowse, ask =
         {/* Right: the question box */}
         <div className="lg:col-span-7">
         {disabled ? (
-          <div className="lp-note flex items-start gap-3 rounded-2xl border border-[#e9d6a6] bg-[#fdf6e3] px-4 py-3 text-[#5b430f]">
+          <div className="lp-note flex items-start gap-3 rounded-2xl border border-warning-line bg-warning-bg px-4 py-3 text-warning-fg">
             <BookOpenText aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
             <div>
               <p className="font-semibold">{t('ask.disabledTitle')}</p>
@@ -146,7 +146,7 @@ export function AskTheElders({ hubMode, notConfigured, onSearch, onBrowse, ask =
           </div>
         ) : null}
 
-        <form onSubmit={onSubmit} className={cn('rounded-[1.5rem] bg-cream p-4 ring-1 ring-line sm:p-5', disabled && 'mt-4')} aria-disabled={disabled || undefined}>
+        <form onSubmit={onSubmit} className={cn('rounded-2xl bg-cream p-4 ring-1 ring-line sm:p-5', disabled && 'mt-4')} aria-disabled={disabled || undefined}>
           <label htmlFor={ids.input} className="text-[0.92rem] font-semibold text-ink">
             {t('ask.label')}
           </label>
@@ -171,7 +171,7 @@ export function AskTheElders({ hubMode, notConfigured, onSearch, onBrowse, ask =
               placeholder={t('ask.placeholder')}
               aria-describedby={cn(ids.hint, invalid && ids.err) || undefined}
               aria-invalid={invalid || undefined}
-              className="min-h-24 w-full min-w-0 resize-none rounded-2xl bg-paper px-4 py-3 text-[1.05rem] text-ink ring-1 ring-line placeholder:text-ink-soft/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-heritage aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-terracotta disabled:cursor-not-allowed disabled:opacity-60"
+              className="min-h-24 w-full min-w-0 resize-none rounded-2xl bg-paper px-4 py-3 text-[1.05rem] text-ink ring-1 ring-line-strong placeholder:text-ink-soft/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-heritage aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-terracotta disabled:cursor-not-allowed disabled:opacity-60"
             />
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-[0.82rem] text-ink-soft">
@@ -204,7 +204,7 @@ export function AskTheElders({ hubMode, notConfigured, onSearch, onBrowse, ask =
         </p>
 
         {state.status !== 'idle' && (
-          <div ref={resultRef} tabIndex={-1} className="mt-8 rounded-[1.5rem] bg-cream p-5 text-ink ring-1 ring-line focus:outline-none focus-visible:ring-2 focus-visible:ring-heritage sm:p-7">
+          <div ref={resultRef} tabIndex={-1} className="mt-8 rounded-2xl bg-cream p-5 text-ink ring-1 ring-line focus:outline-none focus-visible:ring-2 focus-visible:ring-heritage sm:p-7">
             <p className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-ink-soft">{t('ask.youAsked')}</p>
             <p className="mt-1 font-serif text-[1.15rem] font-semibold text-heritage-deep">“{state.question}”</p>
             <div className="mt-5 border-t border-line/70 pt-5">
@@ -329,7 +329,7 @@ function ResultView({
         {t('ask.answerTitle')}
       </h3>
       <TypedAnswer answer={result.answer} sources={result.sources} />
-      <p className="lp-note mt-5 rounded-2xl border border-transparent bg-[#fdf6e3] px-4 py-3 text-[0.9rem] leading-relaxed text-[#5b430f] ring-1 ring-[#e9d6a6]">
+      <p className="lp-note mt-5 rounded-2xl border border-transparent bg-warning-bg px-4 py-3 text-[0.9rem] leading-relaxed text-warning-fg ring-1 ring-warning-line">
         {t('ask.note')} {t('ask.verify')}
       </p>
       <SourceList sources={result.sources} only={cited} title={t('ask.sourcesTitle')} />

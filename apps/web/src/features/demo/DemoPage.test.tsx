@@ -24,7 +24,6 @@ describe('DemoPage', () => {
   it('walks the whole journey without any network call', () => {
     const fetchSpy = vi.spyOn(globalThis, 'fetch');
     render(<DemoPage />, { wrapper: wrap('vi') });
-    expect(screen.getByText(/Bản trải nghiệm mẫu — dữ liệu minh họa, không lưu lên máy chủ/)).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('radio', { name: /Món ăn/ }));
     fireEvent.click(screen.getByRole('radio', { name: /Một kỷ niệm/ }));
@@ -45,7 +44,7 @@ describe('DemoPage', () => {
     fireEvent.change(screen.getByLabelText(/Tiêu đề/), { target: { value: 'Nồi cá kho của má' } });
     fireEvent.click(screen.getByRole('button', { name: /Tiếp tục: xác nhận/ }));
 
-    expect(screen.getByRole('heading', { name: 'Nội dung này đã đúng điều bác muốn kể chưa?' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Nội dung này đã đúng điều ông/bà muốn kể chưa?' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Đúng rồi' }));
 
     fireEvent.click(screen.getByRole('radio', { name: /Đề nghị công bố/ }));

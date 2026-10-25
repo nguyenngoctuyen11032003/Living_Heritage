@@ -65,11 +65,12 @@ export default {
     notConfigured: 'Hệ thống chưa được cấu hình kết nối máy chủ.',
     forbidden: 'Bạn không có quyền xem nội dung này.',
   },
-  notFound: { title: 'Không tìm thấy trang', body: 'Trang này không tồn tại hoặc đã bị thu hồi.', home: 'Về trang chủ' },
+  notFound: { title: 'Không tìm thấy trang', body: 'Trang này không tồn tại hoặc đã được chuyển đi.', home: 'Về trang chủ' },
   footer: {
-    rights: '© 2026 Di Sản Sống · Học viện Công nghệ Bưu chính Viễn thông',
+    rights: '© 2026 Di Sản Sống',
     privacy: 'Quyền riêng tư',
     terms: 'Điều khoản',
     contact: 'Liên hệ',
   },
+  contactFab: { open: 'Mở liên hệ nhanh', close: 'Đóng liên hệ nhanh', title: 'Cần hỗ trợ?', call: 'Gọi điện', email: 'Gửi email' },
 } as const;

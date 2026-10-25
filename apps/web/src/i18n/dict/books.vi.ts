@@ -71,7 +71,7 @@ export default {
     conditions: 'Điều kiện',
     steps: 'Các bước',
     cautions: 'Lưu ý',
-    limits: 'Giới hạn áp dụng',
+    limits: 'Phạm vi áp dụng',
   },
   preview: {
     title: 'Xem trước sách',

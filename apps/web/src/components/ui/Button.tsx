@@ -19,20 +19,20 @@ export interface ButtonStyleOptions {
 }
 
 const base =
-  'group/btn relative select-none items-center justify-center gap-2 rounded-full font-semibold leading-tight tracking-[-0.005em] transition-[background-color,color,box-shadow,transform] duration-200 ease-out active:scale-[0.98] disabled:pointer-events-none disabled:opacity-55 aria-disabled:pointer-events-none aria-disabled:opacity-55 focus-visible:outline-offset-4';
+  'group/btn [&>svg:not([class*=size-])]:size-4 [&>svg]:shrink-0  relative select-none items-center justify-center gap-2 rounded-full font-semibold leading-tight tracking-[-0.005em] transition-[background-color,color,box-shadow,transform] duration-200 ease-out active:scale-[0.98] disabled:pointer-events-none disabled:opacity-55 aria-disabled:pointer-events-none aria-disabled:opacity-55 focus-visible:outline-offset-4';
 
 const variants: Record<ButtonVariant, string> = {
-  primary: 'bg-heritage text-cream hover:bg-heritage-deep shadow-[0_1px_0_rgba(255,255,255,0.12)_inset]',
-  secondary: 'bg-paper text-ink ring-1 ring-line hover:ring-heritage/60 hover:text-heritage',
-  ghost: 'bg-transparent text-heritage hover:bg-mint/70',
-  terracotta: 'bg-terracotta text-cream hover:bg-[#8f3c29]',
-  'dark-cream': 'bg-night-ink text-night hover:bg-white',
+  primary: 'bg-heritage text-cream hover:bg-heritage-deep',
+  secondary: 'bg-paper text-ink ring-1 ring-line-strong hover:ring-heritage hover:text-heritage',
+  ghost: 'bg-transparent text-heritage hover:bg-mint',
+  terracotta: 'bg-terracotta text-cream hover:brightness-90',
+  'dark-cream': 'bg-night-ink text-night hover:bg-night-ink/85',
 };
 
 const sizes: Record<ButtonSize, string> = {
-  md: 'min-h-12 px-5 text-[0.9rem]',
-  lg: 'min-h-14 px-7 text-[0.95rem]',
-  xl: 'min-h-16 px-9 text-[1.05rem]',
+  md: 'min-h-12 px-5 text-[1rem]',
+  lg: 'min-h-14 px-7 text-[1.05rem] [&>svg:not([class*=size-])]:size-[1.15rem]',
+  xl: 'min-h-16 px-10 text-[1.25rem] [&>svg:not([class*=size-])]:size-5',
 };
 
 const iconSizes: Record<ButtonSize, string> = {

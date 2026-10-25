@@ -70,7 +70,7 @@ describe('ApprovalBar (slim: save state + one primary action)', () => {
 describe('ApprovalSection (final step in the page flow)', () => {
   it('asks the narrator question before confirming', () => {
     section({});
-    expect(screen.getByText('Nội dung này đã đúng điều bác muốn kể chưa?')).toHaveAttribute('id', 'hint');
+    expect(screen.getByText('Nội dung này đã đúng điều ông/bà muốn kể chưa?')).toHaveAttribute('id', 'hint');
   });
 
   it('offers "Lưu để xem sau" and "Quay lại nguồn" as secondary actions next to the confirm step', () => {

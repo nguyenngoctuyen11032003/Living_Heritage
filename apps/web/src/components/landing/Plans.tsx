@@ -7,10 +7,14 @@ import { cn } from '@/lib/cn';
 import { CreamPillLink } from './Manifesto';
 import { Section, SectionHeading } from './shared';
 
+const INCLUDES = ['a', 'b', 'c'] as const;
 const PLANS = [
-  { key: 'month', includes: ['a', 'b', 'c'] },
-  { key: 'year', includes: ['a', 'b', 'c', 'd'] },
-  { key: 'book', includes: ['e', 'f'] },
+  { key: 'trial', audience: 'family' },
+  { key: 'month', audience: 'family' },
+  { key: 'year', audience: 'family' },
+  { key: 'book', audience: 'family' },
+  { key: 'program', audience: 'org' },
+  { key: 'license', audience: 'org' },
 ] as const;
 
 /** Block 12 — planned pricing (clearly not charged) + organisations block. */
@@ -25,7 +29,7 @@ export function Plans({ showOrgs = true }: { showOrgs?: boolean }) {
           {t('plans.planned')}
         </Badge>
       </Reveal>
-      <ul className="mt-12 grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-6">
+      <ul className="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-3 lg:gap-6">
         {PLANS.map((plan, i) => {
           const featured = plan.key === 'year';
           return (
@@ -36,8 +40,9 @@ export function Plans({ showOrgs = true }: { showOrgs?: boolean }) {
                   featured ? 'bg-heritage-deep text-night-ink ring-1 ring-heritage' : 'bg-paper text-ink ring-1 ring-line',
                 )}
               >
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h3 className={cn('text-[1.1rem] font-bold', featured ? 'text-night-ink' : 'text-ink')}>{t(`plans.${plan.key}.name`)}</h3>
+                <p className={cn('text-[0.8125rem] font-semibold uppercase tracking-[0.12em]', featured ? 'text-mint-fixed' : 'text-heritage')}>{t(`plans.audience.${plan.audience}`)}</p>
+                <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
+                  <h3 className={cn('min-w-0 text-[1.1rem] font-bold leading-snug', featured ? 'text-night-ink' : 'text-ink')}>{t(`plans.${plan.key}.name`)}</h3>
                   {plan.key === 'year' && (
                     <Badge tone="mint" size="sm" className="max-w-full whitespace-normal">
                       {t('plans.year.badge')}
@@ -48,13 +53,12 @@ export function Plans({ showOrgs = true }: { showOrgs?: boolean }) {
                   <span className={cn('min-w-0 font-serif text-[min(2.4rem,15cqi)] font-semibold leading-none tracking-[-0.02em] [overflow-wrap:anywhere]', featured ? 'text-night-ink' : 'text-heritage-deep')}>{t(`plans.${plan.key}.price`)}</span>
                   <span className={cn('text-[0.95rem]', featured ? 'text-night-ink/75' : 'text-ink-soft')}>{t(`plans.${plan.key}.unit`)}</span>
                 </p>
-                <p className={cn('mt-1 text-[0.78rem] font-semibold uppercase tracking-[0.08em]', featured ? 'text-[#f1dca8]' : 'text-[#8a5d0c]')}>{t('meta.planned')}</p>
-                <p className={cn('mt-4 leading-relaxed', featured ? 'text-night-ink/85' : 'text-ink-soft')}>{t(`plans.${plan.key}.body`)}</p>
+                <p className={cn('mt-1 text-[0.8125rem] font-semibold uppercase tracking-[0.08em]', featured ? 'text-[#f1dca8]' : 'text-warning-fg')}>{t('meta.planned')}</p>
                 <ul className={cn('mt-6 flex flex-1 flex-col gap-3 border-t pt-6', featured ? 'border-white/12' : 'border-line')}>
-                  {plan.includes.map((k) => (
+                  {INCLUDES.map((k) => (
                     <li key={k} className="flex items-start gap-2.5 text-[0.95rem] leading-snug">
                       <Check aria-hidden="true" className={cn('mt-0.5 size-4 shrink-0', featured ? 'text-mint-fixed' : 'text-heritage')} />
-                      {t(`plans.includes.${k}`)}
+                      {t(`plans.includes.${plan.key}.${k}`)}
                     </li>
                   ))}
                 </ul>
@@ -77,7 +81,7 @@ export function Plans({ showOrgs = true }: { showOrgs?: boolean }) {
                   <Building2 className="size-6" />
                 </span>
                 <div className="max-w-2xl">
-                  <p className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-mint-fixed">{t('plans.orgs.eyebrow')}</p>
+                  <p className="text-[0.8125rem] font-semibold uppercase tracking-[0.14em] text-mint-fixed">{t('plans.orgs.eyebrow')}</p>
                   <h3 className="mt-2 font-serif text-[1.5rem] font-semibold leading-snug md:text-[1.8rem]">{t('plans.orgs.title')}</h3>
                   <p className="mt-3 leading-relaxed text-night-ink/80">{t('plans.orgs.body')}</p>
                 </div>

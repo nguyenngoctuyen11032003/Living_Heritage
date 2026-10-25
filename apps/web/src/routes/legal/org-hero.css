@@ -4,8 +4,8 @@
  */
 .oh {
   --oh-bg: 250 247 240;
-  --oh-fg: #163a31;
-  --oh-soft: rgba(22, 58, 49, 0.78);
+  --oh-fg: #0b2a22;
+  --oh-soft: rgba(11, 42, 34, 0.92);
   position: relative;
   isolation: isolate;
   display: flex;
@@ -17,17 +17,17 @@
   background: rgb(var(--oh-bg));
   color: var(--oh-fg);
 }
-:root[data-theme='dark'] .oh { --oh-bg: 0 0 0; --oh-fg: #fff; --oh-soft: rgba(255, 255, 255, 0.78); }
+:root[data-theme='dark'] .oh { --oh-bg: 21 28 26; --oh-fg: #f3efe4; --oh-soft: #d8ddd5; }
 .oh__video { position: absolute; inset: 0; z-index: -2; width: 100%; height: 100%; object-fit: cover; }
 .oh__wash {
   position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background:
-    radial-gradient(70% 55% at 50% 48%, rgb(var(--oh-bg) / 0.72) 0%, rgb(var(--oh-bg) / 0.35) 70%, transparent 100%),
+    radial-gradient(70% 55% at 50% 48%, rgb(var(--oh-bg) / 0.88) 0%, rgb(var(--oh-bg) / 0.5) 70%, transparent 100%),
     linear-gradient(to bottom, rgb(var(--oh-bg) / 0.5) 0%, rgb(var(--oh-bg) / 0.4) 45%, rgb(var(--oh-bg) / 0.8) 100%);
 }
 :root[data-theme='dark'] .oh__wash {
   background:
-    radial-gradient(70% 55% at 50% 48%, rgb(var(--oh-bg) / 0.45) 0%, rgb(var(--oh-bg) / 0.2) 70%, transparent 100%),
+    radial-gradient(70% 55% at 50% 48%, rgb(var(--oh-bg) / 0.6) 0%, rgb(var(--oh-bg) / 0.35) 70%, transparent 100%),
     linear-gradient(to bottom, rgb(var(--oh-bg) / 0.55) 0%, rgb(var(--oh-bg) / 0.3) 45%, rgb(var(--oh-bg) / 0.85) 100%);
 }
 .oh__inner {
@@ -36,7 +36,7 @@
   hyphens: none; overflow-wrap: normal; word-break: normal;
 }
 /* Eyebrow, title and lead follow the /sach-ky-uc type scale (Label + .mb-display). */
-.oh__eyebrow { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--oh-fg) 62%, transparent); }
+.oh__eyebrow { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 0.78rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: color-mix(in srgb, var(--oh-fg) 85%, transparent); }
 .oh__eyebrow i { display: none; }
 .oh__title {
   max-width: 60rem; margin: 1.25rem 0 0; text-wrap: balance;

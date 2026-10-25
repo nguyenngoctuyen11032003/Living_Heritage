@@ -9,7 +9,7 @@ export default function PrivacyPage() {
   useDocumentTitle(t('privacy.title'));
   return (
     <>
-      <PageHero eyebrow={t('privacy.eyebrow')} heading={t('privacy.heading')} lead={t('privacy.lead')} meta />
+      <PageHero eyebrow={t('privacy.eyebrow')} heading={t('privacy.heading')} lead={t('privacy.lead')} />
       <LegalDoc sections={d.privacy.sections} />
     </>
   );

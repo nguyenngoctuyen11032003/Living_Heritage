@@ -1,11 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
-import { Button, ButtonLink, Field, Input, Skeleton, useToast } from '@/components/ui';
+import { Button, ButtonLink, Field, Skeleton, useToast } from '@/components/ui';
 import { useT } from '@/i18n';
 import { useSession } from '@/lib/session';
 import { getSupabase } from '@/lib/supabase';
 import { ErrorNotice, NotConfiguredNotice } from '@/features/families/states';
 import { AuthLayout } from './AuthLayout';
+import { PasswordInput } from './controls';
 import { authErrorKey, type AuthErrorKey } from './errors';
 import { DEFAULT_AFTER_LOGIN, MIN_PASSWORD } from './next';
 
@@ -64,12 +65,14 @@ export default function ResetPasswordPage() {
     content = (
       <form noValidate onSubmit={onSubmit} className="flex flex-col gap-5">
         <Field label={t('reset.newPassword')} hint={t('fields.passwordHint', { n: MIN_PASSWORD })} error={fieldError.password} required>
-          <Input type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <PasswordInput autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
         </Field>
         <Field label={t('reset.confirmPassword')} error={fieldError.confirm} required>
-          <Input type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+          <PasswordInput autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
         </Field>
-        <div aria-live="assertive">{error && <ErrorNotice message={t(`errors.${error}`)} />}</div>
+        <div aria-live="assertive" className="empty:hidden">
+          {error && <ErrorNotice message={t(`errors.${error}`)} />}
+        </div>
         <Button type="submit" size="lg" fullWidth loading={busy}>
           {t('reset.submit')}
         </Button>
@@ -77,7 +80,7 @@ export default function ResetPasswordPage() {
     );
 
   return (
-    <AuthLayout title={t('reset.title')} subtitle={t('reset.subtitle')}>
+    <AuthLayout kicker={t('reset.kicker')} title={t('reset.title')} subtitle={t('reset.subtitle')}>
       {content}
     </AuthLayout>
   );

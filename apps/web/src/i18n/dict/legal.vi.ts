@@ -3,10 +3,7 @@
 export default {
   _ns: 'legal',
   common: {
-    draft: 'Bản dự thảo cho giai đoạn thử nghiệm',
-    updated: 'Cập nhật ngày 21/10/2026',
     toc: 'Trên trang này',
-    pilotNote: 'Di Sản Sống đang trong giai đoạn thử nghiệm. Nội dung trang này có thể được điều chỉnh trước khi chính thức vận hành; mọi thay đổi quan trọng sẽ được thông báo trước.',
     related: 'Xem thêm',
     signUp: 'Tạo tài khoản miễn phí',
   },
@@ -14,7 +11,7 @@ export default {
     title: 'Cách hoạt động',
     eyebrow: 'Từ lời kể đến di sản',
     heading: 'Ông bà chỉ cần kể. Phần còn lại, chúng tôi làm cùng gia đình.',
-    lead: 'Di Sản Sống chia hành trình thành bốn bước rõ ràng. Ở mỗi bước, bạn luôn biết ai đang làm gì, dữ liệu đang ở đâu và bước tiếp theo là gì.',
+    lead: 'Di Sản Sống gồm bốn bước rõ ràng. Ở mỗi bước, bạn biết ai đang làm gì, dữ liệu nằm ở đâu và bước tiếp theo là gì.',
     hero: {
       l1: 'Ông bà chỉ cần kể.',
       l2: 'Phần còn lại,',
@@ -33,7 +30,7 @@ export default {
       },
       s2: {
         title: 'AI hỗ trợ bản nháp',
-        body: 'Bản ghi được gửi tới máy chủ của chúng tôi, nơi AI chép lời tiếng Việt và soạn bản nháp. Trình duyệt không bao giờ giữ khoá AI.',
+        body: 'Bản ghi được gửi tới máy chủ của chúng tôi, nơi AI chép lời tiếng Việt và soạn bản nháp. Khoá AI không bao giờ nằm trên trình duyệt.',
         a: 'Bản chép lời giữ nguyên cách nói; chỗ nghe chưa rõ được đánh dấu “Cần kiểm tra”.',
         b: 'AI gợi ý một câu chuyện dễ đọc, hoặc một thẻ kinh nghiệm có cấu trúc.',
         c: 'Nếu xử lý lỗi, bản ghi gốc vẫn được giữ và bạn có thể thử lại.',
@@ -69,7 +66,7 @@ export default {
       a: 'Mọi mức giá đều là dự kiến và có thể thay đổi sau thử nghiệm.',
       b: 'Khi có gói chính thức, bạn sẽ được thông báo trước và tự chọn tham gia.',
       c: 'Dữ liệu tạo trong giai đoạn thử nghiệm vẫn thuộc về gia đình bạn.',
-      d: 'Sách in là kế hoạch; bản PDF in tại nhà sẽ có trước.',
+      d: 'Sách in mới chỉ là dự kiến; bản PDF để tự in tại nhà sẽ có trước.',
     },
   },
   orgs: {
@@ -96,14 +93,18 @@ export default {
       a: 'Người kể giữ quyền với lời kể của mình.',
       b: 'Không công bố khi chưa có đồng ý và chưa kiểm duyệt.',
       c: 'Không dùng nội dung để huấn luyện mô hình AI khi chưa được phép.',
-      d: 'Chương trình đang ở giai đoạn thử nghiệm; chưa có đối tác chính thức.',
     },
-    contactTitle: 'Muốn cùng thử nghiệm?',
-    contactBody: 'Để lại vài dòng về tổ chức của bạn để nhận tư vấn về chương trình thử nghiệm.',
+    contactTitle: 'Bạn muốn triển khai tại tổ chức?',
+    contactBody: 'Gửi vài dòng về tổ chức và điều bạn muốn ghi lại. Chúng tôi sẽ liên hệ để cùng xây một chương trình phù hợp.',
     contactCta: 'Gửi đề nghị tư vấn',
     form: {
       eyebrow: 'Liên hệ',
       title: 'Nhận tư vấn chương trình',
+      channelsTitle: 'Liên hệ trực tiếp',
+      call: 'Gọi điện',
+      email: 'Gửi email',
+      nextTitle: 'Sau khi bạn gửi thông tin',
+      next: { a: 'Bạn gửi thông tin tổ chức và nhu cầu.', b: 'Chúng tôi liên hệ lại để hiểu rõ hơn mong muốn của bạn.', c: 'Hai bên cùng lên kế hoạch cho chương trình phù hợp.' },
       lead: 'Cho chúng tôi biết tổ chức của bạn và điều bạn muốn ghi lại. Chúng tôi sẽ trả lời qua email hoặc số điện thoại bạn để lại.',
       name: 'Họ và tên',
       contact: 'Email hoặc số điện thoại',
@@ -116,7 +117,6 @@ export default {
       submit: 'Soạn email gửi đề nghị',
       opened: 'Đã mở ứng dụng email với nội dung của bạn, gửi tới {email}. Thư chưa được gửi cho tới khi bạn bấm Gửi ở đó. Nếu ứng dụng không mở, hãy gửi email trực tiếp tới địa chỉ này.',
       subject: 'Đề nghị tư vấn chương trình — {org}',
-      noChannel: 'Kênh tiếp nhận chính thức cho tổ chức đang được chuẩn bị; hiện chưa có biểu mẫu nào được lưu lại. Trong lúc chờ, hãy tạo tài khoản để trải nghiệm đầy đủ hành trình và nhận cập nhật khi chương trình mở.',
       errors: {
         required: 'Vui lòng điền mục này.',
         contactInvalid: 'Vui lòng nhập email hoặc số điện thoại hợp lệ.',
@@ -132,7 +132,7 @@ export default {
     sections: {
       scope: {
         title: 'Phạm vi',
-        body: 'Chính sách này áp dụng cho website và các tính năng của Di Sản Sống trong giai đoạn thử nghiệm, gồm chế độ kể chuyện, kho gia đình, kho tri thức và sách ký ức.',
+        body: 'Chính sách này áp dụng cho website và các tính năng của Di Sản Sống, gồm chế độ kể chuyện, kho gia đình, kho tri thức và sách ký ức.',
       },
       data: {
         title: 'Dữ liệu chúng tôi lưu',
@@ -180,7 +180,7 @@ export default {
       },
       changes: {
         title: 'Thay đổi chính sách',
-        body: 'Đây là bản dự thảo cho giai đoạn thử nghiệm. Khi có thay đổi quan trọng, chúng tôi sẽ thông báo trên website trước khi áp dụng.',
+        body: 'Khi có thay đổi quan trọng, chúng tôi sẽ thông báo trên website trước khi áp dụng.',
       },
     },
   },
@@ -191,8 +191,8 @@ export default {
     lead: 'Ngắn gọn, rõ ràng và đặt quyền của người kể lên trước.',
     sections: {
       pilot: {
-        title: 'Giai đoạn thử nghiệm',
-        body: 'Dịch vụ đang thử nghiệm, có thể thay đổi hoặc tạm dừng để cải tiến. Chúng tôi cố gắng giữ an toàn dữ liệu, nhưng khuyến khích gia đình tải về bản sao những nội dung quan trọng.',
+        title: 'Tính sẵn sàng của dịch vụ',
+        body: 'Dịch vụ có thể thay đổi hoặc tạm dừng để cải tiến. Chúng tôi cố gắng giữ an toàn dữ liệu, nhưng khuyến khích gia đình tải về bản sao những nội dung quan trọng.',
       },
       account: {
         title: 'Tài khoản',
@@ -254,9 +254,8 @@ export default {
     hero: {
       titleA: 'Giữ lại giọng kể,',
       titleB: 'in thành sách',
-      lead: 'Sách ký ức là một đầu ra của hành trình kể chuyện: con cháu đọc bằng mắt, quét QR để nghe bằng tai — đúng giọng ông bà, đúng đoạn được kể.',
+      lead: 'Sách ký ức là một cách giữ lại những câu chuyện đã kể: con cháu đọc bằng mắt, quét mã QR để nghe bằng tai — đúng giọng ông bà, đúng đoạn được kể.',
       secondary: 'Xem cách làm một cuốn sách',
-      videoNote: 'Các video trên trang là cảnh minh họa từ kho video, không phải gia đình dùng Di Sản Sống.',
     },
     video: {
       pause: 'Tạm dừng video nền',
@@ -271,7 +270,7 @@ export default {
     featured: {
       label: 'Đọc bằng mắt, nghe bằng tai',
       body: 'Mỗi chương có một mã QR. Quét bằng điện thoại là mở trang nghe của câu chuyện đó — giọng nói thật của người kể, không phải giọng máy đọc lại.',
-      explore: 'Khám phá kho tri thức',
+      explore: 'Xem kho tri thức',
     },
     stepsLabel: 'Năm bước',
     stepsTitle: 'Làm một cuốn sách',

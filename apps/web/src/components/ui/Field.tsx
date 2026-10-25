@@ -40,7 +40,7 @@ export function Field({ label, hint, error, required = false, hideLabel, id, cla
   return (
     <FieldContext.Provider value={{ id: fieldId, describedBy, invalid: Boolean(error), required }}>
       <div className={cn(baseDisplay('flex', className), 'flex-col gap-1.5', className)}>
-        <label htmlFor={fieldId} className={cn('text-[0.9rem] font-semibold text-ink', hideLabel && 'sr-only')}>
+        <label htmlFor={fieldId} className={cn('text-[0.95rem] font-semibold text-ink', hideLabel && 'sr-only')}>
           {label}
           {required && (
             <span aria-hidden="true" className="ml-0.5 text-terracotta">
@@ -50,12 +50,12 @@ export function Field({ label, hint, error, required = false, hideLabel, id, cla
         </label>
         {children}
         {hint && (
-          <p id={hintId} className="text-[0.8rem] leading-snug text-ink-soft">
+          <p id={hintId} className="text-[0.875rem] leading-snug text-ink-soft">
             {hint}
           </p>
         )}
         {error && (
-          <p id={errorId} role="alert" className="text-[0.82rem] font-medium leading-snug text-terracotta">
+          <p id={errorId} role="alert" className="text-[0.875rem] font-semibold leading-snug text-terracotta">
             {error}
           </p>
         )}
@@ -75,7 +75,7 @@ function useFieldProps<T extends { id?: string; 'aria-describedby'?: string; 'ar
 }
 
 const control =
-  'w-full rounded-2xl bg-paper px-4 text-[1rem] text-ink ring-1 ring-line placeholder:text-ink-soft transition-shadow duration-150 hover:ring-heritage/40 focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-heritage aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-terracotta disabled:cursor-not-allowed disabled:bg-cream disabled:opacity-70';
+  'w-full rounded-2xl bg-paper px-4 text-[1rem] text-ink ring-1 ring-line-strong placeholder:text-ink-soft/85 transition-shadow duration-150 hover:ring-heritage/60 focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-heritage aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-terracotta disabled:cursor-not-allowed disabled:bg-cream disabled:text-ink-soft disabled:opacity-80';
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   ref?: Ref<HTMLInputElement>;

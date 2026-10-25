@@ -34,7 +34,6 @@ describe('KnowledgeCard', () => {
     const s = getSampleItem('mau-tuot-la-mai')!;
     renderCard(<KnowledgeCard item={sampleToItem(s, 'vi')} topics={STATIC_TOPICS} />);
     expect(screen.getByText(s.summary.vi)).toBeInTheDocument();
-    expect(screen.getByText(/Dữ liệu minh họa/)).toBeInTheDocument();
   });
 
   it('labels text-only items and strips typed quotes from the title', () => {

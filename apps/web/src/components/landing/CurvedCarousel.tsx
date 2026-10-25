@@ -1,7 +1,6 @@
 import { Pause, Play } from 'lucide-react';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react';
 import { StoryScene } from '@/components/illustrations/scenes';
-import { IllustrativeBadge } from '@/components/ui';
 import { useReducedMotionSafe } from '@/design/motion';
 import { useT, usePick } from '@/i18n';
 import { cn } from '@/lib/cn';
@@ -295,10 +294,8 @@ export function CurvedCarousel({ stories, onPlay, className }: CurvedCarouselPro
           </div>
         ))}
       </div>
-      {/* Controls row under the band (never over a card): the cards show named people, so label them as illustrative
-          (the band itself is aria-hidden), plus the pause control. */}
-      <div className="mx-auto mt-3 flex min-h-12 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
-        <IllustrativeBadge />
+      {/* Controls row under the band (never over a card): the pause control. */}
+      <div className="mx-auto mt-3 flex min-h-12 max-w-[1264px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         {!reduced && (
           <button
             type="button"

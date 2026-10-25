@@ -60,17 +60,19 @@ function Shell({ narrator, children }: { narrator: boolean; children: ReactNode 
   useApplyTheme();
   return (
     <div className={cn('flex min-h-dvh flex-col bg-cream', narrator && 'narrator-mode')}>
-      <header className="flex min-h-16 items-center justify-between gap-3 border-b border-line bg-cream/95 px-4 py-2 md:px-8">
-        <Link to={isAnonymous ? '/ke-chuyen' : '/gia-dinh'} className="inline-flex min-h-12 items-center gap-2 rounded-full pr-3 font-semibold text-heritage hover:text-heritage-deep">
-          <ArrowLeft className="size-5" aria-hidden="true" />
-          <span className="sr-only sm:not-sr-only">{isAnonymous ? t('page.backNarrator') : t('page.backFamily')}</span>
-        </Link>
-        <div className="flex items-center gap-2">
-          <LanguageSwitch />
-          <ThemeToggle />
+      <header className="border-b border-line bg-cream/95">
+        <div className="mx-auto flex min-h-16 w-full max-w-6xl items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:px-8">
+          <Link to={isAnonymous ? '/ke-chuyen' : '/gia-dinh'} className="inline-flex min-h-12 items-center gap-2 rounded-full pr-3 font-semibold text-heritage hover:text-heritage-deep">
+            <ArrowLeft className="size-5" aria-hidden="true" />
+            <span className="sr-only sm:not-sr-only">{isAnonymous ? t('page.backNarrator') : t('page.backFamily')}</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            <LanguageSwitch />
+            <ThemeToggle />
+          </div>
         </div>
       </header>
-      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 pt-6 md:px-8 md:pt-8">
+      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 pt-6 sm:px-6 md:pt-8 lg:px-8">
         {children}
       </main>
     </div>
@@ -415,17 +417,17 @@ function StoryReview({ bundle, role, onReload }: { bundle: ReviewBundle; role: M
 
   // Desktop: a quieter sticky side rail (player at the top, the transcript scrolls inside it).
   const source = isDesktop ? (
-    <aside className="sticky top-6 flex max-h-[calc(100dvh-7.5rem)] flex-col rounded-[1.75rem] bg-paper/55 p-5 ring-1 ring-line/80">
+    <aside className="sticky top-6 flex max-h-[calc(100dvh-7.5rem)] flex-col rounded-2xl bg-paper/55 p-5 ring-1 ring-line/80">
       <SourcePanel recording={recording} transcriptState={transcriptState} onTranscriptStateChange={setTranscriptState} rail canEdit={canEdit} />
     </aside>
   ) : (
-    <div className="rounded-[1.75rem] bg-paper/55 p-4 ring-1 ring-line/80">
+    <div className="rounded-2xl bg-paper/55 p-4 ring-1 ring-line/80">
       <SourcePanel recording={recording} transcriptState={transcriptState} onTranscriptStateChange={setTranscriptState} canEdit={canEdit} />
     </div>
   );
   // The story text is the hero: a wide paper sheet with a comfortable serif editor.
   const draft = (
-    <section aria-labelledby="draft-heading" className="flex flex-col gap-4 rounded-[2rem] bg-paper px-5 py-6 shadow-[0_18px_40px_-32px_rgba(18,27,24,0.45)] ring-1 ring-line/80 md:px-10 md:py-9">
+    <section aria-labelledby="draft-heading" className="flex flex-col gap-4 rounded-2xl bg-paper px-5 py-6 shadow-[0_18px_40px_-32px_rgba(18,27,24,0.45)] ring-1 ring-line/80 md:px-10 md:py-9">
       <h2 id="draft-heading" className="text-[0.82rem] font-semibold uppercase tracking-[0.14em] text-ink-soft">
         {t('editor.heading')}
       </h2>
@@ -470,7 +472,7 @@ function StoryReview({ bundle, role, onReload }: { bundle: ReviewBundle; role: M
 
   return (
     <div className="flex flex-col gap-6">
-      <header className="overflow-hidden rounded-[2rem] ring-1 ring-line/80" style={{ background: visual.band, color: visual.ink }}>
+      <header className="overflow-hidden rounded-2xl ring-1 ring-line/80" style={{ background: visual.band, color: visual.ink }}>
         <div className="grid items-stretch md:grid-cols-[1fr_200px]">
           <div className="flex min-w-0 flex-col gap-3 p-6 md:p-9">
             <p className="text-[0.8rem] font-semibold uppercase tracking-[0.16em] opacity-85">

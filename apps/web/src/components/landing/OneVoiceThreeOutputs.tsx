@@ -2,7 +2,7 @@ import { TriangleAlert, BadgeCheck, BookOpenText, FileText, Lock, Sprout } from 
 import { useCallback, useState } from 'react';
 import { StoryScene } from '@/components/illustrations/scenes';
 import { Reveal } from '@/components/motion';
-import { AudioPlayer, Badge, IllustrativeBadge, Tab, TabList, TabPanel, Tabs } from '@/components/ui';
+import { AudioPlayer, Badge, Tab, TabList, TabPanel, Tabs } from '@/components/ui';
 import { usePick, useT } from '@/i18n';
 import { cn } from '@/lib/cn';
 import { formatDuration } from '@/lib/format';
@@ -15,7 +15,7 @@ function highlightUncertain(text: string, label: string) {
   return (
     <>
       {parts[0]}
-      <mark className="rounded-md bg-[#fbecc8] px-1.5 py-0.5 font-sans text-[0.78em] font-semibold text-[#6b4a0c]">[?] {label}</mark>
+      <mark className="rounded-md bg-warning-bg px-1.5 py-0.5 font-sans text-[0.78em] font-semibold text-warning-fg">[?] {label}</mark>
       {parts[1]}
     </>
   );
@@ -61,23 +61,19 @@ export function OneVoiceThreeOutputs() {
   return (
     <Section id="dau-ra" labelledBy="outputs-title" className="cv-section">
       <SectionHeading id="outputs-title" eyebrow={t('outputs.eyebrow')} title={t('outputs.title')} lead={t('outputs.lead')} />
-      <div className="mt-12 grid grid-cols-1 gap-6 lg:mt-16 lg:grid-cols-12 lg:gap-8">
+      <div className="mt-8 grid grid-cols-1 gap-6 lg:mt-10 lg:grid-cols-12 lg:gap-8">
         {/* Source narration */}
         <Reveal className="lg:col-span-4">
           <div className="lp-dark-card flex h-full flex-col overflow-hidden rounded-[1.75rem] bg-heritage-deep text-night-ink">
             <div className="relative h-56 overflow-hidden bg-[#F5EDDA]">
               <StoryScene kind="garden" className="absolute inset-0" />
-              <div className="absolute left-4 top-4">
-                <IllustrativeBadge />
-              </div>
             </div>
             <div className="flex flex-1 flex-col gap-4 p-6">
               <div>
-                <p className="text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-mint-fixed">{t('outputs.narration')}</p>
+                <p className="text-[0.8125rem] font-semibold uppercase tracking-[0.12em] text-mint-fixed">{t('outputs.narration')}</p>
                 <p className="mt-1 font-serif text-[1.2rem] font-semibold">{pick(s.narrator)}</p>
               </div>
               <AudioPlayer compact tone="dark" duration={s.duration} onTime={onTime} title={pick(s.story.title)} />
-              <p className="text-[0.82rem] leading-relaxed text-night-ink/75">{t('ui.player.simulated')}</p>
             </div>
           </div>
         </Reveal>
@@ -85,21 +81,18 @@ export function OneVoiceThreeOutputs() {
         {/* Outputs */}
         <Reveal delay={0.1} className="lg:col-span-8">
           <Tabs defaultValue="story" className="flex h-full flex-col">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <TabList label={t('outputs.tabsLabel')} className="flex-wrap rounded-[1.75rem]">
-                <Tab value="story" icon={<BookOpenText />}>
+            <div className="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+              <TabList label={t('outputs.tabsLabel')} className="w-full flex-col overflow-visible rounded-3xl sm:w-auto sm:flex-row sm:flex-wrap sm:rounded-[1.75rem]">
+                <Tab value="story" icon={<BookOpenText />} className="w-full justify-start sm:w-auto">
                   {t('outputs.tabs.story')}
                 </Tab>
-                <Tab value="card" icon={<Sprout />}>
+                <Tab value="card" icon={<Sprout />} className="w-full justify-start sm:w-auto">
                   {t('outputs.tabs.card')}
                 </Tab>
-                <Tab value="transcript" icon={<FileText />}>
+                <Tab value="transcript" icon={<FileText />} className="w-full justify-start sm:w-auto">
                   {t('outputs.tabs.transcript')}
                 </Tab>
               </TabList>
-              <Badge tone="outline" size="sm">
-                {t('meta.simulatedAi')}
-              </Badge>
             </div>
 
             <div className="mt-4 flex-1 rounded-[1.75rem] bg-paper p-3 ring-1 ring-line sm:p-6 md:p-8">
@@ -113,7 +106,7 @@ export function OneVoiceThreeOutputs() {
                   ))}
                 </ol>
                 <p className="mt-5 flex items-start gap-2 border-t border-line pt-4 text-[0.85rem] text-ink-soft">
-                  <TriangleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-[#a0700f]" />
+                  <TriangleAlert aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-warning-fg" />
                   {t('outputs.uncertainHint')}
                 </p>
               </TabPanel>
@@ -132,7 +125,7 @@ export function OneVoiceThreeOutputs() {
                   </div>
                   <p className="mt-6 text-[0.85rem] text-ink-soft">{t('outputs.storyNote')}</p>
                   <div className="mt-5 rounded-2xl bg-cream p-4 ring-1 ring-line">
-                    <p className="text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-heritage">{t('outputs.fields.source')}</p>
+                    <p className="text-[0.8125rem] font-semibold uppercase tracking-[0.12em] text-heritage">{t('outputs.fields.source')}</p>
                     <p className="mt-1 leading-relaxed text-ink">{pick(s.card.source)}</p>
                   </div>
                 </article>
@@ -143,12 +136,12 @@ export function OneVoiceThreeOutputs() {
                 <dl className="mt-6 grid grid-cols-1 gap-x-8 gap-y-5 md:grid-cols-2">
                   {fields.map((f) => (
                     <div key={f.key} className={cn(f.key === 'skill' && 'md:col-span-2')}>
-                      <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{t(`outputs.fields.${f.key}`)}</dt>
+                      <dt className="text-[0.8125rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{t(`outputs.fields.${f.key}`)}</dt>
                       <dd className={cn('mt-1.5 leading-relaxed text-ink', f.key === 'skill' && 'font-serif text-[1.35rem] font-semibold leading-snug text-heritage-deep')}>{f.value}</dd>
                     </div>
                   ))}
                   <div className="md:col-span-2">
-                    <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{t('outputs.fields.steps')}</dt>
+                    <dt className="text-[0.8125rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{t('outputs.fields.steps')}</dt>
                     <dd className="mt-2">
                       <ol className="flex flex-col gap-2">
                         {s.card.steps.map((step, i) => (
@@ -164,12 +157,12 @@ export function OneVoiceThreeOutputs() {
                   </div>
                   {after.map((f) => (
                     <div key={f.key}>
-                      <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{t(`outputs.fields.${f.key}`)}</dt>
+                      <dt className="text-[0.8125rem] font-semibold uppercase tracking-[0.12em] text-terracotta">{t(`outputs.fields.${f.key}`)}</dt>
                       <dd className="mt-1.5 leading-relaxed text-ink">{f.value}</dd>
                     </div>
                   ))}
                   <div className="rounded-2xl bg-cream p-4 ring-1 ring-line md:col-span-2">
-                    <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.12em] text-heritage">{t('outputs.fields.source')}</dt>
+                    <dt className="text-[0.8125rem] font-semibold uppercase tracking-[0.12em] text-heritage">{t('outputs.fields.source')}</dt>
                     <dd className="mt-1 leading-relaxed text-ink">{pick(s.card.source)}</dd>
                   </div>
                 </dl>

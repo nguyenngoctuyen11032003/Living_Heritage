@@ -25,7 +25,7 @@ export function HowItWorks({ showLink = true, headingLevel = 2 }: { showLink?: b
             </div>
           ) : undefined
         } />
-      <ol className="relative mt-14 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:mt-16 lg:grid-cols-4 lg:gap-6">
+      <ol className="relative mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:mt-10 lg:grid-cols-4 lg:gap-6">
         <span aria-hidden="true" className="pointer-events-none absolute left-[12%] right-[12%] top-[3.25rem] hidden border-t-2 border-dashed border-heritage/20 lg:block" />
         {STEPS.map(({ key, icon: Icon, who }, i) => (
           <Reveal as="li" key={key} delay={i * 0.1} className="relative">
@@ -54,7 +54,7 @@ export function HowItWorks({ showLink = true, headingLevel = 2 }: { showLink?: b
         ))}
       </ol>
       {showLink && (
-        <div className="mt-12 flex justify-center">
+        <div className="mt-8 flex justify-center">
           <PrimaryCta size="lg" />
         </div>
       )}

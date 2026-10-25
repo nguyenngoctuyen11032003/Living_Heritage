@@ -11,7 +11,6 @@ export default {
       fwd10: 'Forward 10 seconds',
       seek: 'Playback position',
       timeOf: '{current} of {total}',
-      simulated: 'Simulated playback — this illustrative sample has no sound.',
       error: 'This recording couldn’t be played. Please try again later.',
     },
     dialog: { close: 'Close dialog' },
@@ -36,11 +35,9 @@ export default {
     age: 'age {age}',
     illustrative: 'Illustrative data',
     planned: 'Planned',
-    simulatedAi: 'Simulated AI output',
     minutes: '{n} min',
   },
   hero: {
-    badge: 'In pilot · 2026',
     line1: 'Keep their voices,',
     line2: 'pass on what they know',
     sub: 'Grandparents simply talk, in Vietnamese, the way they would at the dinner table. AI transcribes and drafts a clean version. The storyteller reads it, corrects it and approves it before anyone else can see it.',
@@ -75,7 +72,7 @@ export default {
     items: {
       tell: { label: 'Grandparents tell', title: 'Tell it in your own voice', body: 'Pick a topic, hear a gentle prompt and press one button to talk. No typing, no app to install.', cta: 'Try storytelling mode' },
       keep: { label: 'Families keep', title: 'A private vault for the whole family', body: 'Original recordings, transcripts and approved stories, organised by storyteller, topic and year.', cta: 'See the family vault' },
-      learn: { label: 'Young people learn', title: 'Learn from people who did it', body: 'Find cooking, gardening and craft know-how — only from what storytellers agreed to share.', cta: 'Explore knowledge' },
+      learn: { label: 'Young people learn', title: 'Learn from people who did it', body: 'Find cooking, gardening and craft know-how — only from what storytellers agreed to share.', cta: 'Open the knowledge hub' },
     },
   },
   how: {
@@ -116,7 +113,6 @@ export default {
     eyebrow: 'Three homes for one story',
     title: 'Keep it private, share it selectively, print it as a book',
     illoCaption: 'The original voice always travels with the text — hear the exact words, in the exact voice.',
-    illoTag: 'Illustrative waveform',
     more: 'Learn more',
     cards: {
       vault: {
@@ -138,7 +134,7 @@ export default {
     title: 'Learn from people who did it all their lives',
     lead: 'Every card says who told it, where, and when it applies — and it only appears once the storyteller has agreed.',
     searchLabel: 'Search the knowledge hub',
-    searchPlaceholder: 'Try “braised fish”, “mai leaves”, “bamboo basket”…',
+    searchPlaceholder: 'Try “braised fish”, “bamboo basket”…',
     searchCta: 'Search',
     seeAll: 'Browse the whole hub',
     kinds: { experience: 'Know-how', story: 'Story' },
@@ -149,7 +145,6 @@ export default {
     lead: 'Pick approved stories, arrange them into chapters and print. Each chapter carries a QR code so grandchildren can scan it and hear the story in their grandparent’s own voice.',
     qrTitle: 'Hear the original',
     qrDuration: '1:12',
-    qrHint: 'Scan to open the listening page (this sample links to the knowledge hub).',
     qrLabel: 'QR code that opens the original recording',
     coverTitle: 'Grandma’s Mai Seasons',
     coverAuthor: 'As told by Grandma Tư',
@@ -165,7 +160,6 @@ export default {
     plannedNote: 'Printed books are planned and not yet available to order. The PDF edition comes first.',
     cta: 'Explore memory books',
     flip: 'Open the sample book cover',
-    sampleLabel: 'Illustrative sample — not generated from user data',
   },
   trust: {
     eyebrow: 'Rights and trust',
@@ -184,16 +178,20 @@ export default {
     title: 'Planned pricing, transparent from the start',
     lead: 'During the pilot, Living Heritage is free. The prices below are planned and shown for reference only.',
     planned: 'Planned price — nothing is charged yet',
-    month: { name: 'Monthly', price: '149,000₫', unit: '/month', body: 'A good way to start with one storyteller.' },
-    year: { name: 'Yearly', price: '1,490,000₫', unit: '/year', body: 'About two months free, for the whole family.', badge: 'Best value' },
-    book: { name: 'Printed book', price: '2,500,000₫', unit: '/copy', body: 'A hardcover book with a QR code in every chapter.' },
+    audience: { family: 'For families', org: 'For organisations' },
+    trial: { name: 'Family Memories', price: '0₫', unit: '14-day free trial' },
+    month: { name: 'Family Memories - Filial Piety', price: '79,000₫', unit: '/month' },
+    year: { name: 'Family Memories - Gratitude', price: '699,000₫', unit: '/year', badge: 'Best value' },
+    book: { name: 'Memory Book - Family Legacy', price: '499,000₫', unit: '/copy · one-off' },
+    program: { name: 'Documentation / Craft Transmission Programme', price: '12,000,000₫', unit: '/programme · all-inclusive' },
+    license: { name: 'Digital Content Licence - Living Encyclopedia', price: '10,000,000₫', unit: '/year' },
     includes: {
-      a: 'Unlimited topics to talk about',
-      b: 'Vietnamese transcription and drafts by AI',
-      c: 'Private family vault',
-      d: 'Invite family members',
-      e: 'Hardcover, fine-art paper',
-      f: 'QR codes to the original voice',
+      trial: { a: '2 AI voice interviews', b: 'Automatic transcript of 1 short story', c: 'Raw text draft to read and try' },
+      month: { a: 'Unlimited voice interviews', b: 'Family audio and text vault stored in the cloud', c: 'AI edits recordings into themed stories' },
+      year: { a: 'All monthly benefits (12 months)', b: '1 e-book / short video for Tet or birthday celebrations', c: 'Private viewing permissions' },
+      book: { a: '1 premium hardcover printed book (150-200 pages)', b: 'Editor review and professional layout', c: 'QR codes to hear your grandparents’ original voice' },
+      program: { a: 'Digitise the know-how of 5-10 master artisans', b: 'Publish a digital documentary set', c: 'Host 1 hands-on craft-sharing event' },
+      license: { a: 'Access to a structured digital archive', b: 'For teaching history, culture and experiential learning', c: 'New material added every quarter' },
     },
     interestTitle: 'Thank you for your interest',
     interestBody: 'We don’t charge anything yet and we don’t take payments. Registering interest only lets the coordination team note your need; when official plans launch you’ll hear from us first, and the choice to join is entirely yours.',
@@ -223,7 +221,6 @@ export default {
   },
   home: {
     hero: {
-      video: 'The background video is illustrative stock footage, not a family using Living Heritage.',
       shortcuts: 'Shortcuts',
     },
     about: {
@@ -241,7 +238,7 @@ export default {
     },
     services: {
       title: 'One story, many places to live on',
-      label: 'Explore further',
+      label: 'See more',
       explore: { tag: 'Explore knowledge', title: 'Know-how from those who came before', link: 'Open the knowledge hub' },
       book: { tag: 'Memory books', title: 'A book that speaks', link: 'See memory books' },
       org: { tag: 'For organizations', title: 'Record a community’s memories', link: 'See the programme for organizations' },
@@ -282,9 +279,6 @@ export default {
       privacy: 'Privacy',
       terms: 'Terms of use',
     },
-    status: 'This project is in its pilot phase',
-    statusBody: 'All figures, characters and stories on the introduction pages are illustrative.',
-    backToTop: 'Back to top',
     quick: 'Quick start',
   },
 } satisfies Shape<typeof vi>;

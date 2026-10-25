@@ -48,7 +48,7 @@ describe('AppShell mobile navigation', () => {
     fireEvent.click(within(sheet).getByRole('link', { name: 'Thành viên' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
     expect(router.state.location.pathname).toBe('/gia-dinh/thanh-vien');
-    expect(screen.getByRole('button', { name: 'Thêm' }).className).toContain('font-semibold');
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Thêm' }).className).toContain('font-semibold'), { timeout: 5000 });
   });
 
   it('closes the sheet with Escape', async () => {

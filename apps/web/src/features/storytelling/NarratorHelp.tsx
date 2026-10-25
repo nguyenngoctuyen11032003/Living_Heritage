@@ -13,14 +13,14 @@ export function NarratorHelpButton({ onOpen }: { onOpen: () => void }) {
   return (
     <NarratorHelpSlot>
       <Button
-        size="md"
+        size="lg"
         variant="secondary"
         onClick={() => {
           track('help_opened');
           onOpen();
         }}
         leftIcon={<CircleHelp className="size-5 shrink-0" aria-hidden="true" />}
-        className="text-[1.05rem]"
+        className="text-[1.25rem]!"
       >
         {t('help')}
       </Button>

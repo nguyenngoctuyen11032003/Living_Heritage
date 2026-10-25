@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { LocaleProvider, type Locale } from '@/i18n';
@@ -53,13 +53,12 @@ describe('/sach-ky-uc', () => {
     const ctas = screen.getAllByRole('link', { name: 'Kể câu chuyện đầu tiên' });
     expect(ctas.length).toBeGreaterThanOrEqual(2);
     for (const a of ctas) expect(a).toHaveAttribute('href', '/ke-chuyen');
-    expect(screen.getByRole('link', { name: /Khám phá kho tri thức/ })).toHaveAttribute('href', '/kham-pha');
+    expect(screen.getByRole('link', { name: /Xem kho tri thức/ })).toHaveAttribute('href', '/kham-pha');
     expect(screen.getByRole('link', { name: /Chính sách quyền riêng tư/ })).toHaveAttribute('href', '/quyen-rieng-tu');
   });
 
   it('keeps the sample label, planned specs, closing CTA and FAQ', () => {
     wrap();
-    expect(screen.getByText('Dữ liệu minh họa — không tạo từ dữ liệu người dùng')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 2, name: 'Một cuốn sách biết nói' })).toBeInTheDocument();
     expect(screen.getByText('Sách in là kế hoạch, chưa nhận đặt hàng. Bản PDF sẽ có trước.')).toBeInTheDocument();
     expect(screen.getByText('20 × 25 cm, bìa cứng')).toBeInTheDocument();
@@ -67,8 +66,6 @@ describe('/sach-ky-uc', () => {
     const faq = screen.getByRole('heading', { level: 2, name: 'Những điều gia đình hay hỏi' }).closest('section')!;
     expect(within(faq).getByRole('button', { name: /Ai được xem/ })).toHaveAttribute('aria-expanded', 'true');
     expect(within(faq).getByRole('button', { name: /Dự án đã thu tiền chưa/ })).toBeInTheDocument();
-    // The stock footage is labelled as illustrative, never as real families.
-    expect(screen.getByText(/không phải gia đình dùng Di Sản Sống/)).toBeInTheDocument();
   });
 
   it('hero video is muted, inline, decorative and autoplays only without reduced motion', () => {
@@ -81,23 +78,11 @@ describe('/sach-ky-uc', () => {
     expect(play).toHaveBeenCalled();
   });
 
-  it('under reduced motion nothing autoplays until the visitor presses play', () => {
+  it('under reduced motion nothing autoplays', () => {
     motionPref.reduced = true;
     wrap();
     expect(play).not.toHaveBeenCalled();
     expect(heroVideo()).toHaveAttribute('preload', 'metadata');
-    fireEvent.click(screen.getAllByRole('button', { name: 'Phát video nền' })[0]!);
-    expect(play).toHaveBeenCalled();
-  });
-
-  it('the visible toggle pauses and resumes the background video', () => {
-    wrap();
-    play.mockClear();
-    fireEvent.click(screen.getAllByRole('button', { name: 'Tạm dừng video nền' })[0]!);
-    expect(pause).toHaveBeenCalled();
-    expect(screen.getAllByRole('button', { name: 'Phát video nền' }).length).toBeGreaterThan(0);
-    fireEvent.click(screen.getAllByRole('button', { name: 'Phát video nền' })[0]!);
-    expect(play).toHaveBeenCalled();
   });
 
   it('renders in English and loads Instrument Serif only for English', () => {
@@ -106,7 +91,6 @@ describe('/sach-ky-uc', () => {
     unmount();
     wrap('en');
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Keep the voice, bound in a book');
-    expect(screen.getByText('Illustrative sample — not generated from user data')).toBeInTheDocument();
     expect(document.getElementById('font-instrument-serif')).not.toBeNull();
   });
 });

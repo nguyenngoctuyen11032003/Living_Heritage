@@ -65,7 +65,7 @@ export function QuestionsTab() {
       <ListState status={q.status} empty={topics.length === 0} emptyTitle={t('questions.emptyTitle')} emptyBody={t('questions.emptyBody')} onRetry={q.reload}>
         {topic && q.data && (
           <div className="flex flex-col gap-5">
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-[1.5rem] bg-paper p-5 ring-1 ring-line">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-paper p-5 ring-1 ring-line">
               <div className="min-w-0">
                 <h3 className="font-serif text-[1.2rem] font-semibold leading-snug text-heritage-deep">{title(topic)}</h3>
                 <p className="mt-1">
@@ -155,7 +155,7 @@ function AddQuestion({ topicId, sort, onAdded }: { topicId: string; sort: number
   }
 
   return (
-    <section aria-labelledby="add-question" className="rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-6">
+    <section aria-labelledby="add-question" className="rounded-2xl bg-paper p-5 ring-1 ring-line md:p-6">
       <h3 id="add-question" className="font-semibold text-ink">
         {t('questions.addTitle')}
       </h3>

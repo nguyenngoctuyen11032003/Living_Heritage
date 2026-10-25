@@ -24,7 +24,7 @@ export default function StorytellingHome() {
   const topics = useAsync(async () => (sb ? fetchTopics(sb) : []), [sb]);
 
   useEffect(() => {
-    document.title = `${t('home.topicsLabel')} · Di Sản Sống`;
+    document.title = t('home.topicsLabel');
   }, [t, locale]);
 
   if (ctx.status !== 'ready') return <StorytellerGate ctx={ctx} />;
@@ -80,7 +80,7 @@ export default function StorytellingHome() {
               <li key={topic.id} className="min-w-0">
                 <Link to={`/ke-chuyen/chu-de/${topic.slug}${query}`} className={cardClass}>
                   <span className="flex size-14 items-center justify-center rounded-2xl bg-mint text-heritage">
-                    <TopicIcon slug={topic.slug} className="size-8" />
+                    <TopicIcon slug={topic.slug} className="size-7" />
                   </span>
                   <span className="flex min-w-0 flex-wrap items-center justify-between gap-3">
                     <span className="min-w-0 font-serif text-[1.6rem] font-semibold leading-snug text-ink [overflow-wrap:break-word] hyphens-auto">{pick({ vi: topic.title_vi, en: topic.title_en })}</span>
@@ -93,7 +93,7 @@ export default function StorytellingHome() {
               <Link to={`/ke-chuyen/chu-de/${EASY_SLUG}${query}`} className={`${cardClass} @container bg-mint/60 sm:flex-row sm:items-center`}>
                 <span className="flex min-w-0 flex-col items-start gap-4 @[16rem]:flex-row @[16rem]:items-center">
                   <span className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-paper text-terracotta">
-                    <Lightbulb className="size-8" aria-hidden="true" />
+                    <Lightbulb className="size-7" aria-hidden="true" />
                   </span>
                   <span className="flex min-w-0 flex-col">
                     <span className="font-serif text-[1.6rem] font-semibold leading-snug text-ink [overflow-wrap:break-word] hyphens-auto">{t('home.unsureTitle')}</span>

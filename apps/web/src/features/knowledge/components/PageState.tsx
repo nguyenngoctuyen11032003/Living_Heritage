@@ -15,7 +15,7 @@ export interface PageStateProps {
  */
 export function PageState({ icon, title, description, action, className }: PageStateProps) {
   return (
-    <div className={cn('flex flex-col items-center rounded-[1.75rem] border border-dashed border-line bg-paper/70 px-6 py-12 text-center', className)}>
+    <div className={cn('flex flex-col items-center rounded-2xl border border-dashed border-line bg-paper/70 px-6 py-12 text-center', className)}>
       {icon && (
         <div aria-hidden="true" className="mb-4 inline-flex size-14 items-center justify-center rounded-2xl bg-mint text-heritage [&>svg]:size-7">
           {icon}

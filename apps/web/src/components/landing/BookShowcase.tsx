@@ -1,4 +1,4 @@
-import { Info, Play } from 'lucide-react';
+import { Play } from 'lucide-react';
 import { useState } from 'react';
 import { StoryScene } from '@/components/illustrations/scenes';
 import { Reveal } from '@/components/motion';
@@ -33,14 +33,14 @@ export function Book3D({ className }: { className?: string }) {
         <div className="absolute inset-y-1.5 left-1 right-0 rounded-r-md bg-[repeating-linear-gradient(90deg,#f3eee2_0px,#f3eee2_2px,#e7e0cf_3px)] shadow-[0_40px_60px_-30px_rgba(18,27,24,0.55)] [transform:translateZ(-18px)]" />
         {/* inner page */}
         <div className="absolute inset-y-1 left-0 right-1 flex flex-col rounded-r-md bg-paper p-6 text-left ring-1 ring-line [transform:translateZ(-2px)] sm:p-7">
-          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.16em] text-terracotta">{t('book.pageChapter')}</p>
+          <p className="text-[0.8125rem] font-semibold uppercase tracking-[0.16em] text-terracotta">{t('book.pageChapter')}</p>
           <div className="mt-4 h-28 overflow-hidden rounded-lg bg-[#F5EDDA] sm:h-32">
             <StoryScene kind="garden" />
           </div>
           <p className="mt-4 font-serif text-[1rem] italic leading-relaxed text-ink sm:text-[1.08rem]">{t('book.pageQuote')}</p>
           <div className="mt-auto flex items-center gap-3 border-t border-line pt-3">
             <QrCode value={siteHref('/kham-pha')} label={t('book.qrLabel')} size={44} margin={1} />
-            <span className="text-[0.72rem] leading-tight text-ink-soft">
+            <span className="text-[0.8125rem] leading-tight text-ink-soft">
               {t('book.qrTitle')} · {t('book.qrDuration')}
             </span>
           </div>
@@ -56,7 +56,7 @@ export function Book3D({ className }: { className?: string }) {
           <div className="absolute inset-0 flex flex-col overflow-hidden rounded-r-md rounded-l-sm bg-[#163a31] p-7 text-left text-[#e9e4d4] shadow-[inset_8px_0_14px_-8px_rgba(0,0,0,0.5)] [:root[data-theme='dark']_&]:ring-1 [:root[data-theme='dark']_&]:ring-[#d8b46a]/25">
             <div aria-hidden="true" className="bg-noise pointer-events-none absolute inset-0 opacity-[0.05]" />
             <div className="absolute inset-3 rounded-sm border border-[#d8b46a]/40" aria-hidden="true" />
-            <p className="relative text-[0.7rem] font-semibold uppercase tracking-[0.2em] text-[#d8b46a]">{t('manifesto.wordmark')}</p>
+            <p className="relative text-[0.8125rem] font-semibold uppercase tracking-[0.2em] text-[#d8b46a]">{t('manifesto.wordmark')}</p>
             <div className="relative mx-auto mt-6 size-28 overflow-hidden rounded-full ring-2 ring-[#d8b46a]/50 sm:size-32">
               <StoryScene kind="garden" />
             </div>
@@ -78,10 +78,6 @@ export function BookShowcase({ showLink = true }: { showLink?: boolean }) {
         <Reveal className="relative order-2 lg:order-1 lg:col-span-6">
           <div className="relative mx-auto flex max-w-xl flex-col items-center justify-center gap-8 overflow-hidden rounded-[2rem] bg-mint/70 px-6 py-12 sm:min-h-[34rem] sm:py-14">
             <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(50%_50%_at_45%_45%,rgba(255,255,255,0.75),rgba(255,255,255,0))]" />
-            {/* The cover, quote and "1:12" are a mock-up of a book that does not exist yet (NT03, B9). */}
-            <Badge tone="warning" size="sm" icon={<Info />} className="relative z-10 max-w-full whitespace-normal text-center sm:absolute sm:left-4 sm:top-4">
-              {t('book.sampleLabel')}
-            </Badge>
             <Book3D className="relative sm:-translate-x-16" />
             {/* QR card */}
             <div className="relative w-[11rem] rotate-[4deg] rounded-[1.25rem] bg-paper p-3 shadow-[0_24px_50px_-24px_rgba(18,27,24,0.45)] ring-1 ring-line sm:absolute sm:bottom-8 sm:right-5 sm:w-[10.5rem]">
@@ -90,7 +86,7 @@ export function BookShowcase({ showLink = true }: { showLink?: boolean }) {
               </div>
               <div className="mt-3 flex items-center gap-2.5">
                 <span aria-hidden="true" className="inline-flex size-9 items-center justify-center rounded-full bg-heritage text-cream">
-                  <Play className="ml-0.5 size-3.5 fill-current" />
+                  <Play className="ml-0.5 size-4 fill-current" />
                 </span>
                 <span className="text-[0.85rem] font-semibold leading-tight text-ink">
                   {t('book.qrTitle')} · <span className="tabular-nums">{t('book.qrDuration')}</span>
@@ -112,13 +108,12 @@ export function BookShowcase({ showLink = true }: { showLink?: boolean }) {
             <dl className="mt-4 grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-line ring-1 ring-line">
               {SPECS.map((k) => (
                 <div key={k} className="bg-paper p-4 sm:p-5">
-                  <dt className="text-[0.75rem] font-semibold uppercase tracking-[0.1em] text-ink-soft">{t(`book.specs.${k}.label`)}</dt>
+                  <dt className="text-[0.8125rem] font-semibold uppercase tracking-[0.1em] text-ink-soft">{t(`book.specs.${k}.label`)}</dt>
                   <dd className="mt-1 font-semibold leading-snug text-ink">{t(`book.specs.${k}.value`)}</dd>
                 </div>
               ))}
             </dl>
             <p className="mt-4 text-[0.9rem] leading-relaxed text-ink-soft">{t('book.plannedNote')}</p>
-            <p className="mt-2 text-[0.82rem] text-ink-soft">{t('book.qrHint')}</p>
             {showLink && (
               <div className="mt-6">
                 <ArrowLink to="/sach-ky-uc">{t('book.cta')}</ArrowLink>

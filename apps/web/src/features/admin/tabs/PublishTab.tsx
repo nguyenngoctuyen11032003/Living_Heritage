@@ -50,12 +50,12 @@ export function PublishTab() {
 
   return (
     <div>
-      <p className="mb-6 flex items-start gap-3 rounded-2xl bg-[#fdf6e3] px-5 py-4 text-[0.92rem] leading-relaxed text-[#5b430f] ring-1 ring-[#e9d6a6]">
+      <p className="mb-6 flex items-start gap-3 rounded-2xl bg-warning-bg px-5 py-4 text-[0.92rem] leading-relaxed text-warning-fg ring-1 ring-warning-line">
         <Info aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
         {t('publish.audioNotice')}
       </p>
       {handled.length > 0 && (
-        <section aria-labelledby="handled-title" className="mb-8 rounded-[1.5rem] bg-paper p-5 ring-1 ring-line">
+        <section aria-labelledby="handled-title" className="mb-8 rounded-2xl bg-paper p-5 ring-1 ring-line">
           <h3 id="handled-title" className="font-serif text-[1.1rem] font-semibold text-heritage-deep">
             {t('publish.recent')}
           </h3>
@@ -147,10 +147,10 @@ function PendingCard({ row, onDone }: { row: PendingRow; onDone: (h: Handled) =>
 
   const previewId = `preview-${row.id}`;
   return (
-    <li className="rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-7">
+    <li className="rounded-2xl bg-paper p-5 ring-1 ring-line md:p-7">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[0.78rem] font-bold uppercase tracking-[0.14em] text-terracotta">
+          <p className="text-[0.8125rem] font-bold uppercase tracking-[0.14em] text-terracotta">
             {row.story ? tk(`kinds.${row.story.kind}`) : '—'}
             <span className="font-normal normal-case tracking-normal text-ink-soft"> · {t('publish.requestedAt', { time: dt(row.requested_at) })}</span>
           </p>
@@ -175,7 +175,7 @@ function PendingCard({ row, onDone }: { row: PendingRow; onDone: (h: Handled) =>
 
       {open && (
         <div id={previewId} className="mt-5 rounded-[1.25rem] border border-dashed border-heritage/30 bg-cream p-5 md:p-7">
-          <p className="text-[0.75rem] font-bold uppercase tracking-[0.16em] text-heritage">{t('publish.previewTitle')}</p>
+          <p className="text-[0.8125rem] font-bold uppercase tracking-[0.16em] text-heritage">{t('publish.previewTitle')}</p>
           {preview.status === 'loading' && (
             <p className="mt-3 flex items-center gap-2 text-ink-soft" role="status">
               <Spinner size="sm" decorative />
@@ -253,7 +253,7 @@ function ReindexPanel() {
   }
 
   return (
-    <div className="mb-6 rounded-[1.5rem] bg-paper p-5 ring-1 ring-line md:p-6">
+    <div className="mb-6 rounded-2xl bg-paper p-5 ring-1 ring-line md:p-6">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <Button variant="secondary" onClick={() => void run()} loading={busy} leftIcon={<DatabaseZap aria-hidden="true" className="size-4" />} className="max-w-full">
           {t('publish.reindex')}

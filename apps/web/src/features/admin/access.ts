@@ -22,7 +22,7 @@ export function resolveAdminAccess(i: AdminAccessInput): AdminAccess {
   return i.adminCheck === 'yes' ? 'ready' : 'forbidden';
 }
 
-export const ADMIN_TABS = ['publish', 'reports', 'connect', 'deletion', 'aiJobs', 'questions', 'metrics'] as const;
+export const ADMIN_TABS = ['publish', 'reports', 'connect', 'deletion', 'aiJobs', 'questions', 'metrics', 'loginLink'] as const;
 export type AdminTab = (typeof ADMIN_TABS)[number];
 
 /** Tabs are rendered (and their data queried) only once the server confirmed is_admin(). */

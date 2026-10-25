@@ -6,7 +6,7 @@ import { PrimaryCta } from './shared';
 export function FinalCta() {
   const t = useT('landing');
   return (
-    <section aria-labelledby="final-title" className="cv-section px-4 pb-24 pt-4 hyphens-auto wrap-anywhere md:pb-32">
+    <section aria-labelledby="final-title" className="cv-section px-4 pb-12 pt-4 hyphens-auto wrap-anywhere md:pb-20">
       <Reveal className="relative mx-auto max-w-4xl text-center">
         <DrawArrow viewBox="0 0 80 40" className="mx-auto mb-4 h-10 w-20" d="M6 30 C 22 4, 52 4, 74 26" head="M60 26 L 75 27 L 72 12" />
         <h2 id="final-title" className="text-balance font-serif text-[clamp(2rem,5vw,3.6rem)] font-semibold leading-display tracking-[-0.02em] text-heritage-deep">

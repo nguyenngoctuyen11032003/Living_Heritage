@@ -1,6 +1,6 @@
 // /trai-nghiem: the 3-minute storytelling walkthrough (B1/B18, NT01). Fully in memory: no API call, no upload;
 // progress lives in sessionStorage so a refresh keeps the visitor's place.
-import { ArrowLeft, Info, RotateCcw } from 'lucide-react';
+import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { Button, ButtonLink, Dialog } from '@/components/ui';
 import { useT } from '@/i18n';
@@ -89,21 +89,17 @@ export default function DemoPage() {
 
   return (
     <div className="bg-cream">
-      <div role="note" className="border-b border-[#e9cf8f] bg-[#fbecc8] text-[#5a3e0a]">
-        <div className="mx-auto flex max-w-5xl flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between md:px-8">
-          <p className="flex items-start gap-2 font-semibold">
-            <Info className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
-            {t('banner.text')}
-          </p>
+      <div role="note" className="border-b border-warning-line bg-warning-bg text-warning-fg">
+        <div className="mx-auto flex max-w-5xl flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-end sm:px-6 lg:px-8">
           <Button variant="secondary" className="shrink-0 self-start sm:self-auto" onClick={() => setResetOpen(true)} leftIcon={<RotateCcw className="size-4" aria-hidden="true" />}>
             {t('banner.reset')}
           </Button>
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-10 md:px-8 md:py-14">
+      <div className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-10 sm:px-6 md:py-14 lg:px-8">
         <header className="flex flex-col gap-3">
-          <p className="text-[0.78rem] font-bold uppercase tracking-[0.2em] text-terracotta">{t('header.kicker')}</p>
+          <p className="text-[0.8125rem] font-bold uppercase tracking-[0.2em] text-terracotta">{t('header.kicker')}</p>
           <h1 className="font-serif text-[2rem] font-semibold leading-[1.2] text-heritage-deep md:text-[2.8rem]">{t('header.title')}</h1>
           <p className="max-w-2xl leading-relaxed text-ink-soft">{t('header.lede')}</p>
         </header>
